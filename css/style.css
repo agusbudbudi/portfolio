@@ -11,14 +11,16 @@
   --border: #e2e8f0;
   --shadow: rgba(0, 0, 0, 0.1);
   --shadow-hover: rgba(0, 0, 0, 0.15);
-  --badge-color: #d2f9e1;
-  --badge-border: #528d63;
+  /* --badge-color: #d2f9e1;
+  --badge-border: #528d63; */
+  --badge-color: #e0f3ff; /* biru muda lembut, tone dari #2590ff */
+  --badge-border: #2590ff; /* pakai brand accent utama */
 }
 
 [data-theme="dark"] {
   --bg-primary: #1a202c;
   --bg-secondary: #2d3748;
-  --bg-card: #2d3748;
+  --bg-card: #202733;
   --text-primary: #ffffff;
   --text-secondary: #e2e8f0;
   --text-muted: #a0aec0;
@@ -28,8 +30,10 @@
   --border: #4a5568;
   --shadow: rgba(0, 0, 0, 0.3);
   --shadow-hover: rgba(0, 0, 0, 0.4);
-  --badge-color: #064e3b;
-  --badge-border: #a7f3d0;
+  /* --badge-color: #064e3b;
+  --badge-border: #a7f3d0; */
+  --badge-color: #0a4a80; /* biru gelap, tetap senada */
+  --badge-border: #90f6ff; /* pakai accent-hover agar pop di dark mode */
 }
 
 .hidden {
@@ -69,6 +73,7 @@ header {
   z-index: 1000;
   border-bottom: 1px solid var(--border);
   transition: background-color 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 20px rgba(0, 0, 0, 0.05);
 }
 
 nav {
@@ -210,7 +215,7 @@ nav {
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 2rem;
+  gap: 3rem;
   width: 100%;
 }
 
@@ -231,7 +236,7 @@ nav {
 
 .hero-badge {
   display: inline-block;
-  padding: 8px 20px;
+  padding: 8px 14px;
   border-radius: 50px;
   font-size: 0.85rem;
   margin-bottom: 3rem;
@@ -248,9 +253,7 @@ nav {
   font-weight: 500;
   margin-bottom: 0.5rem;
   backdrop-filter: blur(10px);
-  border: 1px solid var(--border);
-  background-color: var(--bg-primary);
-  /* color: var(--accent); */
+  background-color: var(--badge-color);
 }
 
 /* Banner CTA */
@@ -310,7 +313,7 @@ nav {
 .social-links {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 2rem;
+  margin: 2rem 0;
 }
 
 .social-links a {
@@ -358,8 +361,8 @@ nav {
   width: 300px;
   height: 200px;
   background: var(--bg-card);
-  border: 2px solid var(--accent);
-  border-radius: 12px;
+  border: 2px solid var(--badge-color);
+  border-radius: 20px;
   position: relative;
   display: flex;
   align-items: center;
@@ -410,16 +413,26 @@ nav {
 
 /* Section Styles */
 .section {
-  padding: 30px 0;
+  padding-bottom: 30px;
   background: var(--bg-primary);
+}
+
+.section-title-container {
+  padding: 1rem 1rem 2rem 1rem;
 }
 
 .section-title {
   font-size: 2.5rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 1rem;
   text-align: left;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  text-align: left;
+  padding-top: 10px;
 }
 
 /* About Section */
@@ -429,7 +442,7 @@ nav {
   gap: 1rem;
   align-items: center;
   background-color: var(--bg-secondary);
-  padding: 20px 10px;
+  padding: 30px 10px;
   border-radius: 20px;
 }
 
@@ -439,10 +452,11 @@ nav {
 }
 
 .profile-image {
-  width: 80%;
-  height: 100%;
+  width: 100px;
+  height: 100px;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 100%;
+  border: 10px solid var(--badge-color);
 }
 
 .profile-name {
@@ -463,7 +477,7 @@ nav {
 /* Experience Section */
 .experience-item {
   border-bottom: 1px solid var(--border);
-  padding: 2rem 0;
+  padding: 1rem;
   display: grid;
   grid-template-columns: 150px 200px 1fr;
   gap: 2rem;
@@ -657,7 +671,7 @@ nav {
 }
 
 .tools-logo {
-  max-width: 90px;
+  max-width: 80px;
   height: 22px;
   object-fit: contain;
   border-radius: 3px;
@@ -720,7 +734,7 @@ nav {
 }
 
 .read-more-btn:hover {
-  color: var(--accent-hover);
+  color: var(--accent);
 }
 
 /* Article & News Section */
@@ -738,12 +752,13 @@ nav {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
-  max-width: 600px;
+  max-width: 800px;
 }
 
 .contact-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
   padding: 1rem;
   background: var(--bg-card);
@@ -759,6 +774,26 @@ nav {
   background: var(--accent);
   color: white;
   transform: translateY(-2px);
+}
+
+.contact-item:hover .contact-right {
+  color: white;
+}
+
+.contact-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.contact-right {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  color: var(--accent);
+  width: 40px;
+  height: 40px;
+  justify-content: center;
 }
 
 .contact-icon {
@@ -807,11 +842,11 @@ footer {
   .hero-content {
     grid-template-columns: 1fr;
     text-align: center;
-    padding-top: 4rem;
+    padding-top: 3rem;
   }
 
   .hero-text h1 {
-    font-size: 3rem;
+    font-size: 2rem;
   }
 
   .about-content {
@@ -860,7 +895,7 @@ footer {
   }
 
   .hero-text h1 {
-    font-size: 3rem;
+    font-size: 2rem;
   }
 
   .hero-text .subtitle {
@@ -885,6 +920,10 @@ footer {
   .skill-item {
     font-size: 0.75rem;
     letter-spacing: 0.3px;
+  }
+
+  .tools-logo {
+    max-width: 60px;
   }
 }
 
