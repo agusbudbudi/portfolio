@@ -117,3 +117,4 @@ function makeOpenInNewTab(elementId, url) {
 // Contoh penggunaan
 makeOpenInNewTab("toTestGen", "https://agusbudbudi.github.io/TestGen/");
 makeOpenInNewTab("toSplitBill", "https://splitbill-alpha.vercel.app/");
+makeOpenInNewTab("toPortfolioQa", "https://agusbudbudi.github.io/portfolio/");

@@ -15,6 +15,9 @@
   --badge-border: #528d63; */
   --badge-color: #e0f3ff; /* biru muda lembut, tone dari #2590ff */
   --badge-border: #2590ff; /* pakai brand accent utama */
+
+  --header-bg: rgba(255, 255, 255, 0.6);
+  --header-border: rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="dark"] {
@@ -34,6 +37,9 @@
   --badge-border: #a7f3d0; */
   --badge-color: #0a4a80; /* biru gelap, tetap senada */
   --badge-border: #90f6ff; /* pakai accent-hover agar pop di dark mode */
+
+  --header-bg: rgba(18, 18, 18, 0.6);
+  --header-border: rgba(255, 255, 255, 0.1);
 }
 
 .hidden {
@@ -63,24 +69,32 @@ p {
   padding: 10px 10px;
 }
 
+.container .article-section {
+  margin-left: -20px;
+  margin-right: -20px;
+  padding: 0 20px;
+}
+
 /* Header & Navigation */
 header {
   position: fixed;
   top: 0;
   width: 100%;
-  background: var(--bg-primary);
-  backdrop-filter: blur(20px);
+  background: var(--header-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   z-index: 1000;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--header-border);
   transition: background-color 0.2s ease, border-color 0.2s ease;
   box-shadow: 0 1px 20px rgba(0, 0, 0, 0.05);
+  padding: 0 1rem;
 }
 
 nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.2rem 0;
+  padding: 1.2rem 2rem;
 }
 
 .logo {
@@ -247,11 +261,10 @@ nav {
 
 .skill-chip {
   display: inline-block;
-  padding: 3px 14px;
+  padding: 3px 10px;
   border-radius: 50px;
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   font-weight: 500;
-  margin-bottom: 0.5rem;
   backdrop-filter: blur(10px);
   background-color: var(--badge-color);
 }
@@ -284,11 +297,17 @@ nav {
 }
 
 .cta-buttons a {
-  padding: 0.75rem 1.5rem;
+  padding: 0.8rem 1.2rem;
   border-radius: 14px;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.3s ease;
+  display: inline-block;
+  /* transition: transform 0.2s ease, box-shadow 0.2s ease; */
+  cursor: pointer;
+  white-space: nowrap;
+  word-break: keep-all;
+  transition: all 0.3s ease-in-out;
 }
 
 .btn-linkedin {
@@ -457,6 +476,7 @@ nav {
   object-fit: cover;
   border-radius: 100%;
   border: 10px solid var(--badge-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .profile-name {
@@ -621,6 +641,9 @@ nav {
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 0.25rem;
+  align-items: center;
+  display: flex;
+  gap: 10px;
 }
 
 .formation-info p {
@@ -823,7 +846,7 @@ nav {
 }
 
 /* Footer */
-footer {
+/* footer {
   background: var(--bg-secondary);
   border-top: 1px solid var(--border);
   text-align: center;
@@ -831,6 +854,33 @@ footer {
   color: var(--text-muted);
   font-size: 0.9rem;
   margin-top: 20px;
+} */
+
+footer {
+  position: relative;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--text-muted);
+
+  margin-top: 20px;
+  z-index: 1000;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+footer p {
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  font-size: 0.8rem;
+}
+
+footer span {
+  color: var(--accent);
+  font-weight: 600;
 }
 
 /* Responsive */
