@@ -118,3 +118,65 @@ function makeOpenInNewTab(elementId, url) {
 makeOpenInNewTab("toTestGen", "https://agusbudbudi.github.io/TestGen/");
 makeOpenInNewTab("toSplitBill", "https://splitbill-alpha.vercel.app/");
 makeOpenInNewTab("toPortfolioQa", "https://agusbudbudi.github.io/portfolio/");
+
+// Article Slider Navigation
+document.addEventListener("DOMContentLoaded", () => {
+  const articleSlider = document.getElementById("articleSlider");
+  const prevBtn = document.getElementById("articlePrevBtn");
+  const nextBtn = document.getElementById("articleNextBtn");
+
+  if (articleSlider && prevBtn && nextBtn) {
+    const posts = articleSlider.querySelectorAll(".linkedin-post");
+    let currentIndex = 0;
+
+    // Calculate scroll amount (width of one post + gap)
+    function getScrollAmount() {
+      if (posts.length > 0) {
+        const postWidth = posts[0].offsetWidth;
+        const gap = 16; // 1.5rem = 24px
+        return postWidth + gap;
+      }
+      return 0;
+    }
+
+    // Update button states
+    function updateButtonStates() {
+      const maxScroll = articleSlider.scrollWidth - articleSlider.clientWidth;
+      const currentScroll = articleSlider.scrollLeft;
+
+      prevBtn.style.opacity = currentScroll <= 0 ? "0.5" : "1";
+      nextBtn.style.opacity = currentScroll >= maxScroll - 1 ? "0.5" : "1";
+
+      prevBtn.style.pointerEvents = currentScroll <= 0 ? "none" : "auto";
+      nextBtn.style.pointerEvents =
+        currentScroll >= maxScroll - 1 ? "none" : "auto";
+    }
+
+    // Scroll to previous post
+    prevBtn.addEventListener("click", () => {
+      const scrollAmount = getScrollAmount();
+      articleSlider.scrollBy({
+        left: -scrollAmount,
+        behavior: "smooth",
+      });
+    });
+
+    // Scroll to next post
+    nextBtn.addEventListener("click", () => {
+      const scrollAmount = getScrollAmount();
+      articleSlider.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
+    });
+
+    // Update button states on scroll
+    articleSlider.addEventListener("scroll", updateButtonStates);
+
+    // Update button states on window resize
+    window.addEventListener("resize", updateButtonStates);
+
+    // Initial button state update
+    updateButtonStates();
+  }
+});
