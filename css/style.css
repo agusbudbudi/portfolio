@@ -915,8 +915,12 @@ footer p {
   font-size: 0.8rem;
 }
 
-footer span {
+footer span,
+.logo span {
   color: var(--accent);
+}
+
+footer span {
   font-weight: 600;
 }
 
