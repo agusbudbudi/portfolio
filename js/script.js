@@ -119,15 +119,14 @@ makeOpenInNewTab("toTestGen", "https://agusbudbudi.github.io/TestGen/");
 makeOpenInNewTab("toSplitBill", "https://splitbill-alpha.vercel.app/");
 makeOpenInNewTab("toPortfolioQa", "https://agusbudbudi.github.io/portfolio/");
 
-// Article Slider Navigation
-document.addEventListener("DOMContentLoaded", () => {
-  const articleSlider = document.getElementById("articleSlider");
-  const prevBtn = document.getElementById("articlePrevBtn");
-  const nextBtn = document.getElementById("articleNextBtn");
+// Generic Slider Navigation Function
+function initializeSlider(sliderId, prevBtnId, nextBtnId) {
+  const slider = document.getElementById(sliderId);
+  const prevBtn = document.getElementById(prevBtnId);
+  const nextBtn = document.getElementById(nextBtnId);
 
-  if (articleSlider && prevBtn && nextBtn) {
-    const posts = articleSlider.querySelectorAll(".linkedin-post");
-    let currentIndex = 0;
+  if (slider && prevBtn && nextBtn) {
+    const posts = slider.querySelectorAll(".linkedin-post");
 
     // Calculate scroll amount (width of one post + gap)
     function getScrollAmount() {
@@ -141,8 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Update button states
     function updateButtonStates() {
-      const maxScroll = articleSlider.scrollWidth - articleSlider.clientWidth;
-      const currentScroll = articleSlider.scrollLeft;
+      const maxScroll = slider.scrollWidth - slider.clientWidth;
+      const currentScroll = slider.scrollLeft;
 
       prevBtn.style.opacity = currentScroll <= 0 ? "0.5" : "1";
       nextBtn.style.opacity = currentScroll >= maxScroll - 1 ? "0.5" : "1";
@@ -155,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Scroll to previous post
     prevBtn.addEventListener("click", () => {
       const scrollAmount = getScrollAmount();
-      articleSlider.scrollBy({
+      slider.scrollBy({
         left: -scrollAmount,
         behavior: "smooth",
       });
@@ -164,14 +163,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Scroll to next post
     nextBtn.addEventListener("click", () => {
       const scrollAmount = getScrollAmount();
-      articleSlider.scrollBy({
+      slider.scrollBy({
         left: scrollAmount,
         behavior: "smooth",
       });
     });
 
     // Update button states on scroll
-    articleSlider.addEventListener("scroll", updateButtonStates);
+    slider.addEventListener("scroll", updateButtonStates);
 
     // Update button states on window resize
     window.addEventListener("resize", updateButtonStates);
@@ -179,4 +178,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initial button state update
     updateButtonStates();
   }
+}
+
+// Initialize both sliders
+document.addEventListener("DOMContentLoaded", () => {
+  // Initialize Deliverables Slider
+  initializeSlider(
+    "deliverablesSlider",
+    "deliverablesPrevBtn",
+    "deliverablesNextBtn"
+  );
+
+  // Initialize Article Slider
+  initializeSlider("articleSlider", "articlePrevBtn", "articleNextBtn");
 });
