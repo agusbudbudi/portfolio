@@ -570,6 +570,24 @@ nav {
     background-color 0.2s ease, border-color 0.2s ease;
 }
 
+.banner-container {
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* background: var(--bg-card); */
+  /* border: 1px solid var(--border); */
+  border-radius: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.banner-container .formation-item {
+  border: 1px solid var(--border);
+  border-radius: 0 0 19px 19px;
+  height: max-content;
+}
+
 .formation-item,
 .formation-bottom {
   display: flex;
@@ -694,6 +712,14 @@ nav {
   border-radius: 3px;
 }
 
+/* Deliverables Section */
+.deliverables-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 19px 19px 0 0;
+}
+
 .endorsement-profile {
   width: 50px;
   height: 50px;
@@ -778,6 +804,7 @@ nav {
   flex-shrink: 0;
   scroll-snap-align: start;
   padding-left: 10px;
+  max-width: 450px;
 }
 
 /* Navigation Buttons */
@@ -1031,6 +1058,10 @@ footer span {
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
+  }
+
+  .linkedin-post {
+    max-width: 380px;
   }
 }
 
