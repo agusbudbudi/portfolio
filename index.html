@@ -1029,7 +1029,10 @@
             </div>
           </div>
 
-          <div class="formation-container" id="toAllureReport">
+          <div
+            class="formation-container"
+            onclick="openPopup('Allure + Google Chat Report', 'content-profile')"
+          >
             <img
               src="img/banner/allure-banner.png"
               alt="Allure Report"
@@ -1596,6 +1599,104 @@
         </p>
       </div>
     </footer>
+
+    <!-- Overlay and Popup -->
+    <div id="overlay" class="overlay">
+      <div class="popup">
+        <div class="popup-header">
+          <span id="popup-title">Popup Title</span>
+          <button class="popup-close" onclick="closePopup()">
+            <i class="uil uil-times"></i>
+          </button>
+        </div>
+        <div id="popup-body" class="popup-body"></div>
+      </div>
+    </div>
+
+    <div id="content-profile" class="popup-content">
+      <img
+        src="img/banner/allure-banner.png"
+        alt="Google Chat"
+        class="project-detail-img"
+      />
+      <div class="project-detail">
+        <h2>Allure Report & Google Chat Integration</h2>
+        <div class="project-summary">
+          <h3>Summary</h3>
+          <p>
+            By integrating Allure Report with Google Chat, I streamlined the
+            testing feedback loop. Test results are automatically shared in
+            real-time, ensuring faster visibility, quicker decision-making, and
+            seamless collaboration across QA, developers, and stakeholders.
+          </p>
+        </div>
+        <div class="project-highlights">
+          <h3>Highlights</h3>
+          <ul>
+            <li>
+              Real-time test result sharing directly into team communication
+              channel.
+            </li>
+            <li>
+              Improved transparency between QA, developers, and product owners.
+            </li>
+            <li>Reduced delay in bug detection and resolution cycle.</li>
+            <li>
+              Increased team efficiency through automated reporting workflow.
+            </li>
+          </ul>
+        </div>
+
+        <div class="project-achievements">
+          <h3>Key Achievements</h3>
+          <ul>
+            <li>
+              Successfully automated the entire reporting pipeline with Allure &
+              Google Chat API.
+            </li>
+            <li>Cut down manual reporting time by 80%.</li>
+            <li>
+              Enabled instant visibility for over 100+ test executions per
+              cycle.
+            </li>
+            <li>
+              Boosted overall collaboration and reduced release bottlenecks.
+            </li>
+          </ul>
+        </div>
+
+        <div class="project-techstack">
+          <h3>Tech Stack</h3>
+          <div class="formation-tools">
+            <img
+              src="img/tools/cypress-logo.svg"
+              alt="Cypress"
+              class="tools-logo"
+            />
+            <img
+              src="img/tools/allure-logo.png"
+              alt="Allure Report"
+              class="tools-logo"
+            />
+            <img
+              src="img/tools/google-chat-logo.webp"
+              alt="Google Chat"
+              class="tools-logo"
+            />
+            <img
+              src="img/tools/javascript-logo.png"
+              alt="JavaScript"
+              class="tools-logo"
+            />
+            <img
+              src="img/tools/webhooks-logo.png"
+              alt="Webhooks"
+              class="tools-logo"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="js/script.js"></script>
   </body>

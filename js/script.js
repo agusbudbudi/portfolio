@@ -192,3 +192,30 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize Article Slider
   initializeSlider("articleSlider", "articlePrevBtn", "articleNextBtn");
 });
+
+//Function for Open Popup, Close popup, and show overlay
+function showOverlay(show = true) {
+  document.getElementById("overlay").style.display = show ? "flex" : "none";
+}
+
+function openPopup(title, contentId) {
+  document.getElementById("popup-title").innerText = title;
+  const content = document.getElementById(contentId).innerHTML;
+  document.getElementById("popup-body").innerHTML = content;
+
+  const overlay = document.getElementById("overlay");
+  overlay.style.display = "flex";
+
+  setTimeout(() => {
+    document.querySelector(".popup").classList.add("show");
+  }, 10); // delay dikit biar transition jalan
+}
+
+function closePopup() {
+  const popup = document.querySelector(".popup");
+  popup.classList.remove("show");
+
+  setTimeout(() => {
+    document.getElementById("overlay").style.display = "none";
+  }, 300);
+}
