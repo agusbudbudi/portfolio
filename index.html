@@ -113,9 +113,7 @@
               <a href="mailto:agus.buddiman@gmail.com">
                 <i class="uil uil-envelope"></i>
               </a>
-              <a href="https://wa.me/6285559496968" target="_blank">
-                <i class="uil uil-whatsapp"></i>
-              </a>
+
               <a
                 href="assets/CV_Agus_Budiman_QA_Engineer.pdf"
                 class="download-resume-btn"
@@ -1235,7 +1233,12 @@
                     />
                   </div>
                   <div class="formation-info">
-                    <h4>Ajuna Kaliantiga</h4>
+                    <h4>
+                      Ajuna Kaliantiga<i
+                        class="uil uil-linkedin linkedin-icon"
+                        onclick="window.open('https://www.linkedin.com/in/ajuna-kaliantiga/')"
+                      ></i>
+                    </h4>
                     <p>Ajuna managed Agus directly</p>
                   </div>
                 </div>
@@ -1306,7 +1309,12 @@
                     />
                   </div>
                   <div class="formation-info">
-                    <h4>Devi Alfiani</h4>
+                    <h4>
+                      Devi Alfiani<i
+                        class="uil uil-linkedin linkedin-icon"
+                        onclick="window.open('https://www.linkedin.com/in/devialfiani/')"
+                      ></i>
+                    </h4>
                     <p>Devi managed Agus directly</p>
                   </div>
                 </div>
@@ -1360,7 +1368,12 @@
                     />
                   </div>
                   <div class="formation-info">
-                    <h4>Ainun Fata Umarella</h4>
+                    <h4>
+                      Ainun Fata Umarella<i
+                        class="uil uil-linkedin linkedin-icon"
+                        onclick="window.open('https://www.linkedin.com/in/ainun-umarella/')"
+                      ></i>
+                    </h4>
                     <p>Ainun managed Agus directly</p>
                   </div>
                 </div>
@@ -1403,7 +1416,12 @@
                     />
                   </div>
                   <div class="formation-info">
-                    <h4>Rizky Ayu Riani Putri</h4>
+                    <h4>
+                      Rizky Ayu Riani Putri<i
+                        class="uil uil-linkedin linkedin-icon"
+                        onclick="window.open('https://www.linkedin.com/in/rizkyarputri/')"
+                      ></i>
+                    </h4>
                     <p>
                       Rizky was senior to Agus but didn't manage Agus directly
                     </p>
@@ -1450,61 +1468,164 @@
         <div class="section-title-container">
           <h2 class="section-title">Article & News.</h2>
           <p class="section-subtitle">Explore my latest articles and updates</p>
+
+          <div class="tab-container">
+            <div class="tab">
+              <button
+                class="tablinks"
+                onclick="openTab(event, 'articleAndNews')"
+              >
+                Article & News
+              </button>
+            </div>
+            <div class="tab">
+              <button
+                class="tablinks"
+                onclick="openTab(event, 'certification')"
+              >
+                Certification
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="article-container">
-          <div class="article-section" id="articleSlider">
-            <section class="linkedin-post">
-              <iframe
-                src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7336724236037697536?collapsed=1"
-                height="576"
-                width="350"
-                frameborder="0"
-                allowfullscreen=""
-                title="Embedded post"
-              ></iframe>
-            </section>
-            <section class="linkedin-post">
-              <iframe
-                src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7294251981936726016?collapsed=1"
-                height="576"
-                width="360"
-                frameborder="0"
-                allowfullscreen=""
-                title="Embedded post"
-              ></iframe>
-            </section>
+        <!-- Tab Content -->
+        <div id="articleAndNews" class="tab-content">
+          <div class="article-container">
+            <div class="article-section" id="articleSlider">
+              <section class="linkedin-post">
+                <iframe
+                  src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7336724236037697536?collapsed=1"
+                  height="576"
+                  width="350"
+                  frameborder="0"
+                  allowfullscreen=""
+                  title="Embedded post"
+                ></iframe>
+              </section>
+              <section class="linkedin-post">
+                <iframe
+                  src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7294251981936726016?collapsed=1"
+                  height="576"
+                  width="360"
+                  frameborder="0"
+                  allowfullscreen=""
+                  title="Embedded post"
+                ></iframe>
+              </section>
 
-            <section class="linkedin-post">
-              <iframe
-                src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7217519723851264000?collapsed=1"
-                height="576"
-                width="360"
-                frameborder="0"
-                allowfullscreen=""
-                title="Embedded post"
-              ></iframe>
-            </section>
+              <section class="linkedin-post">
+                <iframe
+                  src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7217519723851264000?collapsed=1"
+                  height="576"
+                  width="360"
+                  frameborder="0"
+                  allowfullscreen=""
+                  title="Embedded post"
+                ></iframe>
+              </section>
 
-            <section class="linkedin-post">
-              <iframe
-                src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7164224248079736832?collapsed=1"
-                height="576"
-                width="360"
-                frameborder="0"
-                allowfullscreen=""
-                title="Embedded post"
-              ></iframe>
-            </section>
+              <section class="linkedin-post">
+                <iframe
+                  src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7164224248079736832?collapsed=1"
+                  height="576"
+                  width="360"
+                  frameborder="0"
+                  allowfullscreen=""
+                  title="Embedded post"
+                ></iframe>
+              </section>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <button
+              class="article-nav-btn article-nav-left"
+              id="articlePrevBtn"
+            >
+              <i class="uil uil-angle-left"></i>
+            </button>
+            <button
+              class="article-nav-btn article-nav-right"
+              id="articleNextBtn"
+            >
+              <i class="uil uil-angle-right"></i>
+            </button>
           </div>
+        </div>
 
-          <!-- Navigation Buttons -->
-          <button class="article-nav-btn article-nav-left" id="articlePrevBtn">
-            <i class="uil uil-angle-left"></i>
-          </button>
-          <button class="article-nav-btn article-nav-right" id="articleNextBtn">
-            <i class="uil uil-angle-right"></i>
-          </button>
+        <div id="certification" class="tab-content">
+          <div class="certification-container">
+            <div class="formation-grid">
+              <div class="formation-container">
+                <div class="formation-top">
+                  <div class="formation-item">
+                    <div class="formation-left">
+                      <div class="certificate-img-container">
+                        <img
+                          src="img/certificattion/AWS Certified Cloud Practitioner certificate_page-0001.jpg"
+                          alt="AWS"
+                          class="certificate-img"
+                        />
+                      </div>
+                      <div class="formation-info">
+                        <div>
+                          <h4>AWS Certified Cloud Practitioner</h4>
+                          <p>Amazon Web Services (AWS) Cloud Practitioner</p>
+                        </div>
+
+                        <div class="formation-cta certificate">
+                          <button
+                            class="btn"
+                            onclick="window.open('https://cp.certmetrics.com/amazon/en/public/verify/credential/VDKWCRQKVEVEQD9M')"
+                          >
+                            View Certificate
+                            <i class="uil uil-arrow-up-right"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="formation-meta">
+                      <div class="skill-chip">2023</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="formation-container">
+                <div class="formation-top">
+                  <div class="formation-item">
+                    <div class="formation-left">
+                      <div class="certificate-img-container">
+                        <img
+                          src="img/certificattion/jmeter-certificate.jpeg"
+                          alt="Jmeter"
+                          class="certificate-img"
+                        />
+                      </div>
+                      <div class="formation-info">
+                        <div>
+                          <h4>JMeter: Performance and Load Testing</h4>
+                          <p>LinkedIn Learning Certificate of Completion</p>
+                        </div>
+                        <div class="formation-cta certificate">
+                          <button
+                            class="btn"
+                            onclick="window.open('https://www.linkedin.com/learning/certificates/aaca9870fa8b0115236241275efcc8ca54506f6cead966cbfee2bd3b1b4be7d5')"
+                          >
+                            View Certificate
+                            <i class="uil uil-arrow-up-right"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="formation-meta">
+                      <div class="skill-chip">2025</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
