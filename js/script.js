@@ -219,3 +219,31 @@ function closePopup() {
     document.getElementById("overlay").style.display = "none";
   }, 300);
 }
+
+// Tab switching function
+function openTab(evt, tabName) {
+  // Hide all tab content
+  const tabContent = document.getElementsByClassName("tab-content");
+  for (let i = 0; i < tabContent.length; i++) {
+    tabContent[i].style.display = "none";
+  }
+
+  // Remove active class from all tab buttons
+  const tablinks = document.getElementsByClassName("tablinks");
+  for (let i = 0; i < tablinks.length; i++) {
+    tablinks[i].classList.remove("active");
+  }
+
+  // Show the selected tab content and mark button as active
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.classList.add("active");
+}
+
+// Initialize tabs on page load
+document.addEventListener("DOMContentLoaded", () => {
+  // Set the first tab as active by default
+  const firstTab = document.querySelector(".tablinks");
+  if (firstTab) {
+    firstTab.click();
+  }
+});

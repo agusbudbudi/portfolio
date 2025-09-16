@@ -649,6 +649,12 @@ nav {
   background: #1abc9c;
 }
 
+.formation-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .formation-info h4 {
   font-weight: 600;
   color: var(--text-primary);
@@ -700,6 +706,7 @@ nav {
   white-space: nowrap; /* ⬅️ Supaya teks tidak terpotong ke baris baru */
   word-break: keep-all; /* ⬅️ Hindari pemotongan kata */
   transition: all 0.3s ease-in-out;
+  font-family: "Montserrat", sans-serif;
 }
 .btn:hover {
   background-color: var(--bg-secondary);
@@ -746,6 +753,11 @@ nav {
   width: 80px;
   max-height: 50px;
   object-fit: contain;
+}
+
+.linkedin-icon {
+  color: #0b66c2;
+  cursor: pointer;
 }
 
 /* Endorsement Description Styles */
@@ -841,6 +853,77 @@ nav {
 
 .article-nav-right {
   right: -30px;
+}
+
+.tab-container {
+  display: flex;
+  gap: 1rem;
+  padding-top: 20px;
+}
+
+.tablinks {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease,
+    border-color 0.3s ease;
+
+  font-size: 16px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.tablinks:hover {
+  background: var(--bg-secondary);
+  transform: translateY(-2px);
+}
+
+.tablinks.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  font-weight: 500;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.certification-container {
+  padding: 0;
+}
+
+.certificate-img-container {
+  width: 40%;
+}
+
+.certificate-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.certificate {
+  padding-top: 1rem;
 }
 
 /* Contact Section */
