@@ -263,6 +263,16 @@ nav {
   background-color: var(--badge-color);
 }
 
+.year-chip {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  background-color: var(--badge-color);
+}
+
 /* Banner CTA */
 .banner-cta {
   text-align: center;
@@ -594,6 +604,7 @@ nav {
   justify-content: space-between;
   padding: 1.5rem;
   max-width: 100%;
+  gap: 5px;
 }
 
 .formation-bottom {
@@ -660,8 +671,8 @@ nav {
   color: var(--text-primary);
   margin-bottom: 0.25rem;
   align-items: center;
-  display: flex;
-  gap: 10px;
+  /* display: flex; */
+  gap: 5px;
 }
 
 .formation-info p {
@@ -750,7 +761,7 @@ nav {
 }
 
 .endorsement-logo {
-  width: 80px;
+  width: 60px;
   max-height: 50px;
   object-fit: contain;
 }
@@ -758,6 +769,7 @@ nav {
 .linkedin-icon {
   color: #0b66c2;
   cursor: pointer;
+  padding-left: 5px;
 }
 
 /* Endorsement Description Styles */
@@ -907,8 +919,16 @@ nav {
   }
 }
 
-.certification-container {
-  padding: 0;
+.certification-container .formation-container {
+  border-radius: 12px;
+}
+
+.certificate-item {
+  padding: 14px;
+}
+
+.certificate-info {
+  padding-right: 10px;
 }
 
 .certificate-img-container {
@@ -922,8 +942,10 @@ nav {
   border-radius: 5px;
 }
 
-.certificate {
-  padding-top: 1rem;
+.certificate .btn {
+  /* padding-top: 1rem; */
+  border-radius: 50%;
+  padding: 8px 10px;
 }
 
 /* Contact Section */
