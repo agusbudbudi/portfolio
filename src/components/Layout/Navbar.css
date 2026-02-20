@@ -1,0 +1,232 @@
+header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 70px; /* Fixed height for better control */
+  background: var(--header-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  z-index: 1000;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  padding: 0; /* Remove horizontal padding from header, use nav container */
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 2rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  /* gap: 12px; */
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -1px;
+  text-decoration: none;
+}
+
+.logo-container {
+  position: relative;
+  width: 38px; /* Match logo-img width */
+  height: 38px; /* Match logo-img height */
+  margin-right: 12px;
+}
+
+.logo-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: contain;
+  border: 2px solid var(--badge-color);
+  transition: all 0.3s ease;
+  padding: 2px;
+}
+
+[data-theme='dark'] .logo-img {
+  background: #ffffff;
+}
+
+.nav-status-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #10b981; /* Success green */
+  border-radius: 50%;
+  bottom: 1px;
+  right: 1px;
+  border: 2px solid var(--bg-card);
+  z-index: 2;
+}
+
+
+.logo span {
+  color: var(--accent);
+}
+
+.nav-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.nav-center {
+  display: flex;
+  list-style: none;
+  gap: 2.5rem;
+}
+
+.nav-center a {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+  position: relative;
+  padding: 10px 0; /* Vertical safe area */
+}
+
+.nav-center a:hover,
+.nav-center a.active {
+  color: var(--accent);
+}
+
+.nav-center a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 4px;
+  bottom: -15px; /* Precisely calculated to be flush with border-bottom */
+  left: 0;
+  background: var(--accent);
+  transition: width 0.3s ease;
+  border-radius: 10px 10px 0 0;
+}
+
+.nav-center a:hover::after,
+.nav-center a.active::after {
+  width: 100%;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 10px 15px -3px var(--shadow);
+}
+
+.theme-toggle-btn svg {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle-btn:active svg {
+  transform: scale(0.8);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 5px;
+  z-index: 2001;
+  transition: transform 0.3s ease;
+}
+
+.nav-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1001;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+@media (max-width: 992px) {
+  nav {
+    padding: 0 1.5rem;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-center {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background: var(--bg-card);
+    flex-direction: column;
+    padding: 80px 2rem 2rem;
+    gap: 1.5rem;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2000;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+    border-left: 1px solid var(--border);
+  }
+
+  .nav-center.mobile-active {
+    right: 0;
+  }
+
+  .nav-overlay.active {
+    display: block;
+    opacity: 1;
+  }
+
+  .nav-center a {
+    font-size: 1.2rem;
+    width: 100%;
+    padding: 12px 0;
+  }
+
+  .nav-center a::after {
+    bottom: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-center {
+    width: 100%;
+  }
+  
+  .logo {
+    font-size: 1.3rem;
+  }
+}

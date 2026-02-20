@@ -1,0 +1,159 @@
+.featured-endorsements {
+  padding-bottom: 2rem;
+}
+
+.featured-endorsements .endorsement-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.featured-endorsements .endorsement-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.featured-endorsements .endorsement-card:hover {
+  box-shadow: 0 8px 30px var(--shadow);
+  border-color: var(--accent);
+}
+
+.featured-endorsements .endorsement-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.featured-endorsements .endorsement-profile-wrapper {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.featured-endorsements .endorsement-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 4px 10px var(--shadow);
+}
+
+.featured-endorsements .endorsement-company-badge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 24px;
+  height: 24px;
+  background-color: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px var(--shadow);
+  object-fit: cover;
+  overflow: hidden;
+}
+
+.featured-endorsements .endorsement-company-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.featured-endorsements .endorsement-author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.featured-endorsements .author-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.featured-endorsements .author-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.featured-endorsements .linkedin-link {
+  color: #0077b5;
+  transition: opacity 0.2s;
+}
+
+.featured-endorsements .linkedin-link:hover {
+  opacity: 0.7;
+}
+
+.featured-endorsements .author-relation {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.featured-endorsements .endorsement-content-wrapper {
+  position: relative;
+}
+
+.featured-endorsements .endorsement-text {
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+/* Default state for text visibility */
+.featured-endorsements .endorsement-text p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-style: italic;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-line;
+}
+
+.featured-endorsements .endorsement-text.is-expanded p {
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+
+.featured-endorsements .read-more-btn {
+  margin-top: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.featured-endorsements .read-more-btn:hover {
+  opacity: 0.7;
+}
+
+@media (max-width: 992px) {
+  .featured-endorsements .endorsement-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .featured-endorsements {
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+  }
+}

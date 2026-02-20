@@ -1,0 +1,73 @@
+[
+  {
+    "company": "Diri Care",
+    "logo": "/img/company/diricare-logo.png",
+    "role": "QA Engineer I",
+    "period": "Feb 2023 - Present",
+    "responsibilities": [
+      "Led QA for Web and Mobile Web, ensuring 100% sprint QA completion in Agile/SCRUM sprints",
+      "Achieved ~89% web test coverage with ~95% pass rate",
+      "Reduced sanity test cycle from ~3 hours to ~30 mins (improved efficiency by ~83%)",
+      "Improved productivity by ~25% using AI-assisted workflows",
+      "Designed, built, and maintained a Cypress-based Web Automation Framework with Allure Reports, enabling weekly sanity testing and CI/CD integration",
+      "Conducted requirement analysis during grooming sessions to develop comprehensive test plans and structured test cases for regression, functional, and end-to-end testing"
+    ],
+    "employmentType": "Full-time",
+    "locationType": "Hybrid",
+    "location": "Jakarta Barat, Indonesia"
+  },
+  {
+    "company": "Pegipegi",
+    "logo": "/img/company/pegipegi-logo.png",
+    "role": "Software QA",
+    "period": "Sept 2022 - Jan 2023",
+    "responsibilities": [
+      "Delivered high-quality releases for Web and Mobile platforms, ensuring alignment with business requirements",
+      "Improved defect detection rate by 15% through enhanced QA integration into SDLC via Agile ceremonies",
+      "Mentored and onboarded new QA team members, accelerating their contributions to the team",
+      "Designed and maintained detailed test plans and test cases based on PRDs",
+      "Defined and implemented test strategies across Web, Mobile Web, and Mobile Apps, ensuring comprehensive test coverage",
+      "Performed functional, regression, smoke, and UI testing, identifying and resolving critical defects",
+      "Managed bug reporting and lifecycle, collaborating with developers to ensure timely resolution",
+      "Conducted test effort estimation, scope analysis, and reporting to support project planning and execution"
+    ],
+    "employmentType": "Full-time",
+    "locationType": "Hybrid",
+    "location": "Jakarta Barat, Indonesia"
+  },
+  {
+    "company": "Traveloka",
+    "logo": "/img/company/traveloka-logo.png",
+    "role": "QA Engineer",
+    "period": "Sept 2021 - Sept 2022",
+    "responsibilities": [
+      "Ensured consistent product reliability and compliance in the Financial Services domain",
+      "Enhanced automation coverage, leading to a reduction in defects",
+      "Partnered with Product Managers, Engineers, and other stakeholders to align QA with requirements",
+      "Designed, developed, and maintained test plans and suites via TestRail",
+      "Executed functional, regression, sanity, and smoke testing, ensuring comprehensive test coverage",
+      "Reported, tracked, and monitored defects in JIRA, facilitating effective defect management",
+      "Led end-to-end mobile application testing for Android & iOS, ensuring high-quality mobile experiences",
+      "Collaborated with SDETs to enhance automation coverage, improving testing efficiency"
+    ],
+    "employmentType": "Contract",
+    "locationType": "Hybrid",
+    "location": "Tangerang, Indonesia"
+  },
+  {
+    "company": "PT Mitratex Konsultan",
+    "logo": "/img/company/mitratex-logo.png",
+    "role": "Software QA",
+    "period": "Sept 2019 - Sept 2021",
+    "responsibilities": [
+      "Conducted end-to-end testing across Web, Mobile Web, and Mobile applications",
+      "Designed and executed test cases for feature, regression, and post-implementation testing",
+      "Led User Acceptance Testing (UAT) sessions and provided user training",
+      "Reported defects with clear reproduction steps and collaborated with developers for fixes",
+      "Delivered high-quality products for Insurance, Banking, and EduTech platforms"
+    ],
+    "employmentType": "Full-time",
+    "locationType": "Onsite",
+    "location": "Jakarta Selatan, Indonesia"
+  }
+]

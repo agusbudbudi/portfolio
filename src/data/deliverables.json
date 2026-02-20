@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Test Plan",
+    "description": "Outlining the testing strategy and scope to ensure complete coverage.",
+    "image": "/img/banner/testplan-banner.png"
+  },
+  {
+    "title": "Test Cases / Test Scenario",
+    "description": "From requirements to execution, precise cases to uncover defects early.",
+    "image": "/img/banner/testcases-banner.png"
+  },
+  {
+    "title": "Test Report",
+    "description": "From results to clarity, providing insights that enable smarter decision-making.",
+    "image": "/img/banner/testreport-banner.png"
+  }
+]

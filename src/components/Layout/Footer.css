@@ -1,0 +1,32 @@
+footer {
+  padding: 2rem 0;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+footer p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+footer .footer-passion {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Home Page specific footer styling */
+footer.footer-blue {
+  background: linear-gradient(135deg, #2590ff 0%, #0055ff 100%);
+  border-top: none;
+  color: white;
+}
+
+footer.footer-blue p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+footer.footer-blue .footer-passion {
+  color: #ffffff;
+}

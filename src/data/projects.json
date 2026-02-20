@@ -1,0 +1,67 @@
+[
+  {
+    "id": "toTestGen",
+    "title": "TestGen - AI Test Case Generator",
+    "type": "Professional",
+    "description": "An intelligent web app that helps you generate test cases with AI assistance.",
+    "image": "/img/banner/testgen-banner.png",
+    "icon": "uil-flask",
+    "link": "https://agusbudbudi.github.io/TestGen/",
+    "tools": [
+      { "name": "HTML", "src": "/img/tools/html-logo.png" },
+      { "name": "CSS", "src": "/img/tools/css-logo.png" },
+      { "name": "JavaScript", "src": "/img/tools/javascript-logo.png" },
+      { "name": "Github Pages", "src": "/img/tools/github-pages-logo.png" },
+      { "name": "Open AI", "src": "/img/tools/open-ai-logo.png" }
+    ]
+  },
+  {
+    "id": "toAllureReport",
+    "title": "Allure + Google Chat Report",
+    "type": "Professional",
+    "description": "Allure Reports + Google Chat = real-time test insights and smooth team collaboration.",
+    "image": "/img/banner/allure-banner.png",
+    "icon": "uil-graph-bar",
+    "link": "#",
+    "isPopup": true,
+    "tools": [
+      { "name": "Cypress", "src": "/img/tools/cypress-logo.svg" },
+      { "name": "Allure", "src": "/img/tools/allure-logo.png" },
+      { "name": "Google Chat", "src": "/img/tools/google-chat-logo.webp" },
+      { "name": "JavaScript", "src": "/img/tools/javascript-logo.png" },
+      { "name": "Webhooks", "src": "/img/tools/webhooks-logo.png" }
+    ]
+  },
+  {
+    "id": "toSplitBill",
+    "title": "Split Bill",
+    "type": "Personal",
+    "description": "A smart app for effortless bill splitting and financial management.",
+    "image": "/img/banner/splitbill-banner.png",
+    "icon": "uil-bill",
+    "link": "https://splitbill-alpha.vercel.app/",
+    "tools": [
+      { "name": "HTML", "src": "/img/tools/html-logo.png" },
+      { "name": "CSS", "src": "/img/tools/css-logo.png" },
+      { "name": "JavaScript", "src": "/img/tools/javascript-logo.png" },
+      { "name": "Vercel", "src": "/img/tools/vercel-logo.svg" },
+      { "name": "GitHub", "src": "/img/tools/github-logo.png" }
+    ]
+  },
+  {
+    "id": "toPortfolioQa",
+    "title": "QA Portfolio",
+    "type": "Personal",
+    "description": "Showcasing my journey as a QA Engineer manual & automation testing, tools mastery, and real-world project impact.",
+    "image": "/img/banner/portfolio-banner.png",
+    "icon": "uil-briefcase-alt",
+    "link": "https://agusbudbudi.github.io/portfolio/",
+    "tools": [
+      { "name": "HTML", "src": "/img/tools/html-logo.png" },
+      { "name": "CSS", "src": "/img/tools/css-logo.png" },
+      { "name": "JavaScript", "src": "/img/tools/javascript-logo.png" },
+      { "name": "Github Pages", "src": "/img/tools/github-pages-logo.png" },
+      { "name": "GitHub", "src": "/img/tools/github-logo.png" }
+    ]
+  }
+]

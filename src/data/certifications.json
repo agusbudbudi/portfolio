@@ -1,0 +1,30 @@
+[
+  {
+    "title": "AWS Certified Cloud Practitioner",
+    "issuer": "Amazon Web Services (AWS)",
+    "year": "2023",
+    "image": "/img/certificattion/AWS Certified Cloud Practitioner certificate_page-0001.jpg",
+    "verifyLink": "https://cp.certmetrics.com/amazon/en/public/verify/credential/VDKWCRQKVEVEQD9M"
+  },
+  {
+    "title": "JMeter: Performance and Load Testing",
+    "issuer": "LinkedIn Learning",
+    "year": "2025",
+    "image": "/img/certificattion/jmeter-certificate.jpeg",
+    "verifyLink": "https://www.linkedin.com/learning/certificates/aaca9870fa8b0115236241275efcc8ca54506f6cead966cbfee2bd3b1b4be7d5"
+  },
+  {
+    "title": "Dicoding: Belajar Dasar Visualisasi Data",
+    "issuer": "Dicoding Indonesia",
+    "year": "2021",
+    "image": "/img/certificattion/sertifikat_course_177_1093149_090521185302_page-0001.jpg",
+    "verifyLink": "https://www.dicoding.com/certificates/ERZR589ROPYV"
+  },
+  {
+    "title": "Dicoding: Belajar Dasar Pemrograman Web",
+    "issuer": "Dicoding Indonesia",
+    "year": "2020",
+    "image": "/img/certificattion/sertifikat_course_123_1093149_061020115745_page-0001.jpg",
+    "verifyLink": "https://www.dicoding.com/certificates/53XEEERLVXRN"
+  }
+]

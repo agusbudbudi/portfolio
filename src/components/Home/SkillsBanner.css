@@ -1,0 +1,33 @@
+.skills-banner {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.skills-scroll {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  animation: scroll 30s linear infinite;
+  width: max-content;
+}
+
+.skill-item {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}

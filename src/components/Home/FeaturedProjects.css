@@ -1,0 +1,22 @@
+.featured-projects {
+
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(37, 144, 255, 0.05) 100%);
+}
+
+[data-theme='dark'] .featured-projects {
+  background: linear-gradient(180deg, rgba(5, 5, 5, 0) 0%, rgba(37, 144, 255, 0.03) 100%);
+}
+
+.view-all-btn {
+  white-space: nowrap;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .view-all-btn {
+    width: 100%;
+    margin-bottom: 0;
+  }
+}
+

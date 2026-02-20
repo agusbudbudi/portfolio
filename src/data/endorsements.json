@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Ajuna Kaliantiga",
+    "role": "Manager",
+    "relation": "Ajuna managed Agus directly",
+    "company": "Pegipegi",
+    "logo": "/img/company/pegipegi-logo.png",
+    "image": "/img/profile/ajuna-profile.jpeg",
+    "linkedin": "https://www.linkedin.com/in/ajuna-kaliantiga/",
+    "content": "I would like to strongly endorse Agus for any role in the field of software quality assurance. During my time working with him, I had the privilege of observing his exceptional technical knowledge and meticulous attention to detail, which allowed him to identify and resolve critical quality issues with ease.\n\nAgus has a genuine passion for ensuring the delivery of high-quality software products and this is reflected in his unwavering commitment to his work. He has a thorough understanding of software testing methodologies and an ability to apply them effectively in real-world scenarios. He is also an excellent communicator and can articulate complex issues to non-technical stakeholders in a clear and concise manner.\n\nIn addition to his technical skills, Agus is a fantastic team player and always strives to create a collaborative working environment. He is proactive in seeking out opportunities to improve processes and is always willing to lend a hand to his colleagues. I am confident that he would make a significant contribution to any organization that he joins.\n\nIn conclusion, I believe that Agus would be an excellent fit for any software quality assurance role and would bring a high level of expertise, dedication, and professionalism to the position."
+  },
+  {
+    "name": "Devi Alfiani",
+    "role": "Manager",
+    "relation": "Devi managed Agus directly",
+    "company": "Traveloka",
+    "logo": "/img/company/traveloka-logo.png",
+    "image": "/img/profile/devi-profile.jpeg",
+    "linkedin": "https://www.linkedin.com/in/devialfiani/",
+    "content": "Agus is a passionate, discipline, and creative person. During his works, he always discipline to follow all the QA process and he able to maintain the consistency of his performance. His strong analysis skills displayed on the test cases and test plan he made. He also able to utilize the testing tools to improve his testing. He has good communication and able to deliver his message clearly. Task management also one of the best skills he has, he able to create neat timeline and also maintain it.\n\nBesides that, his creativity bring positive vibes to the team. He did a sharing session with good presentation and make it interesting. He also arranges a team bonding acitivity that boost the team mood. I believe Agus will be a great QA and good colleague wherever he is."
+  },
+  {
+    "name": "Ainun Fata Umarella",
+    "role": "Colleague",
+    "relation": "Ainun managed Agus directly",
+    "company": "PT Mitratex Konsultan",
+    "logo": "/img/company/mitratex-logo.png",
+    "image": "/img/profile/ainun-profile.jpeg",
+    "linkedin": "https://www.linkedin.com/in/ainun-umarella/",
+    "content": "As a colleague who was once in the same team as Agus as QA, he is very passionate about work, has extensive knowledge, has a high willingness to learn and likes challenges. Pleasant personality and always reliable in the team. Congratulations Agus, I'm sure you can continue to be successful in your career."
+  },
+  {
+    "name": "Rizky Ayu Riani Putri",
+    "role": "Senior Colleague",
+    "relation": "Rizky was senior to Agus but didn't manage Agus directly",
+    "company": "PT Mitratex Konsultan",
+    "logo": "/img/company/mitratex-logo.png",
+    "image": "/img/profile/rizky-profile.jpeg",
+    "linkedin": "https://www.linkedin.com/in/rizkyarputri/",
+    "content": "I worked with Agus for numerous software implementation projects. As an SQA, he managed to plan & execute the tests so well that the project could be done timely. Not only the proper work, he also managed to deliver an organized documentation.\n\nAs a team member, he does not hesitate to raise creative ideas to improve our way of working. He also loves to challenge himself to learn more than what he assigned to. Would love to work with him in the future if we ever crossed path again."
+  }
+]
