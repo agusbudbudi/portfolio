@@ -76,7 +76,6 @@ const Projects: React.FC = () => {
               key={index} 
               project={project} 
               buttonText="See Project"
-              buttonClass="btn-small" /* Changed to btn-small for consistency with Home page */
             />
           ))}
         </div>

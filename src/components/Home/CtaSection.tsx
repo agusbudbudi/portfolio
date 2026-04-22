@@ -1,7 +1,7 @@
-import React from 'react';
-import { Download, Linkedin } from 'lucide-react';
-import Button from '../common/Button';
-import './CtaSection.css';
+import React from "react";
+import { Download, Linkedin } from "lucide-react";
+import Button from "../common/Button";
+import "./CtaSection.css";
 
 const CtaSection: React.FC = () => {
   return (
@@ -13,13 +13,23 @@ const CtaSection: React.FC = () => {
             <h2>Let's Work Together 🚀</h2>
           </div>
           <p className="cta-description">
-            I'm always open to discussing new projects, creative ideas or opportunities to be part of your visions. Let's build something exceptional together.
+            I'm always open to discussing new projects, creative ideas or
+            opportunities to be part of your visions. Let's build something
+            exceptional together.
           </p>
           <div className="cta-actions">
-            <Button href="/assets/CV_Agus_Budiman_QA_Engineer.pdf" variant="secondary">
+            <Button
+              href="/assets/CV_Agus_Budiman_QA_Engineer.pdf"
+              variant="secondary"
+              target="_blank"
+            >
               <Download size={20} /> Download CV
             </Button>
-            <Button href="https://linkedin.com/in/agus-budiman" variant="primary">
+            <Button
+              href="https://linkedin.com/in/agus-budiman"
+              variant="primary"
+              target="_blank"
+            >
               <Linkedin size={20} /> LinkedIn Connect
             </Button>
           </div>

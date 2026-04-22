@@ -32,7 +32,6 @@ const FeaturedProjects: React.FC = () => {
               project={project} 
               maxTools={3} 
               buttonText="See Project"
-              buttonClass="btn-small"
             />
           ))}
         </div>
