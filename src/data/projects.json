@@ -4,9 +4,10 @@
     "title": "TestGen - AI Test Case Generator",
     "type": "Professional",
     "description": "An intelligent web app that helps you generate test cases with AI assistance.",
+    "detail-project": "### Overview\nTestGen is an innovative AI-powered tool designed to streamline the quality assurance process by automatically generating comprehensive test cases based on user requirements or feature descriptions.\n\n### Key Features\n*   **AI-Powered Generation**: Leverages advanced LLMs to interpret user input and suggest relevant test scenarios.\n*   **Export Options**: Easily export generated test cases to CSV or PDF formats.\n*   **Responsive Design**: Built with a modern, mobile-friendly interface for productivity anywhere.\n\n### Impact\nReduced the manual effort of test case creation by up to 60%, allowing QA teams to focus on edge cases and complex logic.",
     "image": "/img/banner/testgen-banner.png",
     "icon": "uil-flask",
-    "link": "https://agusbudbudi.github.io/TestGen/",
+    "link": "https://testgen-diri.vercel.app/generate",
     "tools": [
       { "name": "HTML", "src": "/img/tools/html-logo.png" },
       { "name": "CSS", "src": "/img/tools/css-logo.png" },
@@ -20,6 +21,7 @@
     "title": "Allure + Google Chat Report",
     "type": "Professional",
     "description": "Allure Reports + Google Chat = real-time test insights and smooth team collaboration.",
+    "detail-project": "### Overview\nA robust integration between Allure Reporting and Google Chat to provide immediate feedback on automated test executions within the team's communication hub.\n\n### Key Features\n*   **Real-time Alerts**: Automatic notifications sent to Google Chat rooms upon test completion.\n*   **Summary Dashboards**: Includes high-level pass/fail statistics directly in the chat message.\n*   **Deep Linking**: One-click access from the notification to the detailed Allure HTML report.\n\n### Impact\nImproved team responsiveness to regression failures and significantly reduced the 'time-to-fix' for critical bugs.",
     "image": "/img/banner/allure-banner.png",
     "icon": "uil-graph-bar",
     "link": "#",
@@ -37,6 +39,7 @@
     "title": "Split Bill",
     "type": "Personal",
     "description": "A smart app for effortless bill splitting and financial management.",
+    "detail-project": "### Overview\nSplit Bill is a lightweight utility designed for friends and groups to manage shared expenses fairly and transparently.\n\n### Key Features\n*   **Dynamic Splitting**: Supports equal splits, percentage-based, or specific amount splits.\n*   **Expense History**: Local tracking of past transactions and settlements.\n*   **Instant Totals**: Real-time calculation as you add items and participants.\n\n### Tech Stack\nDeveloped using vanilla JavaScript and modern CSS to ensure maximum performance and zero external dependencies.",
     "image": "/img/banner/splitbill-banner.png",
     "icon": "uil-bill",
     "link": "https://splitbill-alpha.vercel.app/",
@@ -53,14 +56,31 @@
     "title": "QA Portfolio",
     "type": "Personal",
     "description": "Showcasing my journey as a QA Engineer manual & automation testing, tools mastery, and real-world project impact.",
+    "detail-project": "### Overview\nA premium personal portfolio designed to showcase professional achievements, technical skills, and a collection of impactful QA projects.\n\n### Key Features\n*   **Dynamic Theme**: Seamless switching between light and dark modes.\n*   **Interactive Modals**: Detailed project views with rich text support.\n*   **Responsive Layout**: Fully optimized for desktop, tablet, and mobile views.\n\n### Design Principles\nFocuses on clean typography, smooth transitions, and a 'quality-first' aesthetic that reflects my professional background.",
     "image": "/img/banner/portfolio-banner.png",
     "icon": "uil-briefcase-alt",
-    "link": "https://agusbudbudi.github.io/portfolio/",
+    "link": "https://portfolio-qa-agus.vercel.app/",
     "tools": [
       { "name": "HTML", "src": "/img/tools/html-logo.png" },
       { "name": "CSS", "src": "/img/tools/css-logo.png" },
       { "name": "JavaScript", "src": "/img/tools/javascript-logo.png" },
       { "name": "Github Pages", "src": "/img/tools/github-pages-logo.png" },
+      { "name": "GitHub", "src": "/img/tools/github-logo.png" }
+    ]
+  },
+  {
+    "id": "toGousStudio",
+    "title": "Gous Studio",
+    "type": "Personal",
+    "description": "Company Profile & Booking System for Gous Studio.",
+    "detail-project": "### Overview\nA comprehensive web solution for a professional photography studio, combining a visual showcase with an integrated booking platform.\n\n### Key Features\n*   **Portfolio Gallery**: High-quality image display with optimized loading.\n*   **Booking System**: Streamlined interface for clients to schedule sessions.\n*   **Admin Dashboard**: Private area for studio owners to manage appointments and content.\n\n### Built with Modern Tech\nUtilizes React for interactive components and Tailwind CSS for rapid, maintainable design iterations.",
+    "image": "/img/banner/gousstudio-banner.jpg",
+    "icon": "uil-camera-rps",
+    "link": "https://gousstudio.vercel.app/",
+    "tools": [
+      { "name": "React", "src": "/img/tools/react-logo.png" },
+      { "name": "Tailwind", "src": "/img/tools/tailwind-logo.png" },
+      { "name": "Vercel", "src": "/img/tools/vercel-logo.svg" },
       { "name": "GitHub", "src": "/img/tools/github-logo.png" }
     ]
   }
