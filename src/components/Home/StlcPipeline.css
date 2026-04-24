@@ -1,0 +1,274 @@
+.stlc-pipeline {
+  padding: 80px 0;
+  background: var(--bg-secondary);
+}
+
+.stlc-icon {
+  background-color: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+}
+
+.stlc-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  margin-top: 3rem;
+}
+
+/* Steps Pipeline */
+.stlc-steps-wrapper {
+  position: relative;
+  padding: 20px 0;
+}
+
+.stlc-line {
+  position: absolute;
+  top: 50px;
+  left: 5%;
+  right: 5%;
+  height: 4px;
+  background: var(--border);
+  z-index: 1;
+  border-radius: 4px;
+}
+
+.stlc-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+}
+
+.stlc-step-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 130px;
+}
+
+.node-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.node-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.node-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.node-number {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 5;
+}
+
+/* Active & Completed States */
+.stlc-step-node.active .node-visual {
+  transform: scale(1.1);
+}
+
+.stlc-step-node.active .node-icon-wrapper {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 10px 20px rgba(37, 144, 255, 0.3);
+}
+
+.stlc-step-node.active .node-title {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.stlc-step-node.active .node-number {
+  background: #22c55e;
+  color: #fff;
+  border-color: #22c55e;
+}
+
+.stlc-step-node.completed .node-icon-wrapper {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stlc-step-node.completed .node-number {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Details Card */
+.stlc-details-card {
+  background: var(--bg-card);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stlc-details-header {
+  margin-bottom: 1.5rem;
+}
+
+.phase-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--badge-color);
+  color: var(--accent);
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.stlc-details-header h2 {
+  font-size: 1.85rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.phase-description {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 800px;
+}
+
+.phase-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.info-column h4 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.info-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.info-tag {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.tool-tag {
+  background: rgba(37, 144, 255, 0.1);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+
+.tool-tag:hover {
+  background: rgba(37, 144, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.phase-tool-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.deliverable-tag {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.stlc-nav-hint {
+  margin-top: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .stlc-line {
+    display: none;
+  }
+
+  .stlc-steps {
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+  }
+
+  .stlc-step-node {
+    width: calc(33% - 1.5rem);
+  }
+
+  .phase-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .stlc-step-node {
+    width: calc(50% - 1.5rem);
+  }
+  
+  .stlc-details-card {
+    padding: 1.5rem;
+  }
+
+  .stlc-details-header h2 {
+    font-size: 1.5rem;
+  }
+}

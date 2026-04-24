@@ -74,7 +74,7 @@
 .cta-actions .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.9);
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 .cta-actions .btn-primary {
@@ -87,7 +87,7 @@
 .cta-actions .btn-primary:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
 }
 
 @media (max-width: 768px) {
