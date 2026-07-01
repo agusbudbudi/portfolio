@@ -1,0 +1,127 @@
+{
+  "metadata": {
+    "timezone": "Asia/Jakarta",
+    "timezone_abbr": "WIB",
+    "version": "1.0"
+  },
+  "topics": [
+    {
+      "id": "fundamental-qa",
+      "label": "Fundamental QA",
+      "description": "Dasar-dasar Software Quality Assurance, SDLC & STLC",
+      "image": "https://i.imgur.com/JA7Dd9N.png"
+    },
+    {
+      "id": "ai-assisted-qa",
+      "label": "AI Assisted in QA Workflow",
+      "description": "Memanfaatkan AI untuk mempercepat penulisan test case & code automation",
+      "image": "https://i.imgur.com/RRqKqA9.png"
+    },
+    {
+      "id": "debugging-tips-tricks",
+      "label": "Tips & Trik Debugging",
+      "description": "Mendiagnosis error secara efektif pada code pengujian",
+      "image": "https://i.imgur.com/gAQrTbQ.png"
+    },
+    {
+      "id": "test-management-strategy",
+      "label": "Test Management and Strategy",
+      "description": "Merancang test plan, strategi pengujian, dan manajemen defect",
+      "image": "https://i.imgur.com/LiOvopU.png"
+    },
+    {
+      "id": "api-testing-postman",
+      "label": "API Testing with Postman",
+      "description": "Pengujian API manual & otomatisasi menggunakan Postman",
+      "image": "https://i.imgur.com/1UGNcsW.png"
+    },
+    {
+      "id": "cypress-web-automation",
+      "label": "Cypress Web Automation",
+      "description": "Otomatisasi pengujian aplikasi web dengan Cypress",
+      "image": "https://i.imgur.com/i8B6yp0.png"
+    },
+    {
+      "id": "web-automation-basic",
+      "label": "Web Automation Basic",
+      "description": "Konsep dasar otomatisasi pengujian web & locator strategy",
+      "image": "https://i.imgur.com/c5lfUKG.png"
+    }
+  ],
+  "mentors": [
+    {
+      "id": "mentor-001",
+      "name": "Agus Budiman",
+      "whatsapp": "6285559496968",
+      "expertise": [
+        "fundamental-qa",
+        "api-testing-postman",
+        "cypress-web-automation",
+        "ai-assisted-qa",
+        "web-automation-basic",
+        "debugging-tips-tricks",
+        "test-management-strategy"
+      ],
+      "bio": "6+ years QA Manual & Automation Engineer",
+      "avatar": "https://portfolio-qa-agus.vercel.app/img/profile/profile-agus.png",
+      "schedule": {
+        "monday": [
+          "19:00",
+          "20:00",
+          "21:00",
+          "22:00"
+        ],
+        "tuesday": [
+          "19:00",
+          "20:00",
+          "21:00",
+          "22:00"
+        ],
+        "wednesday": [
+          "19:00",
+          "20:00",
+          "21:00",
+          "22:00"
+        ],
+        "thursday": [
+          "19:00",
+          "20:00",
+          "21:00",
+          "22:00"
+        ],
+        "friday": [
+          "19:00",
+          "20:00",
+          "21:00",
+          "22:00"
+        ],
+        "saturday": [
+          "14:00",
+          "15:00",
+          "16:00"
+        ],
+        "sunday": [
+          "14:00",
+          "15:00",
+          "16:00"
+        ]
+      }
+    }
+  ],
+  "availableDays": [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday"
+  ],
+  "bookingRules": {
+    "minIntroductionLength": 256,
+    "maxTopicsSelectable": 3,
+    "sessionDurationMinutes": 60,
+    "daysInAdvanceMin": 1,
+    "daysInAdvanceMax": 30
+  }
+}
