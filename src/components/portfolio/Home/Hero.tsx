@@ -5,8 +5,20 @@ import Button from '../common/Button';
 
 const Hero: React.FC = () => {
   return (
-    <section className="min-h-[calc(100vh-70px)] flex items-center py-16 sm:py-12 bg-white dark:bg-slate-950 transition-colors">
-      <div className="max-w-[1200px] mx-auto px-4 w-full">
+    <section className="relative min-h-[calc(100vh-70px)] flex items-center py-16 sm:py-12 bg-white dark:bg-slate-950 overflow-hidden transition-colors">
+      {/* Background grid + glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(37,144,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(37,144,255,1) 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+          }}
+        />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-blue-500/5 dark:bg-blue-500/10 blur-[120px]" />
+      </div>
+      <div className="relative max-w-[1200px] mx-auto px-4 w-full">
         {/* Desktop: 2-col (text | card), Mobile: 1-col (card on top, text below) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-12 lg:gap-24">
           {/* Text Content — order-2 on mobile (card shows first), order-1 on desktop */}
