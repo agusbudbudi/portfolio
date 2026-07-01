@@ -1,4 +1,124 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import "tailwindcss";
+
+/* Tailwind v4: class-based dark mode (requires class="dark" on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Custom theme tokens matching the old tailwind.config.js */
+@theme {
+  --font-family-sans: 'DM Sans', sans-serif;
+
+  --color-accent: #2590ff;
+  --color-accent-hover: #90f6ff;
+
+  /* Custom durations not in Tailwind defaults */
+  --transition-duration-400: 400ms;
+  --transition-duration-800: 800ms;
+
+  /* Custom easing functions */
+  --transition-timing-function-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-timing-function-spring: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* Custom animations */
+  --animate-pulse-green: pulse-green 2s infinite;
+  --animate-holographic: holographic 8s ease-in-out infinite;
+  --animate-fade-in: fade-in 0.6s ease-out forwards;
+  --animate-slide-up: slide-up 0.6s ease-out forwards;
+  --animate-scroll: scroll 20s linear infinite;
+  --animate-blink: blink 1s infinite;
+  --animate-slide-in: slide-in 0.5s ease-out forwards;
+
+  --shadow-custom: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+  --shadow-custom-light: 0 25px 50px -12px rgba(37, 144, 255, 0.2);
+}
+
+@keyframes pulse-green {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  70% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes holographic {
+  0% {
+    background-position: -150% -150%;
+  }
+
+  100% {
+    background-position: 150% 150%;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes blink {
+
+  0%,
+  50%,
+  100% {
+    opacity: 1;
+  }
+
+  25%,
+  75% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 
 :root {
   --bg-primary: #ffffff;
@@ -36,11 +156,11 @@
   --header-border: rgba(255, 255, 255, 0.08);
 }
 
-* {
+/* * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
+} */
 
 body {
   font-family: 'DM Sans', sans-serif;
@@ -168,9 +288,11 @@ body {
 }
 
 
-main {
+/* Legacy layout main offset - only applies inside the legacy .app-container wrapper */
+.app-container>main {
   min-height: 80vh;
-  padding-top: 70px; /* Offset for 70px header */
+  padding-top: 70px;
+  /* Offset for 70px header */
 }
 
 /* Animations from legacy style */
@@ -225,3 +347,22 @@ main {
   }
 }
 
+/* Custom utility classes for 3D transforms used in Hero component */
+@layer utilities {
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .perspective-2000 {
+    perspective: 2000px;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}

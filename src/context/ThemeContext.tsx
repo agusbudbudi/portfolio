@@ -17,6 +17,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
+    // Tailwind darkMode: 'class' requires 'dark' class on <html>
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
     localStorage.setItem('theme', theme);
   }, [theme]);
 
