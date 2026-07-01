@@ -63,13 +63,19 @@ const Certifications: React.FC = () => {
       {activeTab === 'articles' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {articleData.map((article, index) => (
-            <div key={index} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl h-[549px] overflow-hidden">
-              <iframe
-                src={article.url}
-                className="w-full h-full border-none block"
-                allowFullScreen
-                title={article.title}
-              ></iframe>
+            <div key={index} className=" overflow-hidden">
+              {/* All screens: LinkedIn native embed format */}
+              <div className="flex items-center justify-center">
+                <iframe
+                  src={article.url}
+                  height="567"
+                  width="504"
+                  allowFullScreen
+                  title={article.title}
+                  className="max-w-full border-none"
+                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                ></iframe>
+              </div>
             </div>
           ))}
         </div>
