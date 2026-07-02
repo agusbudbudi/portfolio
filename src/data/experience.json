@@ -1,7 +1,7 @@
 [
   {
     "company": "Diri Care",
-    "logo": "/img/company/diricare-logo.png",
+    "logo": "/img/company/diricare-logo.webp",
     "role": "QA Engineer I",
     "period": "Feb 2023 - Present",
     "responsibilities": [
@@ -18,7 +18,7 @@
   },
   {
     "company": "Pegipegi",
-    "logo": "/img/company/pegipegi-logo.png",
+    "logo": "/img/company/pegipegi-logo.webp",
     "role": "Software QA",
     "period": "Sept 2022 - Jan 2023",
     "responsibilities": [
@@ -37,7 +37,7 @@
   },
   {
     "company": "Traveloka",
-    "logo": "/img/company/traveloka-logo.png",
+    "logo": "/img/company/traveloka-logo.webp",
     "role": "QA Engineer",
     "period": "Sept 2021 - Sept 2022",
     "responsibilities": [
@@ -56,7 +56,7 @@
   },
   {
     "company": "PT Mitratex Konsultan",
-    "logo": "/img/company/mitratex-logo.png",
+    "logo": "/img/company/mitratex-logo.webp",
     "role": "Software QA",
     "period": "Sept 2019 - Sept 2021",
     "responsibilities": [

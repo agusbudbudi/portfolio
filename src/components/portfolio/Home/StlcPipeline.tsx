@@ -33,8 +33,8 @@ const STLC_PHASES: StlcPhase[] = [
     description:
       "Analyzing software requirements from a testing perspective to identify testable requirements and clarify ambiguities.",
     tools: [
-      { name: "Jira", logo: "/img/tools/jira-logo.png" },
-      { name: "Figma", logo: "/img/tools/figma-logo.png" },
+      { name: "Jira", logo: "/img/tools/jira-logo.webp" },
+      { name: "Figma", logo: "/img/tools/figma-logo.webp" },
     ],
     deliverables: [
       "RTM (Requirement Traceability Matrix)",
@@ -48,8 +48,8 @@ const STLC_PHASES: StlcPhase[] = [
     description:
       "Defining the testing strategy, scope, resources, and schedule. Risk assessment and mitigation plans are established here.",
     tools: [
-      { name: "TestRail", logo: "/img/tools/testrail-logo.png" },
-      { name: "Asana", logo: "/img/tools/asana-logo.png" },
+      { name: "TestRail", logo: "/img/tools/testrail-logo.webp" },
+      { name: "Asana", logo: "/img/tools/asana-logo.webp" },
     ],
     deliverables: ["Test Plan Document", "Risk Assessment Report"],
   },
@@ -61,8 +61,8 @@ const STLC_PHASES: StlcPhase[] = [
       "Creating detailed test cases, test data, and automation scripts based on the finalized test plan.",
     tools: [
       { name: "Cypress", logo: "/img/tools/cypress-logo.svg" },
-      { name: "Webdriver.io", logo: "/img/tools/webdriver-io-logo.png" },
-      { name: "VS Code", logo: "/img/tools/vsc-logo.png" },
+      { name: "Webdriver.io", logo: "/img/tools/webdriver-io-logo.webp" },
+      { name: "VS Code", logo: "/img/tools/vsc-logo.webp" },
     ],
     deliverables: ["Test Cases / Scenarios", "Automation Scripts", "Test Data"],
   },
@@ -85,9 +85,9 @@ const STLC_PHASES: StlcPhase[] = [
     description:
       "Executing the test cases, logging defects in the tracking system, and re-testing fixed issues.",
     tools: [
-      { name: "Postman", logo: "/img/tools/postman-logo.png" },
-      { name: "Charles", logo: "/img/tools/charles-proxy-logo.png" },
-      { name: "DBeaver", logo: "/img/tools/dbeaver-logo.png" },
+      { name: "Postman", logo: "/img/tools/postman-logo.webp" },
+      { name: "Charles", logo: "/img/tools/charles-proxy-logo.webp" },
+      { name: "DBeaver", logo: "/img/tools/dbeaver-logo.webp" },
     ],
     deliverables: ["Bug Reports", "Execution Logs", "Daily Status Report"],
   },
@@ -98,8 +98,8 @@ const STLC_PHASES: StlcPhase[] = [
     description:
       "Evaluating the cycle completion criteria, analyzing test metrics, and documenting lessons learned.",
     tools: [
-      { name: "Allure Report", logo: "/img/tools/allure-logo.png" },
-      { name: "GitHub", logo: "/img/tools/github-logo.png" },
+      { name: "Allure Report", logo: "/img/tools/allure-logo.webp" },
+      { name: "GitHub", logo: "/img/tools/github-logo.webp" },
     ],
     deliverables: ["Test Summary Report", "QA Metrics Dashboard"],
   },
@@ -185,6 +185,8 @@ const StlcPipeline: React.FC = () => {
                       <img
                         src={tool.logo}
                         alt={tool.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-7 h-7 object-contain"
                       />
                       {tool.name}

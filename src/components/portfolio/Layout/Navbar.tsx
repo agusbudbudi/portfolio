@@ -34,10 +34,14 @@ const Navbar: React.FC = () => {
             className="flex items-center text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight decoration-none"
             onClick={closeMenu}
           >
-            <div className="relative w-9 h-9 mr-3">
+            <div className="relative w-9 h-9 mr-2">
               <img
-                src="/img/profile/logo-portfolio.png"
+                src="/img/profile/logo-portfolio.webp"
                 alt="Logo"
+                width={36}
+                height={36}
+                loading="eager"
+                decoding="async"
                 className="w-full h-full rounded-full object-contain border-2 border-blue-500/10 dark:bg-white p-[2px]"
               />
               <span className="absolute w-2.5 h-2.5 bg-emerald-500 rounded-full bottom-0.5 right-0.5 border-2 border-white dark:border-slate-900 animate-pulse"></span>
