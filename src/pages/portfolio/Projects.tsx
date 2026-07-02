@@ -43,7 +43,7 @@ const Projects: React.FC = () => {
             {deliverablesData.map((item, index) => (
               <div key={index} className="w-[320px] md:w-[400px] flex-shrink-0 flex flex-col rounded-2xl overflow-hidden hover:-translate-y-1 transition-all duration-300 group">
                 <div className="w-full overflow-hidden">
-                  <img src={item.image} alt={item.title} className="w-full h-auto object-cover" />
+                  <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="w-full h-auto object-cover" />
                 </div>
                 <div className="p-6 flex justify-between items-start gap-4 flex-grow bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-b-2xl border-t-0">
                   <div className="flex-grow">

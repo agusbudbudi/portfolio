@@ -68,7 +68,7 @@ const WorkExperienceTimeline: React.FC = () => {
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-[28px] p-4 md:p-6 w-full transition-all duration-400 ease-spring flex flex-col gap-2 shadow-md group-hover:-translate-y-3 group-hover:border-blue-500 dark:group-hover:border-blue-500">
                   <div className="flex gap-5 items-center">
                     <div className="w-[60px] h-[60px] min-w-[60px] bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-sm">
-                      <img src={exp.logo} alt={exp.company} className="w-full h-full object-contain" />
+                      <img src={exp.logo} alt={exp.company} loading="lazy" decoding="async" className="w-full h-full object-contain" />
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <h3 className="text-base font-extrabold text-slate-900 dark:text-white m-0 leading-tight">{exp.role}</h3>

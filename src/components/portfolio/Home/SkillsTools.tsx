@@ -8,34 +8,34 @@ const SKILL_CATEGORIES = [
     icon: <FlaskConical size={22} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />,
     skills: [
       { name: 'Cypress (Javascript)', level: 'Advanced', icon: '/img/tools/cypress-logo.svg' },
-      { name: 'Appium (Mobile)', level: 'Intermediate', icon: '/img/tools/appium-logo.png' },
-      { name: 'Webdriver.io', level: 'Intermediate', icon: '/img/tools/webdriver-io-logo.png' },
-      { name: 'Javascript', level: 'Advanced', icon: '/img/tools/javascript-logo.png' },
-      { name: 'Node.js', level: 'Intermediate', icon: '/img/tools/node-js-logo.png' },
-      { name: 'Allure Report', level: 'Advanced', icon: '/img/tools/allure-logo.png' }
+      { name: 'Appium (Mobile)', level: 'Intermediate', icon: '/img/tools/appium-logo.webp' },
+      { name: 'Webdriver.io', level: 'Intermediate', icon: '/img/tools/webdriver-io-logo.webp' },
+      { name: 'Javascript', level: 'Advanced', icon: '/img/tools/javascript-logo.webp' },
+      { name: 'Node.js', level: 'Intermediate', icon: '/img/tools/node-js-logo.webp' },
+      { name: 'Allure Report', level: 'Advanced', icon: '/img/tools/allure-logo.webp' }
     ]
   },
   {
     title: 'API, Performance & SQL',
     icon: <Database size={22} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />,
     skills: [
-      { name: 'Postman (API Testing)', level: 'Advanced', icon: '/img/tools/postman-logo.png' },
-      { name: 'REST API & JSON', level: 'Advanced', icon: '/img/tools/rest-api-logo.png' },
-      { name: 'SQL & Database', level: 'Advanced', icon: '/img/tools/sql-logo.png' },
-      { name: 'DBeaver', level: 'Advanced', icon: '/img/tools/dbeaver-logo.png' },
-      { name: 'JMeter', level: 'Beginner', icon: '/img/tools/jmeter-logo.png' }
+      { name: 'Postman (API Testing)', level: 'Advanced', icon: '/img/tools/postman-logo.webp' },
+      { name: 'REST API & JSON', level: 'Advanced', icon: '/img/tools/rest-api-logo.webp' },
+      { name: 'SQL & Database', level: 'Advanced', icon: '/img/tools/sql-logo.webp' },
+      { name: 'DBeaver', level: 'Advanced', icon: '/img/tools/dbeaver-logo.webp' },
+      { name: 'JMeter', level: 'Beginner', icon: '/img/tools/jmeter-logo.webp' }
     ]
   },
   {
     title: 'Management & Debug',
     icon: <ShieldCheck size={22} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />,
     skills: [
-      { name: 'Jira & Confluence', level: 'Advanced', icon: '/img/tools/jira-logo.png' },
-      { name: 'Asana', level: 'Advanced', icon: '/img/tools/asana-logo.png' },
-      { name: 'TestRail', level: 'Advanced', icon: '/img/tools/testrail-logo.png' },
-      { name: 'Adaptavist', level: 'Advanced', icon: '/img/tools/adaptavist-logo.png' },
-      { name: 'Charles & Proxyman', level: 'Advanced', icon: '/img/tools/charles-proxy-logo.png' },
-      { name: 'Crashlytics & App Center', level: 'Advanced', icon: '/img/tools/crashlytics-logo.png' }
+      { name: 'Jira & Confluence', level: 'Advanced', icon: '/img/tools/jira-logo.webp' },
+      { name: 'Asana', level: 'Advanced', icon: '/img/tools/asana-logo.webp' },
+      { name: 'TestRail', level: 'Advanced', icon: '/img/tools/testrail-logo.webp' },
+      { name: 'Adaptavist', level: 'Advanced', icon: '/img/tools/adaptavist-logo.webp' },
+      { name: 'Charles & Proxyman', level: 'Advanced', icon: '/img/tools/charles-proxy-logo.webp' },
+      { name: 'Crashlytics & App Center', level: 'Advanced', icon: '/img/tools/crashlytics-logo.webp' }
     ]
   },
   {
@@ -43,11 +43,11 @@ const SKILL_CATEGORIES = [
     icon: <Cpu size={22} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />,
     skills: [
       { name: 'CI/CD (Jenkins, Git)', level: 'Intermediate', icon: '/img/tools/jenkins-logo.svg' },
-      { name: 'GitHub', level: 'Advanced', icon: '/img/tools/github-logo.png' },
-      { name: 'GitLab', level: 'Advanced', icon: '/img/tools/gitlab-logo.png' },
-      { name: 'Android & iOS', level: 'Advanced', icon: '/img/tools/android-logo.png' },
-      { name: 'VS Code', level: 'Advanced', icon: '/img/tools/vsc-logo.png' },
-      { name: 'Sourcetree', level: 'Advanced', icon: '/img/tools/sourcetree-logo.png' }
+      { name: 'GitHub', level: 'Advanced', icon: '/img/tools/github-logo.webp' },
+      { name: 'GitLab', level: 'Advanced', icon: '/img/tools/gitlab-logo.webp' },
+      { name: 'Android & iOS', level: 'Advanced', icon: '/img/tools/android-logo.webp' },
+      { name: 'VS Code', level: 'Advanced', icon: '/img/tools/vsc-logo.webp' },
+      { name: 'Sourcetree', level: 'Advanced', icon: '/img/tools/sourcetree-logo.webp' }
     ]
   }
 ];
@@ -92,6 +92,8 @@ const SkillsTools: React.FC = () => {
                     <img
                       src={skill.icon}
                       alt={skill.name}
+                      loading="lazy"
+                      decoding="async"
                       className="max-w-[80px] h-10 object-contain transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 filter drop-shadow"
                     />
                     <div className="flex flex-col items-center gap-2 text-center">

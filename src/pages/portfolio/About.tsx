@@ -39,7 +39,7 @@ const About: React.FC = () => {
       <section className="flex flex-col gap-8 mb-16 animate-fade-in">
         <div className="flex flex-col sm:flex-row sm:items-start gap-8">
           <div className="relative w-[120px] h-[120px] min-w-[120px]">
-            <img src="/img/profile/profile-agus.png" alt="Agus Budiman" className="w-full h-full object-cover rounded-3xl border-[4px] border-white dark:border-slate-900 shadow-xl shadow-blue-500/10" />
+            <img src="/img/profile/profile-agus.webp" alt="Agus Budiman" width={120} height={120} loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover rounded-3xl border-[4px] border-white dark:border-slate-900 shadow-xl shadow-blue-500/10" />
             <span className="absolute bottom-0.5 right-0.5 w-4 h-4 bg-emerald-500 border-[3px] border-white dark:border-slate-900 rounded-full"></span>
           </div>
           <div className="flex flex-col gap-2">
@@ -90,7 +90,7 @@ const About: React.FC = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2 sm:gap-0">
                   <div className="flex items-start gap-5">
                     <div className="w-[60px] h-[60px] min-w-[50px] flex items-center justify-center bg-white rounded-xl overflow-hidden shadow-sm">
-                      <img src={exp.logo} alt={exp.company} className="w-full h-full object-contain" />
+                      <img src={exp.logo} alt={exp.company} loading="lazy" decoding="async" className="w-full h-full object-contain" />
                     </div>
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center flex-wrap gap-2">
@@ -148,7 +148,7 @@ const About: React.FC = () => {
             <div key={index} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-[20px] p-4 sm:p-6">
               <div className="flex items-start gap-5">
                 <div className="w-[50px] h-[50px] min-w-[50px] flex items-center justify-center bg-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden p-1">
-                  <img src={edu.logo} alt={edu.institution} className="w-full h-full object-contain" />
+                  <img src={edu.logo} alt={edu.institution} loading="lazy" decoding="async" className="w-full h-full object-contain" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <h3 className="text-base font-bold text-slate-900 dark:text-white m-0">{edu.institution}</h3>
@@ -180,9 +180,9 @@ const About: React.FC = () => {
             >
               <div className="flex items-center gap-5">
                 <div className="relative w-[60px] h-[60px]">
-                  <img src={endorsement.image} alt={endorsement.name} className="w-full h-full object-cover rounded-2xl border-2 border-white dark:border-slate-900 shadow-md" />
+                  <img src={endorsement.image} alt={endorsement.name} loading="lazy" decoding="async" className="w-full h-full object-cover rounded-2xl border-2 border-white dark:border-slate-900 shadow-md" />
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white border border-slate-200 dark:border-slate-800 rounded flex items-center justify-center shadow overflow-hidden">
-                    <img src={endorsement.logo} alt={endorsement.company} className="w-full h-full object-contain" />
+                    <img src={endorsement.logo} alt={endorsement.company} loading="lazy" decoding="async" className="w-full h-full object-contain" />
                   </div>
                 </div>
                 <div className="flex flex-col gap-0.5">

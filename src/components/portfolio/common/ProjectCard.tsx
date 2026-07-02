@@ -59,10 +59,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         onClick={openModal}
       >
         <div className="relative w-full overflow-hidden group">
-          <img 
-            src={project.image} 
-            alt={project.title} 
-            className="w-full h-auto block bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800/80 transition-transform duration-500 group-hover:scale-105" 
+          <img
+            src={project.image}
+            alt={project.title}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-auto block bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800/80 transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <span className="bg-white dark:bg-slate-900 text-blue-500 dark:text-blue-400 px-4 py-2 rounded-full font-bold text-xs shadow-md">
@@ -91,7 +93,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="px-6 py-4 flex justify-between items-center border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/30">
           <div className="flex gap-2.5 flex-wrap">
             {displayTools.map((tool, i) => (
-              <img key={i} src={tool.src} alt={tool.name} title={tool.name} className="h-5 object-contain" />
+              <img key={i} src={tool.src} alt={tool.name} title={tool.name} loading="lazy" decoding="async" className="h-5 object-contain" />
             ))}
             {remainingTools > 0 && <span className="text-xs text-slate-555 dark:text-slate-500 font-medium">+{remainingTools}</span>}
           </div>
@@ -110,7 +112,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <Modal isOpen={isModalOpen} onClose={closeModal} title="Project Details">
         <div className="flex flex-col">
           <div className="w-full max-h-[300px] sm:max-h-[400px] overflow-hidden bg-slate-50 dark:bg-slate-800/30 flex items-center justify-center border-b border-slate-100 dark:border-slate-800/40">
-            <img src={project.image} alt={project.title} className="max-w-full max-h-[300px] sm:max-h-[400px] object-contain block" />
+            <img src={project.image} alt={project.title} loading="lazy" decoding="async" className="max-w-full max-h-[300px] sm:max-h-[400px] object-contain block" />
           </div>
           <div className="p-6 sm:p-8">
             <div className="flex justify-between items-start mb-6 gap-4">
@@ -148,7 +150,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-2">
                 {project.tools.map((tool, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 rounded-xl hover:-translate-y-0.5 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-200">
-                    <img src={tool.src} alt={tool.name} className="w-6 h-6 object-contain" />
+                    <img src={tool.src} alt={tool.name} loading="lazy" decoding="async" className="w-6 h-6 object-contain" />
                     <span className="text-xs font-semibold text-slate-800 dark:text-slate-300">{tool.name}</span>
                   </div>
                 ))}

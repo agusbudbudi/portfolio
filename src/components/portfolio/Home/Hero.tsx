@@ -94,12 +94,12 @@ const Hero: React.FC = () => {
                 <div className="bg-gradient-to-br from-blue-500 to-sky-400 p-8 pb-0 flex flex-col justify-center flex-shrink-0">
                   {/* id-card-header */}
                   <div className="flex justify-between items-start">
-                    <img src="/img/diricare-logo.png" alt="Diricare" className="h-[45px] max-w-[120px] object-contain rounded-[10px]" />
-                    <img src="/img/qr-code.png" alt="QR Code" className="w-[45px] h-[45px] bg-white rounded-[10px] object-contain" />
+                    <img src="/img/diricare-logo.webp" alt="Diricare" width={45} height={45} loading="eager" decoding="async" className="h-[45px] max-w-[120px] object-contain rounded-[10px]" />
+                    <img src="/img/qr-code.webp" alt="QR Code" width={45} height={45} loading="eager" decoding="async" className="w-[45px] h-[45px] bg-white rounded-[10px] object-contain" />
                   </div>
                   {/* id-card-photo: exact 230×230 from legacy with no shadow */}
                   <div className="w-[230px] h-[230px] rounded-xl overflow-hidden self-center">
-                    <img src="/img/profile/hero-agus.png" alt="Agus Budiman" className="w-full h-full object-cover" />
+                    <img src="/img/profile/hero-agus.webp" alt="Agus Budiman" width={230} height={230} loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
                   </div>
                 </div>
 

@@ -29,16 +29,16 @@ const TopicsField: React.FC<TopicsFieldProps> = ({ topics, selected, maxSelectab
 
   const navBtnCls = [
     'w-7 h-7 flex items-center justify-center rounded-lg border cursor-pointer transition-all duration-150',
-    'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800',
-    'text-slate-500 dark:text-slate-400 hover:text-accent hover:border-accent dark:hover:text-accent dark:hover:border-accent',
+    'bg-white border-ld-ash',
+    'text-ld-slate hover:text-ld-violet hover:border-ld-violet',
   ].join(' ');
 
   return (
     <div className="flex flex-col gap-2">
       {/* Label Row */}
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
-          <BookOpen size={15} className="text-accent flex-shrink-0" />
+        <label className="flex items-center gap-2 text-sm font-medium text-ld-graphite">
+          <BookOpen size={15} className="text-ld-violet flex-shrink-0" />
           Topik yang Ingin Dibahas <span className="text-red-500 ml-0.5">*</span>
         </label>
         <div className="flex gap-1.5 flex-shrink-0">
@@ -47,7 +47,7 @@ const TopicsField: React.FC<TopicsFieldProps> = ({ topics, selected, maxSelectab
         </div>
       </div>
 
-      <p className="text-[11px] text-slate-500 dark:text-slate-400">Pilih 1–{maxSelectable} topik yang ingin dipelajari</p>
+      <p className="text-[11px] text-ld-slate">Pilih 1–{maxSelectable} topik yang ingin dipelajari</p>
 
       {/* Topics Slider Container */}
       <div className="overflow-hidden -mx-1 px-1 py-1">
@@ -73,14 +73,14 @@ const TopicsField: React.FC<TopicsFieldProps> = ({ topics, selected, maxSelectab
                 className={[
                   'relative overflow-hidden flex-none w-[280px] flex items-center gap-3.5 p-2.5 rounded-xl text-left border transition-all duration-150',
                   isSelected
-                    ? 'border-accent bg-blue-500/10 dark:bg-blue-500/5'
+                    ? 'border-ld-violet bg-ld-lilac/40'
                     : isDisabled
-                      ? 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 opacity-40 cursor-not-allowed'
-                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 hover:border-accent hover:bg-blue-500/5 dark:hover:bg-blue-500/5 cursor-pointer',
+                      ? 'border-ld-ash bg-white opacity-40 cursor-not-allowed'
+                      : 'border-ld-ash bg-white hover:border-ld-violet hover:bg-ld-cloud cursor-pointer',
                 ].join(' ')}
               >
                 {isSelected && (
-                  <span className="absolute top-0 right-0 w-5 h-5 bg-accent flex items-center justify-center rounded-bl-lg">
+                  <span className="absolute top-0 right-0 w-5 h-5 bg-ld-violet flex items-center justify-center rounded-bl-lg">
                     <CheckCircle2 size={10} className="text-white" />
                   </span>
                 )}
@@ -89,13 +89,15 @@ const TopicsField: React.FC<TopicsFieldProps> = ({ topics, selected, maxSelectab
                     src={topic.image}
                     alt=""
                     aria-hidden="true"
+                    loading="lazy"
+                    decoding="async"
                     className="w-14 h-14 rounded-lg flex-shrink-0 object-cover"
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
                 )}
                 <div className="flex flex-col gap-1 min-w-0">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-snug truncate">{topic.label}</span>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">{topic.description}</p>
+                  <span className="text-xs font-medium text-ld-graphite leading-snug truncate">{topic.label}</span>
+                  <p className="text-[10px] text-ld-slate leading-relaxed line-clamp-2">{topic.description}</p>
                 </div>
               </button>
             );

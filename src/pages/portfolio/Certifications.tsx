@@ -44,7 +44,7 @@ const Certifications: React.FC = () => {
           {certData.map((cert, index) => (
             <div key={index} className="flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-[24px] overflow-hidden transition-all duration-400 ease-smooth hover:-translate-y-2 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/35 hover:border-blue-500 h-full group">
               <div className="w-full h-[200px] overflow-hidden relative bg-slate-50 dark:bg-slate-800/30 flex items-center justify-center">
-                <img src={cert.image} alt={cert.title} className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-105" />
+                <img src={cert.image} alt={cert.title} loading="lazy" decoding="async" className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-105" />
                 <Badge className="absolute bottom-4 left-4 !bg-blue-500/10 dark:!bg-blue-500/25 !text-blue-500 dark:!text-blue-450 text-[10px] px-2.5 py-1 rounded-lg font-extrabold uppercase border border-slate-200 dark:border-slate-700/60 backdrop-blur-md z-[2]">{cert.year}</Badge>
               </div>
               <div className="p-6 flex flex-col gap-2 flex-grow text-left">
@@ -63,13 +63,19 @@ const Certifications: React.FC = () => {
       {activeTab === 'articles' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {articleData.map((article, index) => (
-            <div key={index} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl h-[549px] overflow-hidden">
-              <iframe
-                src={article.url}
-                className="w-full h-full border-none block"
-                allowFullScreen
-                title={article.title}
-              ></iframe>
+            <div key={index} className=" overflow-hidden">
+              {/* All screens: LinkedIn native embed format */}
+              <div className="flex items-center justify-center">
+                <iframe
+                  src={article.url}
+                  height="567"
+                  width="504"
+                  allowFullScreen
+                  title={article.title}
+                  className="max-w-full border-none"
+                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                ></iframe>
+              </div>
             </div>
           ))}
         </div>

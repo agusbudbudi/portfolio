@@ -1,152 +1,170 @@
-import React from 'react';
-import { ArrowRight, Calendar, MessageCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const HeroSection: React.FC = () => {
-  return (
-    <section className="relative min-h-[calc(100vh-70px)] flex items-center overflow-hidden bg-white dark:bg-slate-950">
-      {/* Background grid + glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06]"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(37,144,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(37,144,255,1) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
-        />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-blue-500/5 dark:bg-blue-500/10 blur-[120px]" />
-      </div>
+type CodeSegment = { text: string; className: string };
+type CodeLine = { indent?: boolean; segments: CodeSegment[] };
 
-      <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 w-full py-12 lg:py-0">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-16 items-center">
-          {/* Left: text */}
-          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/20 bg-blue-500/5 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-sm font-semibold mb-6">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+const codeLines: CodeLine[] = [
+  { segments: [{ text: '// QA Mentoring 1-on-1', className: 'text-ld-steel' }] },
+  {
+    segments: [
+      { text: 'const', className: 'text-ld-lavender' },
+      { text: ' session ', className: 'text-white' },
+      { text: '= {', className: 'text-ld-fog' },
+    ],
+  },
+  {
+    indent: true,
+    segments: [
+      { text: 'mentor', className: 'text-ld-lilac' },
+      { text: ': ', className: 'text-ld-fog' },
+      { text: '"Agus Budiman"', className: 'text-ld-lavender' },
+      { text: ',', className: 'text-ld-fog' },
+    ],
+  },
+  {
+    indent: true,
+    segments: [
+      { text: 'duration', className: 'text-ld-lilac' },
+      { text: ': ', className: 'text-ld-fog' },
+      { text: '60', className: 'text-ld-lavender' },
+      { text: ', ', className: 'text-ld-fog' },
+      { text: '// minutes', className: 'text-ld-steel' },
+    ],
+  },
+  {
+    indent: true,
+    segments: [
+      { text: 'topics', className: 'text-ld-lilac' },
+      { text: ': ', className: 'text-ld-fog' },
+      { text: '"7 tersedia"', className: 'text-ld-lavender' },
+      { text: ',', className: 'text-ld-fog' },
+    ],
+  },
+  {
+    indent: true,
+    segments: [
+      { text: 'status', className: 'text-ld-lilac' },
+      { text: ': ', className: 'text-ld-fog' },
+      { text: '"available"', className: 'text-ld-lavender' },
+    ],
+  },
+  { segments: [{ text: '}', className: 'text-ld-fog' }] },
+];
+
+const lineLengths = codeLines.map(line => line.segments.reduce((n, s) => n + s.text.length, 0));
+const totalChars = lineLengths.reduce((n, l) => n + l, 0);
+
+function useTypewriter(totalLength: number, speedMs = 55) {
+  const [typed, setTyped] = useState(0);
+
+  useEffect(() => {
+    if (typed >= totalLength) return;
+    const id = setTimeout(() => setTyped(t => Math.min(t + 1, totalLength)), speedMs);
+    return () => clearTimeout(id);
+  }, [typed, totalLength, speedMs]);
+
+  return typed;
+}
+
+const HeroSection: React.FC = () => {
+  const typed = useTypewriter(totalChars);
+
+  return (
+    <section className="relative overflow-hidden bg-ld-canvas pt-32 pb-20 lg:pt-40 lg:pb-28 font-ld-sans">
+      <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-14 lg:gap-8 items-center">
+          {/* Left two-thirds: headline + sub + CTAs */}
+          <div className="lg:col-span-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-ld-lilac text-ld-violet text-xs font-medium mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-ld-violet" />
               Sesi Tersedia · 7 Topik QA
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight mb-4">
-              Percepat Karir{' '}
-              <span className="text-blue-500 dark:text-blue-400">QA-mu</span>{' '}
-              Bersama Expert
+            <h1 className="font-ld-display font-semibold text-[42px] sm:text-[56px] lg:text-[64px] leading-[0.98] tracking-[-0.025em] text-ld-graphite mb-5">
+              Percepat karir QA-mu bersama expert
             </h1>
 
-            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed mb-8">
+            <p className="text-base sm:text-lg text-ld-slate leading-relaxed max-w-lg mb-8 tracking-[-0.01em]">
               Mentoring 1-on-1 langsung dengan QA Engineer berpengalaman 6+ tahun.
               Dari fundamental testing hingga otomatisasi Cypress — belajar dari kasus nyata industri.
             </p>
 
-            {/* Trust chips */}
-            <div className="flex flex-wrap gap-2 mb-8 justify-center lg:justify-start">
+            <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <Link
+                to="/mentoring/booking"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-ld-violet text-white text-sm font-medium rounded-lg no-underline hover:bg-[#4d3de6] transition-colors"
+              >
+                Booking Sekarang
+                <ArrowRight size={16} />
+              </Link>
+              <a
+                href="#how-it-works"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-ld-ash text-ld-graphite text-sm font-medium rounded-lg no-underline hover:border-ld-steel transition-colors"
+              >
+                Cara Kerja
+              </a>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
               {['60 Menit/Sesi', 'Via WhatsApp', 'Fleksibel Jadwal', 'Gratis Konsultasi Awal'].map(tag => (
                 <span
                   key={tag}
-                  className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700"
+                  className="px-2.5 py-1 rounded-full bg-ld-cloud text-ld-slate text-xs font-medium"
                 >
                   {tag}
                 </span>
               ))}
             </div>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Link
-                to="/mentoring/booking"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-colors duration-200 shadow-lg shadow-blue-500/25"
-              >
-                Booking Sekarang
-                <ArrowRight size={18} />
-              </Link>
-              <a
-                href="#how-it-works"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors duration-200"
-              >
-                Cara Kerja
-              </a>
-            </div>
           </div>
 
-          {/* Right: visual card */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-sm sm:pt-16 sm:pb-16 sm:px-10">
-              {/* Floating card 1 — session info */}
-              <div className="absolute -top-6 -left-3 sm:-top-6 sm:-left-10 z-10 bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-slate-900/50 p-4 border border-slate-100 dark:border-slate-700 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                  <Calendar size={18} className="text-blue-500" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Jadwal Fleksibel</p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">Weekday & Weekend</p>
-                </div>
+          {/* Right one-third: pixel-art mosaic + code terminal card */}
+          <div className="lg:col-span-2 relative flex justify-center lg:justify-end">
+            <div className="relative w-full max-w-sm rounded-xl bg-ld-onyx overflow-hidden shadow-[var(--shadow-ld-lg)]">
+              <div className="border-b border-white/10 px-5 py-3 flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+                <span className="ml-2 text-ld-steel text-xs font-ld-mono">mentoring-session.tsx</span>
               </div>
 
-              {/* Floating card 2 — WA */}
-              <div className="absolute -bottom-3 -right-3 sm:bottom-0 sm:right-0 z-10 bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-slate-900/50 p-4 border border-slate-100 dark:border-slate-700 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                  <MessageCircle size={18} className="text-emerald-500" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Konfirmasi via</p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">WhatsApp</p>
-                </div>
-              </div>
+              <div className="px-5 py-5">
+                <div className="h-[150px] font-ld-mono text-xs leading-relaxed">
+                  {(() => {
+                    const lineStarts = lineLengths.reduce<number[]>((acc, _length, idx) => {
+                      acc.push(idx === 0 ? 0 : acc[idx - 1] + lineLengths[idx - 1]);
+                      return acc;
+                    }, []);
+                    return codeLines.map((line, idx) => {
+                      const lineStart = lineStarts[idx];
+                      const lineLength = lineLengths[idx];
 
-              {/* Main card */}
-              <div className="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-700/50">
-                {/* Header bar */}
-                <div className="bg-blue-500/10 border-b border-slate-700/50 px-6 py-3 flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-400/60" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400/60" />
-                  <div className="w-3 h-3 rounded-full bg-green-400/60" />
-                  <span className="ml-2 text-slate-400 text-xs font-mono">mentoring-session.tsx</span>
-                </div>
+                      const available = Math.max(0, Math.min(typed - lineStart, lineLength));
+                      const isLineTyping = available > 0 && available < lineLength;
+                      let segOffset = 0;
 
-                <div className="px-6 py-5 font-mono text-sm leading-relaxed">
-                  <p className="text-slate-500">{'// QA Mentoring 1-on-1'}</p>
-                  <p className="mt-2">
-                    <span className="text-blue-400">const</span>
-                    <span className="text-white"> session </span>
-                    <span className="text-slate-400">= {'{'}</span>
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-emerald-400">mentor</span>
-                    <span className="text-slate-400">: </span>
-                    <span className="text-amber-300">"Agus Budiman"</span>
-                    <span className="text-slate-400">,</span>
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-emerald-400">duration</span>
-                    <span className="text-slate-400">: </span>
-                    <span className="text-purple-400">60</span>
-                    <span className="text-slate-400">, </span>
-                    <span className="text-slate-500">{'// minutes'}</span>
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-emerald-400">topics</span>
-                    <span className="text-slate-400">: </span>
-                    <span className="text-amber-300">"7 tersedia"</span>
-                    <span className="text-slate-400">,</span>
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-emerald-400">experience</span>
-                    <span className="text-slate-400">: </span>
-                    <span className="text-amber-300">"6+ tahun"</span>
-                    <span className="text-slate-400">,</span>
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-emerald-400">status</span>
-                    <span className="text-slate-400">: </span>
-                    <span className="text-emerald-400">"available"</span>
-                  </p>
-                  <p>
-                    <span className="text-slate-400">{'}'}</span>
-                  </p>
-                  <p className="mt-3 flex items-center gap-2">
-                    <span className="inline-block w-2 h-4 bg-blue-400 animate-pulse rounded-sm" />
-                  </p>
+                      return (
+                        <p key={idx} className={`whitespace-nowrap ${idx === 1 ? 'mt-2' : line.indent ? 'pl-4' : ''}`}>
+                          {available === 0
+                            ? ' '
+                            : line.segments.map((seg, segIdx) => {
+                              if (segOffset >= available) return null;
+                              const shown = seg.text.slice(0, Math.max(0, available - segOffset));
+                              segOffset += seg.text.length;
+                              return (
+                                <span key={segIdx} className={seg.className}>
+                                  {shown}
+                                </span>
+                              );
+                            })}
+                          {isLineTyping && (
+                            <span className="inline-block w-1.5 h-3.5 -mb-0.5 bg-ld-violet animate-pulse rounded-sm" />
+                          )}
+                        </p>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
             </div>

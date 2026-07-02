@@ -34,16 +34,16 @@ const MentorField: React.FC<MentorFieldProps> = ({ mentors, selectedTopics, sele
 
   const navBtnCls = [
     'w-7 h-7 flex items-center justify-center rounded-lg border cursor-pointer transition-all duration-150',
-    'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800',
-    'text-slate-500 dark:text-slate-400 hover:text-accent hover:border-accent dark:hover:text-accent dark:hover:border-accent',
+    'bg-white border-ld-ash',
+    'text-ld-slate hover:text-ld-violet hover:border-ld-violet',
   ].join(' ');
 
   return (
     <div className="flex flex-col gap-2">
       {/* Label Row */}
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
-          <UserIcon size={15} className="text-accent flex-shrink-0" />
+        <label className="flex items-center gap-2 text-sm font-medium text-ld-graphite">
+          <UserIcon size={15} className="text-ld-violet flex-shrink-0" />
           Pilih Mentor <span className="text-red-500 ml-0.5">*</span>
         </label>
         {!noMatch && filteredMentors.length > 1 && (
@@ -54,14 +54,14 @@ const MentorField: React.FC<MentorFieldProps> = ({ mentors, selectedTopics, sele
         )}
       </div>
 
-      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+      <p className="text-[11px] text-ld-slate">
         {selectedTopics.length === 0
           ? 'Pilih topik terlebih dahulu untuk melihat mentor yang tersedia'
           : 'Mentor difilter berdasarkan topik yang kamu pilih'}
       </p>
 
       {noMatch ? (
-        <div className="flex items-center gap-2.5 p-3.5 rounded-xl border border-dashed border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400 text-xs bg-amber-50/30 dark:bg-amber-950/10">
+        <div className="flex items-center gap-2.5 p-3.5 rounded-xl border border-dashed border-amber-300 text-amber-600 text-xs bg-amber-50/30">
           <AlertCircle size={16} className="flex-shrink-0" />
           <span>Tidak ada mentor yang menguasai kombinasi topik ini</span>
         </div>
@@ -93,14 +93,14 @@ const MentorField: React.FC<MentorFieldProps> = ({ mentors, selectedTopics, sele
                   className={[
                     'relative overflow-hidden flex-none w-[260px] flex flex-col gap-2.5 p-3.5 rounded-xl text-left border transition-all duration-150',
                     isSelected
-                      ? 'border-accent bg-blue-500/10 dark:bg-blue-500/5'
+                      ? 'border-ld-violet bg-ld-lilac/40'
                       : !hasSlots
-                        ? 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 opacity-40 cursor-not-allowed'
-                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 hover:border-accent hover:bg-blue-500/5 dark:hover:bg-blue-500/5 cursor-pointer',
+                        ? 'border-ld-ash bg-white opacity-40 cursor-not-allowed'
+                        : 'border-ld-ash bg-white hover:border-ld-violet hover:bg-ld-cloud cursor-pointer',
                   ].join(' ')}
                 >
                   {isSelected && (
-                    <span className="absolute top-0 right-0 w-5 h-5 bg-accent flex items-center justify-center rounded-bl-lg">
+                    <span className="absolute top-0 right-0 w-5 h-5 bg-ld-violet flex items-center justify-center rounded-bl-lg">
                       <CheckCircle2 size={10} className="text-white" />
                     </span>
                   )}
@@ -111,6 +111,8 @@ const MentorField: React.FC<MentorFieldProps> = ({ mentors, selectedTopics, sele
                         <img
                           src={mentor.avatar}
                           alt={mentor.name}
+                          loading="lazy"
+                          decoding="async"
                           className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
                           onError={(e) => {
                             const t = e.currentTarget;
@@ -120,14 +122,14 @@ const MentorField: React.FC<MentorFieldProps> = ({ mentors, selectedTopics, sele
                         />
                       ) : null}
                       <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 bg-gradient-to-br from-blue-500 to-cyan-400"
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium text-white flex-shrink-0 bg-ld-violet"
                         style={{ display: mentor.avatar ? 'none' : 'flex' }}
                       >
                         {mentor.name.charAt(0)}
                       </div>
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white leading-snug">{mentor.name}</span>
-                        <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-snug">{mentor.bio}</span>
+                        <span className="text-xs font-medium text-ld-graphite leading-snug">{mentor.name}</span>
+                        <span className="text-[10px] text-ld-slate leading-snug">{mentor.bio}</span>
                       </div>
                     </div>
                   </div>
@@ -139,9 +141,9 @@ const MentorField: React.FC<MentorFieldProps> = ({ mentors, selectedTopics, sele
                       return (
                         <span
                           key={expId}
-                          className={`text-[9px] px-2 py-0.5 rounded-full font-semibold border capitalize transition-colors ${isMatch
-                            ? 'bg-accent/10 border-accent/30 text-accent'
-                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400'
+                          className={`text-[9px] px-2 py-0.5 rounded-full font-medium border capitalize transition-colors ${isMatch
+                            ? 'bg-ld-lilac border-ld-lavender text-ld-violet'
+                            : 'bg-white border-ld-ash text-ld-slate'
                             }`}
                         >
                           {expId.replace(/-/g, ' ')}
@@ -149,14 +151,14 @@ const MentorField: React.FC<MentorFieldProps> = ({ mentors, selectedTopics, sele
                       );
                     })}
                     {mentor.expertise.length > 5 && (
-                      <span className="text-[9px] px-2 py-0.5 rounded-full font-semibold border bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+                      <span className="text-[9px] px-2 py-0.5 rounded-full font-medium border bg-ld-cloud border-ld-ash text-ld-slate">
                         +{mentor.expertise.length - 5} lainnya
                       </span>
                     )}
                   </div>
 
                   {!hasSlots && selectedDate && (
-                    <p className="text-[10px] text-red-500 dark:text-red-400">Tidak tersedia di tanggal yang kamu pilih</p>
+                    <p className="text-[10px] text-red-500">Tidak tersedia di tanggal yang kamu pilih</p>
                   )}
                 </button>
               );

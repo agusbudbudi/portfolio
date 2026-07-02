@@ -41,9 +41,9 @@ const FeaturedEndorsements: React.FC = () => {
             >
               <div className="flex items-center gap-5">
                 <div className="relative w-[60px] h-[60px]">
-                  <img src={endorsement.image} alt={endorsement.name} className="w-full h-full object-cover rounded-2xl border-2 border-white dark:border-slate-900 shadow-md" />
+                  <img src={endorsement.image} alt={endorsement.name} loading="lazy" decoding="async" className="w-full h-full object-cover rounded-2xl border-2 border-white dark:border-slate-900 shadow-md" />
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white border border-slate-200 dark:border-slate-800 rounded flex items-center justify-center shadow overflow-hidden">
-                    <img src={endorsement.logo} alt={endorsement.company} className="w-full h-full object-contain" />
+                    <img src={endorsement.logo} alt={endorsement.company} loading="lazy" decoding="async" className="w-full h-full object-contain" />
                   </div>
                 </div>
                 <div className="flex flex-col gap-0.5">

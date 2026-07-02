@@ -23,13 +23,13 @@ const TimeField: React.FC<TimeFieldProps> = ({ mentor, selectedDate, sessionDura
 
   const emptyBoxCls = [
     'flex items-center gap-2 p-3.5 rounded-xl border border-dashed text-xs',
-    'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800/40',
+    'border-ld-ash text-ld-slate bg-white',
   ].join(' ');
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
-        <Clock size={15} className="text-accent flex-shrink-0" />
+      <label className="flex items-center gap-2 text-sm font-medium text-ld-graphite">
+        <Clock size={15} className="text-ld-violet flex-shrink-0" />
         Pilih Waktu (1 Jam) <span className="text-red-500 ml-0.5">*</span>
       </label>
 
@@ -39,7 +39,7 @@ const TimeField: React.FC<TimeFieldProps> = ({ mentor, selectedDate, sessionDura
           <span>Pilih mentor dan tanggal untuk melihat slot waktu</span>
         </div>
       ) : noSlots ? (
-        <div className={`${emptyBoxCls} border-amber-300 dark:border-amber-700 text-amber-500 bg-amber-50/20 dark:bg-amber-950/10`} aria-live="polite">
+        <div className={`${emptyBoxCls} border-amber-300 text-amber-500 bg-amber-50/20`} aria-live="polite">
           <Clock size={15} className="flex-shrink-0" />
           <span>Mentor tidak tersedia pada tanggal ini</span>
         </div>
@@ -62,12 +62,12 @@ const TimeField: React.FC<TimeFieldProps> = ({ mentor, selectedDate, sessionDura
                 className={[
                   'flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border transition-all duration-150 cursor-pointer gap-0.5',
                   isSelected
-                    ? 'text-white border-accent bg-accent shadow-md shadow-blue-500/25 dark:shadow-none'
-                    : 'bg-white dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:border-accent hover:bg-accent/10 hover:text-accent',
+                    ? 'text-white border-ld-violet bg-ld-violet shadow-sm'
+                    : 'bg-white border-ld-ash text-ld-graphite hover:border-ld-violet hover:bg-ld-violet/10 hover:text-ld-violet',
                 ].join(' ')}
               >
-                <span className="text-xs font-bold leading-none">{startTime}</span>
-                <span className={`text-[9px] leading-none ${isSelected ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'}`}>{endTime} WIB</span>
+                <span className="text-xs font-medium leading-none">{startTime}</span>
+                <span className={`text-[9px] leading-none ${isSelected ? 'text-white/80' : 'text-ld-slate'}`}>{endTime} WIB</span>
               </button>
             );
           })}
@@ -76,7 +76,7 @@ const TimeField: React.FC<TimeFieldProps> = ({ mentor, selectedDate, sessionDura
 
       {error && <p id="time-error" className="text-xs text-red-500 mt-1" role="alert">{error}</p>}
       {!isDisabled && !noSlots && !error && (
-        <p className="text-[11px] text-slate-500 dark:text-slate-400">Durasi 60 menit · Zona waktu WIB (UTC+7)</p>
+        <p className="text-[11px] text-ld-slate">Durasi 60 menit · Zona waktu WIB (UTC+7)</p>
       )}
     </div>
   );

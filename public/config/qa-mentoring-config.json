@@ -9,13 +9,22 @@
       "id": "fundamental-qa",
       "label": "Fundamental QA",
       "description": "Dasar-dasar Software Quality Assurance, SDLC & STLC",
-      "image": "https://i.imgur.com/JA7Dd9N.png"
+      "image": "https://i.imgur.com/JA7Dd9N.png",
+      "popular": true
     },
     {
       "id": "ai-assisted-qa",
       "label": "AI Assisted in QA Workflow",
       "description": "Memanfaatkan AI untuk mempercepat penulisan test case & code automation",
-      "image": "https://i.imgur.com/RRqKqA9.png"
+      "image": "https://i.imgur.com/RRqKqA9.png",
+      "popular": true
+    },
+    {
+      "id": "cypress-web-automation",
+      "label": "Cypress Web Automation",
+      "description": "Otomatisasi pengujian aplikasi web dengan Cypress",
+      "image": "https://i.imgur.com/i8B6yp0.png",
+      "popular": true
     },
     {
       "id": "debugging-tips-tricks",
@@ -34,12 +43,6 @@
       "label": "API Testing with Postman",
       "description": "Pengujian API manual & otomatisasi menggunakan Postman",
       "image": "https://i.imgur.com/1UGNcsW.png"
-    },
-    {
-      "id": "cypress-web-automation",
-      "label": "Cypress Web Automation",
-      "description": "Otomatisasi pengujian aplikasi web dengan Cypress",
-      "image": "https://i.imgur.com/i8B6yp0.png"
     },
     {
       "id": "web-automation-basic",
@@ -63,7 +66,7 @@
         "test-management-strategy"
       ],
       "bio": "6+ years QA Manual & Automation Engineer",
-      "avatar": "https://portfolio-qa-agus.vercel.app/img/profile/profile-agus.png",
+      "avatar": "/img/profile/profile-agus.webp",
       "schedule": {
         "monday": [
           "19:00",

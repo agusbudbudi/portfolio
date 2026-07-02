@@ -33,42 +33,34 @@ const FAQSection: React.FC = () => {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="py-12 md:py-20 bg-white dark:bg-slate-950">
+    <section id="faq" className="py-16 md:py-20 bg-ld-canvas font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-        {/* Header */}
         <div className="text-center mb-14">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 text-sm font-semibold mb-4">
-            FAQ
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-4">
+          <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
             Pertanyaan Umum
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto text-base leading-relaxed">
+          <p className="text-ld-slate max-w-xl mx-auto text-base leading-relaxed">
             Ada yang masih belum jelas? Temukan jawabannya di sini atau hubungi mentor langsung.
           </p>
         </div>
 
-        {/* Accordion */}
         <div className="max-w-3xl mx-auto space-y-3">
           {faqs.map((faq, idx) => {
             const isOpen = open === idx;
             return (
-              <div
-                key={idx}
-                className="rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden"
-              >
+              <div key={idx} className="rounded-xl border border-ld-ash overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setOpen(isOpen ? null : idx)}
-                  className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors duration-200 cursor-pointer"
+                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left bg-ld-canvas hover:bg-ld-cloud transition-colors cursor-pointer"
                   aria-expanded={isOpen}
                 >
-                  <span className="text-sm font-semibold text-slate-900 dark:text-white leading-snug">
+                  <span className="text-sm font-medium text-ld-graphite leading-snug">
                     {faq.q}
                   </span>
                   <ChevronDown
-                    size={18}
-                    className={`flex-shrink-0 text-slate-400 dark:text-slate-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                    size={16}
+                    className={`flex-shrink-0 text-ld-fog transition-transform duration-300 ${isOpen ? 'rotate-180 text-ld-violet' : ''}`}
                   />
                 </button>
 
@@ -82,8 +74,8 @@ const FAQSection: React.FC = () => {
                       transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
                       style={{ overflow: 'hidden' }}
                     >
-                      <div className="px-6 pb-5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed pt-4">
+                      <div className="px-5 pb-5 bg-ld-canvas border-t border-ld-ash">
+                        <p className="text-sm text-ld-slate leading-relaxed pt-4">
                           {faq.a}
                         </p>
                       </div>
