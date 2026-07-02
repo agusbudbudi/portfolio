@@ -4,14 +4,14 @@ import { ThemeProvider } from './context/ThemeContext';
 
 import PortfolioNavbar from './components/portfolio/Layout/Navbar';
 import PortfolioFooter from './components/portfolio/Layout/Footer';
-import MentoringNavbar from './components/portfolio/Layout/MentoringNavbar';
-import MentoringFooter from './components/portfolio/Layout/MentoringFooter';
 import PortfolioHome from './pages/portfolio/Home';
 import PortfolioAbout from './pages/portfolio/About';
 import PortfolioProjects from './pages/portfolio/Projects';
 import PortfolioCertifications from './pages/portfolio/Certifications';
 import PortfolioBookingPage from './pages/portfolio/Mentoring/BookingPage';
 import MentoringPage from './pages/portfolio/Mentoring/MentoringPage';
+import LightdashNavbar from './components/portfolio/Layout/LightdashNavbar';
+import LightdashFooter from './components/portfolio/Layout/LightdashFooter';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -29,14 +29,14 @@ const PortfolioLayout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
-const MentoringLayout: React.FC<LayoutProps> = ({ children }) => {
+const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 transition-colors duration-200">
-      <MentoringNavbar />
-      <main className="flex-grow pt-[70px]">
+    <div className="min-h-screen flex flex-col bg-ld-canvas">
+      <LightdashNavbar />
+      <main className="flex-grow">
         {children}
       </main>
-      <MentoringFooter />
+      <LightdashFooter />
     </div>
   );
 };
@@ -46,14 +46,14 @@ function App() {
     <ThemeProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<MentoringLayout><MentoringPage /></MentoringLayout>} />
+          <Route path="/" element={<LightdashLayout><MentoringPage /></LightdashLayout>} />
           <Route path="/portfolio" element={<PortfolioLayout><PortfolioHome /></PortfolioLayout>} />
           <Route path="/portfolio/about" element={<PortfolioLayout><PortfolioAbout /></PortfolioLayout>} />
           <Route path="/portfolio/projects" element={<PortfolioLayout><PortfolioProjects /></PortfolioLayout>} />
           <Route path="/portfolio/certifications" element={<PortfolioLayout><PortfolioCertifications /></PortfolioLayout>} />
-          <Route path="/portfolio/mentoring/booking" element={<MentoringLayout><PortfolioBookingPage /></MentoringLayout>} />
-          <Route path="/mentoring" element={<MentoringLayout><MentoringPage /></MentoringLayout>} />
-          <Route path="/mentoring/booking" element={<MentoringLayout><PortfolioBookingPage /></MentoringLayout>} />
+          <Route path="/portfolio/mentoring/booking" element={<LightdashLayout><PortfolioBookingPage /></LightdashLayout>} />
+          <Route path="/mentoring" element={<LightdashLayout><MentoringPage /></LightdashLayout>} />
+          <Route path="/mentoring/booking" element={<LightdashLayout><PortfolioBookingPage /></LightdashLayout>} />
         </Routes>
       </Router>
     </ThemeProvider>

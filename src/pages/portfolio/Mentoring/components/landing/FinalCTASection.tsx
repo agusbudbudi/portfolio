@@ -4,55 +4,40 @@ import { Link } from 'react-router-dom';
 
 const FinalCTASection: React.FC = () => {
   return (
-    <section className="py-12 md:py-20 bg-slate-50/60 dark:bg-slate-900/40">
+    <section className="py-16 md:py-20 bg-ld-cloud font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-500 to-blue-600 px-8 py-16 text-center shadow-2xl shadow-blue-500/20">
-          {/* Background decorations */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
-            <div className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
-            <div
-              className="absolute inset-0 opacity-5"
-              style={{
-                backgroundImage:
-                  'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
-                backgroundSize: '40px 40px',
-              }}
-            />
-          </div>
-
+        <div className="relative overflow-hidden rounded-2xl bg-ld-midnight px-8 py-16 text-center">
           <div className="relative z-10 max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 text-white text-sm font-semibold mb-6 backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-white text-xs font-medium mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-ld-lilac" />
               Mentor Tersedia Sekarang
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-4 leading-tight">
-              Siap Tingkatkan Skill QA-mu?
+            <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl lg:text-5xl text-white tracking-[-0.025em] leading-[1.02] mb-4">
+              Siap tingkatkan skill QA-mu?
             </h2>
-            <p className="text-blue-100 text-lg mb-8 leading-relaxed max-w-lg mx-auto">
+            <p className="text-ld-fog text-base sm:text-lg mb-8 leading-relaxed max-w-lg mx-auto">
               Jangan tunda lagi. Booking sesi pertamamu sekarang dan mulai perjalanan menjadi QA Engineer yang lebih baik.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 to="/mentoring/booking"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-colors duration-200 shadow-lg text-base"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-ld-violet text-white font-medium rounded-lg no-underline hover:bg-[#4d3de6] transition-colors text-sm"
               >
                 Booking Sekarang
-                <ArrowRight size={20} />
+                <ArrowRight size={18} />
               </Link>
               <a
                 href="#faq"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/30 text-white font-bold rounded-xl hover:bg-white/10 transition-colors duration-200 backdrop-blur-sm text-base"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 border border-white/20 text-white font-medium rounded-lg no-underline hover:bg-white/5 transition-colors text-sm"
               >
-                <MessageCircle size={20} />
+                <MessageCircle size={18} />
                 Lihat FAQ
               </a>
             </div>
 
-            {/* Mini trust */}
-            <p className="text-blue-200 text-sm mt-8">
+            <p className="text-ld-fog text-xs mt-8">
               60 menit/sesi · Via WhatsApp · Tersedia Tiap Hari
             </p>
           </div>

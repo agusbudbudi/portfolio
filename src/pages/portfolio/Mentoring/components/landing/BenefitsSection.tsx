@@ -1,74 +1,56 @@
 import React from 'react';
-import { Target, Zap, MessageCircle, TrendingUp } from 'lucide-react';
 
 const benefits = [
   {
-    icon: Target,
+    image: '/img/benefit/fokus-1-on-1.webp',
     title: 'Fokus 1-on-1',
-    description:
-      'Sesi eksklusif hanya kamu dan mentor. Tidak ada distraksi, semua waktu digunakan untuk kebutuhanmu.',
-    color: 'blue',
+    description: 'Kamu dan mentor, tanpa distraksi.',
   },
   {
-    icon: Zap,
+    image: '/img/benefit/real-world-cases.webp',
     title: 'Real-world Cases',
-    description:
-      'Materi langsung dari pengalaman industri nyata — bukan teori generik. Kasus yang kamu pelajari adalah yang terjadi di lapangan.',
-    color: 'amber',
+    description: 'Kasus nyata, bukan teori generik.',
   },
   {
-    icon: MessageCircle,
-    title: 'Direct via WhatsApp',
-    description:
-      'Booking mudah, konfirmasi cepat. Semua koordinasi langsung lewat WhatsApp tanpa platform tambahan.',
-    color: 'emerald',
+    image: '/img/benefit/booking-gampang.webp',
+    title: 'Booking Gampang',
+    description: 'Booking cepat, tanpa platform tambahan.',
   },
   {
-    icon: TrendingUp,
+    image: '/img/benefit/career-oriented.webp',
     title: 'Career-Oriented',
-    description:
-      'Bukan hanya teknikal — mentor juga bantu kamu memahami pola karir QA Engineer dan langkah konkret selanjutnya.',
-    color: 'purple',
+    description: 'Bahas karir QA, bukan cuma teknikal.',
   },
 ];
 
-const colorMap: Record<string, string> = {
-  blue: 'bg-blue-500/10 dark:bg-blue-500/15 text-blue-500 dark:text-blue-400',
-  amber: 'bg-amber-500/10 dark:bg-amber-500/15 text-amber-500 dark:text-amber-400',
-  emerald: 'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-500 dark:text-emerald-400',
-  purple: 'bg-purple-500/10 dark:bg-purple-500/15 text-purple-500 dark:text-purple-400',
-};
-
 const BenefitsSection: React.FC = () => {
   return (
-    <section className="py-12 md:py-20 bg-white dark:bg-slate-950">
+    <section className="py-16 md:py-20 bg-ld-canvas font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-        {/* Header */}
         <div className="text-center mb-14">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 text-sm font-semibold mb-4">
-            Kenapa Mentoring?
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-4">
+          <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
             Lebih dari Sekadar Belajar
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto text-base leading-relaxed">
-            Mentoring 1-on-1 beda dengan kursus online. Kamu dapat feedback langsung,
-            bukan video pre-recorded yang tidak bisa menjawab pertanyaanmu.
+          <p className="text-ld-slate max-w-xl mx-auto text-base leading-relaxed">
+            Feedback langsung dari mentor, bukan video pre-recorded yang gak bisa jawab pertanyaanmu.
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {benefits.map(({ icon: Icon, title, description, color }) => (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {benefits.map(({ image, title, description }) => (
             <div
               key={title}
-              className="group p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-blue-500/30 dark:hover:border-blue-500/30 hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all duration-300"
+              className="p-4 lg:p-6 rounded-xl bg-ld-canvas border border-ld-ash text-left"
             >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${colorMap[color]}`}>
-                <Icon size={22} />
+              <div className="relative w-24 h-24 mb-4">
+                <img
+                  src={image}
+                  alt={title}
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-28 h-28 object-contain object-bottom"
+                />
               </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">{title}</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{description}</p>
+              <h3 className="text-base font-ld-display font-semibold text-ld-graphite tracking-[-0.01em] mb-1.5">{title}</h3>
+              <p className="text-sm text-ld-slate leading-relaxed">{description}</p>
             </div>
           ))}
         </div>

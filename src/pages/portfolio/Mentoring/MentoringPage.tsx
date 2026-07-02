@@ -5,18 +5,20 @@ import BenefitsSection from './components/landing/BenefitsSection';
 import TopicsSection from './components/landing/TopicsSection';
 import HowItWorksSection from './components/landing/HowItWorksSection';
 import MentorProfileSection from './components/landing/MentorProfileSection';
+import PromotionSection from './components/landing/PromotionSection';
 import FAQSection from './components/landing/FAQSection';
 import FinalCTASection from './components/landing/FinalCTASection';
 
 const MentoringPage: React.FC = () => {
   return (
-    <div className="w-full bg-white dark:bg-slate-950 transition-colors">
+    <div className="w-full bg-ld-canvas">
       <HeroSection />
       <StatsStrip />
       <BenefitsSection />
       <TopicsSection />
       <HowItWorksSection />
       <MentorProfileSection />
+      <PromotionSection />
       <FAQSection />
       <FinalCTASection />
     </div>
