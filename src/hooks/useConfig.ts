@@ -6,6 +6,7 @@ export interface TopicConfig {
   label: string;
   description: string;
   image?: string;
+  popular?: boolean;
 }
 
 export interface MentorConfig {

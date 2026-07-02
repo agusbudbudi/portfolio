@@ -11,12 +11,12 @@ interface IntroFieldProps {
 
 const IntroField: React.FC<IntroFieldProps> = ({ value, onChange, error, maxLength = 2000 }) => {
   const charCount = value.trim().length;
-  const counterColor = charCount > maxLength ? 'text-red-500' : charCount >= maxLength * 0.9 ? 'text-amber-500' : 'text-slate-500 dark:text-slate-400';
+  const counterColor = charCount > maxLength ? 'text-red-500' : charCount >= maxLength * 0.9 ? 'text-amber-500' : 'text-ld-slate';
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor="booking-intro" className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
-        <MessageSquare size={15} className="text-accent flex-shrink-0" />
+      <label htmlFor="booking-intro" className="flex items-center gap-2 text-sm font-medium text-ld-graphite">
+        <MessageSquare size={15} className="text-ld-violet flex-shrink-0" />
         Jelaskan Materi &amp; Pendekatan Diskusi <span className="text-red-500 ml-0.5">*</span>
       </label>
 
@@ -31,7 +31,7 @@ const IntroField: React.FC<IntroFieldProps> = ({ value, onChange, error, maxLeng
         aria-invalid={!!error}
         aria-required="true"
         placeholder={`Jelaskan materi spesifik yang ingin dibahas, pertanyaan yang ingin dijawab, dan pendekatan mentoring apa yang Anda harapkan.\n\nContoh:\n'Saya ingin belajar tentang page object model di Cypress...'`}
-        className={`w-full p-3.5 text-sm rounded-xl border outline-none resize-y leading-relaxed transition-all duration-150 min-h-[140px] bg-white dark:bg-slate-800/40 text-slate-900 dark:text-white focus:border-accent focus:ring-2 focus:ring-accent/15 ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-slate-200 dark:border-slate-800'
+        className={`w-full p-3.5 text-sm rounded-xl border outline-none resize-y leading-relaxed transition-all duration-150 min-h-[140px] bg-white text-ld-graphite focus:border-ld-violet focus:ring-2 focus:ring-ld-violet/15 ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-ld-ash'
           }`}
         style={{ fontFamily: 'inherit' }}
       />

@@ -7,7 +7,6 @@ import { useDraft } from '../../../../hooks/useDraft';
 import { getAvailableDates, getNextAvailableDate } from '../../../../lib/dates';
 import { generateWhatsAppLink } from '../../../../lib/whatsapp';
 import { getErrorMessages } from '../../../../lib/validation';
-import Button from '../../../../components/portfolio/common/Button';
 import DateField from './DateField';
 import TopicsField from './TopicsField';
 import MentorField from './MentorField';
@@ -136,7 +135,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
         <div className="mb-6 space-y-3">
           {showErrorBanner && errorMessages.length > 0 && <ErrorBanner errors={errorMessages} onDismiss={() => setShowErrorBanner(false)} />}
           {showSuccess && (
-            <div className="flex items-center gap-2.5 p-4 rounded-xl border text-sm font-semibold bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400" role="status" aria-live="polite">
+            <div className="flex items-center gap-2.5 p-4 rounded-xl border text-sm font-medium bg-emerald-50 border-emerald-200 text-emerald-600" role="status" aria-live="polite">
               <CheckCircle size={18} />
               <span>Pesan WhatsApp siap dikirim ke <strong>{selectedMentor?.name}</strong></span>
             </div>
@@ -148,12 +147,12 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
 
           {/* LEFT COLUMN: header + card */}
           <div className="lg:col-span-3 flex flex-col">
-            <div className="px-5 py-2.5 bg-blue-500/8 dark:bg-blue-500/10 border border-b-0 border-blue-200/60 dark:border-blue-500/20 rounded-t-2xl">
-              <p className="text-[10px] font-bold tracking-widest uppercase text-blue-500 dark:text-blue-400">
+            <div className="px-5 py-2.5 bg-ld-cloud border border-b-0 border-ld-ash rounded-t-xl">
+              <p className="text-[10px] font-medium tracking-widest uppercase text-ld-violet">
                 Preferensi Sesi
               </p>
             </div>
-            <div className="rounded-b-2xl border border-slate-200 dark:border-slate-800 p-4 md:p-5 bg-white dark:bg-slate-900/30 flex flex-col gap-4">
+            <div className="rounded-b-xl border border-ld-ash p-4 md:p-5 bg-white flex flex-col gap-4">
               <div>
                 <TopicsField topics={topics} selected={selectedTopics} maxSelectable={2}
                   onChange={(t) => {
@@ -164,7 +163,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
                   }} error={errors.topics} />
               </div>
 
-              <div className="h-px bg-slate-100 dark:bg-slate-800" />
+              <div className="h-px bg-ld-frost" />
 
               <div>
                 <DateField availableDateIds={availableDates} value={date}
@@ -180,37 +179,39 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
                 href="https://dealls.com/mentoring/agus-budiman-765"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-violet-300/60 dark:border-violet-500/25 bg-gradient-to-r from-violet-50 to-purple-50/60 dark:from-violet-950/25 dark:to-purple-950/15 hover:from-violet-100 hover:to-purple-100/80 dark:hover:from-violet-950/40 dark:hover:to-purple-950/30 hover:border-violet-400 dark:hover:border-violet-500/50 transition-all duration-200 group cursor-pointer no-underline"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-ld-lilac bg-ld-cloud hover:bg-ld-frost hover:border-ld-lavender transition-all duration-200 group cursor-pointer no-underline"
               >
                 <img
                   src="https://i.imgur.com/uRMmt6z.jpeg"
                   alt="Dealls"
+                  loading="lazy"
+                  decoding="async"
                   className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <span className="inline-block px-1.5 py-0.5 rounded bg-violet-400/20 dark:bg-violet-400/15 text-violet-600 dark:text-violet-400 text-[9px] font-bold uppercase tracking-widest mb-1">
+                  <span className="inline-block px-1.5 py-0.5 rounded bg-ld-lilac text-ld-violet text-[9px] font-medium uppercase tracking-widest mb-1">
                     Also available on
                   </span>
-                  <p className="text-[13px] font-bold text-slate-800 dark:text-slate-200 leading-snug">
+                  <p className="text-[13px] font-medium text-ld-graphite leading-snug">
                     Dealls Mentoring
                   </p>
-                  <p className="text-[11px] text-violet-500/80 dark:text-violet-400/70 leading-snug">
+                  <p className="text-[11px] text-ld-slate leading-snug">
                     Indonesia's #1 Jobs &amp; Mentoring Platform
                   </p>
                 </div>
-                <ExternalLink size={14} className="flex-shrink-0 text-violet-400/60 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors duration-200" />
+                <ExternalLink size={14} className="flex-shrink-0 text-ld-fog group-hover:text-ld-violet transition-colors duration-200" />
               </a>
             </div>
           </div>
 
           {/* RIGHT COLUMN: header + card */}
           <div className="lg:col-span-2 flex flex-col">
-            <div className="px-5 py-2.5 bg-blue-500/8 dark:bg-blue-500/10 border border-b-0 border-blue-200/60 dark:border-blue-500/20 rounded-t-2xl">
-              <p className="text-[10px] font-bold tracking-widest uppercase text-blue-500 dark:text-blue-400">
+            <div className="px-5 py-2.5 bg-ld-cloud border border-b-0 border-ld-ash rounded-t-xl">
+              <p className="text-[10px] font-medium tracking-widest uppercase text-ld-violet">
                 Detail Sesi
               </p>
             </div>
-            <div className="rounded-b-2xl border border-slate-200 dark:border-slate-800 p-4 md:p-5 bg-white dark:bg-slate-900/30 flex flex-col gap-4">
+            <div className="rounded-b-xl border border-ld-ash p-4 md:p-5 bg-white flex flex-col gap-4">
               <div>
                 <MentorField mentors={mentors} selectedTopics={selectedTopics} selectedDate={date}
                   value={mentorId}
@@ -221,7 +222,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
                   }} error={errors.mentorId} />
               </div>
 
-              <div className="h-px bg-slate-100 dark:bg-slate-800" />
+              <div className="h-px bg-ld-frost" />
 
               <div>
                 <TimeField mentor={selectedMentor} selectedDate={date}
@@ -229,7 +230,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
                   value={time} onChange={(t) => { setTime(t); clearError('time'); }} error={errors.time} />
               </div>
 
-              <div className="h-px bg-slate-100 dark:bg-slate-800" />
+              <div className="h-px bg-ld-frost" />
 
               <div>
                 <IntroField value={introduction}
@@ -238,18 +239,17 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
               </div>
 
               {/* CTA */}
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2.5">
-                <Button
+              <div className="pt-2 border-t border-ld-frost flex flex-col gap-2.5">
+                <button
                   id="booking-submit-btn"
                   type="submit"
-                  variant="primary"
-                  className="w-full py-3.5"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-lg bg-ld-violet hover:bg-[#4d3de6] text-white text-sm font-medium transition-colors cursor-pointer border-none"
                   aria-label="Kirim permintaan booking via WhatsApp"
                 >
                   <Send size={18} />
                   Kirim via WhatsApp
-                </Button>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center leading-relaxed">
+                </button>
+                <p className="text-[11px] text-ld-slate text-center leading-relaxed">
                   Kamu akan diarahkan ke WhatsApp dengan pesan yang sudah terisi otomatis
                 </p>
               </div>

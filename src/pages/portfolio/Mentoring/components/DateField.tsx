@@ -70,20 +70,20 @@ const DateField: React.FC<DateFieldProps> = ({ availableDateIds, value, onChange
 
   const navBtnBase = [
     'w-7 h-7 flex items-center justify-center rounded-lg border',
-    'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400',
-    'hover:border-accent hover:text-accent cursor-pointer transition-all duration-150',
-    'disabled:opacity-30 disabled:cursor-default disabled:hover:border-slate-200 disabled:hover:text-slate-500 dark:disabled:hover:border-slate-800 dark:disabled:hover:text-slate-400',
+    'bg-white border-ld-ash text-ld-slate',
+    'hover:border-ld-violet hover:text-ld-violet cursor-pointer transition-all duration-150',
+    'disabled:opacity-30 disabled:cursor-default disabled:hover:border-ld-ash disabled:hover:text-ld-slate',
   ].join(' ');
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
-        <label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
-          <Calendar size={15} className="text-accent flex-shrink-0" />
+        <label className="flex items-center gap-2 text-sm font-medium text-ld-graphite">
+          <Calendar size={15} className="text-ld-violet flex-shrink-0" />
           Pilih Tanggal <span className="text-red-500 ml-0.5">*</span>
         </label>
         {selectedLabel && (
-          <p className="flex items-center gap-1 text-xs font-semibold text-accent whitespace-nowrap">
+          <p className="flex items-center gap-1 text-xs font-medium text-ld-violet whitespace-nowrap">
             <CheckCircle2 size={13} />
             {selectedLabel}
           </p>
@@ -91,14 +91,14 @@ const DateField: React.FC<DateFieldProps> = ({ availableDateIds, value, onChange
       </div>
 
       <div
-        className={`rounded-xl border p-3 flex flex-col gap-3 bg-white dark:bg-slate-900/30 ${error ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'}`}
+        className={`rounded-xl border p-3 flex flex-col gap-3 bg-white ${error ? 'border-red-500' : 'border-ld-ash'}`}
       >
         {/* Month nav */}
         <div className="flex items-center justify-between">
           <button type="button" className={navBtnBase} onClick={handlePrev} disabled={!canGoPrev()} aria-label="Bulan sebelumnya">
             <ChevronLeft size={14} />
           </button>
-          <span className="text-xs font-bold text-slate-900 dark:text-white">{ID_MONTHS[calMonth]} {calYear}</span>
+          <span className="text-xs font-medium text-ld-graphite">{ID_MONTHS[calMonth]} {calYear}</span>
           <button type="button" className={navBtnBase} onClick={handleNext} disabled={!canGoNext()} aria-label="Bulan berikutnya">
             <ChevronRight size={14} />
           </button>
@@ -107,7 +107,7 @@ const DateField: React.FC<DateFieldProps> = ({ availableDateIds, value, onChange
         {/* Weekday headers */}
         <div className="grid grid-cols-7">
           {WEEKDAY_LABELS.map((d) => (
-            <span key={d} className="text-[9px] font-bold text-center text-slate-400 dark:text-slate-500 uppercase tracking-wider py-1">{d}</span>
+            <span key={d} className="text-[9px] font-medium text-center text-ld-fog uppercase tracking-wider py-1">{d}</span>
           ))}
         </div>
 
@@ -136,12 +136,12 @@ const DateField: React.FC<DateFieldProps> = ({ availableDateIds, value, onChange
                 className={[
                   'h-10 w-full flex items-center justify-center text-xs rounded-lg border border-transparent transition-all duration-150',
                   isSelected
-                    ? 'bg-accent text-white font-bold shadow-sm'
+                    ? 'bg-ld-violet text-white font-medium shadow-sm'
                     : !isClickable
-                      ? 'text-slate-300 dark:text-slate-700 bg-slate-50 dark:bg-slate-800/40 cursor-default rounded-lg'
+                      ? 'text-ld-mist bg-ld-cloud cursor-default rounded-lg'
                       : isToday
-                        ? 'border-accent text-accent font-semibold cursor-pointer hover:bg-accent/10'
-                        : 'text-slate-900 dark:text-white font-medium cursor-pointer hover:bg-accent/10 hover:text-accent',
+                        ? 'border-ld-violet text-ld-violet font-medium cursor-pointer hover:bg-ld-violet/10'
+                        : 'text-ld-graphite font-medium cursor-pointer hover:bg-ld-violet/10 hover:text-ld-violet',
                 ].join(' ')}
               >
                 {day}
@@ -151,7 +151,7 @@ const DateField: React.FC<DateFieldProps> = ({ availableDateIds, value, onChange
         </div>
       </div>
 
-      <p className="text-[11px] text-slate-500 dark:text-slate-400">Hanya hari dengan mentor tersedia yang bisa dipilih</p>
+      <p className="text-[11px] text-ld-slate">Hanya hari dengan mentor tersedia yang bisa dipilih</p>
       {error && <p className="text-xs text-red-500" role="alert">{error}</p>}
     </div>
   );
