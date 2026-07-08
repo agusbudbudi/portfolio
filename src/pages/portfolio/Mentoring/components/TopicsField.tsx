@@ -1,4 +1,4 @@
-// TopicsField – horizontal slider with max 2 selections using Tailwind CSS (light & dark mode support)
+// TopicsField – horizontal slider, selection capped at maxSelectable (bookingRules.maxTopicsSelectable)
 import React, { useRef } from 'react';
 import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { TopicConfig } from '../../../../hooks/useConfig';

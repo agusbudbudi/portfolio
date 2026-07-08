@@ -1,6 +1,5 @@
 import React from 'react';
 import { Linkedin, Instagram, Github, Mail, ArrowUpRight, MessageCircle } from 'lucide-react';
-import SectionHeader from '../common/SectionHeader';
 
 const CONTACT_ITEMS = [
   {
@@ -27,38 +26,42 @@ const CONTACT_ITEMS = [
 
 const ContactSection: React.FC = () => {
   return (
-    <section id="contact" className="py-12 md:py-20 bg-white dark:bg-slate-950 overflow-hidden">
+    <section id="contact" className="py-12 md:py-20 bg-ld-canvas overflow-hidden">
       <div className="max-w-[1200px] mx-auto px-4">
-        <SectionHeader
-          icon={<MessageCircle size={20} />}
-          iconClassName="contact-icon-bg"
-          title="Get in"
-          titleSpan="Touch"
-          subtitle="Contact me or follow my social media"
-        />
+        <div className="flex items-start gap-4 mb-8">
+          <div className="w-10 h-10 min-w-10 rounded-lg flex items-center justify-center mt-1 bg-ld-lilac text-ld-violet">
+            <MessageCircle size={20} />
+          </div>
+          <div>
+            <h2 className="font-ld-display font-semibold text-2xl tracking-[-0.02em] text-ld-graphite mb-1">
+              Get in <span className="text-ld-violet">Touch</span>
+            </h2>
+            <p className="text-sm text-ld-slate">Contact me or follow my social media</p>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
           {CONTACT_ITEMS.map((item, index) => (
             <a
               key={index}
               href={item.url}
-              className="flex justify-between items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-6 rounded-[20px] decoration-none transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/35 hover:border-blue-500 group"
+              className="flex justify-between items-center bg-ld-canvas border border-ld-ash p-6 rounded-xl no-underline transition-colors hover:border-ld-violet hover:shadow-ld-subtle-2 group"
               target="_blank"
               rel="noopener noreferrer"
             >
               <div className="flex gap-6 items-center">
-                <div className="w-[50px] h-[50px] bg-blue-500 text-white rounded-[14px] flex items-center justify-center text-xl shadow-md shadow-blue-500/15">
+                <div className="w-[50px] h-[50px] bg-ld-violet text-white rounded-lg flex items-center justify-center text-xl">
                   {item.name === 'LinkedIn' && <Linkedin size={24} />}
                   {item.name === 'Instagram' && <Instagram size={24} />}
                   {item.name === 'GitHub' && <Github size={24} />}
                   {item.name === 'E-mail' && <Mail size={24} />}
                 </div>
                 <div className="text-left">
-                  <h4 className="text-base font-bold text-slate-900 dark:text-white mb-1 m-0">{item.name}</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-405 m-0">{item.label}</p>
+                  <h4 className="text-base font-semibold text-ld-graphite mb-1 m-0">{item.name}</h4>
+                  <p className="text-xs text-ld-fog m-0">{item.label}</p>
                 </div>
               </div>
-              <div className="text-slate-400 dark:text-slate-500 transition-all duration-350 group-hover:text-blue-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <div className="text-ld-fog transition-colors group-hover:text-ld-violet">
                 <ArrowUpRight size={20} />
               </div>
             </a>

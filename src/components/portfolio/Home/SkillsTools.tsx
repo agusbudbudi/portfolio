@@ -1,11 +1,10 @@
 import React from 'react';
 import { FlaskConical, Database, ShieldCheck, Cpu, Wrench } from 'lucide-react';
-import SectionHeader from '../common/SectionHeader';
 
 const SKILL_CATEGORIES = [
   {
     title: 'Automation & Core',
-    icon: <FlaskConical size={22} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />,
+    icon: <FlaskConical size={22} className="text-ld-violet flex-shrink-0" />,
     skills: [
       { name: 'Cypress (Javascript)', level: 'Advanced', icon: '/img/tools/cypress-logo.svg' },
       { name: 'Appium (Mobile)', level: 'Intermediate', icon: '/img/tools/appium-logo.webp' },
@@ -17,7 +16,7 @@ const SKILL_CATEGORIES = [
   },
   {
     title: 'API, Performance & SQL',
-    icon: <Database size={22} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />,
+    icon: <Database size={22} className="text-ld-violet flex-shrink-0" />,
     skills: [
       { name: 'Postman (API Testing)', level: 'Advanced', icon: '/img/tools/postman-logo.webp' },
       { name: 'REST API & JSON', level: 'Advanced', icon: '/img/tools/rest-api-logo.webp' },
@@ -28,7 +27,7 @@ const SKILL_CATEGORIES = [
   },
   {
     title: 'Management & Debug',
-    icon: <ShieldCheck size={22} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />,
+    icon: <ShieldCheck size={22} className="text-ld-violet flex-shrink-0" />,
     skills: [
       { name: 'Jira & Confluence', level: 'Advanced', icon: '/img/tools/jira-logo.webp' },
       { name: 'Asana', level: 'Advanced', icon: '/img/tools/asana-logo.webp' },
@@ -40,7 +39,7 @@ const SKILL_CATEGORIES = [
   },
   {
     title: 'DevOps, Mobile & Tools',
-    icon: <Cpu size={22} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />,
+    icon: <Cpu size={22} className="text-ld-violet flex-shrink-0" />,
     skills: [
       { name: 'CI/CD (Jenkins, Git)', level: 'Intermediate', icon: '/img/tools/jenkins-logo.svg' },
       { name: 'GitHub', level: 'Advanced', icon: '/img/tools/github-logo.webp' },
@@ -56,49 +55,53 @@ const SkillsTools: React.FC = () => {
   const getLevelClasses = (level: string) => {
     switch (level.toLowerCase()) {
       case 'advanced':
-        return 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400';
+        return 'bg-emerald-50 text-emerald-800';
       case 'intermediate':
-        return 'bg-blue-50 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400';
+        return 'bg-blue-50 text-blue-800';
       case 'beginner':
       default:
-        return 'bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400';
+        return 'bg-amber-50 text-amber-800';
     }
   };
 
   return (
-    <section className="py-12 md:py-20 bg-slate-50 dark:bg-slate-900/30 overflow-hidden">
+    <section className="py-12 md:py-20 bg-ld-cloud overflow-hidden">
       <div className="max-w-[1200px] mx-auto px-4">
-        <SectionHeader
-          icon={<Wrench size={20} />}
-          iconClassName="skills-icon"
-          title="Skills &"
-          titleSpan="Tools"
-          subtitle="The technical arsenal I use to ensure software quality."
-        />
+        <div className="flex items-start gap-4 mb-8">
+          <div className="w-10 h-10 min-w-10 rounded-lg flex items-center justify-center mt-1 bg-ld-lilac text-ld-violet">
+            <Wrench size={20} />
+          </div>
+          <div>
+            <h2 className="font-ld-display font-semibold text-2xl tracking-[-0.02em] text-ld-graphite mb-1">
+              Skills & <span className="text-ld-violet">Tools</span>
+            </h2>
+            <p className="text-sm text-ld-slate">The technical arsenal I use to ensure software quality.</p>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {SKILL_CATEGORIES.map((category, idx) => (
-            <div key={idx} className="p-4 rounded-[24px]">
+            <div key={idx} className="p-0 sm:p-4 rounded-xl">
               <div className="flex items-center gap-3 mb-8">
                 {category.icon}
-                <h3 className="text-xl font-extrabold text-slate-900 dark:text-white m-0">{category.title}</h3>
+                <h3 className="font-ld-display font-semibold text-xl text-ld-graphite m-0">{category.title}</h3>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
                 {category.skills.map((skill, sIdx) => (
                   <div
                     key={sIdx}
-                    className="flex flex-col items-center justify-center gap-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-8 pb-5 rounded-[20px] transition-all duration-400 ease-spring relative overflow-hidden group hover:-translate-y-2 hover:scale-[1.03] hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/30"
+                    className="flex flex-col items-center justify-center gap-3 bg-ld-canvas border border-ld-ash p-8 pb-5 rounded-xl transition-colors relative overflow-hidden group hover:border-ld-violet hover:shadow-ld-subtle-2"
                   >
                     <img
                       src={skill.icon}
                       alt={skill.name}
                       loading="lazy"
                       decoding="async"
-                      className="max-w-[80px] h-10 object-contain transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 filter drop-shadow"
+                      className="max-w-[80px] h-10 object-contain"
                     />
                     <div className="flex flex-col items-center gap-2 text-center">
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white m-0 leading-tight">{skill.name}</p>
-                      <span className={`absolute top-0 left-0 text-[10px] px-2.5 py-1 rounded-br-xl font-bold uppercase tracking-wider ${getLevelClasses(skill.level)}`}>
+                      <p className="text-sm font-semibold text-ld-graphite m-0 leading-tight">{skill.name}</p>
+                      <span className={`absolute top-0 left-0 text-[10px] px-2.5 py-1 rounded-br-lg font-bold uppercase tracking-wider ${getLevelClasses(skill.level)}`}>
                         {skill.level}
                       </span>
                     </div>

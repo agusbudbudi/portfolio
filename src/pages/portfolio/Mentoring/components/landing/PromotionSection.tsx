@@ -8,7 +8,7 @@ const PromotionSection: React.FC = () => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.18),transparent_55%)] pointer-events-none" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center min-h-[440px] lg:min-h-[520px]">
-        <div className="relative z-10 px-6 sm:px-10 lg:px-16 py-16 lg:py-0">
+        <div className="relative z-10 px-6 sm:px-10 lg:px-16 py-8 lg:py-0">
 
           <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl lg:text-[42px] text-white tracking-[-0.02em] leading-[1.1] mb-4 max-w-lg">
             Diskon 10% untuk Sesi Mentoring Pertamamu
@@ -27,7 +27,7 @@ const PromotionSection: React.FC = () => {
           </Link>
         </div>
 
-        <div className="relative h-63 sm:h-80 lg:h-full order-first lg:order-last">
+        <div className="relative h-80 sm:h-80 lg:h-full order-first lg:order-last">
           <img
             src="/img/image-promotion.webp"
             alt="Promo mentoring QA"
@@ -35,8 +35,8 @@ const PromotionSection: React.FC = () => {
             decoding="async"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-ld-violet/40 via-transparent to-transparent" />
-          <div className="absolute inset-0 lg:hidden bg-gradient-to-t from-ld-violet/50 via-transparent to-transparent" />
+          <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-ld-violet/20 via-transparent to-transparent" />
+          <div className="absolute inset-0 lg:hidden bg-gradient-to-t from-ld-violet/25 via-transparent to-transparent" />
         </div>
       </div>
     </section>

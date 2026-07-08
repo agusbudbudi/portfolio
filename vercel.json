@@ -1,5 +1,14 @@
 {
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev -- --port $PORT",
+  "outputDirectory": "dist",
+  "redirects": [
+    { "source": "/mentoring", "destination": "/", "permanent": true },
+    { "source": "/portfolio/mentoring/booking", "destination": "/mentoring/booking", "permanent": true }
+  ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!api/|@|.*\\..*).*)", "destination": "/index.html" }
   ]
 }

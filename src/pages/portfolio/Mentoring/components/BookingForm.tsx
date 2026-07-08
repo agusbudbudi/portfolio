@@ -53,7 +53,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingLink, setPendingLink] = useState<string | null>(null);
 
-  const { errors, validate, clearError } = useFormValidation();
+  const { errors, validate, clearError } = useFormValidation(bookingRules.maxTopicsSelectable);
   const { save, restore, clear } = useDraft();
   const hasMounted = useRef(false);
 
@@ -154,7 +154,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
             </div>
             <div className="rounded-b-xl border border-ld-ash p-4 md:p-5 bg-white flex flex-col gap-4">
               <div>
-                <TopicsField topics={topics} selected={selectedTopics} maxSelectable={2}
+                <TopicsField topics={topics} selected={selectedTopics} maxSelectable={bookingRules.maxTopicsSelectable}
                   onChange={(t) => {
                     setSelectedTopics(t);
                     clearError('topics');
@@ -243,7 +243,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
                 <button
                   id="booking-submit-btn"
                   type="submit"
-                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-lg bg-ld-violet hover:bg-[#4d3de6] text-white text-sm font-medium transition-colors cursor-pointer border-none"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium transition-colors cursor-pointer border-none"
                   aria-label="Kirim permintaan booking via WhatsApp"
                 >
                   <Send size={18} />

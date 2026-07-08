@@ -1,9 +1,21 @@
 [
   {
+    "company": "Fit Hub",
+    "logo": "/img/company/fithub-logo.png",
+    "role": "QA Engineer",
+    "period": "August 2026 - Present",
+    "responsibilities": [
+      "Description will be added soon."
+    ],
+    "employmentType": "Full-time",
+    "locationType": "Onsite",
+    "location": "Jakarta, Indonesia"
+  },
+  {
     "company": "Diri Care",
     "logo": "/img/company/diricare-logo.webp",
     "role": "QA Engineer I",
-    "period": "Feb 2023 - Present",
+    "period": "Feb 2023 - August 2026",
     "responsibilities": [
       "Led QA for Web and Mobile Web, ensuring 100% sprint QA completion in Agile/SCRUM sprints",
       "Achieved ~89% web test coverage with ~95% pass rate",

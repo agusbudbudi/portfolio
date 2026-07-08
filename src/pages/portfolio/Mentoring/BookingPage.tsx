@@ -38,7 +38,7 @@ const BookingPage: React.FC = () => {
           <button
             id="config-retry-btn"
             type="button"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-ld-violet hover:bg-[#4d3de6] text-white rounded-lg text-sm font-medium cursor-pointer transition-colors border-none"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-ld-violet hover:bg-[#1f87e6] text-white rounded-lg text-sm font-medium cursor-pointer transition-colors border-none"
             onClick={retry}
           >
             <RefreshCw size={16} />

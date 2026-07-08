@@ -1,6 +1,5 @@
 import React from 'react';
 import { BookOpen, Calendar, ArrowRight, Tag } from 'lucide-react';
-import SectionHeader from '../common/SectionHeader';
 
 interface Article {
   id: number;
@@ -48,38 +47,42 @@ const ARTICLES: Article[] = [
 
 const KnowledgeHub: React.FC = () => {
   return (
-    <section className="py-12 md:py-20 bg-slate-50 dark:bg-slate-900/30 overflow-hidden">
+    <section className="py-12 md:py-20 bg-ld-cloud overflow-hidden">
       <div className="max-w-[1200px] mx-auto px-4">
-        <SectionHeader
-          icon={<BookOpen size={20} />}
-          iconClassName="knowledge-icon"
-          title="QA Knowledge"
-          titleSpan="Hub"
-          subtitle="Sharing insights, best practices, and thoughts on the world of software quality."
-        />
+        <div className="flex items-start gap-4 mb-8">
+          <div className="w-10 h-10 min-w-10 rounded-lg flex items-center justify-center mt-1 bg-ld-lilac text-ld-violet">
+            <BookOpen size={20} />
+          </div>
+          <div>
+            <h2 className="font-ld-display font-semibold text-2xl tracking-[-0.02em] text-ld-graphite mb-1">
+              QA Knowledge <span className="text-ld-violet">Hub</span>
+            </h2>
+            <p className="text-sm text-ld-slate">Sharing insights, best practices, and thoughts on the world of software quality.</p>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
           {ARTICLES.map((article) => (
             <article
               key={article.id}
-              className="bg-white dark:bg-slate-900 rounded-[20px] overflow-hidden border border-slate-200 dark:border-slate-800/80 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/35 hover:border-blue-500 flex flex-col"
+              className="bg-ld-canvas rounded-xl overflow-hidden border border-ld-ash transition-colors hover:border-ld-violet hover:shadow-ld-subtle-2 flex flex-col"
             >
               <div className="p-6 flex flex-col flex-grow">
                 <div className="flex justify-between items-center mb-4 text-[10px] font-semibold">
-                  <span className="flex items-center gap-1.5 text-blue-550 dark:text-blue-400 uppercase tracking-wider">
+                  <span className="flex items-center gap-1.5 text-ld-violet uppercase tracking-wider">
                     <Tag size={10} /> {article.category}
                   </span>
-                  <span className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                  <span className="flex items-center gap-1.5 text-ld-fog uppercase tracking-wider">
                     <Calendar size={10} /> {article.date}
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3 leading-snug">{article.title}</h3>
-                <p className="text-sm text-slate-650 dark:text-slate-400 leading-relaxed mb-6 flex-grow">{article.excerpt}</p>
+                <h3 className="font-ld-display font-semibold text-lg text-ld-graphite mb-3 leading-snug">{article.title}</h3>
+                <p className="text-sm text-ld-slate leading-relaxed mb-6 flex-grow">{article.excerpt}</p>
 
-                <div className="flex justify-between items-center pt-5 border-t border-slate-200 dark:border-slate-800/80 mt-auto">
-                  <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">{article.readTime}</span>
-                  <button className="flex items-center gap-1.5 text-blue-500 dark:text-blue-400 hover:gap-2.5 transition-all duration-200 font-bold bg-transparent border-none cursor-pointer p-0 text-sm">
+                <div className="flex justify-between items-center pt-5 border-t border-ld-ash mt-auto">
+                  <span className="text-xs text-ld-fog font-medium">{article.readTime}</span>
+                  <button className="flex items-center gap-1.5 text-ld-violet hover:gap-2.5 transition-all duration-200 font-semibold bg-transparent border-none cursor-pointer p-0 text-sm">
                     Read More <ArrowRight size={16} />
                   </button>
                 </div>

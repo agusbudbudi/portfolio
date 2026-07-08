@@ -54,7 +54,7 @@ const MetricsSection: React.FC = () => {
   };
 
   return (
-    <section className="py-12 md:py-16 bg-gradient-to-b from-white to-slate-50 dark:from-slate-950 dark:to-slate-900/50 relative overflow-hidden">
+    <section className="py-12 md:py-20 bg-ld-canvas relative overflow-hidden">
       <div className="max-w-[1200px] mx-auto px-4">
         <motion.div
           className="grid grid-cols-2 lg:grid-cols-4 gap-4"
@@ -66,19 +66,16 @@ const MetricsSection: React.FC = () => {
           {metrics.map((metric, index) => (
             <motion.div
               key={index}
-              className="bg-white dark:bg-slate-900 p-6 rounded-[20px] border border-slate-200 dark:border-slate-800/80 flex flex-col items-center text-center transition-all duration-400 ease-smooth relative z-10 hover:-translate-y-2 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/30 group"
+              className="bg-ld-canvas p-6 rounded-xl border border-ld-ash flex flex-col items-center text-center transition-colors relative z-10 hover:border-ld-violet hover:shadow-ld-subtle-2 group"
               variants={itemVariants}
             >
-              {/* background shine gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[20px] opacity-0 group-hover:opacity-100 transition-opacity duration-400 -z-10"></div>
-
-              <div className="w-12 h-12 bg-blue-500/10 dark:bg-blue-500/25 text-blue-500 dark:text-blue-400 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 group-hover:bg-blue-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-blue-500/20">
+              <div className="w-12 h-12 bg-ld-lilac text-ld-violet rounded-lg flex items-center justify-center mb-4 transition-colors group-hover:bg-ld-violet group-hover:text-white">
                 {metric.icon}
               </div>
               <div className="flex flex-col items-center">
-                <h3 className="text-[1.75rem] font-extrabold text-slate-900 dark:text-white mb-1 tracking-tight">{metric.value}</h3>
-                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">{metric.label}</h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{metric.description}</p>
+                <h3 className="font-ld-display font-semibold text-[1.75rem] text-ld-graphite mb-1 tracking-tight">{metric.value}</h3>
+                <h4 className="text-sm font-semibold text-ld-graphite mb-2">{metric.label}</h4>
+                <p className="text-xs text-ld-slate leading-relaxed">{metric.description}</p>
               </div>
             </motion.div>
           ))}

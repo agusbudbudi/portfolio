@@ -20,8 +20,9 @@ const MAX_INTRODUCTION_LENGTH = 2000;
 
 /**
  * Validates all form fields and returns a map of field → error message (null if valid).
+ * `maxTopics` follows bookingRules.maxTopicsSelectable from the mentoring config.
  */
-export function validateForm(data: FormData): ValidationErrors {
+export function validateForm(data: FormData, maxTopics: number = 2): ValidationErrors {
   const errors: ValidationErrors = {
     date: null,
     topics: null,
@@ -38,8 +39,8 @@ export function validateForm(data: FormData): ValidationErrors {
   // Topics
   if (!data.topics || data.topics.length === 0) {
     errors.topics = 'Minimal pilih 1 topik';
-  } else if (data.topics.length > 2) {
-    errors.topics = 'Maksimal 2 topik dapat dipilih';
+  } else if (data.topics.length > maxTopics) {
+    errors.topics = `Maksimal ${maxTopics} topik dapat dipilih`;
   }
 
   // Mentor

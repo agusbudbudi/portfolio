@@ -72,7 +72,7 @@ const HeroSection: React.FC = () => {
   const typed = useTypewriter(totalChars);
 
   return (
-    <section className="relative overflow-hidden bg-ld-canvas pt-32 pb-20 lg:pt-40 lg:pb-28 font-ld-sans">
+    <section className="relative overflow-hidden bg-ld-canvas pt-24 pb-16 lg:pt-32 lg:pb-16 font-ld-sans">
       <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-14 lg:gap-8 items-center">
           {/* Left two-thirds: headline + sub + CTAs */}
@@ -83,7 +83,7 @@ const HeroSection: React.FC = () => {
             </div>
 
             <h1 className="font-ld-display font-semibold text-[42px] sm:text-[56px] lg:text-[64px] leading-[0.98] tracking-[-0.025em] text-ld-graphite mb-5">
-              Percepat karir QA-mu bersama expert
+              Jadi QA Engineer, Dibimbing Praktisi Langsung
             </h1>
 
             <p className="text-base sm:text-lg text-ld-slate leading-relaxed max-w-lg mb-8 tracking-[-0.01em]">
@@ -94,7 +94,7 @@ const HeroSection: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
               <Link
                 to="/mentoring/booking"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-ld-violet text-white text-sm font-medium rounded-lg no-underline hover:bg-[#4d3de6] transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-ld-violet text-white text-sm font-medium rounded-lg no-underline hover:bg-[#1f87e6] transition-colors"
               >
                 Booking Sekarang
                 <ArrowRight size={16} />
