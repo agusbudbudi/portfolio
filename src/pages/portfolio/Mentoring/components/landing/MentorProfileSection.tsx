@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Award, Building2, Clock, Loader2, User } from 'lucide-react';
+import { ArrowRight, Award, Building2, Clock, Globe, Loader2, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useConfig } from '../../../../../hooks/useConfig';
 import type { MentorConfig } from '../../../../../types/mentoring';
@@ -19,6 +19,11 @@ const companies = [
   { name: 'Diricare', logo: '/img/company/diricare-logo.webp' },
   { name: 'Traveloka', logo: '/img/company/traveloka-logo.webp' },
   { name: 'Pegipegi', logo: '/img/company/pegipegi-logo.webp' },
+];
+
+const mentorPlatforms = [
+  { key: 'digitalSkola' as const, name: 'Digital Skola', logo: '/img/mentoring/logo-digitalskola.png' },
+  { key: 'dealls' as const, name: 'Dealls', logo: 'https://i.imgur.com/uRMmt6z.jpeg' },
 ];
 
 const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
@@ -61,11 +66,12 @@ const MentorProfileSection: React.FC = () => {
         )}
 
         {!loading && mentors.length > 0 && (
-          <div className={`flex gap-4 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-none px-4 sm:px-6 pt-2 pb-4 scroll-pl-4 sm:scroll-pl-6 scroll-smooth md:px-0 md:pt-0 md:pb-0 md:overflow-visible md:snap-none md:grid md:gap-6 ${mentors.length === 1
-            ? 'md:grid-cols-1 md:max-w-4xl md:mx-auto'
-            : mentors.length === 2
+          <div className={`flex gap-4 pt-2 pb-4 md:pt-0 md:pb-0 md:overflow-visible md:snap-none md:grid md:gap-6 ${mentors.length === 1
+            ? 'justify-center px-4 sm:px-6 md:grid-cols-1 md:max-w-4xl md:mx-auto'
+            : `overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-none px-4 sm:px-6 scroll-pl-4 sm:scroll-pl-6 scroll-smooth md:px-0 ${mentors.length === 2
               ? 'md:grid-cols-2 md:max-w-4xl md:mx-auto'
               : 'md:grid-cols-2 lg:grid-cols-3'
+            }`
             }`}>
             {mentors.map(mentor => {
               const sched = deriveSchedule(mentor.schedule);
@@ -73,7 +79,10 @@ const MentorProfileSection: React.FC = () => {
                 <div
                   key={mentor.id}
                   onClick={() => setSelectedMentor(mentor)}
-                  className="flex-shrink-0 w-[85%] sm:w-[320px] snap-start md:w-auto md:flex-shrink bg-ld-canvas rounded-2xl border border-ld-ash overflow-hidden flex flex-col cursor-pointer transition-shadow hover:shadow-[0_12px_28px_rgba(30,27,75,0.12)]"
+                  className={`${mentors.length === 1
+                    ? 'w-full max-w-sm sm:w-[320px]'
+                    : 'flex-shrink-0 w-[85%] sm:w-[320px] snap-start'
+                    } md:w-auto md:flex-shrink bg-ld-canvas rounded-2xl border border-ld-ash overflow-hidden flex flex-col cursor-pointer transition-shadow hover:shadow-[0_12px_28px_rgba(30,27,75,0.12)]`}
                 >
                   <div className="bg-ld-onyx flex items-stretch gap-4 h-32 overflow-hidden">
                     <div className="aspect-square flex-shrink-0 self-stretch overflow-hidden bg-white">
@@ -87,7 +96,7 @@ const MentorProfileSection: React.FC = () => {
                     </div>
                     <div className="flex-1 min-w-0 pr-6 flex flex-col justify-center">
                       <h3 className="text-base font-ld-display font-semibold text-white mb-0.5 truncate">{mentor.name}</h3>
-                      <p className="text-ld-fog text-xs leading-snug truncate">{mentor.bio}</p>
+                      <p className="text-ld-fog text-xs leading-snug line-clamp-2">{mentor.bio}</p>
                     </div>
                   </div>
 
@@ -156,6 +165,33 @@ const MentorProfileSection: React.FC = () => {
                         )}
                       </div>
                     </div>
+
+                    {mentorPlatforms.some(p => mentor.platforms?.[p.key]) && (
+                      <div className="flex items-start gap-3 border-t border-ld-ash pt-5">
+                        <div className="w-8 h-8 rounded-lg bg-ld-lilac flex items-center justify-center flex-shrink-0">
+                          <Globe size={15} className="text-ld-violet" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-ld-fog uppercase tracking-wide mb-2">
+                            Mentor di
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2.5">
+                            {mentorPlatforms
+                              .filter(p => mentor.platforms?.[p.key])
+                              .map(p => (
+                                <img
+                                  key={p.key}
+                                  src={p.logo}
+                                  alt={p.name}
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="h-8 rounded-lg object-contain"
+                                />
+                              ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex gap-3 px-6 pb-6 pt-1">

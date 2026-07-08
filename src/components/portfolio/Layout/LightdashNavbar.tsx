@@ -13,7 +13,7 @@ const LightdashNavbar: React.FC = () => {
   return (
     <header className="fixed top-0 left-0 w-full h-16 bg-ld-canvas/90 backdrop-blur-md border-b border-ld-ash z-[1000] font-ld-sans">
       <nav className="max-w-[1200px] mx-auto px-4 sm:px-6 h-full flex justify-between items-center">
-        <Link to="/mentoring" className="flex items-center gap-2 text-lg font-medium text-ld-graphite tracking-tight no-underline font-ld-display">
+        <Link to="/" className="flex items-center gap-2 text-lg font-medium text-ld-graphite tracking-tight no-underline font-ld-display">
           <img
             src="/img/mentor-logo.webp"
             alt="Mentor.QA"

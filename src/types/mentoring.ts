@@ -10,6 +10,11 @@ export interface TopicConfig {
   materials?: string[];
 }
 
+export interface MentorPlatforms {
+  digitalSkola?: boolean;
+  dealls?: boolean;
+}
+
 export interface MentorConfig {
   id: string;
   name: string;
@@ -18,6 +23,7 @@ export interface MentorConfig {
   bio: string;
   avatar?: string;
   schedule: Record<string, string[]>;
+  platforms?: MentorPlatforms;
 }
 
 export interface BookingRules {

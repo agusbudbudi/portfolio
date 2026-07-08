@@ -50,10 +50,10 @@ const LightdashFooter: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-sm text-ld-slate hover:text-ld-violet transition-colors no-underline">
+                <a href="/portfolio" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-ld-slate hover:text-ld-violet transition-colors no-underline">
                   View Portfolio
                   <ExternalLink size={11} />
-                </Link>
+                </a>
               </li>
             </ul>
           </div>

@@ -26,11 +26,20 @@ const WhyDifferentSection: React.FC = () => {
           </p>
 
           <div className="rounded-xl border border-white/15 bg-ld-canvas overflow-hidden shadow-[0_20px_50px_rgba(30,27,75,0.25)]">
-            <div className="grid grid-cols-2">
-              <div className="px-4 py-3 sm:px-5 bg-ld-violet text-white text-center">
-                <span className="font-ld-display font-semibold text-xs sm:text-sm">Mentor.QA</span>
+            <div className="grid grid-cols-2 border-b border-ld-ash">
+              <div className="flex items-center justify-center gap-2 px-4 py-3 sm:px-5 bg-ld-violet text-center">
+                <img
+                  src="/img/mentor-logo.webp"
+                  alt=""
+                  width={18}
+                  height={18}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain flex-shrink-0 rounded-md border border-white"
+                />
+                <span className="font-ld-display font-semibold text-xs sm:text-sm text-white">Mentor.QA</span>
               </div>
-              <div className="px-4 py-3 sm:px-5 bg-ld-fog text-center">
+              <div className="px-4 py-3 sm:px-5 bg-ld-fog text-center border-l border-ld-ash">
                 <span className="font-ld-display font-semibold text-xs sm:text-sm text-white">Course Biasa</span>
               </div>
             </div>

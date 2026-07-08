@@ -116,6 +116,10 @@
       ],
       "bio": "6+ years QA Manual & Automation Engineer",
       "avatar": "/img/profile/profile-agus.webp",
+      "platforms": {
+        "digitalSkola": true,
+        "dealls": true
+      },
       "schedule": {
         "monday": [
           "19:00",
