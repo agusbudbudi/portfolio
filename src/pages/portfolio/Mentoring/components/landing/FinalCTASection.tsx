@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 
 const FinalCTASection: React.FC = () => {
   return (
-    <section className="py-16 md:py-20 bg-ld-cloud font-ld-sans">
+    <section className="py-8 md:py-20 bg-ld-cloud font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-2xl bg-ld-midnight px-8 py-16 text-center">
+        <div className="relative overflow-hidden rounded-2xl bg-ld-midnight px-8 py-10 text-center">
           <div className="relative z-10 max-w-2xl mx-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-white text-xs font-medium mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-ld-lilac" />
@@ -23,7 +23,7 @@ const FinalCTASection: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 to="/mentoring/booking"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-ld-violet text-white font-medium rounded-lg no-underline hover:bg-[#4d3de6] transition-colors text-sm"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-ld-violet text-white font-medium rounded-lg no-underline hover:bg-[#1f87e6] transition-colors text-sm"
               >
                 Booking Sekarang
                 <ArrowRight size={18} />

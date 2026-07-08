@@ -1,7 +1,9 @@
-import React from 'react';
-import { ArrowRight, Award, Clock, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, Award, Building2, Clock, Loader2, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useConfig } from '../../../../../hooks/useConfig';
+import type { MentorConfig } from '../../../../../types/mentoring';
+import MentorProfileModal from './MentorProfileModal';
 
 const topicLabelMap: Record<string, string> = {
   'fundamental-qa': 'Fundamental QA',
@@ -12,6 +14,12 @@ const topicLabelMap: Record<string, string> = {
   'cypress-web-automation': 'Cypress Automation',
   'web-automation-basic': 'Web Automation',
 };
+
+const companies = [
+  { name: 'Diricare', logo: '/img/company/diricare-logo.webp' },
+  { name: 'Traveloka', logo: '/img/company/traveloka-logo.webp' },
+  { name: 'Pegipegi', logo: '/img/company/pegipegi-logo.webp' },
+];
 
 const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 const weekend = ['saturday', 'sunday'];
@@ -32,11 +40,12 @@ function deriveSchedule(schedule: Record<string, string[]>) {
 const MentorProfileSection: React.FC = () => {
   const { config, loading } = useConfig();
   const mentors = config?.mentors ?? [];
+  const [selectedMentor, setSelectedMentor] = useState<MentorConfig | null>(null);
 
   return (
-    <section id="mentor" className="py-16 md:py-20 bg-ld-cloud font-ld-sans">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
+    <section id="mentor" className="py-8 md:py-20 bg-ld-cloud font-ld-sans">
+      <div className="max-w-[1200px] mx-auto px-0 sm:px-6">
+        <div className="text-center mb-8 sm:mb-14 sm:mb-14 px-4">
           <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
             Belajar Langsung dari Praktisi
           </h2>
@@ -52,21 +61,22 @@ const MentorProfileSection: React.FC = () => {
         )}
 
         {!loading && mentors.length > 0 && (
-          <div className={`grid gap-6 ${mentors.length === 1
-            ? 'grid-cols-1 max-w-4xl mx-auto'
+          <div className={`flex gap-4 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-none px-4 sm:px-6 pt-2 pb-4 scroll-pl-4 sm:scroll-pl-6 scroll-smooth md:px-0 md:pt-0 md:pb-0 md:overflow-visible md:snap-none md:grid md:gap-6 ${mentors.length === 1
+            ? 'md:grid-cols-1 md:max-w-4xl md:mx-auto'
             : mentors.length === 2
-              ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
-              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              ? 'md:grid-cols-2 md:max-w-4xl md:mx-auto'
+              : 'md:grid-cols-2 lg:grid-cols-3'
             }`}>
             {mentors.map(mentor => {
               const sched = deriveSchedule(mentor.schedule);
               return (
                 <div
                   key={mentor.id}
-                  className="bg-ld-canvas rounded-2xl border border-ld-ash overflow-hidden flex flex-col"
+                  onClick={() => setSelectedMentor(mentor)}
+                  className="flex-shrink-0 w-[85%] sm:w-[320px] snap-start md:w-auto md:flex-shrink bg-ld-canvas rounded-2xl border border-ld-ash overflow-hidden flex flex-col cursor-pointer transition-shadow hover:shadow-[0_12px_28px_rgba(30,27,75,0.12)]"
                 >
-                  <div className="bg-ld-onyx p-6 flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl overflow-hidden border border-white/15 flex-shrink-0 bg-white">
+                  <div className="bg-ld-onyx flex items-stretch gap-4 h-32 overflow-hidden">
+                    <div className="aspect-square flex-shrink-0 self-stretch overflow-hidden bg-white">
                       <img
                         src={mentor.avatar}
                         alt={mentor.name}
@@ -75,21 +85,37 @@ const MentorProfileSection: React.FC = () => {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-ld-display font-semibold text-white mb-0.5">{mentor.name}</h3>
-                      <p className="text-ld-fog text-xs mb-3 leading-snug">{mentor.bio}</p>
-                      <Link
-                        to="/mentoring/booking"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-ld-violet text-white font-medium rounded-lg text-xs no-underline hover:bg-[#4d3de6] transition-colors"
-                      >
-                        Book Session
-                        <ArrowRight size={12} />
-                      </Link>
+                    <div className="flex-1 min-w-0 pr-6 flex flex-col justify-center">
+                      <h3 className="text-base font-ld-display font-semibold text-white mb-0.5 truncate">{mentor.name}</h3>
+                      <p className="text-ld-fog text-xs leading-snug truncate">{mentor.bio}</p>
                     </div>
                   </div>
 
                   <div className="p-6 flex flex-col gap-5 flex-1 text-left">
                     <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-ld-lilac flex items-center justify-center flex-shrink-0">
+                        <Building2 size={15} className="text-ld-violet" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-ld-fog uppercase tracking-wide mb-2">
+                          Pernah Bekerja Di
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          {companies.map(company => (
+                            <img
+                              key={company.name}
+                              src={company.logo}
+                              alt={company.name}
+                              loading="lazy"
+                              decoding="async"
+                              className="h-8 rounded-lg object-contain"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 border-t border-ld-ash pt-5">
                       <div className="w-8 h-8 rounded-lg bg-ld-lilac flex items-center justify-center flex-shrink-0">
                         <Award size={15} className="text-ld-violet" />
                       </div>
@@ -131,12 +157,35 @@ const MentorProfileSection: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
+                  <div className="flex gap-3 px-6 pb-6 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedMentor(mentor)}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-ld-cloud text-ld-graphite border border-ld-ash font-medium rounded-lg text-xs hover:bg-ld-ash transition-colors cursor-pointer"
+                    >
+                      <User size={12} />
+                      Lihat Profile
+                    </button>
+                    <Link
+                      to="/mentoring/booking"
+                      onClick={e => e.stopPropagation()}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-ld-violet text-white font-medium rounded-lg text-xs no-underline hover:bg-[#1f87e6] transition-colors"
+                    >
+                      Book Session
+                      <ArrowRight size={12} />
+                    </Link>
+                  </div>
                 </div>
               );
             })}
           </div>
         )}
       </div>
+
+      {selectedMentor && (
+        <MentorProfileModal mentor={selectedMentor} onClose={() => setSelectedMentor(null)} />
+      )}
     </section>
   );
 };

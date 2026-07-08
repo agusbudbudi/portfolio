@@ -10,45 +10,94 @@
       "label": "Fundamental QA",
       "description": "Dasar-dasar Software Quality Assurance, SDLC & STLC",
       "image": "https://i.imgur.com/JA7Dd9N.png",
-      "popular": true
+      "popular": true,
+      "materials": [
+        "Konsep SDLC & STLC",
+        "Jenis-jenis testing (functional & non-functional)",
+        "Cara menulis test case & test scenario",
+        "Bug reporting, severity & priority",
+        "Studi kasus penerapan QA di proyek nyata"
+      ]
     },
     {
       "id": "ai-assisted-qa",
       "label": "AI Assisted in QA Workflow",
       "description": "Memanfaatkan AI untuk mempercepat penulisan test case & code automation",
       "image": "https://i.imgur.com/RRqKqA9.png",
-      "popular": true
+      "popular": true,
+      "materials": [
+        "Prompt engineering untuk generate test case",
+        "AI-assisted code automation (Copilot/ChatGPT)",
+        "Review & validasi output AI",
+        "Studi kasus penerapan AI dalam workflow QA",
+        "Etika & batasan penggunaan AI dalam testing"
+      ]
     },
     {
       "id": "cypress-web-automation",
       "label": "Cypress Web Automation",
       "description": "Otomatisasi pengujian aplikasi web dengan Cypress",
       "image": "https://i.imgur.com/i8B6yp0.png",
-      "popular": true
+      "popular": true,
+      "materials": [
+        "Setup project Cypress",
+        "Locator strategy & best practice",
+        "Membuat test script end-to-end",
+        "Custom command & Page Object Model",
+        "Integrasi Cypress dengan CI/CD pipeline"
+      ]
     },
     {
       "id": "debugging-tips-tricks",
       "label": "Tips & Trik Debugging",
       "description": "Mendiagnosis error secara efektif pada code pengujian",
-      "image": "https://i.imgur.com/gAQrTbQ.png"
+      "image": "https://i.imgur.com/gAQrTbQ.png",
+      "materials": [
+        "Membaca stack trace & error log",
+        "Teknik isolasi bug",
+        "Browser DevTools untuk debugging",
+        "Root cause analysis",
+        "Menulis bug report yang mudah direproduksi"
+      ]
     },
     {
       "id": "test-management-strategy",
       "label": "Test Management and Strategy",
       "description": "Merancang test plan, strategi pengujian, dan manajemen defect",
-      "image": "https://i.imgur.com/LiOvopU.png"
+      "image": "https://i.imgur.com/LiOvopU.png",
+      "materials": [
+        "Menyusun test plan & test strategy",
+        "Risk-based testing",
+        "Defect management & tracking",
+        "Reporting & metrics testing",
+        "Komunikasi hasil testing ke stakeholder"
+      ]
     },
     {
       "id": "api-testing-postman",
       "label": "API Testing with Postman",
       "description": "Pengujian API manual & otomatisasi menggunakan Postman",
-      "image": "https://i.imgur.com/1UGNcsW.png"
+      "image": "https://i.imgur.com/1UGNcsW.png",
+      "materials": [
+        "Dasar HTTP method & status code",
+        "Membuat collection & environment di Postman",
+        "Automasi test script dengan Postman",
+        "Data-driven testing",
+        "Membuat dokumentasi API testing"
+      ]
     },
     {
       "id": "web-automation-basic",
       "label": "Web Automation Basic",
       "description": "Konsep dasar otomatisasi pengujian web & locator strategy",
-      "image": "https://i.imgur.com/c5lfUKG.png"
+      "image": "https://i.imgur.com/c5lfUKG.png",
+      "materials": [
+        "Konsep dasar automation testing",
+        "Locator strategy (CSS, XPath)",
+        "Page Object Model",
+        "Menjalankan & membaca automation report",
+        "Handling wait & synchronization"
+      ]
     }
   ],
   "mentors": [

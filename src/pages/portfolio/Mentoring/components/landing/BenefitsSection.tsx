@@ -25,9 +25,9 @@ const benefits = [
 
 const BenefitsSection: React.FC = () => {
   return (
-    <section className="py-16 md:py-20 bg-ld-canvas font-ld-sans">
+    <section className="py-8 md:py-20 bg-ld-canvas font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
+        <div className="text-center mb-8 sm:mb-14">
           <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
             Lebih dari Sekadar Belajar
           </h2>

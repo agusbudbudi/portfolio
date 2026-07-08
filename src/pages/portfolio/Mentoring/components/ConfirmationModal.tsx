@@ -64,7 +64,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ mentorName, onCon
           <button
             type="button"
             onClick={onConfirm}
-            className="flex-1 py-2.5 rounded-lg bg-ld-violet hover:bg-[#4d3de6] text-white text-sm font-medium transition-colors cursor-pointer flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium transition-colors cursor-pointer flex items-center justify-center gap-2"
           >
             <MessageCircle size={15} />
             Lanjutkan

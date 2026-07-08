@@ -19,14 +19,14 @@ const EMPTY_ERRORS: ValidationErrors = {
   introduction: null,
 };
 
-export function useFormValidation(): UseFormValidationReturn {
+export function useFormValidation(maxTopics: number = 2): UseFormValidationReturn {
   const [errors, setErrors] = useState<ValidationErrors>(EMPTY_ERRORS);
 
   const validate = useCallback((data: FormData): boolean => {
-    const newErrors = validateForm(data);
+    const newErrors = validateForm(data, maxTopics);
     setErrors(newErrors);
     return isFormValid(newErrors);
-  }, []);
+  }, [maxTopics]);
 
   const clearError = useCallback((field: keyof ValidationErrors) => {
     setErrors((prev) => ({ ...prev, [field]: null }));
