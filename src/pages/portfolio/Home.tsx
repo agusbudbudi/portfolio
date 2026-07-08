@@ -14,7 +14,7 @@ import CtaSection from '../../components/portfolio/Home/CtaSection';
 
 const Home: React.FC = () => {
   return (
-    <div className="w-full bg-white dark:bg-slate-950 transition-colors">
+    <div className="w-full bg-ld-canvas font-ld-sans">
       <Hero />
       <AutomationPlayground />
       <MetricsSection />

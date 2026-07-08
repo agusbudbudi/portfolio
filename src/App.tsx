@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from './context/ThemeContext';
 
 import PortfolioNavbar from './components/portfolio/Layout/Navbar';
 import PortfolioFooter from './components/portfolio/Layout/Footer';
@@ -19,7 +18,7 @@ interface LayoutProps {
 
 const PortfolioLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-ld-canvas">
       <PortfolioNavbar />
       <main className="flex-grow pt-[70px]">
         {children}
@@ -43,20 +42,18 @@ const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<LightdashLayout><MentoringPage /></LightdashLayout>} />
-          <Route path="/portfolio" element={<PortfolioLayout><PortfolioHome /></PortfolioLayout>} />
-          <Route path="/portfolio/about" element={<PortfolioLayout><PortfolioAbout /></PortfolioLayout>} />
-          <Route path="/portfolio/projects" element={<PortfolioLayout><PortfolioProjects /></PortfolioLayout>} />
-          <Route path="/portfolio/certifications" element={<PortfolioLayout><PortfolioCertifications /></PortfolioLayout>} />
-          <Route path="/portfolio/mentoring/booking" element={<LightdashLayout><PortfolioBookingPage /></LightdashLayout>} />
-          <Route path="/mentoring" element={<LightdashLayout><MentoringPage /></LightdashLayout>} />
-          <Route path="/mentoring/booking" element={<LightdashLayout><PortfolioBookingPage /></LightdashLayout>} />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LightdashLayout><MentoringPage /></LightdashLayout>} />
+        <Route path="/portfolio" element={<PortfolioLayout><PortfolioHome /></PortfolioLayout>} />
+        <Route path="/portfolio/about" element={<PortfolioLayout><PortfolioAbout /></PortfolioLayout>} />
+        <Route path="/portfolio/projects" element={<PortfolioLayout><PortfolioProjects /></PortfolioLayout>} />
+        <Route path="/portfolio/certifications" element={<PortfolioLayout><PortfolioCertifications /></PortfolioLayout>} />
+        <Route path="/portfolio/mentoring/booking" element={<LightdashLayout><PortfolioBookingPage /></LightdashLayout>} />
+        <Route path="/mentoring" element={<LightdashLayout><MentoringPage /></LightdashLayout>} />
+        <Route path="/mentoring/booking" element={<LightdashLayout><PortfolioBookingPage /></LightdashLayout>} />
+      </Routes>
+    </Router>
   );
 }
 

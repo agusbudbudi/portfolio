@@ -41,7 +41,7 @@ const LightdashNavbar: React.FC = () => {
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             to="/mentoring/booking"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-ld-violet text-white text-sm font-medium no-underline hover:bg-[#4d3de6] transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-ld-violet text-white text-sm font-medium no-underline hover:bg-[#1f87e6] transition-colors"
           >
             <Calendar size={15} />
             Book Session

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { Sun, Moon, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useTheme } from '../../../context/ThemeContext';
 
 const navLinks = [
   { to: '/portfolio', label: 'Home', end: true },
@@ -13,7 +12,6 @@ const navLinks = [
 ];
 
 const Navbar: React.FC = () => {
-  const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const closeMenu = () => setIsMenuOpen(false);
@@ -26,12 +24,12 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 w-full h-[70px] bg-white/60 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 z-[1000] transition-colors duration-200 shadow-sm shadow-slate-100/40 dark:shadow-none">
+      <header className="fixed top-0 left-0 w-full h-[70px] bg-ld-canvas/80 backdrop-blur-xl border-b border-ld-ash z-[1000]">
         <nav className="max-w-[1200px] mx-auto px-4 h-full flex justify-between items-center">
           {/* Logo */}
           <Link
             to="/portfolio"
-            className="flex items-center text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight decoration-none"
+            className="flex items-center font-ld-display font-semibold text-xl md:text-2xl text-ld-graphite tracking-[-0.01em] no-underline"
             onClick={closeMenu}
           >
             <div className="relative w-9 h-9 mr-2">
@@ -42,11 +40,11 @@ const Navbar: React.FC = () => {
                 height={36}
                 loading="eager"
                 decoding="async"
-                className="w-full h-full rounded-full object-contain border-2 border-blue-500/10 dark:bg-white p-[2px]"
+                className="w-full h-full rounded-full object-contain border-2 border-ld-violet/10 p-[2px]"
               />
-              <span className="absolute w-2.5 h-2.5 bg-emerald-500 rounded-full bottom-0.5 right-0.5 border-2 border-white dark:border-slate-900 animate-pulse"></span>
+              <span className="absolute w-2.5 h-2.5 bg-emerald-500 rounded-full bottom-0.5 right-0.5 border-2 border-white animate-pulse"></span>
             </div>
-            Agus.<span className="text-blue-500">QA</span>
+            Agus.<span className="text-ld-violet">QA</span>
           </Link>
 
           {/* Desktop nav */}
@@ -58,9 +56,9 @@ const Navbar: React.FC = () => {
                     to={to}
                     end={end}
                     className={({ isActive }) =>
-                      `text-sm font-semibold transition-colors duration-200 block py-2 decoration-none relative group ${isActive
-                        ? 'text-blue-500'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-blue-500 dark:hover:text-blue-400'
+                      `text-sm font-medium transition-colors duration-200 block py-2 no-underline relative group ${isActive
+                        ? 'text-ld-violet'
+                        : 'text-ld-slate hover:text-ld-violet'
                       }`
                     }
                   >
@@ -68,7 +66,7 @@ const Navbar: React.FC = () => {
                       <>
                         {label}
                         <span
-                          className={`absolute top-12 left-0 h-[3px] bg-blue-500 rounded-t-full transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                          className={`absolute top-12 left-0 h-[3px] bg-ld-violet rounded-t-full transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'
                             }`}
                         />
                       </>
@@ -77,28 +75,12 @@ const Navbar: React.FC = () => {
                 </li>
               ))}
             </ul>
-
-            <button
-              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-white flex items-center justify-center cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500 dark:hover:border-blue-500 hover:text-blue-500 dark:hover:text-blue-400"
-              onClick={toggleTheme}
-              aria-label="Toggle Theme"
-            >
-              {theme === 'light' ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
           </div>
 
           {/* Mobile right controls */}
           <div className="flex items-center gap-2 md:hidden">
             <button
-              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-white flex items-center justify-center cursor-pointer transition-all duration-200 hover:border-blue-500 hover:text-blue-500 dark:hover:border-blue-500 dark:hover:text-blue-400"
-              onClick={toggleTheme}
-              aria-label="Toggle Theme"
-            >
-              {theme === 'light' ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-
-            <button
-              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-white flex items-center justify-center cursor-pointer transition-all duration-200 hover:border-blue-500 hover:text-blue-500 dark:hover:border-blue-500 dark:hover:text-blue-400"
+              className="w-9 h-9 rounded-md border border-ld-ash bg-ld-canvas text-ld-graphite flex items-center justify-center cursor-pointer transition-colors hover:border-ld-violet hover:text-ld-violet"
               onClick={toggleMenu}
               aria-label="Toggle Menu"
             >
@@ -154,9 +136,9 @@ const Navbar: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-              className="fixed top-[70px] left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-[1002] md:hidden"
+              className="fixed top-[70px] left-0 w-full bg-ld-canvas border-b border-ld-ash z-[1002] md:hidden"
             >
-              <ul className="list-none m-0 p-0 divide-y divide-slate-100 dark:divide-slate-800/60">
+              <ul className="list-none m-0 p-0 divide-y divide-ld-ash">
                 {navLinks.map(({ to, label, end }, idx) => (
                   <motion.li
                     key={to}
@@ -169,16 +151,16 @@ const Navbar: React.FC = () => {
                       end={end}
                       onClick={closeMenu}
                       className={({ isActive }) =>
-                        `flex items-center px-6 py-4 text-[15px] font-semibold transition-colors duration-150 decoration-none ${isActive
-                          ? 'text-blue-500 bg-blue-50 dark:bg-blue-500/10'
-                          : 'text-slate-700 dark:text-slate-300 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                        `flex items-center px-6 py-4 text-[15px] font-medium transition-colors duration-150 no-underline ${isActive
+                          ? 'text-ld-violet bg-ld-lilac'
+                          : 'text-ld-graphite hover:text-ld-violet hover:bg-ld-cloud'
                         }`
                       }
                     >
                       {({ isActive }) => (
                         <>
                           {isActive && (
-                            <span className="w-1 h-4 bg-blue-500 rounded-full mr-3 -ml-1 flex-shrink-0" />
+                            <span className="w-1 h-4 bg-ld-violet rounded-full mr-3 -ml-1 flex-shrink-0" />
                           )}
                           {label}
                         </>
@@ -188,8 +170,8 @@ const Navbar: React.FC = () => {
                 ))}
               </ul>
 
-              <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/60 dark:bg-slate-950/40">
-                <p className="text-xs text-slate-400 dark:text-slate-500">Agus Budiman · QA Engineer Portfolio</p>
+              <div className="px-6 py-3 border-t border-ld-ash bg-ld-cloud/60">
+                <p className="text-xs text-ld-fog">Agus Budiman · QA Engineer Portfolio</p>
               </div>
             </motion.div>
           </>
