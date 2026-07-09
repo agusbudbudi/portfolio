@@ -17,6 +17,11 @@ interface MentorFormProps {
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const WHATSAPP_RE = /^\d{8,15}$/;
 
+const PLATFORM_OPTIONS = [
+  { key: 'digitalSkola' as const, label: 'Digital Skola' },
+  { key: 'dealls' as const, label: 'Dealls' },
+];
+
 const inputClass =
   'w-full px-3.5 py-2.5 rounded-lg border border-ld-ash bg-white text-sm text-ld-onyx focus:outline-none focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac';
 
@@ -43,6 +48,13 @@ const MentorForm: React.FC<MentorFormProps> = ({
       expertise: f.expertise.includes(topicId)
         ? f.expertise.filter((id) => id !== topicId)
         : [...f.expertise, topicId],
+    }));
+  };
+
+  const togglePlatform = (key: keyof NonNullable<MentorConfig['platforms']>) => {
+    setForm((f) => ({
+      ...f,
+      platforms: { ...f.platforms, [key]: !f.platforms?.[key] },
     }));
   };
 
@@ -168,6 +180,24 @@ const MentorForm: React.FC<MentorFormProps> = ({
                   </button>
                 );
               })}
+            </div>
+          </section>
+
+          <section className="pt-6 border-t border-ld-ash/60">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-ld-steel m-0 mb-1">Platform Mentoring</h3>
+            <p className="text-xs text-ld-fog m-0 mb-3">Platform eksternal tempat mentor ini juga terdaftar.</p>
+            <div className="flex flex-wrap gap-4">
+              {PLATFORM_OPTIONS.map((platform) => (
+                <label key={platform.key} className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={form.platforms?.[platform.key] ?? false}
+                    onChange={() => togglePlatform(platform.key)}
+                    className="w-4 h-4 rounded border-ld-ash text-ld-violet focus:ring-ld-lilac cursor-pointer"
+                  />
+                  <span className="text-sm text-ld-graphite">{platform.label}</span>
+                </label>
+              ))}
             </div>
           </section>
 
