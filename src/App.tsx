@@ -7,6 +7,7 @@ import PortfolioHome from './pages/portfolio/Home';
 import PortfolioAbout from './pages/portfolio/About';
 import PortfolioProjects from './pages/portfolio/Projects';
 import PortfolioCertifications from './pages/portfolio/Certifications';
+import NotFound from './pages/portfolio/NotFound';
 import PortfolioBookingPage from './pages/portfolio/Mentoring/BookingPage';
 import MentoringPage from './pages/portfolio/Mentoring/MentoringPage';
 import LightdashNavbar from './components/portfolio/Layout/LightdashNavbar';
@@ -161,6 +162,19 @@ function App() {
         />
         <Route path="/mentoring" element={<Navigate to="/" replace />} />
         <Route path="/portfolio/mentoring/booking" element={<Navigate to="/mentoring/booking" replace />} />
+        <Route
+          path="*"
+          element={
+            <LightdashLayout>
+              <Seo
+                path="/404"
+                title="Halaman Tidak Ditemukan | Agus Budiman"
+                description="Halaman yang kamu cari tidak ditemukan. Kembali ke halaman utama Agus Budiman, QA Engineer."
+              />
+              <NotFound />
+            </LightdashLayout>
+          }
+        />
       </Routes>
     </Router>
   );
