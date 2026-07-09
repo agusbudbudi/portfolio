@@ -21,6 +21,7 @@ export interface MentorConfig {
   whatsapp: string;
   expertise: string[];
   bio: string;
+  detailProfile?: string;
   avatar?: string;
   schedule: Record<string, string[]>;
   platforms?: MentorPlatforms;

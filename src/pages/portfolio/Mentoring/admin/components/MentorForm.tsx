@@ -31,6 +31,7 @@ const emptyMentor: MentorConfig = {
   whatsapp: '',
   expertise: [],
   bio: '',
+  detailProfile: '',
   avatar: '',
   schedule: {},
 };
@@ -80,7 +81,11 @@ const MentorForm: React.FC<MentorFormProps> = ({
       setError('Pilih minimal satu expertise.');
       return;
     }
-    onSubmit({ ...form, avatar: form.avatar?.trim() || undefined });
+    onSubmit({
+      ...form,
+      avatar: form.avatar?.trim() || undefined,
+      detailProfile: form.detailProfile?.trim() || undefined,
+    });
     onClose();
   };
 
@@ -148,11 +153,21 @@ const MentorForm: React.FC<MentorFormProps> = ({
                 />
               </label>
               <label className="block md:col-span-2">
-                <span className="block text-xs font-medium text-ld-graphite mb-1.5">Bio</span>
+                <span className="block text-xs font-medium text-ld-graphite mb-1.5">Bio (singkat, tampil di card mentor)</span>
                 <textarea
                   value={form.bio}
                   onChange={(e) => setForm({ ...form, bio: e.target.value })}
                   rows={3}
+                  className={inputClass}
+                />
+              </label>
+              <label className="block md:col-span-2">
+                <span className="block text-xs font-medium text-ld-graphite mb-1.5">Detail Profile (opsional, tampil di modal profile mentor)</span>
+                <textarea
+                  value={form.detailProfile ?? ''}
+                  onChange={(e) => setForm({ ...form, detailProfile: e.target.value })}
+                  rows={6}
+                  placeholder="Ceritakan pengalaman, pencapaian, dan gaya mentoring secara lebih lengkap…"
                   className={inputClass}
                 />
               </label>

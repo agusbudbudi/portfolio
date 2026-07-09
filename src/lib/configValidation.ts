@@ -99,6 +99,9 @@ export function validateMentoringConfig(data: unknown): ValidationResult {
         errors.push(`mentors[${i}].whatsapp: wajib 8-15 digit angka (format internasional tanpa +).`);
       }
       if (!isNonEmptyString(mentor.bio)) errors.push(`mentors[${i}].bio: wajib string non-kosong.`);
+      if (mentor.detailProfile !== undefined && typeof mentor.detailProfile !== 'string') {
+        errors.push(`mentors[${i}].detailProfile: harus string.`);
+      }
       if (mentor.avatar !== undefined && typeof mentor.avatar !== 'string') errors.push(`mentors[${i}].avatar: harus string.`);
       if (!Array.isArray(mentor.expertise) || mentor.expertise.length === 0) {
         errors.push(`mentors[${i}].expertise: wajib array topic id non-kosong.`);

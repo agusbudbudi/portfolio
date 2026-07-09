@@ -95,7 +95,14 @@ const MentorProfileModal: React.FC<MentorProfileModalProps> = ({ mentor, onClose
           </div>
 
           <div className="p-6 flex flex-col gap-5 text-left">
-            <div>
+            {mentor.detailProfile && (
+              <div>
+                <p className="text-xs font-medium text-ld-fog uppercase tracking-wide mb-2">Tentang Mentor</p>
+                <p className="text-sm text-ld-slate leading-relaxed whitespace-pre-line">{mentor.detailProfile}</p>
+              </div>
+            )}
+
+            <div className={mentor.detailProfile ? 'border-t border-ld-ash pt-5' : undefined}>
               <p className="text-xs font-medium text-ld-fog uppercase tracking-wide mb-2">Pernah Bekerja Di</p>
               <div className="flex flex-wrap items-center gap-2.5">
                 {companies.map(company => (
