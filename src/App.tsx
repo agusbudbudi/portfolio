@@ -13,6 +13,7 @@ const PortfolioAbout = lazy(() => import('./pages/portfolio/About'));
 const PortfolioProjects = lazy(() => import('./pages/portfolio/Projects'));
 const PortfolioCertifications = lazy(() => import('./pages/portfolio/Certifications'));
 const PortfolioBookingPage = lazy(() => import('./pages/portfolio/Mentoring/BookingPage'));
+const AdminPage = lazy(() => import('./pages/portfolio/Mentoring/admin/AdminPage'));
 const NotFound = lazy(() => import('./pages/portfolio/NotFound'));
 
 const RouteFallback: React.FC = () => (
@@ -169,6 +170,20 @@ function App() {
               />
               <PortfolioBookingPage />
             </LightdashLayout>
+          }
+        />
+        <Route
+          path="/mentoring/admin"
+          element={
+            <>
+              <Seo
+                path="/mentoring/admin"
+                title="Admin Dashboard | Mentor.QA"
+                description="Dashboard admin mentoring QA."
+                noindex
+              />
+              <AdminPage />
+            </>
           }
         />
         <Route path="/mentoring" element={<Navigate to="/" replace />} />
