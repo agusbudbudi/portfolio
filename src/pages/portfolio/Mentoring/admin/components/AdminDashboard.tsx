@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  LogOut, RotateCcw, Save, AlertTriangle, RefreshCw, Zap,
+  LogOut, RotateCcw, Save, AlertTriangle, RefreshCw,
   Users, BookOpen, SlidersHorizontal, Menu, X, ExternalLink,
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../../store/useAdminAuthStore';
@@ -53,9 +53,13 @@ const AdminDashboard: React.FC = () => {
   const sidebarContent = (
     <>
       <div className="flex items-center gap-2.5 px-4 h-16 border-b border-ld-ash/60">
-        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-ld-violet text-white shrink-0">
-          <Zap size={16} />
-        </span>
+        <img
+          src="/img/mentor-logo.webp"
+          alt="Mentor.QA"
+          width={32}
+          height={32}
+          className="w-8 h-8 rounded-lg object-contain shrink-0"
+        />
         <div className="min-w-0">
           <p className="m-0 text-sm font-semibold text-ld-onyx leading-tight truncate">Mentoring Ops</p>
           <p className="m-0 text-[11px] text-ld-fog leading-tight truncate">Operational Dashboard</p>
