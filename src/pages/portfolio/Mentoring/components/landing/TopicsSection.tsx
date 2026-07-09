@@ -35,7 +35,7 @@ const TopicsSection: React.FC = () => {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 sm:mb-14">
           <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
-            7 Topik QA Engineering
+            {topics.length > 0 ? `${topics.length} Topik QA Engineering` : 'Topik QA Engineering'}
           </h2>
           <p className="text-ld-slate max-w-xl mx-auto text-base leading-relaxed">
             Pilih topik sesuai kebutuhan karirmu. Setiap sesi bisa fokus pada satu atau kombinasi topik.

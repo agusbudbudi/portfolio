@@ -11,7 +11,7 @@ const PromotionSection: React.FC = () => {
         <div className="relative z-10 px-6 sm:px-10 lg:px-16 py-8 lg:py-0">
 
           <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl lg:text-[42px] text-white tracking-[-0.02em] leading-[1.1] mb-4 max-w-lg">
-            Diskon 10% untuk Sesi Mentoring Pertamamu
+            Diskon 34% untuk Single Session Pertamamu
           </h2>
 
           <p className="text-white/80 text-base sm:text-lg leading-relaxed mb-8 max-w-md">

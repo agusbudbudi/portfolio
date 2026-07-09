@@ -1,19 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ArrowRight, Award, Building2, Clock, Globe, Loader2, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useConfig } from '../../../../../hooks/useConfig';
 import type { MentorConfig } from '../../../../../types/mentoring';
 import MentorProfileModal from './MentorProfileModal';
-
-const topicLabelMap: Record<string, string> = {
-  'fundamental-qa': 'Fundamental QA',
-  'ai-assisted-qa': 'AI Assisted QA',
-  'debugging-tips-tricks': 'Debugging',
-  'test-management-strategy': 'Test Management',
-  'api-testing-postman': 'API Testing',
-  'cypress-web-automation': 'Cypress Automation',
-  'web-automation-basic': 'Web Automation',
-};
 
 const companies = [
   { name: 'Diricare', logo: '/img/company/diricare-logo.webp' },
@@ -46,6 +36,11 @@ const MentorProfileSection: React.FC = () => {
   const { config, loading } = useConfig();
   const mentors = config?.mentors ?? [];
   const [selectedMentor, setSelectedMentor] = useState<MentorConfig | null>(null);
+
+  const topicLabelMap = useMemo(
+    () => Object.fromEntries((config?.topics ?? []).map(topic => [topic.id, topic.label])),
+    [config]
+  );
 
   return (
     <section id="mentor" className="py-8 md:py-20 bg-ld-cloud font-ld-sans">

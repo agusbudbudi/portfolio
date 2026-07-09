@@ -9,7 +9,7 @@ const faqs = [
   },
   {
     q: 'Apakah mentoring ini berbayar?',
-    a: 'Detail biaya akan dikomunikasikan langsung oleh mentor via WhatsApp setelah kamu melakukan booking. Konsultasi awal untuk mendiskusikan kebutuhanmu tidak dipungut biaya.',
+    a: 'Ya, berbayar. Single session Rp99.000 (promo dari Rp150.000) dan paket 3 sesi Rp400.000 — lihat detail lengkap di bagian Harga Mentoring. Konfirmasi pembayaran dilakukan via WhatsApp setelah booking.',
   },
   {
     q: 'Platform apa yang digunakan untuk sesi?',

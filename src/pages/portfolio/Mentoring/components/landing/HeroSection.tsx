@@ -1,60 +1,62 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useConfig } from '../../../../../hooks/useConfig';
 
 type CodeSegment = { text: string; className: string };
 type CodeLine = { indent?: boolean; segments: CodeSegment[] };
 
-const codeLines: CodeLine[] = [
-  { segments: [{ text: '// QA Mentoring 1-on-1', className: 'text-ld-steel' }] },
-  {
-    segments: [
-      { text: 'const', className: 'text-ld-lavender' },
-      { text: ' session ', className: 'text-white' },
-      { text: '= {', className: 'text-ld-fog' },
-    ],
-  },
-  {
-    indent: true,
-    segments: [
-      { text: 'mentor', className: 'text-ld-lilac' },
-      { text: ': ', className: 'text-ld-fog' },
-      { text: '"Agus Budiman"', className: 'text-ld-lavender' },
-      { text: ',', className: 'text-ld-fog' },
-    ],
-  },
-  {
-    indent: true,
-    segments: [
-      { text: 'duration', className: 'text-ld-lilac' },
-      { text: ': ', className: 'text-ld-fog' },
-      { text: '60', className: 'text-ld-lavender' },
-      { text: ', ', className: 'text-ld-fog' },
-      { text: '// minutes', className: 'text-ld-steel' },
-    ],
-  },
-  {
-    indent: true,
-    segments: [
-      { text: 'topics', className: 'text-ld-lilac' },
-      { text: ': ', className: 'text-ld-fog' },
-      { text: '"7 tersedia"', className: 'text-ld-lavender' },
-      { text: ',', className: 'text-ld-fog' },
-    ],
-  },
-  {
-    indent: true,
-    segments: [
-      { text: 'status', className: 'text-ld-lilac' },
-      { text: ': ', className: 'text-ld-fog' },
-      { text: '"available"', className: 'text-ld-lavender' },
-    ],
-  },
-  { segments: [{ text: '}', className: 'text-ld-fog' }] },
-];
+const DEFAULT_TOPICS_COUNT = 7;
 
-const lineLengths = codeLines.map(line => line.segments.reduce((n, s) => n + s.text.length, 0));
-const totalChars = lineLengths.reduce((n, l) => n + l, 0);
+function buildCodeLines(topicsCount: number): CodeLine[] {
+  return [
+    { segments: [{ text: '// QA Mentoring 1-on-1', className: 'text-ld-steel' }] },
+    {
+      segments: [
+        { text: 'const', className: 'text-ld-lavender' },
+        { text: ' session ', className: 'text-white' },
+        { text: '= {', className: 'text-ld-fog' },
+      ],
+    },
+    {
+      indent: true,
+      segments: [
+        { text: 'mentor', className: 'text-ld-lilac' },
+        { text: ': ', className: 'text-ld-fog' },
+        { text: '"Agus Budiman"', className: 'text-ld-lavender' },
+        { text: ',', className: 'text-ld-fog' },
+      ],
+    },
+    {
+      indent: true,
+      segments: [
+        { text: 'duration', className: 'text-ld-lilac' },
+        { text: ': ', className: 'text-ld-fog' },
+        { text: '60', className: 'text-ld-lavender' },
+        { text: ', ', className: 'text-ld-fog' },
+        { text: '// minutes', className: 'text-ld-steel' },
+      ],
+    },
+    {
+      indent: true,
+      segments: [
+        { text: 'topics', className: 'text-ld-lilac' },
+        { text: ': ', className: 'text-ld-fog' },
+        { text: `"${topicsCount} tersedia"`, className: 'text-ld-lavender' },
+        { text: ',', className: 'text-ld-fog' },
+      ],
+    },
+    {
+      indent: true,
+      segments: [
+        { text: 'status', className: 'text-ld-lilac' },
+        { text: ': ', className: 'text-ld-fog' },
+        { text: '"available"', className: 'text-ld-lavender' },
+      ],
+    },
+    { segments: [{ text: '}', className: 'text-ld-fog' }] },
+  ];
+}
 
 function useTypewriter(totalLength: number, speedMs = 55) {
   const [typed, setTyped] = useState(0);
@@ -69,6 +71,15 @@ function useTypewriter(totalLength: number, speedMs = 55) {
 }
 
 const HeroSection: React.FC = () => {
+  const { config } = useConfig();
+  const topicsCount = config?.topics.length ?? DEFAULT_TOPICS_COUNT;
+
+  const codeLines = useMemo(() => buildCodeLines(topicsCount), [topicsCount]);
+  const lineLengths = useMemo(
+    () => codeLines.map(line => line.segments.reduce((n, s) => n + s.text.length, 0)),
+    [codeLines]
+  );
+  const totalChars = useMemo(() => lineLengths.reduce((n, l) => n + l, 0), [lineLengths]);
   const typed = useTypewriter(totalChars);
 
   return (
@@ -79,7 +90,7 @@ const HeroSection: React.FC = () => {
           <div className="lg:col-span-3">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-ld-lilac text-ld-violet text-xs font-medium mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-ld-violet" />
-              Sesi Tersedia · 7 Topik QA
+              Sesi Tersedia · {topicsCount} Topik QA
             </div>
 
             <h1 className="font-ld-display font-semibold text-[42px] sm:text-[56px] lg:text-[64px] leading-[0.98] tracking-[-0.025em] text-ld-graphite mb-5">
