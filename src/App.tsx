@@ -17,8 +17,6 @@ const PortfolioBookingPage = lazy(() => import('./pages/portfolio/Mentoring/Book
 const AdminPage = lazy(() => import('./pages/portfolio/Mentoring/admin/AdminPage'));
 const NotFound = lazy(() => import('./pages/portfolio/NotFound'));
 
-const RouteFallback: React.FC = () => <LoadingState className="py-24" />;
-
 const SAME_AS = [
   'https://linkedin.com/in/agus-budiman',
   'https://github.com/agusbudbudi',
@@ -55,12 +53,18 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+// Suspense sits inside each layout (not around <Routes>) so the fixed
+// Navbar/Footer stay mounted across a lazy chunk load — only the content
+// area shows the loading state, instead of the whole page unmounting and
+// reflowing once the chunk resolves.
 const PortfolioLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-ld-canvas">
       <PortfolioNavbar />
       <main className="flex-grow pt-[70px]">
-        {children}
+        <Suspense fallback={<LoadingState className="min-h-[60vh]" />}>
+          {children}
+        </Suspense>
       </main>
       <PortfolioFooter />
     </div>
@@ -72,7 +76,9 @@ const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
     <div className="min-h-screen flex flex-col bg-ld-canvas">
       <LightdashNavbar />
       <main className="flex-grow">
-        {children}
+        <Suspense fallback={<LoadingState className="min-h-[60vh] pt-16" />}>
+          {children}
+        </Suspense>
       </main>
       <LightdashFooter />
     </div>
@@ -82,7 +88,6 @@ const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
 function App() {
   return (
     <Router>
-      <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route
           path="/"
@@ -169,7 +174,7 @@ function App() {
         <Route
           path="/mentoring/admin"
           element={
-            <>
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
               <Seo
                 path="/mentoring/admin"
                 title="Admin Dashboard | Mentor.QA"
@@ -177,7 +182,7 @@ function App() {
                 noindex
               />
               <AdminPage />
-            </>
+            </Suspense>
           }
         />
         <Route path="/mentoring" element={<Navigate to="/" replace />} />
@@ -196,7 +201,6 @@ function App() {
           }
         />
       </Routes>
-      </Suspense>
     </Router>
   );
 }
