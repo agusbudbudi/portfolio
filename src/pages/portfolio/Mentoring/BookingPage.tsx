@@ -2,6 +2,7 @@
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
 import { useConfig } from '../../../hooks/useConfig';
+import LoadingState from '../../../components/portfolio/common/LoadingState';
 import BookingForm from './components/BookingForm';
 
 const BookingPage: React.FC = () => {
@@ -21,15 +22,7 @@ const BookingPage: React.FC = () => {
       </div>
 
       {/* Loading State */}
-      {loading && (
-        <div className="flex flex-col items-center justify-center gap-4 py-24 text-center" role="status">
-          <div
-            className="w-10 h-10 rounded-full border-[3px] border-ld-ash border-t-ld-violet animate-spin"
-            aria-hidden="true"
-          />
-          <p className="text-sm text-ld-slate">Memuat konfigurasi mentoring…</p>
-        </div>
-      )}
+      {loading && <LoadingState label="Memuat konfigurasi mentoring…" className="py-24" />}
 
       {/* Config Error State */}
       {!loading && error && (

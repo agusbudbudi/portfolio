@@ -6,6 +6,7 @@ import PortfolioFooter from './components/portfolio/Layout/Footer';
 import LightdashNavbar from './components/portfolio/Layout/LightdashNavbar';
 import LightdashFooter from './components/portfolio/Layout/LightdashFooter';
 import Seo from './components/portfolio/common/Seo';
+import LoadingState from './components/portfolio/common/LoadingState';
 
 const MentoringPage = lazy(() => import('./pages/portfolio/Mentoring/MentoringPage'));
 const PortfolioHome = lazy(() => import('./pages/portfolio/Home'));
@@ -16,14 +17,7 @@ const PortfolioBookingPage = lazy(() => import('./pages/portfolio/Mentoring/Book
 const AdminPage = lazy(() => import('./pages/portfolio/Mentoring/admin/AdminPage'));
 const NotFound = lazy(() => import('./pages/portfolio/NotFound'));
 
-const RouteFallback: React.FC = () => (
-  <div className="flex items-center justify-center py-24" role="status">
-    <div
-      className="w-10 h-10 rounded-full border-[3px] border-ld-ash border-t-ld-violet animate-spin"
-      aria-hidden="true"
-    />
-  </div>
-);
+const RouteFallback: React.FC = () => <LoadingState className="py-24" />;
 
 const SAME_AS = [
   'https://linkedin.com/in/agus-budiman',

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Loader2, AlertCircle, ThumbsUp, ChevronUp, ChevronDown, ListChecks } from 'lucide-react';
+import { ArrowRight, AlertCircle, ThumbsUp, ChevronUp, ChevronDown, ListChecks } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useConfig } from '../../../../../hooks/useConfig';
 import type { MentoringConfig } from '../../../../../hooks/useConfig';
+import LoadingState from '../../../../../components/portfolio/common/LoadingState';
 
 const TopicsSection: React.FC = () => {
   const { config, loading, error } = useConfig();
@@ -42,12 +43,7 @@ const TopicsSection: React.FC = () => {
           </p>
         </div>
 
-        {loading && (
-          <div className="flex items-center justify-center py-16 gap-3 text-ld-slate">
-            <Loader2 size={20} className="animate-spin" />
-            <span className="text-sm">Memuat topik…</span>
-          </div>
-        )}
+        {loading && <LoadingState label="Memuat topik…" className="py-16" />}
 
         {!loading && error && (
           <div className="flex items-center justify-center gap-2 py-16 text-ld-slate">

@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../../store/useAdminAuthStore';
 import { useAdminConfigStore } from '../../../../../store/useAdminConfigStore';
+import LoadingState from '../../../../../components/portfolio/common/LoadingState';
 import BookingRulesTab from './BookingRulesTab';
 import TopicsTab from './TopicsTab';
 import MentorsTab from './MentorsTab';
@@ -33,7 +34,7 @@ const AdminDashboard: React.FC = () => {
   }, [load]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-sm text-ld-fog">Memuat config…</div>;
+    return <LoadingState label="Memuat config…" className="min-h-screen" />;
   }
 
   if (loadError) {

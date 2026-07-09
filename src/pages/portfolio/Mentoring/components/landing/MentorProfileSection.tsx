@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowRight, Award, Building2, Clock, Globe, Loader2, User } from 'lucide-react';
+import { ArrowRight, Award, Building2, Clock, Globe, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useConfig } from '../../../../../hooks/useConfig';
 import type { MentorConfig } from '../../../../../types/mentoring';
+import LoadingState from '../../../../../components/portfolio/common/LoadingState';
 import MentorProfileModal from './MentorProfileModal';
 
 const companies = [
@@ -54,11 +55,7 @@ const MentorProfileSection: React.FC = () => {
           </p>
         </div>
 
-        {loading && (
-          <div className="flex justify-center py-16">
-            <Loader2 size={24} className="animate-spin text-ld-fog" />
-          </div>
-        )}
+        {loading && <LoadingState className="py-16" />}
 
         {!loading && mentors.length > 0 && (
           <div className={`flex gap-4 pt-2 pb-4 md:pt-0 md:pb-0 md:overflow-visible md:snap-none md:grid md:gap-6 ${mentors.length === 1
