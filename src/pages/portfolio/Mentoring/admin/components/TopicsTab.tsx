@@ -5,12 +5,10 @@ import type { TopicConfig } from '../../../../../types/mentoring';
 import TopicForm from './TopicForm';
 
 const TopicsTab: React.FC = () => {
-  const { draft, upsertTopic, deleteTopic } = useAdminConfigStore();
+  const { topics, upsertTopic, deleteTopic } = useAdminConfigStore();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<TopicConfig | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  if (!draft) return null;
 
   const openCreate = () => { setEditing(null); setFormOpen(true); };
   const openEdit = (topic: TopicConfig) => { setEditing(topic); setFormOpen(true); };
@@ -21,7 +19,7 @@ const TopicsTab: React.FC = () => {
         onClose={() => setFormOpen(false)}
         onSubmit={upsertTopic}
         topic={editing}
-        existingIds={draft.topics.map((t) => t.id)}
+        existingIds={topics.map((t) => t.id)}
       />
     );
   }
@@ -38,7 +36,7 @@ const TopicsTab: React.FC = () => {
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-widest text-ld-fog m-0">Topics</h2>
-          <p className="text-xs text-ld-fog m-0 mt-1">{draft.topics.length} topic tersedia di form booking.</p>
+          <p className="text-xs text-ld-fog m-0 mt-1">{topics.length} topic tersedia di form booking.</p>
         </div>
         <button
           onClick={openCreate}
@@ -64,7 +62,7 @@ const TopicsTab: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {draft.topics.map((topic) => (
+            {topics.map((topic) => (
               <tr key={topic.id} className="border-t border-ld-ash bg-white hover:bg-ld-cloud/50 transition-colors">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3 min-w-[180px]">

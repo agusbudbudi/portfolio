@@ -5,14 +5,12 @@ import type { MentorConfig } from '../../../../../types/mentoring';
 import MentorForm from './MentorForm';
 
 const MentorsTab: React.FC = () => {
-  const { draft, upsertMentor, deleteMentor } = useAdminConfigStore();
+  const { topics, mentors, availableDays, upsertMentor, deleteMentor } = useAdminConfigStore();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<MentorConfig | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  if (!draft) return null;
-
-  const topicLabel = (id: string) => draft.topics.find((t) => t.id === id)?.label ?? id;
+  const topicLabel = (id: string) => topics.find((t) => t.id === id)?.label ?? id;
   const weeklySlots = (mentor: MentorConfig) =>
     Object.values(mentor.schedule).reduce((sum, slots) => sum + slots.length, 0);
 
@@ -25,9 +23,9 @@ const MentorsTab: React.FC = () => {
         onClose={() => setFormOpen(false)}
         onSubmit={upsertMentor}
         mentor={editing}
-        existingIds={draft.mentors.map((m) => m.id)}
-        topics={draft.topics}
-        availableDays={draft.availableDays}
+        existingIds={mentors.map((m) => m.id)}
+        topics={topics}
+        availableDays={availableDays}
       />
     );
   }
@@ -44,7 +42,7 @@ const MentorsTab: React.FC = () => {
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-widest text-ld-fog m-0">Mentors</h2>
-          <p className="text-xs text-ld-fog m-0 mt-1">{draft.mentors.length} mentor aktif.</p>
+          <p className="text-xs text-ld-fog m-0 mt-1">{mentors.length} mentor aktif.</p>
         </div>
         <button
           onClick={openCreate}
@@ -70,7 +68,7 @@ const MentorsTab: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {draft.mentors.map((mentor) => (
+            {mentors.map((mentor) => (
               <tr key={mentor.id} className="border-t border-ld-ash bg-white hover:bg-ld-cloud/50 transition-colors">
                 <td className="px-4 py-3 align-top">
                   <div className="flex items-start gap-3 min-w-[220px]">

@@ -1,14 +1,10 @@
-// Structural validator for the mentoring config document.
-// Used by both the admin dashboard (client-side pre-save check) and
-// the /api/config serverless function (server-side write validation).
+// Structural validators for the mentoring config resources — topics, mentors, booking-rules.
+// Used by both the admin dashboard (client-side pre-save check) and the
+// /api/topics, /api/mentors, /api/booking-rules serverless functions (server-side write validation).
 // Keep this file free of browser-only imports — it is bundled into the API.
 
-import type { MentoringConfig } from '../types/mentoring';
+import type { BookingRules, MentoringConfig, MentorConfig, TopicConfig } from '../types/mentoring';
 import { WEEKDAYS } from '../types/mentoring';
-
-export type ValidationResult =
-  | { ok: true; config: MentoringConfig }
-  | { ok: false; errors: string[] };
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -26,27 +22,15 @@ function isPositiveInt(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value > 0;
 }
 
-export function validateMentoringConfig(data: unknown): ValidationResult {
+export type TopicsValidationResult =
+  | { ok: true; topics: TopicConfig[] }
+  | { ok: false; errors: string[] };
+
+export function validateTopics(data: unknown): TopicsValidationResult {
   const errors: string[] = [];
 
-  if (!isRecord(data)) {
-    return { ok: false, errors: ['Config harus berupa objek JSON.'] };
-  }
+  if (!isRecord(data)) return { ok: false, errors: ['Body harus berupa objek JSON.'] };
 
-  // metadata
-  const metadata = data.metadata;
-  if (!isRecord(metadata)) {
-    errors.push('metadata: wajib berupa objek.');
-  } else {
-    for (const key of ['timezone', 'timezone_abbr', 'version'] as const) {
-      if (!isNonEmptyString(metadata[key])) errors.push(`metadata.${key}: wajib string non-kosong.`);
-    }
-    if (metadata.updatedAt !== undefined && typeof metadata.updatedAt !== 'string') {
-      errors.push('metadata.updatedAt: harus string ISO date.');
-    }
-  }
-
-  // topics
   const topicIds = new Set<string>();
   if (!Array.isArray(data.topics) || data.topics.length === 0) {
     errors.push('topics: wajib array non-kosong.');
@@ -77,7 +61,21 @@ export function validateMentoringConfig(data: unknown): ValidationResult {
     });
   }
 
-  // mentors
+  if (errors.length > 0) return { ok: false, errors };
+  return { ok: true, topics: data.topics as TopicConfig[] };
+}
+
+export type MentorsValidationResult =
+  | { ok: true; mentors: MentorConfig[] }
+  | { ok: false; errors: string[] };
+
+// validTopicIds cross-checks mentor.expertise against the topics resource —
+// the one place the split APIs still depend on each other.
+export function validateMentors(data: unknown, validTopicIds: Set<string>): MentorsValidationResult {
+  const errors: string[] = [];
+
+  if (!isRecord(data)) return { ok: false, errors: ['Body harus berupa objek JSON.'] };
+
   const mentorIds = new Set<string>();
   if (!Array.isArray(data.mentors) || data.mentors.length === 0) {
     errors.push('mentors: wajib array non-kosong.');
@@ -107,7 +105,7 @@ export function validateMentoringConfig(data: unknown): ValidationResult {
         errors.push(`mentors[${i}].expertise: wajib array topic id non-kosong.`);
       } else {
         mentor.expertise.forEach((topicId) => {
-          if (typeof topicId !== 'string' || !topicIds.has(topicId)) {
+          if (typeof topicId !== 'string' || !validTopicIds.has(topicId)) {
             errors.push(`mentors[${i}].expertise: topic id "${String(topicId)}" tidak ada di topics.`);
           }
         });
@@ -145,7 +143,28 @@ export function validateMentoringConfig(data: unknown): ValidationResult {
     });
   }
 
-  // availableDays
+  if (errors.length > 0) return { ok: false, errors };
+  return { ok: true, mentors: data.mentors as MentorConfig[] };
+}
+
+export type BookingRulesValidationResult =
+  | { ok: true; metadata: MentoringConfig['metadata']; availableDays: string[]; bookingRules: BookingRules }
+  | { ok: false; errors: string[] };
+
+export function validateBookingRules(data: unknown): BookingRulesValidationResult {
+  const errors: string[] = [];
+
+  if (!isRecord(data)) return { ok: false, errors: ['Body harus berupa objek JSON.'] };
+
+  const metadata = data.metadata;
+  if (!isRecord(metadata)) {
+    errors.push('metadata: wajib berupa objek.');
+  } else {
+    for (const key of ['timezone', 'timezone_abbr', 'version'] as const) {
+      if (!isNonEmptyString(metadata[key])) errors.push(`metadata.${key}: wajib string non-kosong.`);
+    }
+  }
+
   if (!Array.isArray(data.availableDays) || data.availableDays.length === 0) {
     errors.push('availableDays: wajib array non-kosong.');
   } else {
@@ -156,7 +175,6 @@ export function validateMentoringConfig(data: unknown): ValidationResult {
     });
   }
 
-  // bookingRules
   const rules = data.bookingRules;
   if (!isRecord(rules)) {
     errors.push('bookingRules: wajib berupa objek.');
@@ -180,5 +198,10 @@ export function validateMentoringConfig(data: unknown): ValidationResult {
   }
 
   if (errors.length > 0) return { ok: false, errors };
-  return { ok: true, config: data as unknown as MentoringConfig };
+  return {
+    ok: true,
+    metadata: metadata as MentoringConfig['metadata'],
+    availableDays: data.availableDays as string[],
+    bookingRules: rules as unknown as BookingRules,
+  };
 }

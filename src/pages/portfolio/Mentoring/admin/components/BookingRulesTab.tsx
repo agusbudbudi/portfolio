@@ -25,17 +25,16 @@ const inputClass =
   'w-full px-3.5 py-2.5 rounded-lg border border-ld-ash bg-white text-sm text-ld-onyx focus:outline-none focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac';
 
 const BookingRulesTab: React.FC = () => {
-  const { draft, setBookingRules, setMetadata, toggleAvailableDay } = useAdminConfigStore();
-  if (!draft) return null;
-
-  const rules = draft.bookingRules;
-  const metadata = draft.metadata;
+  const {
+    mentors, availableDays, bookingRules: rules, metadata,
+    setBookingRules, setMetadata, toggleAvailableDay,
+  } = useAdminConfigStore();
 
   // Days disabled for booking while some mentor still has schedule slots on them.
   const orphanedDays = WEEKDAYS.filter(
     (day) =>
-      !draft.availableDays.includes(day) &&
-      draft.mentors.some((m) => (m.schedule[day]?.length ?? 0) > 0)
+      !availableDays.includes(day) &&
+      mentors.some((m) => (m.schedule[day]?.length ?? 0) > 0)
   );
 
   return (
@@ -46,7 +45,7 @@ const BookingRulesTab: React.FC = () => {
 
         <div className="flex flex-wrap gap-2">
           {WEEKDAYS.map((day) => {
-            const active = draft.availableDays.includes(day);
+            const active = availableDays.includes(day);
             return (
               <button
                 key={day}
@@ -65,7 +64,7 @@ const BookingRulesTab: React.FC = () => {
           })}
         </div>
 
-        {draft.availableDays.length === 0 && (
+        {availableDays.length === 0 && (
           <p className="mt-4 text-sm text-red-500 m-0">Minimal satu hari harus aktif — config tidak akan bisa disimpan.</p>
         )}
 

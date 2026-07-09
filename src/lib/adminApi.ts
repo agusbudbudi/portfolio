@@ -1,5 +1,5 @@
 // Thin fetch wrappers for the admin dashboard → /api endpoints.
-import type { MentoringConfig } from '../types/mentoring';
+import type { BookingRulesDocument, MentorsDocument, TopicsDocument } from '../types/mentoring';
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -8,9 +8,9 @@ export class UnauthorizedError extends Error {
   }
 }
 
-export class ConflictError extends Error {
-  current: MentoringConfig;
-  constructor(current: MentoringConfig) {
+export class ConflictError<T = unknown> extends Error {
+  current: T;
+  constructor(current: T) {
     super('conflict');
     this.name = 'ConflictError';
     this.current = current;
@@ -39,37 +39,71 @@ export async function apiLogin(password: string): Promise<{ token: string; expir
   return res.json();
 }
 
-export async function apiGetConfig(): Promise<MentoringConfig> {
-  const res = await fetch(`/api/config?t=${Date.now()}`, { cache: 'no-store' });
-  if (!res.ok) throw new ApiError(res.status, `Gagal memuat config (HTTP ${res.status}).`);
+async function apiGet<T>(url: string): Promise<T> {
+  const res = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' });
+  if (!res.ok) throw new ApiError(res.status, `Gagal memuat data (HTTP ${res.status}).`);
   return res.json();
 }
 
-export async function apiPutConfig(
-  config: MentoringConfig,
+async function apiPut<T>(
+  url: string,
+  body: unknown,
   updatedAt: string | undefined,
+  updatedAtHeader: string,
   token: string
-): Promise<MentoringConfig> {
+): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${token}`,
   };
-  if (updatedAt) headers['x-config-updated-at'] = updatedAt;
+  if (updatedAt) headers[updatedAtHeader] = updatedAt;
 
-  const res = await fetch('/api/config', {
-    method: 'PUT',
-    headers,
-    body: JSON.stringify(config),
-  });
+  const res = await fetch(url, { method: 'PUT', headers, body: JSON.stringify(body) });
 
   if (res.status === 401) throw new UnauthorizedError();
   if (res.status === 409) {
     const body = await res.json();
-    throw new ConflictError(body.current as MentoringConfig);
+    throw new ConflictError<T>(body.current as T);
   }
   if (!res.ok) {
     const body = await res.json().catch(() => null);
-    throw new ApiError(res.status, `Gagal menyimpan config (HTTP ${res.status}).`, body?.errors);
+    throw new ApiError(res.status, `Gagal menyimpan (HTTP ${res.status}).`, body?.errors);
   }
   return res.json();
+}
+
+export function apiGetTopics(): Promise<TopicsDocument> {
+  return apiGet<TopicsDocument>('/api/topics');
+}
+
+export function apiPutTopics(
+  doc: Pick<TopicsDocument, 'topics'>,
+  updatedAt: string | undefined,
+  token: string
+): Promise<TopicsDocument> {
+  return apiPut<TopicsDocument>('/api/topics', doc, updatedAt, 'x-topics-updated-at', token);
+}
+
+export function apiGetMentors(): Promise<MentorsDocument> {
+  return apiGet<MentorsDocument>('/api/mentors');
+}
+
+export function apiPutMentors(
+  doc: Pick<MentorsDocument, 'mentors'>,
+  updatedAt: string | undefined,
+  token: string
+): Promise<MentorsDocument> {
+  return apiPut<MentorsDocument>('/api/mentors', doc, updatedAt, 'x-mentors-updated-at', token);
+}
+
+export function apiGetBookingRules(): Promise<BookingRulesDocument> {
+  return apiGet<BookingRulesDocument>('/api/booking-rules');
+}
+
+export function apiPutBookingRules(
+  doc: Pick<BookingRulesDocument, 'metadata' | 'availableDays' | 'bookingRules'>,
+  updatedAt: string | undefined,
+  token: string
+): Promise<BookingRulesDocument> {
+  return apiPut<BookingRulesDocument>('/api/booking-rules', doc, updatedAt, 'x-booking-rules-updated-at', token);
 }

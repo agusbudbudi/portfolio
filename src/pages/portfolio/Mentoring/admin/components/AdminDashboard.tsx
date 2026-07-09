@@ -20,8 +20,10 @@ type NavId = (typeof NAV_ITEMS)[number]['id'];
 const AdminDashboard: React.FC = () => {
   const logout = useAdminAuthStore((s) => s.logout);
   const {
-    draft, dirty, loading, loadError, saveStatus, saveError, validationErrors,
-    load, discard, save,
+    loading, loadError, load,
+    topicsDirty, topicsSave, topicsUpdatedAt, discardTopics, saveTopics, reloadTopics,
+    mentorsDirty, mentorsSave, mentorsUpdatedAt, discardMentors, saveMentors, reloadMentors,
+    rulesDirty, rulesSave, rulesUpdatedAt, discardRules, saveRules, reloadRules,
   } = useAdminConfigStore();
   const [activeNav, setActiveNav] = useState<NavId>('mentors');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,14 +32,14 @@ const AdminDashboard: React.FC = () => {
     load();
   }, [load]);
 
-  if (loading || (!draft && !loadError)) {
+  if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-sm text-ld-fog">Memuat config…</div>;
   }
 
-  if (loadError || !draft) {
+  if (loadError) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-4">
-        <p className="text-sm text-red-500 m-0">{loadError ?? 'Config tidak tersedia.'}</p>
+        <p className="text-sm text-red-500 m-0">{loadError}</p>
         <button
           onClick={load}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ld-violet text-white text-sm font-medium cursor-pointer border-none"
@@ -47,6 +49,16 @@ const AdminDashboard: React.FC = () => {
       </div>
     );
   }
+
+  // Header Save/Discard act on whichever tab is active — each resource
+  // (mentors/topics/booking-rules) has its own dirty flag, save status, and
+  // API endpoint, so switching tabs never touches another resource's draft.
+  const active = {
+    mentors: { dirty: mentorsDirty, saveState: mentorsSave, updatedAt: mentorsUpdatedAt, discard: discardMentors, doSave: saveMentors, reload: reloadMentors },
+    topics: { dirty: topicsDirty, saveState: topicsSave, updatedAt: topicsUpdatedAt, discard: discardTopics, doSave: saveTopics, reload: reloadTopics },
+    rules: { dirty: rulesDirty, saveState: rulesSave, updatedAt: rulesUpdatedAt, discard: discardRules, doSave: saveRules, reload: reloadRules },
+  }[activeNav];
+  const { dirty, saveState, updatedAt, discard, doSave, reload } = active;
 
   const activeItem = NAV_ITEMS.find((item) => item.id === activeNav) ?? NAV_ITEMS[0];
 
@@ -144,8 +156,8 @@ const AdminDashboard: React.FC = () => {
             <div className="min-w-0">
               <h1 className="m-0 text-base font-semibold text-ld-onyx leading-tight truncate">{activeItem.label}</h1>
               <p className="m-0 text-[11px] text-ld-fog leading-tight truncate">
-                {draft.metadata.updatedAt
-                  ? `Terakhir disimpan ${new Date(draft.metadata.updatedAt).toLocaleString('id-ID')}`
+                {updatedAt
+                  ? `Terakhir disimpan ${new Date(updatedAt).toLocaleString('id-ID')}`
                   : activeItem.description}
               </p>
             </div>
@@ -159,33 +171,33 @@ const AdminDashboard: React.FC = () => {
             )}
             <button
               onClick={discard}
-              disabled={!dirty || saveStatus === 'saving'}
+              disabled={!dirty || saveState.status === 'saving'}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-ld-ash bg-white text-sm text-ld-graphite hover:border-ld-steel disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
             >
               <RotateCcw size={14} /> <span className="hidden sm:inline">Discard</span>
             </button>
             <button
-              onClick={save}
-              disabled={!dirty || saveStatus === 'saving'}
+              onClick={doSave}
+              disabled={!dirty || saveState.status === 'saving'}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer border-none transition-colors"
             >
-              <Save size={14} /> {saveStatus === 'saving' ? 'Menyimpan…' : 'Save changes'}
+              <Save size={14} /> {saveState.status === 'saving' ? 'Menyimpan…' : 'Save changes'}
             </button>
           </div>
         </header>
 
         <main className="flex-1 p-4 md:p-6 w-full">
-          {saveStatus === 'saved' && (
+          {saveState.status === 'saved' && (
             <div className="mb-4 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-sm text-emerald-700">
-              Config berhasil disimpan.
+              Perubahan berhasil disimpan.
             </div>
           )}
 
-          {saveStatus === 'conflict' && (
+          {saveState.status === 'conflict' && (
             <div className="mb-4 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-700 flex items-center justify-between gap-3">
-              <span className="flex items-center gap-2"><AlertTriangle size={16} /> {saveError}</span>
+              <span className="flex items-center gap-2"><AlertTriangle size={16} /> {saveState.error}</span>
               <button
-                onClick={load}
+                onClick={reload}
                 className="shrink-0 px-3 py-1.5 rounded-lg bg-amber-600 text-white text-xs font-medium cursor-pointer border-none"
               >
                 Muat ulang
@@ -193,12 +205,12 @@ const AdminDashboard: React.FC = () => {
             </div>
           )}
 
-          {saveStatus === 'error' && (
+          {saveState.status === 'error' && (
             <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600">
-              <p className="m-0 font-medium">{saveError}</p>
-              {validationErrors.length > 0 && (
+              <p className="m-0 font-medium">{saveState.error}</p>
+              {saveState.validationErrors.length > 0 && (
                 <ul className="m-0 mt-2 pl-5 space-y-0.5">
-                  {validationErrors.map((err) => <li key={err}>{err}</li>)}
+                  {saveState.validationErrors.map((err) => <li key={err}>{err}</li>)}
                 </ul>
               )}
             </div>
