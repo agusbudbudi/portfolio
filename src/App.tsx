@@ -1,18 +1,28 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import PortfolioNavbar from './components/portfolio/Layout/Navbar';
 import PortfolioFooter from './components/portfolio/Layout/Footer';
-import PortfolioHome from './pages/portfolio/Home';
-import PortfolioAbout from './pages/portfolio/About';
-import PortfolioProjects from './pages/portfolio/Projects';
-import PortfolioCertifications from './pages/portfolio/Certifications';
-import NotFound from './pages/portfolio/NotFound';
-import PortfolioBookingPage from './pages/portfolio/Mentoring/BookingPage';
-import MentoringPage from './pages/portfolio/Mentoring/MentoringPage';
 import LightdashNavbar from './components/portfolio/Layout/LightdashNavbar';
 import LightdashFooter from './components/portfolio/Layout/LightdashFooter';
 import Seo from './components/portfolio/common/Seo';
+
+const MentoringPage = lazy(() => import('./pages/portfolio/Mentoring/MentoringPage'));
+const PortfolioHome = lazy(() => import('./pages/portfolio/Home'));
+const PortfolioAbout = lazy(() => import('./pages/portfolio/About'));
+const PortfolioProjects = lazy(() => import('./pages/portfolio/Projects'));
+const PortfolioCertifications = lazy(() => import('./pages/portfolio/Certifications'));
+const PortfolioBookingPage = lazy(() => import('./pages/portfolio/Mentoring/BookingPage'));
+const NotFound = lazy(() => import('./pages/portfolio/NotFound'));
+
+const RouteFallback: React.FC = () => (
+  <div className="flex items-center justify-center py-24" role="status">
+    <div
+      className="w-10 h-10 rounded-full border-[3px] border-ld-ash border-t-ld-violet animate-spin"
+      aria-hidden="true"
+    />
+  </div>
+);
 
 const SAME_AS = [
   'https://linkedin.com/in/agus-budiman',
@@ -77,6 +87,7 @@ const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
 function App() {
   return (
     <Router>
+      <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route
           path="/"
@@ -176,6 +187,7 @@ function App() {
           }
         />
       </Routes>
+      </Suspense>
     </Router>
   );
 }
