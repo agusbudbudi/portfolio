@@ -4,7 +4,7 @@
 // Keep this file free of browser-only imports — it is bundled into the API.
 
 import type { BookingRules, MentoringConfig, MentorConfig, TopicConfig } from '../types/mentoring';
-import { WEEKDAYS } from '../types/mentoring';
+import { WEEKDAYS } from '../types/mentoring.js';
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
