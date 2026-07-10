@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { bearerToken, verifyToken } from './_lib/auth';
-import { readMentors, readTopics, writeMentors } from './_lib/configStore';
-import { validateMentors } from '../src/lib/configValidation';
+import { bearerToken, verifyToken } from './_lib/auth.js';
+import { readMentors, readTopics, writeMentors } from './_lib/configStore.js';
+import { validateMentors } from '../src/lib/configValidation.js';
 
 async function handleGet(_req: VercelRequest, res: VercelResponse) {
   const doc = await readMentors();
