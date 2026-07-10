@@ -3,7 +3,7 @@
 // full MentoringConfig shape the public site (useConfig) expects.
 // Read-only: writes go through /api/topics, /api/mentors, /api/booking-rules.
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { readBookingRules, readMentors, readTopics } from './_lib/configStore';
+import { readBookingRules, readMentors, readTopics } from './_lib/configStore.js';
 import type { MentoringConfig } from '../src/types/mentoring';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
