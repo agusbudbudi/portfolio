@@ -1,19 +1,10 @@
-import React, { useState } from 'react';
-import { ArrowRight, Award, Building2, Clock, Globe, Loader2, User } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { ArrowRight, Award, Building2, Clock, Globe, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useConfig } from '../../../../../hooks/useConfig';
 import type { MentorConfig } from '../../../../../types/mentoring';
+import LoadingState from '../../../../../components/portfolio/common/LoadingState';
 import MentorProfileModal from './MentorProfileModal';
-
-const topicLabelMap: Record<string, string> = {
-  'fundamental-qa': 'Fundamental QA',
-  'ai-assisted-qa': 'AI Assisted QA',
-  'debugging-tips-tricks': 'Debugging',
-  'test-management-strategy': 'Test Management',
-  'api-testing-postman': 'API Testing',
-  'cypress-web-automation': 'Cypress Automation',
-  'web-automation-basic': 'Web Automation',
-};
 
 const companies = [
   { name: 'Diricare', logo: '/img/company/diricare-logo.webp' },
@@ -47,6 +38,11 @@ const MentorProfileSection: React.FC = () => {
   const mentors = config?.mentors ?? [];
   const [selectedMentor, setSelectedMentor] = useState<MentorConfig | null>(null);
 
+  const topicLabelMap = useMemo(
+    () => Object.fromEntries((config?.topics ?? []).map(topic => [topic.id, topic.label])),
+    [config]
+  );
+
   return (
     <section id="mentor" className="py-8 md:py-20 bg-ld-cloud font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-0 sm:px-6">
@@ -59,11 +55,7 @@ const MentorProfileSection: React.FC = () => {
           </p>
         </div>
 
-        {loading && (
-          <div className="flex justify-center py-16">
-            <Loader2 size={24} className="animate-spin text-ld-fog" />
-          </div>
-        )}
+        {loading && <LoadingState className="py-16" />}
 
         {!loading && mentors.length > 0 && (
           <div className={`flex gap-4 pt-2 pb-4 md:pt-0 md:pb-0 md:overflow-visible md:snap-none md:grid md:gap-6 ${mentors.length === 1

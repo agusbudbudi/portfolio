@@ -21,6 +21,7 @@ export interface MentorConfig {
   whatsapp: string;
   expertise: string[];
   bio: string;
+  detailProfile?: string;
   avatar?: string;
   schedule: Record<string, string[]>;
   platforms?: MentorPlatforms;
@@ -45,6 +46,25 @@ export interface MentoringConfig {
   mentors: MentorConfig[];
   availableDays: string[];
   bookingRules: BookingRules;
+}
+
+// Per-resource API document shapes — /api/topics, /api/mentors, /api/booking-rules.
+// Each is stored, validated, and saved independently of the others.
+export interface TopicsDocument {
+  topics: TopicConfig[];
+  updatedAt?: string;
+}
+
+export interface MentorsDocument {
+  mentors: MentorConfig[];
+  updatedAt?: string;
+}
+
+export interface BookingRulesDocument {
+  metadata: MentoringConfig['metadata'];
+  availableDays: string[];
+  bookingRules: BookingRules;
+  updatedAt?: string;
 }
 
 export const WEEKDAYS = [

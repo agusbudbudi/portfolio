@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import PortfolioNavbar from './components/portfolio/Layout/Navbar';
 import PortfolioFooter from './components/portfolio/Layout/Footer';
-import PortfolioHome from './pages/portfolio/Home';
-import PortfolioAbout from './pages/portfolio/About';
-import PortfolioProjects from './pages/portfolio/Projects';
-import PortfolioCertifications from './pages/portfolio/Certifications';
-import PortfolioBookingPage from './pages/portfolio/Mentoring/BookingPage';
-import MentoringPage from './pages/portfolio/Mentoring/MentoringPage';
 import LightdashNavbar from './components/portfolio/Layout/LightdashNavbar';
 import LightdashFooter from './components/portfolio/Layout/LightdashFooter';
 import Seo from './components/portfolio/common/Seo';
+import LoadingState from './components/portfolio/common/LoadingState';
+
+const MentoringPage = lazy(() => import('./pages/portfolio/Mentoring/MentoringPage'));
+const PortfolioHome = lazy(() => import('./pages/portfolio/Home'));
+const PortfolioAbout = lazy(() => import('./pages/portfolio/About'));
+const PortfolioProjects = lazy(() => import('./pages/portfolio/Projects'));
+const PortfolioCertifications = lazy(() => import('./pages/portfolio/Certifications'));
+const PortfolioBookingPage = lazy(() => import('./pages/portfolio/Mentoring/BookingPage'));
+const AdminPage = lazy(() => import('./pages/portfolio/Mentoring/admin/AdminPage'));
+const NotFound = lazy(() => import('./pages/portfolio/NotFound'));
 
 const SAME_AS = [
   'https://linkedin.com/in/agus-budiman',
@@ -49,12 +53,18 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+// Suspense sits inside each layout (not around <Routes>) so the fixed
+// Navbar/Footer stay mounted across a lazy chunk load — only the content
+// area shows the loading state, instead of the whole page unmounting and
+// reflowing once the chunk resolves.
 const PortfolioLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-ld-canvas">
       <PortfolioNavbar />
       <main className="flex-grow pt-[70px]">
-        {children}
+        <Suspense fallback={<LoadingState className="min-h-[60vh]" />}>
+          {children}
+        </Suspense>
       </main>
       <PortfolioFooter />
     </div>
@@ -66,7 +76,9 @@ const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
     <div className="min-h-screen flex flex-col bg-ld-canvas">
       <LightdashNavbar />
       <main className="flex-grow">
-        {children}
+        <Suspense fallback={<LoadingState className="min-h-[60vh] pt-16" />}>
+          {children}
+        </Suspense>
       </main>
       <LightdashFooter />
     </div>
@@ -159,8 +171,35 @@ function App() {
             </LightdashLayout>
           }
         />
+        <Route
+          path="/mentoring/admin"
+          element={
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
+              <Seo
+                path="/mentoring/admin"
+                title="Admin Dashboard | Mentor.QA"
+                description="Dashboard admin mentoring QA."
+                noindex
+              />
+              <AdminPage />
+            </Suspense>
+          }
+        />
         <Route path="/mentoring" element={<Navigate to="/" replace />} />
         <Route path="/portfolio/mentoring/booking" element={<Navigate to="/mentoring/booking" replace />} />
+        <Route
+          path="*"
+          element={
+            <LightdashLayout>
+              <Seo
+                path="/404"
+                title="Halaman Tidak Ditemukan | Agus Budiman"
+                description="Halaman yang kamu cari tidak ditemukan. Kembali ke halaman utama Agus Budiman, QA Engineer."
+              />
+              <NotFound />
+            </LightdashLayout>
+          }
+        />
       </Routes>
     </Router>
   );

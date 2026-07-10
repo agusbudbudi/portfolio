@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Loader2, AlertCircle, ThumbsUp, ChevronUp, ChevronDown, ListChecks } from 'lucide-react';
+import { ArrowRight, AlertCircle, ThumbsUp, ChevronUp, ChevronDown, ListChecks } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useConfig } from '../../../../../hooks/useConfig';
 import type { MentoringConfig } from '../../../../../hooks/useConfig';
+import LoadingState from '../../../../../components/portfolio/common/LoadingState';
 
 const TopicsSection: React.FC = () => {
   const { config, loading, error } = useConfig();
@@ -35,19 +36,14 @@ const TopicsSection: React.FC = () => {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 sm:mb-14">
           <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
-            7 Topik QA Engineering
+            {topics.length > 0 ? `${topics.length} Topik QA Engineering` : 'Topik QA Engineering'}
           </h2>
           <p className="text-ld-slate max-w-xl mx-auto text-base leading-relaxed">
             Pilih topik sesuai kebutuhan karirmu. Setiap sesi bisa fokus pada satu atau kombinasi topik.
           </p>
         </div>
 
-        {loading && (
-          <div className="flex items-center justify-center py-16 gap-3 text-ld-slate">
-            <Loader2 size={20} className="animate-spin" />
-            <span className="text-sm">Memuat topik…</span>
-          </div>
-        )}
+        {loading && <LoadingState label="Memuat topik…" className="py-16" />}
 
         {!loading && error && (
           <div className="flex items-center justify-center gap-2 py-16 text-ld-slate">

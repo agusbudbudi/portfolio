@@ -34,6 +34,21 @@ const plans = [
     highlighted: true,
     cta: 'Booking Paket 3 Sesi',
   },
+  {
+    name: 'Interview Preparation',
+    price: 'Rp150.000',
+    unit: '/ sesi',
+    description: 'Fokus persiapan interview: mock interview & review CV/portfolio QA.',
+    features: [
+      '1x sesi 60 menit',
+      '1-on-1 dengan mentor',
+      'Mock interview teknikal QA',
+      'Review CV & portfolio',
+      'Konfirmasi via WhatsApp',
+    ],
+    highlighted: false,
+    cta: 'Booking Interview Prep',
+  },
 ];
 
 const PricingSection: React.FC = () => {
@@ -49,7 +64,7 @@ const PricingSection: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {plans.map(plan => (
             <div
               key={plan.name}
@@ -77,7 +92,7 @@ const PricingSection: React.FC = () => {
                 <span className="text-sm text-ld-fog line-through">{plan.originalPrice}</span>
               )}
               <div className="flex items-baseline gap-1 mb-5">
-                <span className="font-ld-display font-semibold text-3xl text-ld-graphite tracking-[-0.02em]">
+                <span className="font-ld-display font-semibold text-3xl text-ld-graphite tracking-[-0.02em] text-ld-violet">
                   {plan.price}
                 </span>
                 <span className="text-sm text-ld-slate">{plan.unit}</span>
