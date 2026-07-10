@@ -11,7 +11,7 @@ import type {
 // Bundled into the function at build time — the pre-seed fallback and the
 // permanent degradation path if Blob is unavailable. Imported (not fetched over
 // HTTP) because the SPA rewrite swallows /config/*.json under `vercel dev`.
-import staticConfig from '../../public/config/qa-mentoring-config.json';
+import staticConfig from '../../public/config/qa-mentoring-config.json' with { type: 'json' };
 
 const LEGACY_PATHNAME = 'mentoring/config.json';
 const TOPICS_PATHNAME = 'mentoring/topics.json';
