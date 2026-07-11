@@ -28,20 +28,16 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'invalid_mentors', errors: result.errors });
   }
 
-  // Optimistic concurrency: client echoes the updatedAt it loaded.
-  const current = await readMentors();
-  if (current.updatedAt) {
-    const clientVersion = req.headers['x-mentors-updated-at'];
-    if (clientVersion !== current.updatedAt) {
-      return res.status(409).json({ error: 'conflict', current });
-    }
+  // Optimistic concurrency: client echoes the updatedAt it loaded, applied
+  // atomically as part of the write itself (see writeMentors).
+  const clientVersion = req.headers['x-mentors-updated-at'];
+  const write = await writeMentors({ mentors: result.mentors }, typeof clientVersion === 'string' ? clientVersion : undefined);
+  if (!write.ok) {
+    return res.status(409).json({ error: 'conflict', current: write.current });
   }
 
-  const doc = { mentors: result.mentors, updatedAt: new Date().toISOString() };
-  await writeMentors(doc);
-
   res.setHeader('Cache-Control', 'no-store');
-  return res.status(200).json(doc);
+  return res.status(200).json(write.doc);
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

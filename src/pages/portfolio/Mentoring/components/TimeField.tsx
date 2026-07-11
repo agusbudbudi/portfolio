@@ -11,15 +11,22 @@ interface TimeFieldProps {
   value: string;
   onChange: (time: string) => void;
   error: string | null;
+  // Slot values to hide (e.g. already booked by another record) — used by
+  // the admin booking form; public booking has no concept of taken slots.
+  excludeSlotValues?: Set<string>;
 }
 
-const TimeField: React.FC<TimeFieldProps> = ({ mentor, selectedDate, sessionDurationMinutes, value, onChange, error }) => {
-  const slots = mentor && selectedDate
+const TimeField: React.FC<TimeFieldProps> = ({
+  mentor, selectedDate, sessionDurationMinutes, value, onChange, error, excludeSlotValues,
+}) => {
+  const rawSlots = mentor && selectedDate
     ? getTimeSlotsForMentorAndDate(mentor, selectedDate, sessionDurationMinutes)
     : [];
+  const slots = excludeSlotValues ? rawSlots.filter((s) => !excludeSlotValues.has(s.value)) : rawSlots;
 
   const isDisabled = !mentor || !selectedDate;
-  const noSlots = mentor && selectedDate && slots.length === 0;
+  const allTaken = mentor && selectedDate && rawSlots.length > 0 && slots.length === 0;
+  const noSlots = mentor && selectedDate && rawSlots.length === 0;
 
   const emptyBoxCls = [
     'flex items-center gap-2 p-3.5 rounded-xl border border-dashed text-xs',
@@ -42,6 +49,11 @@ const TimeField: React.FC<TimeFieldProps> = ({ mentor, selectedDate, sessionDura
         <div className={`${emptyBoxCls} border-amber-300 text-amber-500 bg-amber-50/20`} aria-live="polite">
           <Clock size={15} className="flex-shrink-0" />
           <span>Mentor tidak tersedia pada tanggal ini</span>
+        </div>
+      ) : allTaken ? (
+        <div className={`${emptyBoxCls} border-amber-300 text-amber-500 bg-amber-50/20`} aria-live="polite">
+          <Clock size={15} className="flex-shrink-0" />
+          <span>Semua slot mentor di tanggal ini sudah terisi</span>
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-2" role="group" aria-label="Pilih slot waktu sesi">
@@ -75,7 +87,7 @@ const TimeField: React.FC<TimeFieldProps> = ({ mentor, selectedDate, sessionDura
       )}
 
       {error && <p id="time-error" className="text-xs text-red-500 mt-1" role="alert">{error}</p>}
-      {!isDisabled && !noSlots && !error && (
+      {!isDisabled && !noSlots && !allTaken && !error && (
         <p className="text-[11px] text-ld-slate">Durasi 60 menit · Zona waktu WIB (UTC+7)</p>
       )}
     </div>

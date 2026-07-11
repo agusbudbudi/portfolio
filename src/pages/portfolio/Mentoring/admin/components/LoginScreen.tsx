@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Lock } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../../store/useAdminAuthStore';
 import { UnauthorizedError } from '../../../../../lib/adminApi';
 
@@ -26,15 +25,19 @@ const LoginScreen: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-white rounded-2xl border border-ld-ash shadow-sm p-8"
+        className="w-full max-w-sm bg-white rounded-2xl border border-ld-frost shadow-sm p-8"
       >
         <div className="flex items-center gap-3 mb-6">
-          <span className="w-10 h-10 rounded-xl bg-ld-lilac text-ld-violet flex items-center justify-center">
-            <Lock size={18} />
-          </span>
+          <img
+            src="/img/mentor-logo.webp"
+            alt="Mentor.QA"
+            width={40}
+            height={40}
+            className="w-10 h-10 rounded-xl object-contain shrink-0"
+          />
           <div>
-            <h1 className="text-lg font-semibold text-ld-onyx m-0">Mentoring Admin</h1>
-            <p className="text-xs text-ld-fog m-0">Masuk untuk mengelola config mentoring</p>
+            <h1 className="text-lg font-semibold text-ld-onyx m-0">Mentor.QA Admin</h1>
+            <p className="text-xs text-ld-fog m-0">Masuk untuk mengelola Mentoring</p>
           </div>
         </div>
 
@@ -47,7 +50,7 @@ const LoginScreen: React.FC = () => {
           value={password}
           onChange={(e) => { setPassword(e.target.value); setError(null); }}
           autoFocus
-          className="w-full px-3.5 py-2.5 rounded-lg border border-ld-ash bg-white text-sm text-ld-onyx focus:outline-none focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac"
+          className="w-full px-3.5 py-2.5 rounded-lg border border-ld-frost bg-white text-sm text-ld-onyx focus:outline-none focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac"
         />
 
         {error && <p className="mt-3 text-sm text-red-500 m-0">{error}</p>}

@@ -3,12 +3,19 @@
 // /api/topics, /api/mentors, /api/booking-rules serverless functions (server-side write validation).
 // Keep this file free of browser-only imports — it is bundled into the API.
 
-import type { BookingRules, MentoringConfig, MentorConfig, TopicConfig } from '../types/mentoring';
+import type {
+  BookingConfig, BookingRules, BookingStatus, MentoringConfig, MentorConfig, TopicConfig,
+} from '../types/mentoring';
 import { WEEKDAYS } from '../types/mentoring.js';
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const WHATSAPP_RE = /^\d{8,15}$/;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const BOOKING_STATUSES: readonly BookingStatus[] = ['booked', 'confirmed', 'completed', 'canceled'];
+// Statuses that occupy a mentor's slot — canceled frees it up for reuse.
+const OCCUPYING_STATUSES: readonly BookingStatus[] = ['booked', 'confirmed', 'completed'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -204,4 +211,91 @@ export function validateBookingRules(data: unknown): BookingRulesValidationResul
     availableDays: data.availableDays as string[],
     bookingRules: rules as unknown as BookingRules,
   };
+}
+
+export type BookingsValidationResult =
+  | { ok: true; bookings: BookingConfig[] }
+  | { ok: false; errors: string[] };
+
+// validMentorIds/validTopicIds cross-check against the mentors/topics resources.
+export function validateBookings(
+  data: unknown,
+  validMentorIds: Set<string>,
+  validTopicIds: Set<string>
+): BookingsValidationResult {
+  const errors: string[] = [];
+
+  if (!isRecord(data)) return { ok: false, errors: ['Body harus berupa objek JSON.'] };
+
+  if (!Array.isArray(data.bookings)) {
+    errors.push('bookings: wajib array.');
+    return { ok: false, errors };
+  }
+
+  const bookingIds = new Set<string>();
+  // mentorId|date|time -> booking index, tracked only for occupying statuses.
+  const occupiedSlots = new Map<string, number>();
+
+  data.bookings.forEach((booking, i) => {
+    if (!isRecord(booking)) {
+      errors.push(`bookings[${i}]: harus objek.`);
+      return;
+    }
+    if (!isNonEmptyString(booking.id)) {
+      errors.push(`bookings[${i}].id: wajib string non-kosong.`);
+    } else if (bookingIds.has(booking.id)) {
+      errors.push(`bookings[${i}].id: duplikat "${booking.id}".`);
+    } else {
+      bookingIds.add(booking.id);
+    }
+    if (!isNonEmptyString(booking.menteeName)) errors.push(`bookings[${i}].menteeName: wajib string non-kosong.`);
+    if (!isNonEmptyString(booking.menteeEmail) || !EMAIL_RE.test(booking.menteeEmail as string)) {
+      errors.push(`bookings[${i}].menteeEmail: wajib email valid.`);
+    }
+    if (!isNonEmptyString(booking.menteeWhatsapp) || !WHATSAPP_RE.test(booking.menteeWhatsapp as string)) {
+      errors.push(`bookings[${i}].menteeWhatsapp: wajib 8-15 digit angka (format internasional tanpa +).`);
+    }
+    if (!Array.isArray(booking.topics) || booking.topics.length === 0) {
+      errors.push(`bookings[${i}].topics: wajib array topic id non-kosong.`);
+    } else {
+      booking.topics.forEach((topicId) => {
+        if (typeof topicId !== 'string' || !validTopicIds.has(topicId)) {
+          errors.push(`bookings[${i}].topics: topic id "${String(topicId)}" tidak ada di topics.`);
+        }
+      });
+    }
+    if (!isNonEmptyString(booking.mentorId) || !validMentorIds.has(booking.mentorId as string)) {
+      errors.push(`bookings[${i}].mentorId: mentor id tidak ditemukan.`);
+    }
+    if (!isNonEmptyString(booking.date) || !DATE_RE.test(booking.date as string)) {
+      errors.push(`bookings[${i}].date: wajib format YYYY-MM-DD.`);
+    }
+    if (!isNonEmptyString(booking.time) || !TIME_RE.test(booking.time as string)) {
+      errors.push(`bookings[${i}].time: wajib format HH:MM.`);
+    }
+    if (!isNonEmptyString(booking.notes)) errors.push(`bookings[${i}].notes: wajib string non-kosong.`);
+    if (typeof booking.status !== 'string' || !BOOKING_STATUSES.includes(booking.status as BookingStatus)) {
+      errors.push(`bookings[${i}].status: wajib salah satu dari ${BOOKING_STATUSES.join(', ')}.`);
+    }
+    if (!isNonEmptyString(booking.createdAt)) errors.push(`bookings[${i}].createdAt: wajib string non-kosong.`);
+    if (!isNonEmptyString(booking.updatedAt)) errors.push(`bookings[${i}].updatedAt: wajib string non-kosong.`);
+
+    if (
+      isNonEmptyString(booking.mentorId) &&
+      isNonEmptyString(booking.date) &&
+      isNonEmptyString(booking.time) &&
+      typeof booking.status === 'string' &&
+      OCCUPYING_STATUSES.includes(booking.status as BookingStatus)
+    ) {
+      const key = `${booking.mentorId}|${booking.date}|${booking.time}`;
+      if (occupiedSlots.has(key)) {
+        errors.push(`bookings[${i}]: bentrok jadwal dengan bookings[${occupiedSlots.get(key)}] (mentor, tanggal, jam sama).`);
+      } else {
+        occupiedSlots.set(key, i);
+      }
+    }
+  });
+
+  if (errors.length > 0) return { ok: false, errors };
+  return { ok: true, bookings: data.bookings as BookingConfig[] };
 }

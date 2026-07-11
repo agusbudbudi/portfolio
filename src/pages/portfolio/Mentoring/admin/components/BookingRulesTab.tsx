@@ -1,7 +1,8 @@
 import React from 'react';
-import { AlertTriangle, Check } from 'lucide-react';
+import { AlertTriangle, Check, RotateCcw, Save } from 'lucide-react';
 import { WEEKDAYS } from '../../../../../types/mentoring';
 import { useAdminConfigStore } from '../../../../../store/useAdminConfigStore';
+import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from './adminCard';
 
 const DAY_LABELS: Record<string, string> = {
   monday: 'Senin',
@@ -22,12 +23,13 @@ const RULE_FIELDS = [
 ] as const;
 
 const inputClass =
-  'w-full px-3.5 py-2.5 rounded-lg border border-ld-ash bg-white text-sm text-ld-onyx focus:outline-none focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac';
+  'w-full px-3.5 py-2.5 rounded-lg border border-ld-frost bg-white text-sm text-ld-onyx focus:outline-none focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac';
 
 const BookingRulesTab: React.FC = () => {
   const {
     mentors, availableDays, bookingRules: rules, metadata,
     setBookingRules, setMetadata, toggleAvailableDay,
+    rulesDirty, rulesSave, discardRules, saveRules, reloadRules,
   } = useAdminConfigStore();
 
   // Days disabled for booking while some mentor still has schedule slots on them.
@@ -38,7 +40,63 @@ const BookingRulesTab: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_CARD}>
+      <div className={`${ADMIN_CARD_HEADER} justify-between`}>
+        <div>
+          {rulesDirty && (
+            <span className="inline-flex text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-3 py-1">
+              Belum disimpan
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={discardRules}
+            disabled={!rulesDirty || rulesSave.status === 'saving'}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-ld-frost bg-white text-sm text-ld-graphite hover:border-ld-steel disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+          >
+            <RotateCcw size={14} /> <span className="hidden sm:inline">Discard</span>
+          </button>
+          <button
+            onClick={saveRules}
+            disabled={!rulesDirty || rulesSave.status === 'saving'}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer border-none transition-colors"
+          >
+            <Save size={14} /> {rulesSave.status === 'saving' ? 'Menyimpan…' : 'Save changes'}
+          </button>
+        </div>
+      </div>
+
+      <div className={`${ADMIN_CARD_BODY} space-y-6`}>
+      {rulesSave.status === 'saved' && (
+        <div className="px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-sm text-emerald-700">
+          Perubahan berhasil disimpan.
+        </div>
+      )}
+
+      {rulesSave.status === 'conflict' && (
+        <div className="px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-700 flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2"><AlertTriangle size={16} /> {rulesSave.error}</span>
+          <button
+            onClick={reloadRules}
+            className="shrink-0 px-3 py-1.5 rounded-lg bg-amber-600 text-white text-xs font-medium cursor-pointer border-none"
+          >
+            Muat ulang
+          </button>
+        </div>
+      )}
+
+      {rulesSave.status === 'error' && (
+        <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600">
+          <p className="m-0 font-medium">{rulesSave.error}</p>
+          {rulesSave.validationErrors.length > 0 && (
+            <ul className="m-0 mt-2 pl-5 space-y-0.5">
+              {rulesSave.validationErrors.map((err) => <li key={err}>{err}</li>)}
+            </ul>
+          )}
+        </div>
+      )}
+
       <section>
         <h2 className="text-xs font-semibold uppercase tracking-widest text-ld-steel m-0 mb-1">Available Days</h2>
         <p className="text-xs text-ld-fog m-0 mb-3">Hari yang bisa dipilih user di form booking.</p>
@@ -54,7 +112,7 @@ const BookingRulesTab: React.FC = () => {
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium cursor-pointer border transition-colors ${
                   active
                     ? 'bg-ld-lilac/60 text-ld-violet border-ld-lavender'
-                    : 'bg-ld-cloud text-ld-slate border-transparent hover:bg-white hover:border-ld-ash hover:text-ld-graphite'
+                    : 'bg-ld-cloud text-ld-slate border-transparent hover:bg-white hover:border-ld-frost hover:text-ld-graphite'
                 }`}
               >
                 {active && <Check size={14} className="shrink-0" />}
@@ -77,7 +135,7 @@ const BookingRulesTab: React.FC = () => {
         )}
       </section>
 
-      <section className="pt-6 border-t border-ld-ash/60">
+      <section className="pt-6 border-t border-ld-frost/60">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-ld-steel m-0 mb-3">Booking Rules</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {RULE_FIELDS.map(({ key, label }) => (
@@ -95,7 +153,7 @@ const BookingRulesTab: React.FC = () => {
         </div>
       </section>
 
-      <section className="pt-6 border-t border-ld-ash/60">
+      <section className="pt-6 border-t border-ld-frost/60">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-ld-steel m-0 mb-3">Metadata</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <label className="block">
@@ -127,6 +185,7 @@ const BookingRulesTab: React.FC = () => {
           </label>
         </div>
       </section>
+      </div>
     </div>
   );
 };

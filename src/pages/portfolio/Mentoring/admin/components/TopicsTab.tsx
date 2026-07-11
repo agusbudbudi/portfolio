@@ -3,12 +3,14 @@ import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useAdminConfigStore } from '../../../../../store/useAdminConfigStore';
 import type { TopicConfig } from '../../../../../types/mentoring';
 import TopicForm from './TopicForm';
+import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from './adminCard';
 
 const TopicsTab: React.FC = () => {
   const { topics, upsertTopic, deleteTopic } = useAdminConfigStore();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<TopicConfig | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const openCreate = () => { setEditing(null); setFormOpen(true); };
   const openEdit = (topic: TopicConfig) => { setEditing(topic); setFormOpen(true); };
@@ -24,18 +26,20 @@ const TopicsTab: React.FC = () => {
     );
   }
 
-  const handleDelete = (topic: TopicConfig) => {
+  const handleDelete = async (topic: TopicConfig) => {
     setDeleteError(null);
     if (!window.confirm(`Hapus topic "${topic.label}"?`)) return;
-    const result = deleteTopic(topic.id);
+    setDeletingId(topic.id);
+    const result = await deleteTopic(topic.id);
+    setDeletingId(null);
     if (!result.ok) setDeleteError(result.reason ?? 'Gagal menghapus topic.');
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5">
+    <div className={ADMIN_CARD}>
+      <div className={`${ADMIN_CARD_HEADER} justify-between`}>
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-ld-fog m-0">Topics</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-ld-onyx m-0">Topics</h2>
           <p className="text-xs text-ld-fog m-0 mt-1">{topics.length} topic tersedia di form booking.</p>
         </div>
         <button
@@ -46,12 +50,13 @@ const TopicsTab: React.FC = () => {
         </button>
       </div>
 
-      {deleteError && (
-        <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{deleteError}</p>
-      )}
+      <div className={ADMIN_CARD_BODY}>
+        {deleteError && (
+          <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{deleteError}</p>
+        )}
 
-      <div className="overflow-x-auto border border-ld-ash rounded-xl">
-        <table className="w-full border-collapse text-sm">
+        <div className="overflow-x-auto border border-ld-frost rounded-xl">
+          <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-ld-cloud text-left">
               <th className="px-4 py-3 text-xs font-medium text-ld-steel">Topic</th>
@@ -63,13 +68,13 @@ const TopicsTab: React.FC = () => {
           </thead>
           <tbody>
             {topics.map((topic) => (
-              <tr key={topic.id} className="border-t border-ld-ash bg-white hover:bg-ld-cloud/50 transition-colors">
+              <tr key={topic.id} className="border-t border-ld-frost bg-white hover:bg-ld-cloud/50 transition-colors">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3 min-w-[180px]">
                     {topic.image ? (
-                      <img src={topic.image} alt="" className="w-9 h-9 rounded-lg object-cover border border-ld-ash shrink-0" />
+                      <img src={topic.image} alt="" className="w-9 h-9 rounded-lg object-cover border border-ld-frost shrink-0" />
                     ) : (
-                      <span className="w-9 h-9 rounded-lg bg-ld-cloud border border-ld-ash shrink-0" />
+                      <span className="w-9 h-9 rounded-lg bg-ld-cloud border border-ld-frost shrink-0" />
                     )}
                     <span className="text-sm font-medium text-ld-onyx">{topic.label}</span>
                   </div>
@@ -100,7 +105,8 @@ const TopicsTab: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleDelete(topic)}
-                      className="p-2 rounded-lg text-ld-fog hover:text-red-500 hover:bg-red-50 cursor-pointer border-none bg-transparent transition-colors"
+                      disabled={deletingId === topic.id}
+                      className="p-2 rounded-lg text-ld-fog hover:text-red-500 hover:bg-red-50 cursor-pointer border-none bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       aria-label={`Hapus ${topic.label}`}
                     >
                       <Trash2 size={15} />
@@ -110,9 +116,9 @@ const TopicsTab: React.FC = () => {
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
-
     </div>
   );
 };

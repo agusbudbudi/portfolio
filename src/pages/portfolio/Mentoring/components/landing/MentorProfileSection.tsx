@@ -155,6 +155,9 @@ const MentorProfileSection: React.FC = () => {
                             Weekend <span className="font-medium text-ld-graphite">{sched.weekend}</span>
                           </p>
                         )}
+                        {!sched.weekday && !sched.weekend && (
+                          <p className="text-sm text-ld-slate italic">Belum ada jadwal yang tersedia</p>
+                        )}
                       </div>
                     </div>
 

@@ -1,5 +1,5 @@
 // Thin fetch wrappers for the admin dashboard → /api endpoints.
-import type { BookingRulesDocument, MentorsDocument, TopicsDocument } from '../types/mentoring';
+import type { BookingRulesDocument, BookingsDocument, MentorsDocument, TopicsDocument } from '../types/mentoring';
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -41,6 +41,18 @@ export async function apiLogin(password: string): Promise<{ token: string; expir
 
 async function apiGet<T>(url: string): Promise<T> {
   const res = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' });
+  if (!res.ok) throw new ApiError(res.status, `Gagal memuat data (HTTP ${res.status}).`);
+  return res.json();
+}
+
+// Bookings contain mentee PII, so unlike the other resources its GET also
+// requires the admin session token.
+async function apiGetAuth<T>(url: string, token: string): Promise<T> {
+  const res = await fetch(`${url}?t=${Date.now()}`, {
+    cache: 'no-store',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 401) throw new UnauthorizedError();
   if (!res.ok) throw new ApiError(res.status, `Gagal memuat data (HTTP ${res.status}).`);
   return res.json();
 }
@@ -106,4 +118,16 @@ export function apiPutBookingRules(
   token: string
 ): Promise<BookingRulesDocument> {
   return apiPut<BookingRulesDocument>('/api/booking-rules', doc, updatedAt, 'x-booking-rules-updated-at', token);
+}
+
+export function apiGetBookings(token: string): Promise<BookingsDocument> {
+  return apiGetAuth<BookingsDocument>('/api/bookings', token);
+}
+
+export function apiPutBookings(
+  doc: Pick<BookingsDocument, 'bookings'>,
+  updatedAt: string | undefined,
+  token: string
+): Promise<BookingsDocument> {
+  return apiPut<BookingsDocument>('/api/bookings', doc, updatedAt, 'x-bookings-updated-at', token);
 }

@@ -124,23 +124,29 @@ const MentorProfileModal: React.FC<MentorProfileModalProps> = ({ mentor, onClose
 
             <div className="border-t border-ld-ash pt-5">
               <p className="text-xs font-medium text-ld-fog uppercase tracking-wide mb-2">Jadwal Tersedia</p>
-              <div className="rounded-xl border border-ld-ash divide-y divide-ld-ash overflow-hidden">
-                {scheduleDays.map(day => (
-                  <div key={day} className="flex items-center gap-3 px-3.5 py-2.5 bg-ld-canvas">
-                    <span className="w-14 flex-shrink-0 text-sm text-ld-slate">{dayLabelMap[day]}</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {mentor.schedule[day].map(time => (
-                        <span
-                          key={time}
-                          className="px-2.5 py-1 rounded-md bg-ld-cloud text-ld-graphite text-xs font-medium tabular-nums"
-                        >
-                          {time}
-                        </span>
-                      ))}
+              {scheduleDays.length > 0 ? (
+                <div className="rounded-xl border border-ld-ash divide-y divide-ld-ash overflow-hidden">
+                  {scheduleDays.map(day => (
+                    <div key={day} className="flex items-center gap-3 px-3.5 py-2.5 bg-ld-canvas">
+                      <span className="w-14 flex-shrink-0 text-sm text-ld-slate">{dayLabelMap[day]}</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {mentor.schedule[day].map(time => (
+                          <span
+                            key={time}
+                            className="px-2.5 py-1 rounded-md bg-ld-cloud text-ld-graphite text-xs font-medium tabular-nums"
+                          >
+                            {time}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-ld-slate italic px-3.5 py-2.5 rounded-xl border border-ld-ash bg-ld-canvas">
+                  Belum ada jadwal yang tersedia
+                </p>
+              )}
             </div>
           </div>
         </div>

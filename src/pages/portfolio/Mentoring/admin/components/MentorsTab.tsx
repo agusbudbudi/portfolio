@@ -3,12 +3,14 @@ import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useAdminConfigStore } from '../../../../../store/useAdminConfigStore';
 import type { MentorConfig } from '../../../../../types/mentoring';
 import MentorForm from './MentorForm';
+import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from './adminCard';
 
 const MentorsTab: React.FC = () => {
   const { topics, mentors, availableDays, upsertMentor, deleteMentor } = useAdminConfigStore();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<MentorConfig | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const topicLabel = (id: string) => topics.find((t) => t.id === id)?.label ?? id;
   const weeklySlots = (mentor: MentorConfig) =>
@@ -30,18 +32,20 @@ const MentorsTab: React.FC = () => {
     );
   }
 
-  const handleDelete = (mentor: MentorConfig) => {
+  const handleDelete = async (mentor: MentorConfig) => {
     setDeleteError(null);
     if (!window.confirm(`Hapus mentor "${mentor.name}"?`)) return;
-    const result = deleteMentor(mentor.id);
+    setDeletingId(mentor.id);
+    const result = await deleteMentor(mentor.id);
+    setDeletingId(null);
     if (!result.ok) setDeleteError(result.reason ?? 'Gagal menghapus mentor.');
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5">
+    <div className={ADMIN_CARD}>
+      <div className={`${ADMIN_CARD_HEADER} justify-between`}>
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-ld-fog m-0">Mentors</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-ld-onyx m-0">Mentors</h2>
           <p className="text-xs text-ld-fog m-0 mt-1">{mentors.length} mentor aktif.</p>
         </div>
         <button
@@ -52,12 +56,13 @@ const MentorsTab: React.FC = () => {
         </button>
       </div>
 
-      {deleteError && (
-        <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{deleteError}</p>
-      )}
+      <div className={ADMIN_CARD_BODY}>
+        {deleteError && (
+          <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{deleteError}</p>
+        )}
 
-      <div className="overflow-x-auto border border-ld-ash rounded-xl">
-        <table className="w-full border-collapse text-sm">
+        <div className="overflow-x-auto border border-ld-frost rounded-xl">
+          <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-ld-cloud text-left">
               <th className="px-4 py-3 text-xs font-medium text-ld-steel whitespace-nowrap">Mentor</th>
@@ -69,13 +74,13 @@ const MentorsTab: React.FC = () => {
           </thead>
           <tbody>
             {mentors.map((mentor) => (
-              <tr key={mentor.id} className="border-t border-ld-ash bg-white hover:bg-ld-cloud/50 transition-colors">
+              <tr key={mentor.id} className="border-t border-ld-frost bg-white hover:bg-ld-cloud/50 transition-colors">
                 <td className="px-4 py-3 align-top">
                   <div className="flex items-start gap-3 min-w-[220px]">
                     {mentor.avatar ? (
-                      <img src={mentor.avatar} alt="" className="w-10 h-10 rounded-full object-cover border border-ld-ash shrink-0" />
+                      <img src={mentor.avatar} alt="" className="w-10 h-10 rounded-full object-cover border border-ld-frost shrink-0" />
                     ) : (
-                      <span className="w-10 h-10 rounded-full bg-ld-cloud border border-ld-ash shrink-0 flex items-center justify-center text-sm text-ld-fog">
+                      <span className="w-10 h-10 rounded-full bg-ld-cloud border border-ld-frost shrink-0 flex items-center justify-center text-sm text-ld-fog">
                         {mentor.name.charAt(0)}
                       </span>
                     )}
@@ -107,7 +112,8 @@ const MentorsTab: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleDelete(mentor)}
-                      className="p-2 rounded-lg text-ld-fog hover:text-red-500 hover:bg-red-50 cursor-pointer border-none bg-transparent transition-colors"
+                      disabled={deletingId === mentor.id}
+                      className="p-2 rounded-lg text-ld-fog hover:text-red-500 hover:bg-red-50 cursor-pointer border-none bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       aria-label={`Hapus ${mentor.name}`}
                     >
                       <Trash2 size={15} />
@@ -117,9 +123,9 @@ const MentorsTab: React.FC = () => {
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
-
     </div>
   );
 };

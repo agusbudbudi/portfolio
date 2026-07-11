@@ -21,19 +21,20 @@ export interface SaveState {
 
 const IDLE_SAVE: SaveState = { status: 'idle', error: null, validationErrors: [] };
 
+export type ActionResult = { ok: boolean; reason?: string };
+
 interface AdminConfigState {
   // Working copies — loaded together (mentor/topic cross-references need all
-  // three in memory) but saved and version-tracked independently.
+  // three in memory). Topics/mentors save immediately per action; booking
+  // rules still batches edits behind an explicit Save/Discard.
   topics: TopicConfig[];
   mentors: MentorConfig[];
   metadata: MentoringConfig['metadata'];
   availableDays: string[];
   bookingRules: BookingRules;
 
-  // Last-known-server snapshots, used by discard*() to revert without a
-  // round-trip to the API.
-  serverTopics: TopicConfig[];
-  serverMentors: MentorConfig[];
+  // Last-known-server snapshot for booking rules, used by discardRules() to
+  // revert without a round-trip to the API.
   serverMetadata: MentoringConfig['metadata'];
   serverAvailableDays: string[];
   serverBookingRules: BookingRules;
@@ -42,12 +43,7 @@ interface AdminConfigState {
   mentorsUpdatedAt?: string;
   rulesUpdatedAt?: string;
 
-  topicsDirty: boolean;
-  mentorsDirty: boolean;
   rulesDirty: boolean;
-
-  topicsSave: SaveState;
-  mentorsSave: SaveState;
   rulesSave: SaveState;
 
   loading: boolean;
@@ -55,17 +51,11 @@ interface AdminConfigState {
 
   load: () => Promise<void>;
 
-  upsertTopic: (topic: TopicConfig) => void;
-  deleteTopic: (topicId: string) => { ok: boolean; reason?: string };
-  discardTopics: () => void;
-  saveTopics: () => Promise<void>;
-  reloadTopics: () => Promise<void>;
+  upsertTopic: (topic: TopicConfig) => Promise<ActionResult>;
+  deleteTopic: (topicId: string) => Promise<ActionResult>;
 
-  upsertMentor: (mentor: MentorConfig) => void;
-  deleteMentor: (mentorId: string) => { ok: boolean; reason?: string };
-  discardMentors: () => void;
-  saveMentors: () => Promise<void>;
-  reloadMentors: () => Promise<void>;
+  upsertMentor: (mentor: MentorConfig) => Promise<ActionResult>;
+  deleteMentor: (mentorId: string) => Promise<ActionResult>;
 
   toggleAvailableDay: (day: string) => void;
   setBookingRules: (rules: BookingRules) => void;
@@ -84,6 +74,71 @@ const EMPTY_BOOKING_RULES: BookingRules = {
   daysInAdvanceMax: 0,
 };
 
+type Setter = (partial: Partial<AdminConfigState>) => void;
+type Getter = () => AdminConfigState;
+
+// Validates + PUTs the full topics array immediately. On conflict, resyncs
+// local state to the server's current doc (returned by the API on 409) so
+// the next edit starts from fresh data instead of requiring a manual reload.
+async function commitTopics(set: Setter, get: Getter, topics: TopicConfig[]): Promise<ActionResult> {
+  const result = validateTopics({ topics });
+  if (!result.ok) return { ok: false, reason: result.errors.join(' ') };
+
+  const token = useAdminAuthStore.getState().token;
+  if (!token) {
+    useAdminAuthStore.getState().logout();
+    return { ok: false, reason: 'Sesi berakhir, silakan login ulang.' };
+  }
+
+  try {
+    const saved = await apiPutTopics({ topics: result.topics }, get().topicsUpdatedAt, token);
+    invalidateConfigCache();
+    set({ topics: deepCopy(saved.topics), topicsUpdatedAt: saved.updatedAt });
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof UnauthorizedError) {
+      useAdminAuthStore.getState().logout();
+      return { ok: false, reason: 'Sesi berakhir, silakan login ulang.' };
+    }
+    if (err instanceof ConflictError) {
+      const current = err.current as { topics: TopicConfig[]; updatedAt: string };
+      set({ topics: deepCopy(current.topics), topicsUpdatedAt: current.updatedAt });
+      return { ok: false, reason: 'Topics berubah di tempat lain. Data sudah dimuat ulang, coba lagi.' };
+    }
+    return { ok: false, reason: err instanceof Error ? err.message : 'Gagal menyimpan topics.' };
+  }
+}
+
+async function commitMentors(set: Setter, get: Getter, mentors: MentorConfig[]): Promise<ActionResult> {
+  const validTopicIds = new Set(get().topics.map((t) => t.id));
+  const result = validateMentors({ mentors }, validTopicIds);
+  if (!result.ok) return { ok: false, reason: result.errors.join(' ') };
+
+  const token = useAdminAuthStore.getState().token;
+  if (!token) {
+    useAdminAuthStore.getState().logout();
+    return { ok: false, reason: 'Sesi berakhir, silakan login ulang.' };
+  }
+
+  try {
+    const saved = await apiPutMentors({ mentors: result.mentors }, get().mentorsUpdatedAt, token);
+    invalidateConfigCache();
+    set({ mentors: deepCopy(saved.mentors), mentorsUpdatedAt: saved.updatedAt });
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof UnauthorizedError) {
+      useAdminAuthStore.getState().logout();
+      return { ok: false, reason: 'Sesi berakhir, silakan login ulang.' };
+    }
+    if (err instanceof ConflictError) {
+      const current = err.current as { mentors: MentorConfig[]; updatedAt: string };
+      set({ mentors: deepCopy(current.mentors), mentorsUpdatedAt: current.updatedAt });
+      return { ok: false, reason: 'Mentors berubah di tempat lain. Data sudah dimuat ulang, coba lagi.' };
+    }
+    return { ok: false, reason: err instanceof Error ? err.message : 'Gagal menyimpan mentors.' };
+  }
+}
+
 export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   topics: [],
   mentors: [],
@@ -91,8 +146,6 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   availableDays: [],
   bookingRules: EMPTY_BOOKING_RULES,
 
-  serverTopics: [],
-  serverMentors: [],
   serverMetadata: EMPTY_METADATA,
   serverAvailableDays: [],
   serverBookingRules: EMPTY_BOOKING_RULES,
@@ -101,12 +154,8 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   mentorsUpdatedAt: undefined,
   rulesUpdatedAt: undefined,
 
-  topicsDirty: false,
-  mentorsDirty: false,
   rulesDirty: false,
 
-  topicsSave: IDLE_SAVE,
-  mentorsSave: IDLE_SAVE,
   rulesSave: IDLE_SAVE,
 
   loading: true,
@@ -125,19 +174,13 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
         metadata: deepCopy(rulesDoc.metadata),
         availableDays: deepCopy(rulesDoc.availableDays),
         bookingRules: deepCopy(rulesDoc.bookingRules),
-        serverTopics: deepCopy(topicsDoc.topics),
-        serverMentors: deepCopy(mentorsDoc.mentors),
         serverMetadata: deepCopy(rulesDoc.metadata),
         serverAvailableDays: deepCopy(rulesDoc.availableDays),
         serverBookingRules: deepCopy(rulesDoc.bookingRules),
         topicsUpdatedAt: topicsDoc.updatedAt,
         mentorsUpdatedAt: mentorsDoc.updatedAt,
         rulesUpdatedAt: rulesDoc.updatedAt,
-        topicsDirty: false,
-        mentorsDirty: false,
         rulesDirty: false,
-        topicsSave: IDLE_SAVE,
-        mentorsSave: IDLE_SAVE,
         rulesSave: IDLE_SAVE,
       });
     } catch (err) {
@@ -147,17 +190,17 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
     }
   },
 
-  // ---- topics ----
+  // ---- topics (save immediately on each action) ----
 
-  upsertTopic: (topic) => {
+  upsertTopic: async (topic) => {
     const topics = deepCopy(get().topics);
     const idx = topics.findIndex((t) => t.id === topic.id);
     if (idx >= 0) topics[idx] = topic;
     else topics.push(topic);
-    set({ topics, topicsDirty: true, topicsSave: IDLE_SAVE });
+    return commitTopics(set, get, topics);
   },
 
-  deleteTopic: (topicId) => {
+  deleteTopic: async (topicId) => {
     const { topics, mentors } = get();
     const usedBy = mentors.filter((m) => m.expertise.includes(topicId));
     if (usedBy.length > 0) {
@@ -166,170 +209,25 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
         reason: `Topic dipakai sebagai expertise oleh: ${usedBy.map((m) => m.name).join(', ')}. Hapus dari mentor dulu.`,
       };
     }
-    set({
-      topics: topics.filter((t) => t.id !== topicId),
-      topicsDirty: true,
-      topicsSave: IDLE_SAVE,
-    });
-    return { ok: true };
+    return commitTopics(set, get, topics.filter((t) => t.id !== topicId));
   },
 
-  discardTopics: () => {
-    set({ topics: deepCopy(get().serverTopics), topicsDirty: false, topicsSave: IDLE_SAVE });
-  },
+  // ---- mentors (save immediately on each action) ----
 
-  saveTopics: async () => {
-    const result = validateTopics({ topics: get().topics });
-    if (!result.ok) {
-      set({ topicsSave: { status: 'error', error: 'Topics tidak valid. Perbaiki dulu.', validationErrors: result.errors } });
-      return;
-    }
-
-    const token = useAdminAuthStore.getState().token;
-    if (!token) {
-      useAdminAuthStore.getState().logout();
-      return;
-    }
-
-    set({ topicsSave: { status: 'saving', error: null, validationErrors: [] } });
-    try {
-      const saved = await apiPutTopics({ topics: result.topics }, get().topicsUpdatedAt, token);
-      invalidateConfigCache();
-      set({
-        topics: deepCopy(saved.topics),
-        serverTopics: deepCopy(saved.topics),
-        topicsUpdatedAt: saved.updatedAt,
-        topicsDirty: false,
-        topicsSave: { status: 'saved', error: null, validationErrors: [] },
-      });
-    } catch (err) {
-      if (err instanceof UnauthorizedError) {
-        useAdminAuthStore.getState().logout();
-        set({ topicsSave: IDLE_SAVE });
-        return;
-      }
-      if (err instanceof ConflictError) {
-        set({
-          topicsSave: {
-            status: 'conflict',
-            error: 'Topics berubah di tempat lain. Muat ulang untuk mengambil versi terbaru (perubahanmu akan hilang).',
-            validationErrors: [],
-          },
-        });
-        return;
-      }
-      const errors = err instanceof Error && 'errors' in err ? (err as { errors?: string[] }).errors : undefined;
-      set({
-        topicsSave: {
-          status: 'error',
-          error: err instanceof Error ? err.message : 'Gagal menyimpan topics.',
-          validationErrors: errors ?? [],
-        },
-      });
-    }
-  },
-
-  // Refetches just this resource — used to recover from a 409 conflict
-  // without discarding unsaved edits sitting in the other two tabs.
-  reloadTopics: async () => {
-    const doc = await apiGetTopics();
-    set({
-      topics: deepCopy(doc.topics),
-      serverTopics: deepCopy(doc.topics),
-      topicsUpdatedAt: doc.updatedAt,
-      topicsDirty: false,
-      topicsSave: IDLE_SAVE,
-    });
-  },
-
-  // ---- mentors ----
-
-  upsertMentor: (mentor) => {
+  upsertMentor: async (mentor) => {
     const mentors = deepCopy(get().mentors);
     const idx = mentors.findIndex((m) => m.id === mentor.id);
     if (idx >= 0) mentors[idx] = mentor;
     else mentors.push(mentor);
-    set({ mentors, mentorsDirty: true, mentorsSave: IDLE_SAVE });
+    return commitMentors(set, get, mentors);
   },
 
-  deleteMentor: (mentorId) => {
+  deleteMentor: async (mentorId) => {
     const mentors = get().mentors;
     if (mentors.length <= 1) {
       return { ok: false, reason: 'Minimal harus ada satu mentor.' };
     }
-    set({
-      mentors: mentors.filter((m) => m.id !== mentorId),
-      mentorsDirty: true,
-      mentorsSave: IDLE_SAVE,
-    });
-    return { ok: true };
-  },
-
-  discardMentors: () => {
-    set({ mentors: deepCopy(get().serverMentors), mentorsDirty: false, mentorsSave: IDLE_SAVE });
-  },
-
-  saveMentors: async () => {
-    const validTopicIds = new Set(get().topics.map((t) => t.id));
-    const result = validateMentors({ mentors: get().mentors }, validTopicIds);
-    if (!result.ok) {
-      set({ mentorsSave: { status: 'error', error: 'Mentors tidak valid. Perbaiki dulu.', validationErrors: result.errors } });
-      return;
-    }
-
-    const token = useAdminAuthStore.getState().token;
-    if (!token) {
-      useAdminAuthStore.getState().logout();
-      return;
-    }
-
-    set({ mentorsSave: { status: 'saving', error: null, validationErrors: [] } });
-    try {
-      const saved = await apiPutMentors({ mentors: result.mentors }, get().mentorsUpdatedAt, token);
-      invalidateConfigCache();
-      set({
-        mentors: deepCopy(saved.mentors),
-        serverMentors: deepCopy(saved.mentors),
-        mentorsUpdatedAt: saved.updatedAt,
-        mentorsDirty: false,
-        mentorsSave: { status: 'saved', error: null, validationErrors: [] },
-      });
-    } catch (err) {
-      if (err instanceof UnauthorizedError) {
-        useAdminAuthStore.getState().logout();
-        set({ mentorsSave: IDLE_SAVE });
-        return;
-      }
-      if (err instanceof ConflictError) {
-        set({
-          mentorsSave: {
-            status: 'conflict',
-            error: 'Mentors berubah di tempat lain. Muat ulang untuk mengambil versi terbaru (perubahanmu akan hilang).',
-            validationErrors: [],
-          },
-        });
-        return;
-      }
-      const errors = err instanceof Error && 'errors' in err ? (err as { errors?: string[] }).errors : undefined;
-      set({
-        mentorsSave: {
-          status: 'error',
-          error: err instanceof Error ? err.message : 'Gagal menyimpan mentors.',
-          validationErrors: errors ?? [],
-        },
-      });
-    }
-  },
-
-  reloadMentors: async () => {
-    const doc = await apiGetMentors();
-    set({
-      mentors: deepCopy(doc.mentors),
-      serverMentors: deepCopy(doc.mentors),
-      mentorsUpdatedAt: doc.updatedAt,
-      mentorsDirty: false,
-      mentorsSave: IDLE_SAVE,
-    });
+    return commitMentors(set, get, mentors.filter((m) => m.id !== mentorId));
   },
 
   // ---- booking rules (+ available days, metadata) ----

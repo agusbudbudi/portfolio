@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
-  LogOut, RotateCcw, Save, AlertTriangle, RefreshCw,
-  Users, BookOpen, SlidersHorizontal, Menu, X, ExternalLink,
+  LogOut, RefreshCw,
+  Users, BookOpen, SlidersHorizontal, CalendarCheck, Menu, X, ExternalLink,
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../../store/useAdminAuthStore';
 import { useAdminConfigStore } from '../../../../../store/useAdminConfigStore';
@@ -9,8 +9,10 @@ import LoadingState from '../../../../../components/portfolio/common/LoadingStat
 import BookingRulesTab from './BookingRulesTab';
 import TopicsTab from './TopicsTab';
 import MentorsTab from './MentorsTab';
+import BookingsTab from './BookingsTab';
 
 const NAV_ITEMS = [
+  { id: 'bookings', label: 'Bookings', description: 'Booking sesi mentoring', icon: CalendarCheck },
   { id: 'mentors', label: 'Mentors', description: 'Kelola mentor & jadwal', icon: Users },
   { id: 'topics', label: 'Topics', description: 'Topik sesi mentoring', icon: BookOpen },
   { id: 'rules', label: 'Booking Rules', description: 'Hari aktif, aturan & batasan booking', icon: SlidersHorizontal },
@@ -20,13 +22,8 @@ type NavId = (typeof NAV_ITEMS)[number]['id'];
 
 const AdminDashboard: React.FC = () => {
   const logout = useAdminAuthStore((s) => s.logout);
-  const {
-    loading, loadError, load,
-    topicsDirty, topicsSave, topicsUpdatedAt, discardTopics, saveTopics, reloadTopics,
-    mentorsDirty, mentorsSave, mentorsUpdatedAt, discardMentors, saveMentors, reloadMentors,
-    rulesDirty, rulesSave, rulesUpdatedAt, discardRules, saveRules, reloadRules,
-  } = useAdminConfigStore();
-  const [activeNav, setActiveNav] = useState<NavId>('mentors');
+  const { loading, loadError, load } = useAdminConfigStore();
+  const [activeNav, setActiveNav] = useState<NavId>('bookings');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -51,21 +48,11 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
-  // Header Save/Discard act on whichever tab is active — each resource
-  // (mentors/topics/booking-rules) has its own dirty flag, save status, and
-  // API endpoint, so switching tabs never touches another resource's draft.
-  const active = {
-    mentors: { dirty: mentorsDirty, saveState: mentorsSave, updatedAt: mentorsUpdatedAt, discard: discardMentors, doSave: saveMentors, reload: reloadMentors },
-    topics: { dirty: topicsDirty, saveState: topicsSave, updatedAt: topicsUpdatedAt, discard: discardTopics, doSave: saveTopics, reload: reloadTopics },
-    rules: { dirty: rulesDirty, saveState: rulesSave, updatedAt: rulesUpdatedAt, discard: discardRules, doSave: saveRules, reload: reloadRules },
-  }[activeNav];
-  const { dirty, saveState, updatedAt, discard, doSave, reload } = active;
-
   const activeItem = NAV_ITEMS.find((item) => item.id === activeNav) ?? NAV_ITEMS[0];
 
   const sidebarContent = (
     <>
-      <div className="flex items-center gap-2.5 px-4 h-16 border-b border-ld-ash/60">
+      <div className="flex items-center gap-2.5 px-4 h-16 border-b border-ld-frost/60">
         <img
           src="/img/mentor-logo.webp"
           alt="Mentor.QA"
@@ -100,7 +87,7 @@ const AdminDashboard: React.FC = () => {
         })}
       </nav>
 
-      <div className="p-3 border-t border-ld-ash/60 space-y-1">
+      <div className="p-3 border-t border-ld-frost/60 space-y-1">
         <a
           href="/mentoring/booking"
           target="_blank"
@@ -122,7 +109,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-ld-cloud">
       {/* Sidebar — desktop */}
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-white border-r border-ld-ash/70 sticky top-0 h-screen">
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-white border-r border-ld-frost/70 sticky top-0 h-screen">
         {sidebarContent}
       </aside>
 
@@ -130,7 +117,7 @@ const AdminDashboard: React.FC = () => {
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-ld-midnight/40" onClick={() => setSidebarOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-64 flex flex-col bg-white border-r border-ld-ash/70 shadow-[rgba(39,40,53,0.1)_0px_0px_0px_1px,rgba(39,40,53,0.08)_0px_24px_24px_-12px]">
+          <aside className="absolute inset-y-0 left-0 w-64 flex flex-col bg-white border-r border-ld-frost/70 shadow-[rgba(39,40,53,0.1)_0px_0px_0px_1px,rgba(39,40,53,0.08)_0px_24px_24px_-12px]">
             <button
               onClick={() => setSidebarOpen(false)}
               className="absolute top-4 right-3 p-1.5 rounded-lg text-ld-fog hover:text-ld-graphite bg-transparent border-none cursor-pointer"
@@ -145,7 +132,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* Main column */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-30 h-16 flex items-center justify-between gap-3 px-4 md:px-6 bg-white/95 backdrop-blur border-b border-ld-ash/70">
+        <header className="sticky top-0 z-30 h-16 flex items-center justify-between gap-3 px-4 md:px-6 bg-white/95 backdrop-blur border-b border-ld-frost/70">
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -156,72 +143,16 @@ const AdminDashboard: React.FC = () => {
             </button>
             <div className="min-w-0">
               <h1 className="m-0 text-base font-semibold text-ld-onyx leading-tight truncate">{activeItem.label}</h1>
-              <p className="m-0 text-[11px] text-ld-fog leading-tight truncate">
-                {updatedAt
-                  ? `Terakhir disimpan ${new Date(updatedAt).toLocaleString('id-ID')}`
-                  : activeItem.description}
-              </p>
+              <p className="m-0 text-[11px] text-ld-fog leading-tight truncate">{activeItem.description}</p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            {dirty && (
-              <span className="hidden sm:inline-flex text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-3 py-1">
-                Belum disimpan
-              </span>
-            )}
-            <button
-              onClick={discard}
-              disabled={!dirty || saveState.status === 'saving'}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-ld-ash bg-white text-sm text-ld-graphite hover:border-ld-steel disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
-            >
-              <RotateCcw size={14} /> <span className="hidden sm:inline">Discard</span>
-            </button>
-            <button
-              onClick={doSave}
-              disabled={!dirty || saveState.status === 'saving'}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer border-none transition-colors"
-            >
-              <Save size={14} /> {saveState.status === 'saving' ? 'Menyimpan…' : 'Save changes'}
-            </button>
           </div>
         </header>
 
-        <main className="flex-1 p-4 md:p-6 w-full">
-          {saveState.status === 'saved' && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-sm text-emerald-700">
-              Perubahan berhasil disimpan.
-            </div>
-          )}
-
-          {saveState.status === 'conflict' && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-700 flex items-center justify-between gap-3">
-              <span className="flex items-center gap-2"><AlertTriangle size={16} /> {saveState.error}</span>
-              <button
-                onClick={reload}
-                className="shrink-0 px-3 py-1.5 rounded-lg bg-amber-600 text-white text-xs font-medium cursor-pointer border-none"
-              >
-                Muat ulang
-              </button>
-            </div>
-          )}
-
-          {saveState.status === 'error' && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600">
-              <p className="m-0 font-medium">{saveState.error}</p>
-              {saveState.validationErrors.length > 0 && (
-                <ul className="m-0 mt-2 pl-5 space-y-0.5">
-                  {saveState.validationErrors.map((err) => <li key={err}>{err}</li>)}
-                </ul>
-              )}
-            </div>
-          )}
-
-          <section className="bg-white rounded-xl border border-ld-ash/70 p-5 md:p-6">
-            {activeNav === 'mentors' && <MentorsTab />}
-            {activeNav === 'topics' && <TopicsTab />}
-            {activeNav === 'rules' && <BookingRulesTab />}
-          </section>
+        <main className="flex-1 p-4 md:p-6 w-full bg-white/70">
+          {activeNav === 'bookings' && <BookingsTab />}
+          {activeNav === 'mentors' && <MentorsTab />}
+          {activeNav === 'topics' && <TopicsTab />}
+          {activeNav === 'rules' && <BookingRulesTab />}
         </main>
       </div>
     </div>

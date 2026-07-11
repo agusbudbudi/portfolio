@@ -24,25 +24,19 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'invalid_booking_rules', errors: result.errors });
   }
 
-  // Optimistic concurrency: client echoes the updatedAt it loaded.
-  const current = await readBookingRules();
-  if (current.updatedAt) {
-    const clientVersion = req.headers['x-booking-rules-updated-at'];
-    if (clientVersion !== current.updatedAt) {
-      return res.status(409).json({ error: 'conflict', current });
-    }
+  // Optimistic concurrency: client echoes the updatedAt it loaded, applied
+  // atomically as part of the write itself (see writeBookingRules).
+  const clientVersion = req.headers['x-booking-rules-updated-at'];
+  const write = await writeBookingRules(
+    { metadata: result.metadata, availableDays: result.availableDays, bookingRules: result.bookingRules },
+    typeof clientVersion === 'string' ? clientVersion : undefined
+  );
+  if (!write.ok) {
+    return res.status(409).json({ error: 'conflict', current: write.current });
   }
 
-  const doc = {
-    metadata: result.metadata,
-    availableDays: result.availableDays,
-    bookingRules: result.bookingRules,
-    updatedAt: new Date().toISOString(),
-  };
-  await writeBookingRules(doc);
-
   res.setHeader('Cache-Control', 'no-store');
-  return res.status(200).json(doc);
+  return res.status(200).json(write.doc);
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

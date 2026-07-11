@@ -35,7 +35,7 @@ const ScheduleEditor: React.FC<ScheduleEditorProps> = ({ schedule, availableDays
   };
 
   return (
-    <div className="border border-ld-ash rounded-xl divide-y divide-ld-ash/60 overflow-hidden">
+    <div className="border border-ld-frost rounded-xl divide-y divide-ld-ash/60 overflow-hidden">
       {WEEKDAYS.map((day) => {
         const active = availableDays.includes(day);
         const slots = schedule[day] ?? [];
@@ -75,13 +75,13 @@ const ScheduleEditor: React.FC<ScheduleEditorProps> = ({ schedule, availableDays
                 step={1800}
                 value={pendingTime[day] ?? ''}
                 onChange={(e) => setPendingTime({ ...pendingTime, [day]: e.target.value })}
-                className="px-2 py-1.5 rounded-lg border border-ld-ash bg-white text-xs text-ld-onyx focus:outline-none focus:border-ld-violet"
+                className="px-2 py-1.5 rounded-lg border border-ld-frost bg-white text-xs text-ld-onyx focus:outline-none focus:border-ld-violet"
               />
               <button
                 type="button"
                 onClick={() => addSlot(day)}
                 disabled={!pendingTime[day]}
-                className="p-2 rounded-lg border border-ld-ash bg-white text-ld-fog hover:text-ld-violet hover:border-ld-violet disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex transition-colors"
+                className="p-2 rounded-lg border border-ld-frost bg-white text-ld-fog hover:text-ld-violet hover:border-ld-violet disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex transition-colors"
                 aria-label={`Tambah slot ${DAY_LABELS[day]}`}
               >
                 <Plus size={13} />

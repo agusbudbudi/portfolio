@@ -24,15 +24,6 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'invalid_topics', errors: result.errors });
   }
 
-  // Optimistic concurrency: client echoes the updatedAt it loaded.
-  const current = await readTopics();
-  if (current.updatedAt) {
-    const clientVersion = req.headers['x-topics-updated-at'];
-    if (clientVersion !== current.updatedAt) {
-      return res.status(409).json({ error: 'conflict', current });
-    }
-  }
-
   // Referential integrity across resources: block dropping a topic id that a
   // mentor's expertise still references, even though mentors live in a
   // different document now.
@@ -46,11 +37,16 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  const doc = { topics: result.topics, updatedAt: new Date().toISOString() };
-  await writeTopics(doc);
+  // Optimistic concurrency: client echoes the updatedAt it loaded, applied
+  // atomically as part of the write itself (see writeTopics).
+  const clientVersion = req.headers['x-topics-updated-at'];
+  const write = await writeTopics({ topics: result.topics }, typeof clientVersion === 'string' ? clientVersion : undefined);
+  if (!write.ok) {
+    return res.status(409).json({ error: 'conflict', current: write.current });
+  }
 
   res.setHeader('Cache-Control', 'no-store');
-  return res.status(200).json(doc);
+  return res.status(200).json(write.doc);
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
