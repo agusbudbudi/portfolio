@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { MentorConfig } from '../types/mentoring';
 import {
-  apiCreateMentor, apiDeleteMentor, apiListMentors, apiUpdateMentor,
+  apiCreateMentor, apiDeleteMentor, apiListMentors, apiReviewMentor, apiUpdateMentor,
   ApiError, ConflictError, type MentorWritePayload, UnauthorizedError,
 } from '../lib/adminApi';
 import { useAdminAuthStore } from './useAdminAuthStore';
@@ -21,6 +21,7 @@ interface AdminMentorState {
   create: (payload: MentorWritePayload) => Promise<ActionResult>;
   update: (id: string, payload: MentorWritePayload) => Promise<ActionResult>;
   remove: (id: string) => Promise<ActionResult>;
+  review: (id: string, decision: 'verified' | 'rejected', rejectionReason: string | null) => Promise<ActionResult>;
 }
 
 function requireToken(): string | null {
@@ -92,6 +93,20 @@ export const useAdminMentorStore = create<AdminMentorState>((set, get) => ({
       if (err instanceof UnauthorizedError) return { ok: false, reason: 'Sesi berakhir, silakan login ulang.' };
       if (err instanceof ApiError) return { ok: false, reason: err.message };
       return { ok: false, reason: err instanceof Error ? err.message : 'Gagal menghapus mentor.' };
+    }
+  },
+
+  review: async (id, decision, rejectionReason) => {
+    const token = requireToken();
+    if (!token) return { ok: false, reason: 'Sesi berakhir, silakan login ulang.' };
+    try {
+      await apiReviewMentor(id, decision, rejectionReason, token);
+      await get().load();
+      return { ok: true };
+    } catch (err) {
+      if (err instanceof UnauthorizedError) return { ok: false, reason: 'Sesi berakhir, silakan login ulang.' };
+      if (err instanceof ApiError && err.errors?.length) return { ok: false, reason: err.errors.join(' ') };
+      return { ok: false, reason: err instanceof Error ? err.message : 'Gagal memproses review mentor.' };
     }
   },
 }));

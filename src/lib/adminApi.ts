@@ -135,6 +135,32 @@ export function apiDeleteMentor(id: string, token: string): Promise<void> {
   return apiDeleteAuth(`/api/mentors/${encodeURIComponent(id)}`, token);
 }
 
+// 404 -> null (no application yet) rather than throwing, since "not applied"
+// is an expected, normal state for this endpoint, not an error.
+export async function apiGetMyMentor(token: string): Promise<MentorConfig | null> {
+  const res = await fetch(`/api/mentors/me?t=${Date.now()}`, {
+    cache: 'no-store',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (res.status === 404) return null;
+  if (!res.ok) throw new ApiError(res.status, `Gagal memuat data (HTTP ${res.status}).`);
+  return res.json();
+}
+
+export function apiApplyMentor(payload: MentorWritePayload, token: string): Promise<MentorConfig> {
+  return apiPostAuth<MentorConfig>('/api/mentors/apply', payload, token);
+}
+
+export function apiReviewMentor(
+  id: string,
+  decision: 'verified' | 'rejected',
+  rejectionReason: string | null,
+  token: string
+): Promise<MentorConfig> {
+  return apiPostAuth<MentorConfig>(`/api/mentors/${encodeURIComponent(id)}/review`, { decision, rejectionReason }, token);
+}
+
 export function apiGetBookingRules(): Promise<BookingRulesDocument> {
   return apiGet<BookingRulesDocument>('/api/booking-rules');
 }
