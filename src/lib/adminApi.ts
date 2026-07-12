@@ -1,5 +1,5 @@
 // Thin fetch wrappers for the admin dashboard → /api endpoints.
-import type { BookingRulesDocument, BookingsDocument, MentorsDocument, TopicsDocument } from '../types/mentoring';
+import type { BookingRulesDocument, BookingsDocument, MentorConfig, TopicsDocument } from '../types/mentoring';
 import type { PortfolioData, PortfolioRecord, PortfolioStatus, PortfolioSummary, ToolsDocument } from '../types/portfolio';
 
 export class UnauthorizedError extends Error {
@@ -105,16 +105,27 @@ export function apiPutTopics(
   return apiPut<TopicsDocument>('/api/topics', doc, updatedAt, 'x-topics-updated-at', token);
 }
 
-export function apiGetMentors(): Promise<MentorsDocument> {
-  return apiGet<MentorsDocument>('/api/mentors');
+export type MentorWritePayload = Omit<MentorConfig, 'updatedAt'>;
+
+export function apiListMentors(): Promise<{ mentors: MentorConfig[] }> {
+  return apiGet<{ mentors: MentorConfig[] }>('/api/mentors');
 }
 
-export function apiPutMentors(
-  doc: Pick<MentorsDocument, 'mentors'>,
-  updatedAt: string | undefined,
+export function apiCreateMentor(payload: MentorWritePayload, token: string): Promise<MentorConfig> {
+  return apiPostAuth<MentorConfig>('/api/mentors', payload, token);
+}
+
+export function apiUpdateMentor(
+  id: string,
+  payload: MentorWritePayload,
+  updatedAt: string,
   token: string
-): Promise<MentorsDocument> {
-  return apiPut<MentorsDocument>('/api/mentors', doc, updatedAt, 'x-mentors-updated-at', token);
+): Promise<MentorConfig> {
+  return apiPut<MentorConfig>(`/api/mentors/${encodeURIComponent(id)}`, payload, updatedAt, 'x-mentor-updated-at', token);
+}
+
+export function apiDeleteMentor(id: string, token: string): Promise<void> {
+  return apiDeleteAuth(`/api/mentors/${encodeURIComponent(id)}`, token);
 }
 
 export function apiGetBookingRules(): Promise<BookingRulesDocument> {

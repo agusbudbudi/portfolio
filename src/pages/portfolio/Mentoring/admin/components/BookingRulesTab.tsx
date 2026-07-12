@@ -2,6 +2,7 @@ import React from 'react';
 import { AlertTriangle, Check, RotateCcw, Save } from 'lucide-react';
 import { WEEKDAYS } from '../../../../../types/mentoring';
 import { useAdminConfigStore } from '../../../../../store/useAdminConfigStore';
+import { useAdminMentorStore } from '../../../../../store/useAdminMentorStore';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from './adminCard';
 
 const DAY_LABELS: Record<string, string> = {
@@ -27,10 +28,11 @@ const inputClass =
 
 const BookingRulesTab: React.FC = () => {
   const {
-    mentors, availableDays, bookingRules: rules, metadata,
+    availableDays, bookingRules: rules, metadata,
     setBookingRules, setMetadata, toggleAvailableDay,
     rulesDirty, rulesSave, discardRules, saveRules, reloadRules,
   } = useAdminConfigStore();
+  const { mentors } = useAdminMentorStore();
 
   // Days disabled for booking while some mentor still has schedule slots on them.
   const orphanedDays = WEEKDAYS.filter(

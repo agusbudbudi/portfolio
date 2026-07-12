@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../../store/useAdminAuthStore';
 import { useAdminConfigStore } from '../../../../../store/useAdminConfigStore';
+import { useAdminMentorStore } from '../../../../../store/useAdminMentorStore';
 import LoadingState from '../../../../../components/portfolio/common/LoadingState';
 import BookingRulesTab from './BookingRulesTab';
 import TopicsTab from './TopicsTab';
@@ -63,12 +64,17 @@ const AdminDashboard: React.FC = () => {
   const logout = useAdminAuthStore((s) => s.logout);
   const user = useAdminAuthStore((s) => s.user);
   const { loading, loadError, load } = useAdminConfigStore();
+  const loadMentors = useAdminMentorStore((s) => s.load);
   const [activeNav, setActiveNav] = useState<NavId>('bookings');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Prefetch so tabs that don't fetch mentors themselves (BookingRulesTab,
+  // BookingsTab) have them available — mentors has its own loading state
+  // now (see MentorsTab), so it doesn't block the whole dashboard shell.
   useEffect(() => {
     load();
-  }, [load]);
+    loadMentors();
+  }, [load, loadMentors]);
 
   if (loading) {
     return <LoadingState label="Memuat config…" className="min-h-screen" />;

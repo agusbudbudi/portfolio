@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { requireAdminSession } from './_lib/auth.js';
-import { readMentors, readTopics, writeTopics } from './_lib/configStore.js';
+import { readTopics, writeTopics } from './_lib/configStore.js';
+import { listMentors } from './_lib/mentorStore.js';
 import { validateTopics } from '../src/lib/configValidation.js';
 
 async function handleGet(_req: VercelRequest, res: VercelResponse) {
@@ -28,7 +29,7 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
   // mentor's expertise still references, even though mentors live in a
   // different document now.
   const nextIds = new Set(result.topics.map((t) => t.id));
-  const { mentors } = await readMentors();
+  const mentors = await listMentors();
   const stillUsed = mentors.filter((m) => m.expertise.some((id) => !nextIds.has(id)));
   if (stillUsed.length > 0) {
     return res.status(400).json({

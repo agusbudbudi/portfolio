@@ -1,13 +1,14 @@
 import { create } from 'zustand';
-import type { BookingRules, MentoringConfig, MentorConfig, TopicConfig } from '../types/mentoring';
+import type { BookingRules, MentoringConfig, TopicConfig } from '../types/mentoring';
 import {
-  apiGetBookingRules, apiGetMentors, apiGetTopics,
-  apiPutBookingRules, apiPutMentors, apiPutTopics,
+  apiGetBookingRules, apiGetTopics,
+  apiPutBookingRules, apiPutTopics,
   ConflictError, UnauthorizedError,
 } from '../lib/adminApi';
-import { validateBookingRules, validateMentors, validateTopics } from '../lib/configValidation';
+import { validateBookingRules, validateTopics } from '../lib/configValidation';
 import { invalidateConfigCache } from '../hooks/useConfig';
 import { useAdminAuthStore } from './useAdminAuthStore';
+import { useAdminMentorStore } from './useAdminMentorStore';
 
 const deepCopy = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 
@@ -24,11 +25,10 @@ const IDLE_SAVE: SaveState = { status: 'idle', error: null, validationErrors: []
 export type ActionResult = { ok: boolean; reason?: string };
 
 interface AdminConfigState {
-  // Working copies — loaded together (mentor/topic cross-references need all
-  // three in memory). Topics/mentors save immediately per action; booking
-  // rules still batches edits behind an explicit Save/Discard.
+  // Working copies. Topics save immediately per action; booking rules still
+  // batches edits behind an explicit Save/Discard. Mentors moved to
+  // useAdminMentorStore (real per-row resource, not a config document).
   topics: TopicConfig[];
-  mentors: MentorConfig[];
   metadata: MentoringConfig['metadata'];
   availableDays: string[];
   bookingRules: BookingRules;
@@ -40,7 +40,6 @@ interface AdminConfigState {
   serverBookingRules: BookingRules;
 
   topicsUpdatedAt?: string;
-  mentorsUpdatedAt?: string;
   rulesUpdatedAt?: string;
 
   rulesDirty: boolean;
@@ -53,9 +52,6 @@ interface AdminConfigState {
 
   upsertTopic: (topic: TopicConfig) => Promise<ActionResult>;
   deleteTopic: (topicId: string) => Promise<ActionResult>;
-
-  upsertMentor: (mentor: MentorConfig) => Promise<ActionResult>;
-  deleteMentor: (mentorId: string) => Promise<ActionResult>;
 
   toggleAvailableDay: (day: string) => void;
   setBookingRules: (rules: BookingRules) => void;
@@ -109,39 +105,8 @@ async function commitTopics(set: Setter, get: Getter, topics: TopicConfig[]): Pr
   }
 }
 
-async function commitMentors(set: Setter, get: Getter, mentors: MentorConfig[]): Promise<ActionResult> {
-  const validTopicIds = new Set(get().topics.map((t) => t.id));
-  const result = validateMentors({ mentors }, validTopicIds);
-  if (!result.ok) return { ok: false, reason: result.errors.join(' ') };
-
-  const token = useAdminAuthStore.getState().token;
-  if (!token) {
-    useAdminAuthStore.getState().logout();
-    return { ok: false, reason: 'Sesi berakhir, silakan login ulang.' };
-  }
-
-  try {
-    const saved = await apiPutMentors({ mentors: result.mentors }, get().mentorsUpdatedAt, token);
-    invalidateConfigCache();
-    set({ mentors: deepCopy(saved.mentors), mentorsUpdatedAt: saved.updatedAt });
-    return { ok: true };
-  } catch (err) {
-    if (err instanceof UnauthorizedError) {
-      useAdminAuthStore.getState().logout();
-      return { ok: false, reason: 'Sesi berakhir, silakan login ulang.' };
-    }
-    if (err instanceof ConflictError) {
-      const current = err.current as { mentors: MentorConfig[]; updatedAt: string };
-      set({ mentors: deepCopy(current.mentors), mentorsUpdatedAt: current.updatedAt });
-      return { ok: false, reason: 'Mentors berubah di tempat lain. Data sudah dimuat ulang, coba lagi.' };
-    }
-    return { ok: false, reason: err instanceof Error ? err.message : 'Gagal menyimpan mentors.' };
-  }
-}
-
 export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   topics: [],
-  mentors: [],
   metadata: EMPTY_METADATA,
   availableDays: [],
   bookingRules: EMPTY_BOOKING_RULES,
@@ -151,7 +116,6 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   serverBookingRules: EMPTY_BOOKING_RULES,
 
   topicsUpdatedAt: undefined,
-  mentorsUpdatedAt: undefined,
   rulesUpdatedAt: undefined,
 
   rulesDirty: false,
@@ -164,13 +128,12 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   load: async () => {
     set({ loading: true, loadError: null });
     try {
-      const [topicsDoc, mentorsDoc, rulesDoc] = await Promise.all([
-        apiGetTopics(), apiGetMentors(), apiGetBookingRules(),
+      const [topicsDoc, rulesDoc] = await Promise.all([
+        apiGetTopics(), apiGetBookingRules(),
       ]);
 
       set({
         topics: deepCopy(topicsDoc.topics),
-        mentors: deepCopy(mentorsDoc.mentors),
         metadata: deepCopy(rulesDoc.metadata),
         availableDays: deepCopy(rulesDoc.availableDays),
         bookingRules: deepCopy(rulesDoc.bookingRules),
@@ -178,7 +141,6 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
         serverAvailableDays: deepCopy(rulesDoc.availableDays),
         serverBookingRules: deepCopy(rulesDoc.bookingRules),
         topicsUpdatedAt: topicsDoc.updatedAt,
-        mentorsUpdatedAt: mentorsDoc.updatedAt,
         rulesUpdatedAt: rulesDoc.updatedAt,
         rulesDirty: false,
         rulesSave: IDLE_SAVE,
@@ -202,8 +164,8 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   },
 
   deleteTopic: async (topicId) => {
-    const { topics, mentors } = get();
-    const usedBy = mentors.filter((m) => m.expertise.includes(topicId));
+    const { topics } = get();
+    const usedBy = useAdminMentorStore.getState().mentors.filter((m) => m.expertise.includes(topicId));
     if (usedBy.length > 0) {
       return {
         ok: false,
@@ -211,25 +173,6 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
       };
     }
     return commitTopics(set, get, topics.filter((t) => t.id !== topicId));
-  },
-
-  // ---- mentors (save immediately on each action) ----
-
-  upsertMentor: async (mentor) => {
-    const stamped = { ...mentor, updatedAt: new Date().toISOString() };
-    const mentors = deepCopy(get().mentors);
-    const idx = mentors.findIndex((m) => m.id === stamped.id);
-    if (idx >= 0) mentors[idx] = stamped;
-    else mentors.push(stamped);
-    return commitMentors(set, get, mentors);
-  },
-
-  deleteMentor: async (mentorId) => {
-    const mentors = get().mentors;
-    if (mentors.length <= 1) {
-      return { ok: false, reason: 'Minimal harus ada satu mentor.' };
-    }
-    return commitMentors(set, get, mentors.filter((m) => m.id !== mentorId));
   },
 
   // ---- booking rules (+ available days, metadata) ----

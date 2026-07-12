@@ -3,7 +3,8 @@
 // full MentoringConfig shape the public site (useConfig) expects.
 // Read-only: writes go through /api/topics, /api/mentors, /api/booking-rules.
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { readBookingRules, readMentors, readTopics } from './_lib/configStore.js';
+import { readBookingRules, readTopics } from './_lib/configStore.js';
+import { listMentors } from './_lib/mentorStore.js';
 import type { MentoringConfig } from '../src/types/mentoring';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -12,16 +13,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'method_not_allowed' });
   }
 
-  const [topicsDoc, mentorsDoc, rulesDoc] = await Promise.all([
+  const [topicsDoc, mentors, rulesDoc] = await Promise.all([
     readTopics(),
-    readMentors(),
+    listMentors(),
     readBookingRules(),
   ]);
 
   const config: MentoringConfig = {
     metadata: rulesDoc.metadata,
     topics: topicsDoc.topics,
-    mentors: mentorsDoc.mentors,
+    mentors,
     availableDays: rulesDoc.availableDays,
     bookingRules: rulesDoc.bookingRules,
   };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Pencil, Plus } from 'lucide-react';
 import { useAdminConfigStore } from '../../../../../store/useAdminConfigStore';
+import { useAdminMentorStore } from '../../../../../store/useAdminMentorStore';
 import { useAdminBookingsStore } from '../../../../../store/useAdminBookingsStore';
 import type { BookingConfig, BookingStatus } from '../../../../../types/mentoring';
 import { formatDateLabel, parseDateId } from '../../../../../lib/dates';
@@ -30,7 +31,8 @@ const STATUS_LABEL: Record<BookingStatus, string> = {
 const OCCUPYING_STATUSES: BookingStatus[] = ['booked', 'confirmed', 'completed'];
 
 const BookingsTab: React.FC = () => {
-  const { topics, mentors, bookingRules } = useAdminConfigStore();
+  const { topics, bookingRules } = useAdminConfigStore();
+  const { mentors } = useAdminMentorStore();
   const {
     bookings, loading, loadError, load, upsertBooking, transitionBooking,
   } = useAdminBookingsStore();

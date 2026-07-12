@@ -75,13 +75,13 @@ export function validateTopics(data: unknown): TopicsValidationResult {
   return { ok: true, topics: data.topics as TopicConfig[] };
 }
 
-function validateMentorWorkExperience(workExperience: unknown, mentorIndex: number, errors: string[]): void {
+function validateMentorWorkExperience(workExperience: unknown, errors: string[]): void {
   if (!Array.isArray(workExperience)) {
-    errors.push(`mentors[${mentorIndex}].workExperience: harus array.`);
+    errors.push('workExperience: harus array.');
     return;
   }
   workExperience.forEach((entry, i) => {
-    const prefix = `mentors[${mentorIndex}].workExperience[${i}]`;
+    const prefix = `workExperience[${i}]`;
     if (!isRecord(entry)) { errors.push(`${prefix}: harus objek.`); return; }
     if (!isNonEmptyString(entry.id)) errors.push(`${prefix}.id: wajib string non-kosong.`);
     if (!isNonEmptyString(entry.company)) errors.push(`${prefix}.company: wajib string non-kosong.`);
@@ -104,88 +104,88 @@ function validateMentorWorkExperience(workExperience: unknown, mentorIndex: numb
   });
 }
 
-export type MentorsValidationResult =
-  | { ok: true; mentors: MentorConfig[] }
+export type MentorDataValidationResult =
+  | { ok: true; mentor: Omit<MentorConfig, 'id' | 'updatedAt'> }
   | { ok: false; errors: string[] };
 
-// validTopicIds cross-checks mentor.expertise against the topics resource —
-// the one place the split APIs still depend on each other.
-export function validateMentors(data: unknown, validTopicIds: Set<string>): MentorsValidationResult {
+export function isValidMentorId(id: string): boolean {
+  return SLUG_RE.test(id);
+}
+
+// Single-mentor validator — mentors is a real per-row table (see
+// api/_lib/mentorStore.ts), so there's no whole-array shape to validate
+// anymore. validTopicIds cross-checks mentor.expertise against the topics
+// resource — the one place the split APIs still depend on each other.
+export function validateMentorData(data: unknown, validTopicIds: Set<string>): MentorDataValidationResult {
   const errors: string[] = [];
 
   if (!isRecord(data)) return { ok: false, errors: ['Body harus berupa objek JSON.'] };
 
-  const mentorIds = new Set<string>();
-  if (!Array.isArray(data.mentors) || data.mentors.length === 0) {
-    errors.push('mentors: wajib array non-kosong.');
+  if (!isNonEmptyString(data.name)) errors.push('name: wajib string non-kosong.');
+  if (!isNonEmptyString(data.whatsapp) || !WHATSAPP_RE.test(data.whatsapp as string)) {
+    errors.push('whatsapp: wajib 8-15 digit angka (format internasional tanpa +).');
+  }
+  if (!isNonEmptyString(data.bio)) errors.push('bio: wajib string non-kosong.');
+  if (data.detailProfile !== undefined && typeof data.detailProfile !== 'string') {
+    errors.push('detailProfile: harus string.');
+  }
+  if (data.avatar !== undefined && typeof data.avatar !== 'string') errors.push('avatar: harus string.');
+  if (data.workExperience !== undefined) validateMentorWorkExperience(data.workExperience, errors);
+  if (!Array.isArray(data.expertise) || data.expertise.length === 0) {
+    errors.push('expertise: wajib array topic id non-kosong.');
   } else {
-    data.mentors.forEach((mentor, i) => {
-      if (!isRecord(mentor)) {
-        errors.push(`mentors[${i}]: harus objek.`);
-        return;
+    data.expertise.forEach((topicId) => {
+      if (typeof topicId !== 'string' || !validTopicIds.has(topicId)) {
+        errors.push(`expertise: topic id "${String(topicId)}" tidak ada di topics.`);
       }
-      if (!isNonEmptyString(mentor.id)) {
-        errors.push(`mentors[${i}].id: wajib string non-kosong.`);
-      } else if (mentorIds.has(mentor.id)) {
-        errors.push(`mentors[${i}].id: duplikat "${mentor.id}".`);
-      } else {
-        mentorIds.add(mentor.id);
-      }
-      if (!isNonEmptyString(mentor.name)) errors.push(`mentors[${i}].name: wajib string non-kosong.`);
-      if (!isNonEmptyString(mentor.whatsapp) || !WHATSAPP_RE.test(mentor.whatsapp as string)) {
-        errors.push(`mentors[${i}].whatsapp: wajib 8-15 digit angka (format internasional tanpa +).`);
-      }
-      if (!isNonEmptyString(mentor.bio)) errors.push(`mentors[${i}].bio: wajib string non-kosong.`);
-      if (mentor.detailProfile !== undefined && typeof mentor.detailProfile !== 'string') {
-        errors.push(`mentors[${i}].detailProfile: harus string.`);
-      }
-      if (mentor.avatar !== undefined && typeof mentor.avatar !== 'string') errors.push(`mentors[${i}].avatar: harus string.`);
-      if (mentor.workExperience !== undefined) validateMentorWorkExperience(mentor.workExperience, i, errors);
-      if (!Array.isArray(mentor.expertise) || mentor.expertise.length === 0) {
-        errors.push(`mentors[${i}].expertise: wajib array topic id non-kosong.`);
-      } else {
-        mentor.expertise.forEach((topicId) => {
-          if (typeof topicId !== 'string' || !validTopicIds.has(topicId)) {
-            errors.push(`mentors[${i}].expertise: topic id "${String(topicId)}" tidak ada di topics.`);
-          }
-        });
-      }
-      if (mentor.platforms !== undefined) {
-        if (!isRecord(mentor.platforms)) {
-          errors.push(`mentors[${i}].platforms: harus objek.`);
-        } else {
-          for (const key of ['digitalSkola', 'dealls'] as const) {
-            if (mentor.platforms[key] !== undefined && typeof mentor.platforms[key] !== 'boolean') {
-              errors.push(`mentors[${i}].platforms.${key}: harus boolean.`);
-            }
-          }
-        }
-      }
-      if (!isRecord(mentor.schedule)) {
-        errors.push(`mentors[${i}].schedule: wajib objek hari → jam.`);
-      } else {
-        for (const [day, slots] of Object.entries(mentor.schedule)) {
-          if (!(WEEKDAYS as readonly string[]).includes(day)) {
-            errors.push(`mentors[${i}].schedule: hari "${day}" tidak valid.`);
-            continue;
-          }
-          if (!Array.isArray(slots)) {
-            errors.push(`mentors[${i}].schedule.${day}: harus array jam.`);
-            continue;
-          }
-          slots.forEach((slot) => {
-            if (typeof slot !== 'string' || !TIME_RE.test(slot)) {
-              errors.push(`mentors[${i}].schedule.${day}: slot "${String(slot)}" harus format HH:MM.`);
-            }
-          });
-        }
-      }
-      if (mentor.updatedAt !== undefined && typeof mentor.updatedAt !== 'string') errors.push(`mentors[${i}].updatedAt: harus string.`);
     });
+  }
+  if (data.platforms !== undefined) {
+    if (!isRecord(data.platforms)) {
+      errors.push('platforms: harus objek.');
+    } else {
+      for (const key of ['digitalSkola', 'dealls'] as const) {
+        if (data.platforms[key] !== undefined && typeof data.platforms[key] !== 'boolean') {
+          errors.push(`platforms.${key}: harus boolean.`);
+        }
+      }
+    }
+  }
+  if (!isRecord(data.schedule)) {
+    errors.push('schedule: wajib objek hari → jam.');
+  } else {
+    for (const [day, slots] of Object.entries(data.schedule)) {
+      if (!(WEEKDAYS as readonly string[]).includes(day)) {
+        errors.push(`schedule: hari "${day}" tidak valid.`);
+        continue;
+      }
+      if (!Array.isArray(slots)) {
+        errors.push(`schedule.${day}: harus array jam.`);
+        continue;
+      }
+      slots.forEach((slot) => {
+        if (typeof slot !== 'string' || !TIME_RE.test(slot)) {
+          errors.push(`schedule.${day}: slot "${String(slot)}" harus format HH:MM.`);
+        }
+      });
+    }
   }
 
   if (errors.length > 0) return { ok: false, errors };
-  return { ok: true, mentors: data.mentors as MentorConfig[] };
+  return {
+    ok: true,
+    mentor: {
+      name: data.name as string,
+      whatsapp: data.whatsapp as string,
+      bio: data.bio as string,
+      detailProfile: data.detailProfile as string | undefined,
+      avatar: data.avatar as string | undefined,
+      workExperience: data.workExperience as MentorConfig['workExperience'],
+      expertise: data.expertise as string[],
+      platforms: data.platforms as MentorConfig['platforms'],
+      schedule: data.schedule as MentorConfig['schedule'],
+    },
+  };
 }
 
 export type BookingRulesValidationResult =

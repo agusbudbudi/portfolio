@@ -6,6 +6,7 @@ import {
 import { validateBookings } from '../lib/configValidation';
 import { useAdminAuthStore } from './useAdminAuthStore';
 import { useAdminConfigStore } from './useAdminConfigStore';
+import { useAdminMentorStore } from './useAdminMentorStore';
 
 const deepCopy = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 
@@ -38,7 +39,8 @@ async function commitBookings(
   get: () => AdminBookingsState,
   bookings: BookingConfig[]
 ): Promise<ActionResult> {
-  const { topics, mentors } = useAdminConfigStore.getState();
+  const { topics } = useAdminConfigStore.getState();
+  const { mentors } = useAdminMentorStore.getState();
   const validMentorIds = new Set(mentors.map((m) => m.id));
   const validTopicIds = new Set(topics.map((t) => t.id));
   const result = validateBookings({ bookings }, validMentorIds, validTopicIds);

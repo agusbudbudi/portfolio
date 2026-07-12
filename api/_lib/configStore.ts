@@ -1,12 +1,14 @@
 // Read/write the mentoring config resources in Turso (libSQL) — topics,
-// mentors, and booking-rules are stored as independent JSON documents in
+// tools, and booking-rules are stored as independent JSON documents in
 // `config_documents` (each edited as a whole-array/object replace by the
 // admin UI); bookings is a real table with a partial unique index so the
 // DB itself rejects a double-booked mentor slot, not just app validation.
+// Mentors moved to its own per-row table (see mentorStore.ts) since
+// self-edits need row-level concurrency, not whole-document CAS.
 import type { Row } from '@libsql/client';
 import type {
   BookingConfig, BookingRulesDocument, BookingsDocument, BookingStatus, MentoringConfig,
-  MentorsDocument, TopicConfig, TopicsDocument,
+  TopicConfig, TopicsDocument,
 } from '../../src/types/mentoring';
 import type { ToolConfig, ToolsDocument } from '../../src/types/portfolio';
 // Bundled into the function at build time — the pre-seed fallback and the
@@ -68,21 +70,6 @@ export async function writeTopics(
   const result = await casWriteDocument('topics', doc.topics, expectedUpdatedAt);
   if (!result.ok) return { ok: false, current: await readTopics() };
   return { ok: true, doc: { topics: doc.topics, updatedAt: result.updatedAt } };
-}
-
-export async function readMentors(): Promise<MentorsDocument> {
-  const doc = await readDocument<MentorsDocument['mentors']>('mentors');
-  if (doc) return { mentors: doc.data, updatedAt: doc.updatedAt };
-  return { mentors: staticSeed.mentors };
-}
-
-export async function writeMentors(
-  doc: Pick<MentorsDocument, 'mentors'>,
-  expectedUpdatedAt: string | undefined
-): Promise<WriteResult<MentorsDocument>> {
-  const result = await casWriteDocument('mentors', doc.mentors, expectedUpdatedAt);
-  if (!result.ok) return { ok: false, current: await readMentors() };
-  return { ok: true, doc: { mentors: doc.mentors, updatedAt: result.updatedAt } };
 }
 
 type BookingRulesData = Pick<BookingRulesDocument, 'metadata' | 'availableDays' | 'bookingRules'>;

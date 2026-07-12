@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useAdminConfigStore } from '../../../../../store/useAdminConfigStore';
+import { useAdminMentorStore } from '../../../../../store/useAdminMentorStore';
 import type { MentorConfig } from '../../../../../types/mentoring';
 import { usePagination } from '../../../../../hooks/usePagination';
 import { sortByUpdatedAtDesc } from '../../../../../lib/sortByUpdatedAt';
+import LoadingState from '../../../../../components/portfolio/common/LoadingState';
 import MentorForm from './MentorForm';
 import Pagination from './Pagination';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from './adminCard';
 
 const MentorsTab: React.FC = () => {
-  const { topics, mentors, availableDays, upsertMentor, deleteMentor } = useAdminConfigStore();
+  const { topics, availableDays } = useAdminConfigStore();
+  const { mentors, loading, loadError, load, create, update, remove } = useAdminMentorStore();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<MentorConfig | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => { load(); }, [load]);
 
   const topicLabel = (id: string) => topics.find((t) => t.id === id)?.label ?? id;
   const weeklySlots = (mentor: MentorConfig) =>
@@ -28,7 +33,7 @@ const MentorsTab: React.FC = () => {
     return (
       <MentorForm
         onClose={() => setFormOpen(false)}
-        onSubmit={upsertMentor}
+        onSubmit={(mentor) => (editing ? update(editing.id, mentor) : create(mentor))}
         mentor={editing}
         existingIds={mentors.map((m) => m.id)}
         topics={topics}
@@ -41,7 +46,7 @@ const MentorsTab: React.FC = () => {
     setDeleteError(null);
     if (!window.confirm(`Hapus mentor "${mentor.name}"?`)) return;
     setDeletingId(mentor.id);
-    const result = await deleteMentor(mentor.id);
+    const result = await remove(mentor.id);
     setDeletingId(null);
     if (!result.ok) setDeleteError(result.reason ?? 'Gagal menghapus mentor.');
   };
@@ -62,10 +67,17 @@ const MentorsTab: React.FC = () => {
       </div>
 
       <div className={ADMIN_CARD_BODY}>
+        {loadError && (
+          <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{loadError}</p>
+        )}
         {deleteError && (
           <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{deleteError}</p>
         )}
 
+        {loading ? (
+          <LoadingState label="Memuat mentors…" />
+        ) : (
+          <>
         <div className="overflow-x-auto border border-ld-frost rounded-xl">
           <table className="w-full border-collapse text-sm">
             <thead>
@@ -136,6 +148,8 @@ const MentorsTab: React.FC = () => {
           </table>
         </div>
         <Pagination page={page} totalPages={totalPages} totalItems={sorted.length} pageSize={10} onPageChange={setPage} />
+          </>
+        )}
       </div>
     </div>
   );

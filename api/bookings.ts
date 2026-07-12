@@ -1,8 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { requireAdminSession } from './_lib/auth.js';
 import {
-  readBookings, readMentors, readTopics, writeBookings,
+  readBookings, readTopics, writeBookings,
 } from './_lib/configStore.js';
+import { listMentors } from './_lib/mentorStore.js';
 import { validateBookings } from '../src/lib/configValidation.js';
 
 // Unlike topics/mentors/booking-rules, booking records contain mentee PII
@@ -31,7 +32,7 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
   if (!(await requireAuth(req, res))) return;
 
   // Cross-resource check: mentorId/topics must reference real records.
-  const [{ mentors }, { topics }] = await Promise.all([readMentors(), readTopics()]);
+  const [mentors, { topics }] = await Promise.all([listMentors(), readTopics()]);
   const validMentorIds = new Set(mentors.map((m) => m.id));
   const validTopicIds = new Set(topics.map((t) => t.id));
 
