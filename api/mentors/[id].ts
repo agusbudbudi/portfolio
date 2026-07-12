@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { requireAdminSession } from '../_lib/auth.js';
+import { requireAdminSession, requireSession } from '../_lib/auth.js';
 import { readTopics } from '../_lib/configStore.js';
-import { countMentors, deleteMentor, readMentorById, updateMentor } from '../_lib/mentorStore.js';
+import { countMentors, deleteMentor, readMentorById, updateMentor, type StatusPatch } from '../_lib/mentorStore.js';
 import { validateMentorData } from '../../src/lib/configValidation.js';
 
 async function requireAuth(req: VercelRequest, res: VercelResponse): Promise<boolean> {
@@ -22,13 +22,25 @@ function getIdParam(req: VercelRequest): string | null {
   return typeof id === 'string' ? id : null;
 }
 
+// Profile edits are admin-or-owning-mentor. Verify/reject decisions are a
+// separate admin-only action — see api/mentors/[id]/review.ts.
 async function handlePut(req: VercelRequest, res: VercelResponse) {
-  if (!(await requireAuth(req, res))) return;
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret) {
+    return res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
+  }
+  const session = await requireSession(sessionSecret, req.headers.authorization);
+  if (!session) return res.status(401).json({ error: 'unauthorized' });
+
   const id = getIdParam(req);
   if (!id) return res.status(400).json({ error: 'missing_id' });
 
   const existing = await readMentorById(id);
   if (!existing) return res.status(404).json({ error: 'not_found' });
+
+  const isAdmin = session.roles.includes('admin');
+  const isOwner = session.userId === existing.userId;
+  if (!isAdmin && !isOwner) return res.status(403).json({ error: 'forbidden' });
 
   const body = typeof req.body === 'object' && req.body !== null ? (req.body as Record<string, unknown>) : {};
   const { topics } = await readTopics();
@@ -38,13 +50,20 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'invalid_mentor', errors: result.errors });
   }
 
+  // Confirmed decision: a verified mentor's own edits go live immediately,
+  // no re-review — only editing while rejected is a real resubmission.
+  let statusPatch: StatusPatch | undefined;
+  if (!isAdmin && existing.verificationStatus === 'rejected') {
+    statusPatch = { verificationStatus: 'pending', rejectionReason: null, submittedAt: new Date().toISOString() };
+  }
+
   // mentorStore always populates updatedAt from the DB row — MentorConfig
   // types it as optional only because the admin form's local state reuses
   // the same type before a mentor has ever been saved.
   const clientVersion = req.headers['x-mentor-updated-at'];
   const expectedUpdatedAt = typeof clientVersion === 'string' ? clientVersion : (existing.updatedAt as string);
 
-  const write = await updateMentor(id, result.mentor, expectedUpdatedAt);
+  const write = await updateMentor(id, result.mentor, expectedUpdatedAt, statusPatch);
   if (!write.ok) {
     if (write.reason === 'not_found') return res.status(404).json({ error: 'not_found' });
     return res.status(409).json({ error: 'conflict', current: write.current });

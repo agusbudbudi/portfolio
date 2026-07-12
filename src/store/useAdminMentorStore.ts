@@ -37,7 +37,8 @@ export const useAdminMentorStore = create<AdminMentorState>((set, get) => ({
   load: async () => {
     set({ loading: true, loadError: null });
     try {
-      const { mentors } = await apiListMentors();
+      const token = useAdminAuthStore.getState().token ?? undefined;
+      const { mentors } = await apiListMentors(token);
       set({ mentors });
     } catch (err) {
       set({ loadError: err instanceof Error ? err.message : 'Gagal memuat mentors.' });

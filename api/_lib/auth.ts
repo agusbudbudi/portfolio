@@ -70,6 +70,16 @@ export function bearerToken(authorization: string | undefined): string | undefin
   return authorization.slice('Bearer '.length);
 }
 
+// Any authenticated user, any role — used where the caller just needs to be
+// a real logged-in account (e.g. submitting a mentor application), not
+// specifically an admin.
+export async function requireSession(
+  secret: string,
+  authorization: string | undefined
+): Promise<SessionPayload | null> {
+  return verifySession(secret, bearerToken(authorization));
+}
+
 // Boundary-preserving admin gate: same effective restriction as the old
 // single-shared-password check, just identity-backed instead of
 // password-backed. Every current admin-only endpoint uses this.

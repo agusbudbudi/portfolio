@@ -1,12 +1,22 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { requireAdminSession } from './_lib/auth.js';
+import { requireAdminSession, verifySession, bearerToken } from './_lib/auth.js';
 import { readTopics } from './_lib/configStore.js';
 import { createMentor, isMentorIdTaken, listMentors } from './_lib/mentorStore.js';
 import { isValidMentorId, validateMentorData } from '../src/lib/configValidation.js';
 
-async function handleGet(_req: VercelRequest, res: VercelResponse) {
-  const mentors = await listMentors();
-  res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
+// Admin sees every status (has to, in order to ever find a pending
+// application); everyone else only sees verified mentors. The two responses
+// differ by caller, so the admin path must never be CDN-cached — a shared
+// edge cache doesn't vary by Authorization header, and s-maxage'ing the
+// admin response would leak pending/rejected mentors to the next public
+// visitor within the cache window.
+async function handleGet(req: VercelRequest, res: VercelResponse) {
+  const sessionSecret = process.env.SESSION_SECRET;
+  const session = sessionSecret ? await verifySession(sessionSecret, bearerToken(req.headers.authorization)) : null;
+  const isAdmin = Boolean(session?.roles.includes('admin'));
+
+  const mentors = await listMentors(isAdmin ? undefined : { verifiedOnly: true });
+  res.setHeader('Cache-Control', isAdmin ? 'no-store' : 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
   return res.status(200).json({ mentors });
 }
 

@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const [topicsDoc, mentors, rulesDoc] = await Promise.all([
     readTopics(),
-    listMentors(),
+    listMentors({ verifiedOnly: true }),
     readBookingRules(),
   ]);
 

@@ -29,6 +29,8 @@ export interface MentorWorkExperienceEntry {
   isCurrent: boolean;
 }
 
+export type MentorVerificationStatus = 'pending' | 'verified' | 'rejected';
+
 export interface MentorConfig {
   id: string;
   name: string;
@@ -41,6 +43,15 @@ export interface MentorConfig {
   schedule: Record<string, string[]>;
   platforms?: MentorPlatforms;
   updatedAt?: string;
+  // Optional (not required) even though every DB row always has these —
+  // keeps MentorForm.tsx's local draft-state literal valid without needing
+  // dummy values, same reasoning as `updatedAt?` above.
+  userId?: string;
+  verificationStatus?: MentorVerificationStatus;
+  rejectionReason?: string;
+  submittedAt?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
 }
 
 export interface BookingRules {

@@ -188,6 +188,27 @@ export function validateMentorData(data: unknown, validTopicIds: Set<string>): M
   };
 }
 
+export type ReviewDecisionValidationResult =
+  | { ok: true; decision: 'verified' | 'rejected'; rejectionReason: string | null }
+  | { ok: false; errors: string[] };
+
+export function validateReviewDecision(data: unknown): ReviewDecisionValidationResult {
+  if (!isRecord(data)) return { ok: false, errors: ['Body harus berupa objek JSON.'] };
+
+  if (data.decision !== 'verified' && data.decision !== 'rejected') {
+    return { ok: false, errors: ['decision: wajib "verified" atau "rejected".'] };
+  }
+  if (data.decision === 'rejected' && !isNonEmptyString(data.rejectionReason)) {
+    return { ok: false, errors: ['rejectionReason: wajib diisi saat menolak mentor.'] };
+  }
+
+  return {
+    ok: true,
+    decision: data.decision,
+    rejectionReason: data.decision === 'rejected' ? (data.rejectionReason as string) : null,
+  };
+}
+
 export type BookingRulesValidationResult =
   | { ok: true; metadata: MentoringConfig['metadata']; availableDays: string[]; bookingRules: BookingRules }
   | { ok: false; errors: string[] };

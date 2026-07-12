@@ -107,8 +107,15 @@ export function apiPutTopics(
 
 export type MentorWritePayload = Omit<MentorConfig, 'updatedAt'>;
 
-export function apiListMentors(): Promise<{ mentors: MentorConfig[] }> {
-  return apiGet<{ mentors: MentorConfig[] }>('/api/mentors');
+// Optional token: admin sees every verification status, everyone else
+// (including no token) only sees verified mentors — see api/mentors.ts.
+export async function apiListMentors(token?: string): Promise<{ mentors: MentorConfig[] }> {
+  const res = await fetch(`/api/mentors?t=${Date.now()}`, {
+    cache: 'no-store',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  if (!res.ok) throw new ApiError(res.status, `Gagal memuat data (HTTP ${res.status}).`);
+  return res.json();
 }
 
 export function apiCreateMentor(payload: MentorWritePayload, token: string): Promise<MentorConfig> {
