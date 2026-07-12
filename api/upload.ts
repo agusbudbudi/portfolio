@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { BlobError, put } from '@vercel/blob';
-import { bearerToken, verifyToken } from './_lib/auth.js';
+import { requireAdminSession } from './_lib/auth.js';
 
 // Admin-only file upload for the portfolio feature (profile photo, tool
 // logo, project thumbnail, endorsement photo, CV). Body is base64-JSON rather
@@ -20,7 +20,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!sessionSecret) {
     return res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
   }
-  if (!(await verifyToken(sessionSecret, bearerToken(req.headers.authorization)))) {
+  if (!(await requireAdminSession(sessionSecret, req.headers.authorization))) {
     return res.status(401).json({ error: 'unauthorized' });
   }
   if (!process.env.BLOB_READ_WRITE_TOKEN) {

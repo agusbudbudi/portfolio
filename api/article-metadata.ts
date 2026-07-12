@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { bearerToken, verifyToken } from './_lib/auth.js';
+import { requireAdminSession } from './_lib/auth.js';
 
 // Admin-only: given an article URL, fetches the page server-side (avoids
 // browser CORS) and scrapes <head> meta tags for the Article preview card
@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!sessionSecret) {
     return res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
   }
-  if (!(await verifyToken(sessionSecret, bearerToken(req.headers.authorization)))) {
+  if (!(await requireAdminSession(sessionSecret, req.headers.authorization))) {
     return res.status(401).json({ error: 'unauthorized' });
   }
 

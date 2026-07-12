@@ -62,6 +62,16 @@ async function runMigrate(): Promise<void> {
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )`,
+      `CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        google_sub TEXT NOT NULL UNIQUE,
+        email TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
+        avatar_url TEXT,
+        roles TEXT NOT NULL DEFAULT '["mentee"]',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
     ],
     'write'
   );

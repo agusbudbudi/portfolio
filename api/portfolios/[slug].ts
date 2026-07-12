@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { bearerToken, verifyToken } from '../_lib/auth.js';
+import { requireAdminSession } from '../_lib/auth.js';
 import { readTools } from '../_lib/configStore.js';
 import {
   deletePortfolio, isSlugTaken, readPortfolioBySlug, updatePortfolio,
@@ -12,7 +12,7 @@ async function requireAuth(req: VercelRequest, res: VercelResponse): Promise<boo
     res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
     return false;
   }
-  if (!(await verifyToken(sessionSecret, bearerToken(req.headers.authorization)))) {
+  if (!(await requireAdminSession(sessionSecret, req.headers.authorization))) {
     res.status(401).json({ error: 'unauthorized' });
     return false;
   }
@@ -22,7 +22,7 @@ async function requireAuth(req: VercelRequest, res: VercelResponse): Promise<boo
 async function isAuthed(req: VercelRequest): Promise<boolean> {
   const sessionSecret = process.env.SESSION_SECRET;
   if (!sessionSecret) return false;
-  return verifyToken(sessionSecret, bearerToken(req.headers.authorization));
+  return Boolean(await requireAdminSession(sessionSecret, req.headers.authorization));
 }
 
 function getSlugParam(req: VercelRequest): string | null {

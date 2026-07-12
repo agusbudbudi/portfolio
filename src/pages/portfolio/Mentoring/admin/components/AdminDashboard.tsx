@@ -61,6 +61,7 @@ const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((group) => group.items);
 
 const AdminDashboard: React.FC = () => {
   const logout = useAdminAuthStore((s) => s.logout);
+  const user = useAdminAuthStore((s) => s.user);
   const { loading, loadError, load } = useAdminConfigStore();
   const [activeNav, setActiveNav] = useState<NavId>('bookings');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -192,6 +193,29 @@ const AdminDashboard: React.FC = () => {
               <p className="m-0 text-[11px] text-ld-fog leading-tight truncate">{activeItem.description}</p>
             </div>
           </div>
+
+          {user && (
+            <div className="flex items-center gap-2.5 min-w-0">
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 rounded-full object-cover shrink-0"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-ld-lilac text-ld-violet flex items-center justify-center text-sm font-semibold shrink-0">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="hidden sm:block min-w-0">
+                <p className="m-0 text-sm font-semibold text-ld-onyx leading-tight truncate">{user.name}</p>
+                <p className="m-0 text-[11px] text-ld-fog leading-tight truncate">{user.email}</p>
+              </div>
+            </div>
+          )}
         </header>
 
         <main className="flex-1 p-4 md:p-6 w-full bg-white/70">

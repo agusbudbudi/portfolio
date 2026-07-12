@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { bearerToken, verifyToken } from './_lib/auth.js';
+import { requireAdminSession } from './_lib/auth.js';
 import { readTools, writeTools } from './_lib/configStore.js';
 import { validateTools } from '../src/lib/portfolioValidation.js';
 
@@ -15,7 +15,7 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
   }
 
-  if (!(await verifyToken(sessionSecret, bearerToken(req.headers.authorization)))) {
+  if (!(await requireAdminSession(sessionSecret, req.headers.authorization))) {
     return res.status(401).json({ error: 'unauthorized' });
   }
 

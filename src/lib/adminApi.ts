@@ -29,11 +29,19 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiLogin(password: string): Promise<{ token: string; expiresAt: number }> {
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  avatarUrl: string | null;
+  roles: string[];
+}
+
+export async function apiLogin(credential: string): Promise<{ token: string; expiresAt: number; user: AdminUser }> {
   const res = await fetch('/api/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
+    body: JSON.stringify({ credential }),
   });
   if (res.status === 401) throw new UnauthorizedError();
   if (!res.ok) throw new ApiError(res.status, `Login gagal (HTTP ${res.status}).`);
