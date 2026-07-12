@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import {
   LogOut, RefreshCw,
   Users, BookOpen, SlidersHorizontal, CalendarCheck, Menu, X, ExternalLink,
+  UserSquare2, Wrench,
+  type LucideIcon,
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../../store/useAdminAuthStore';
 import { useAdminConfigStore } from '../../../../../store/useAdminConfigStore';
@@ -10,15 +12,52 @@ import BookingRulesTab from './BookingRulesTab';
 import TopicsTab from './TopicsTab';
 import MentorsTab from './MentorsTab';
 import BookingsTab from './BookingsTab';
+import PortfoliosTab from './PortfoliosTab';
+import ToolsTab from './ToolsTab';
 
-const NAV_ITEMS = [
-  { id: 'bookings', label: 'Bookings', description: 'Booking sesi mentoring', icon: CalendarCheck },
-  { id: 'mentors', label: 'Mentors', description: 'Kelola mentor & jadwal', icon: Users },
-  { id: 'topics', label: 'Topics', description: 'Topik sesi mentoring', icon: BookOpen },
-  { id: 'rules', label: 'Booking Rules', description: 'Hari aktif, aturan & batasan booking', icon: SlidersHorizontal },
-] as const;
+type NavId = 'bookings' | 'mentors' | 'topics' | 'rules' | 'portfolios' | 'tools';
 
-type NavId = (typeof NAV_ITEMS)[number]['id'];
+interface NavItem {
+  id: NavId;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+}
+
+interface NavGroup {
+  id: string;
+  label: string;
+  items: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    id: 'mentoring',
+    label: 'Mentoring',
+    items: [
+      { id: 'bookings', label: 'Bookings', description: 'Booking sesi mentoring', icon: CalendarCheck },
+    ],
+  },
+  {
+    id: 'mentee',
+    label: 'Portfolio Mentee',
+    items: [
+      { id: 'portfolios', label: 'Portfolios', description: 'Portfolio mentee QA', icon: UserSquare2 },
+    ],
+  },
+  {
+    id: 'master-data',
+    label: 'Master Data',
+    items: [
+      { id: 'mentors', label: 'Mentors', description: 'Kelola mentor & jadwal', icon: Users },
+      { id: 'topics', label: 'Topics', description: 'Topik sesi mentoring', icon: BookOpen },
+      { id: 'tools', label: 'Tools', description: 'Master tools untuk project portfolio', icon: Wrench },
+      { id: 'rules', label: 'Booking Rules', description: 'Hari aktif, aturan & batasan booking', icon: SlidersHorizontal },
+    ],
+  },
+];
+
+const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((group) => group.items);
 
 const AdminDashboard: React.FC = () => {
   const logout = useAdminAuthStore((s) => s.logout);
@@ -66,25 +105,32 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const active = activeNav === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => { setActiveNav(item.id); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left cursor-pointer border-none transition-colors ${
-                active
-                  ? 'bg-ld-lilac/60 text-ld-violet'
-                  : 'bg-transparent text-ld-slate hover:bg-ld-cloud hover:text-ld-graphite'
-              }`}
-            >
-              <Icon size={17} className="shrink-0" />
-              <span className={`text-sm ${active ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
-            </button>
-          );
-        })}
+      <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.id}>
+            <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-ld-fog">{group.label}</p>
+            <div className="space-y-1">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const active = activeNav === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => { setActiveNav(item.id); setSidebarOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left cursor-pointer border-none transition-colors ${
+                      active
+                        ? 'bg-ld-lilac/60 text-ld-violet'
+                        : 'bg-transparent text-ld-slate hover:bg-ld-cloud hover:text-ld-graphite'
+                    }`}
+                  >
+                    <Icon size={17} className="shrink-0" />
+                    <span className={`text-sm ${active ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       <div className="p-3 border-t border-ld-frost/60 space-y-1">
@@ -153,6 +199,8 @@ const AdminDashboard: React.FC = () => {
           {activeNav === 'mentors' && <MentorsTab />}
           {activeNav === 'topics' && <TopicsTab />}
           {activeNav === 'rules' && <BookingRulesTab />}
+          {activeNav === 'portfolios' && <PortfoliosTab />}
+          {activeNav === 'tools' && <ToolsTab />}
         </main>
       </div>
     </div>

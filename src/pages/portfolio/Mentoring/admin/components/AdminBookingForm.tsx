@@ -32,10 +32,19 @@ const DATE_LOOKAHEAD_DAYS = 120;
 const inputClass =
   'w-full px-3.5 py-2.5 rounded-lg border border-ld-frost bg-white text-sm text-ld-onyx focus:outline-none focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac';
 
+// M[yyyymmdd][3 random alphanumeric chars], e.g. M20260711df4.
+function generateBookingId(): string {
+  const ymd = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let suffix = '';
+  for (let i = 0; i < 3; i++) suffix += chars[Math.floor(Math.random() * chars.length)];
+  return `M${ymd}${suffix}`;
+}
+
 function emptyBooking(): BookingConfig {
   const now = new Date().toISOString();
   return {
-    id: crypto.randomUUID(),
+    id: generateBookingId(),
     menteeName: '',
     menteeEmail: '',
     menteeWhatsapp: '',
@@ -125,10 +134,10 @@ const AdminBookingForm: React.FC<AdminBookingFormProps> = ({
           <ArrowLeft size={17} />
         </button>
         <div className="flex items-baseline gap-2">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-ld-onyx m-0">
+          <h2 className="text-sm font-semibold text-ld-onyx m-0">
             {isEdit ? 'Edit Booking' : 'Tambah Booking'}
           </h2>
-          {isEdit && <p className="text-xs text-ld-fog m-0">{booking.menteeName}</p>}
+          {isEdit && <p className="text-sm font-semibold text-ld-onyx m-0">{booking.id}</p>}
         </div>
       </div>
 

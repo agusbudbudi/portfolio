@@ -29,7 +29,7 @@ const FeaturedEndorsements: React.FC = () => {
             </div>
           </div>
           <Link
-            to="/portfolio/about#endorsement"
+            to="/personal-portfolio/about#endorsement"
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-ld-canvas text-ld-graphite border border-ld-ash hover:border-ld-violet rounded-lg font-medium text-sm transition-colors w-full sm:w-auto justify-center sm:justify-start whitespace-nowrap no-underline"
           >
             Lihat Semua <ArrowRight size={18} />

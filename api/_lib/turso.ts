@@ -53,6 +53,15 @@ async function runMigrate(): Promise<void> {
         key TEXT PRIMARY KEY,
         updated_at TEXT NOT NULL
       )`,
+      `CREATE TABLE IF NOT EXISTS portfolios (
+        id TEXT PRIMARY KEY,
+        slug TEXT NOT NULL UNIQUE,
+        mentee_name TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'draft',
+        data TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
     ],
     'write'
   );

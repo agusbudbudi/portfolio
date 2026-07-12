@@ -47,7 +47,7 @@ const WorkExperienceTimeline: React.FC = () => {
               </div>
             </div>
             <NavLink
-              to="/portfolio/about#experience"
+              to="/personal-portfolio/about#experience"
               className="inline-flex items-center gap-2 px-6 py-2.5 bg-transparent text-white border border-white/40 hover:bg-white/10 hover:border-white rounded-lg font-medium text-sm transition-colors w-full sm:w-auto justify-center sm:justify-start whitespace-nowrap no-underline"
             >
               Lihat Detail <ArrowUpRight size={18} />

@@ -8,11 +8,25 @@ export interface TopicConfig {
   image?: string;
   popular?: boolean;
   materials?: string[];
+  updatedAt?: string;
 }
 
 export interface MentorPlatforms {
   digitalSkola?: boolean;
   dealls?: boolean;
+}
+
+export type MentorEmploymentType = 'full-time' | 'part-time' | 'contract' | 'internship' | 'freelance';
+
+export interface MentorWorkExperienceEntry {
+  id: string;
+  company: string;
+  companyLogo?: string;
+  position: string;
+  employmentType?: MentorEmploymentType;
+  startDate: string; // YYYY-MM
+  endDate?: string; // YYYY-MM, absent when isCurrent
+  isCurrent: boolean;
 }
 
 export interface MentorConfig {
@@ -23,8 +37,10 @@ export interface MentorConfig {
   bio: string;
   detailProfile?: string;
   avatar?: string;
+  workExperience?: MentorWorkExperienceEntry[];
   schedule: Record<string, string[]>;
   platforms?: MentorPlatforms;
+  updatedAt?: string;
 }
 
 export interface BookingRules {

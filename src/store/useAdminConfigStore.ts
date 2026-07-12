@@ -193,10 +193,11 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   // ---- topics (save immediately on each action) ----
 
   upsertTopic: async (topic) => {
+    const stamped = { ...topic, updatedAt: new Date().toISOString() };
     const topics = deepCopy(get().topics);
-    const idx = topics.findIndex((t) => t.id === topic.id);
-    if (idx >= 0) topics[idx] = topic;
-    else topics.push(topic);
+    const idx = topics.findIndex((t) => t.id === stamped.id);
+    if (idx >= 0) topics[idx] = stamped;
+    else topics.push(stamped);
     return commitTopics(set, get, topics);
   },
 
@@ -215,10 +216,11 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   // ---- mentors (save immediately on each action) ----
 
   upsertMentor: async (mentor) => {
+    const stamped = { ...mentor, updatedAt: new Date().toISOString() };
     const mentors = deepCopy(get().mentors);
-    const idx = mentors.findIndex((m) => m.id === mentor.id);
-    if (idx >= 0) mentors[idx] = mentor;
-    else mentors.push(mentor);
+    const idx = mentors.findIndex((m) => m.id === stamped.id);
+    if (idx >= 0) mentors[idx] = stamped;
+    else mentors.push(stamped);
     return commitMentors(set, get, mentors);
   },
 

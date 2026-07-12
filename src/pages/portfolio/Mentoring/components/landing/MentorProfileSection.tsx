@@ -1,10 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { ArrowRight, Award, Building2, Clock, Globe, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useConfig } from '../../../../../hooks/useConfig';
-import type { MentorConfig } from '../../../../../types/mentoring';
 import LoadingState from '../../../../../components/portfolio/common/LoadingState';
-import MentorProfileModal from './MentorProfileModal';
 
 const companies = [
   { name: 'Diricare', logo: '/img/company/diricare-logo.webp' },
@@ -13,7 +11,7 @@ const companies = [
 ];
 
 const mentorPlatforms = [
-  { key: 'digitalSkola' as const, name: 'Digital Skola', logo: '/img/mentoring/logo-digitalskola.png' },
+  { key: 'digitalSkola' as const, name: 'Digital Skola', logo: '/img/mentoring/logo-digitalskola.webp' },
   { key: 'dealls' as const, name: 'Dealls', logo: 'https://i.imgur.com/uRMmt6z.jpeg' },
 ];
 
@@ -36,7 +34,7 @@ function deriveSchedule(schedule: Record<string, string[]>) {
 const MentorProfileSection: React.FC = () => {
   const { config, loading } = useConfig();
   const mentors = config?.mentors ?? [];
-  const [selectedMentor, setSelectedMentor] = useState<MentorConfig | null>(null);
+  const navigate = useNavigate();
 
   const topicLabelMap = useMemo(
     () => Object.fromEntries((config?.topics ?? []).map(topic => [topic.id, topic.label])),
@@ -70,7 +68,7 @@ const MentorProfileSection: React.FC = () => {
               return (
                 <div
                   key={mentor.id}
-                  onClick={() => setSelectedMentor(mentor)}
+                  onClick={() => navigate(`/mentor/${mentor.id}`)}
                   className={`${mentors.length === 1
                     ? 'w-full max-w-sm sm:w-[320px]'
                     : 'flex-shrink-0 w-[85%] sm:w-[320px] snap-start'
@@ -98,7 +96,7 @@ const MentorProfileSection: React.FC = () => {
                         <Building2 size={15} className="text-ld-violet" />
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-ld-fog uppercase tracking-wide mb-2">
+                        <p className="text-xs font-semibold text-ld-graphite uppercase tracking-wide mb-2">
                           Pernah Bekerja Di
                         </p>
                         <div className="flex flex-wrap items-center gap-2.5">
@@ -121,11 +119,11 @@ const MentorProfileSection: React.FC = () => {
                         <Award size={15} className="text-ld-violet" />
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-ld-fog uppercase tracking-wide mb-2">
+                        <p className="text-xs font-semibold text-ld-graphite uppercase tracking-wide mb-2">
                           Area Keahlian
                         </p>
                         <div className="flex flex-wrap gap-1.5">
-                          {mentor.expertise.map(id => (
+                          {mentor.expertise.slice(0, 4).map(id => (
                             <span
                               key={id}
                               className="px-2.5 py-1 rounded-full bg-ld-cloud text-ld-graphite text-xs font-medium"
@@ -133,6 +131,11 @@ const MentorProfileSection: React.FC = () => {
                               {topicLabelMap[id] ?? id}
                             </span>
                           ))}
+                          {mentor.expertise.length > 4 && (
+                            <span className="px-2.5 py-1 rounded-full bg-ld-cloud text-ld-fog text-xs font-medium">
+                              +{mentor.expertise.length - 4} lainnya
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -142,7 +145,7 @@ const MentorProfileSection: React.FC = () => {
                         <Clock size={15} className="text-ld-violet" />
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-ld-fog uppercase tracking-wide mb-2">
+                        <p className="text-xs font-semibold text-ld-graphite uppercase tracking-wide mb-2">
                           Jadwal Tersedia
                         </p>
                         {sched.weekday && (
@@ -167,7 +170,7 @@ const MentorProfileSection: React.FC = () => {
                           <Globe size={15} className="text-ld-violet" />
                         </div>
                         <div>
-                          <p className="text-xs font-medium text-ld-fog uppercase tracking-wide mb-2">
+                          <p className="text-xs font-semibold text-ld-graphite uppercase tracking-wide mb-2">
                             Mentor di
                           </p>
                           <div className="flex flex-wrap items-center gap-2.5">
@@ -190,14 +193,14 @@ const MentorProfileSection: React.FC = () => {
                   </div>
 
                   <div className="flex gap-3 px-6 pb-6 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedMentor(mentor)}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-ld-cloud text-ld-graphite border border-ld-ash font-medium rounded-lg text-xs hover:bg-ld-ash transition-colors cursor-pointer"
+                    <Link
+                      to={`/mentor/${mentor.id}`}
+                      onClick={e => e.stopPropagation()}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-ld-cloud text-ld-graphite border border-ld-ash font-medium rounded-lg text-xs no-underline hover:bg-ld-ash transition-colors"
                     >
                       <User size={12} />
                       Lihat Profile
-                    </button>
+                    </Link>
                     <Link
                       to="/mentoring/booking"
                       onClick={e => e.stopPropagation()}
@@ -213,10 +216,6 @@ const MentorProfileSection: React.FC = () => {
           </div>
         )}
       </div>
-
-      {selectedMentor && (
-        <MentorProfileModal mentor={selectedMentor} onClose={() => setSelectedMentor(null)} />
-      )}
     </section>
   );
 };

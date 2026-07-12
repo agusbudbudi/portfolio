@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /mentoring/admin
+Disallow: /dashboard
 
 Sitemap: https://portfolio-qa-agus.vercel.app/sitemap.xml

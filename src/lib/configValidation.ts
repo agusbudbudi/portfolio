@@ -4,7 +4,7 @@
 // Keep this file free of browser-only imports — it is bundled into the API.
 
 import type {
-  BookingConfig, BookingRules, BookingStatus, MentoringConfig, MentorConfig, TopicConfig,
+  BookingConfig, BookingRules, BookingStatus, MentoringConfig, MentorConfig, MentorEmploymentType, TopicConfig,
 } from '../types/mentoring';
 import { WEEKDAYS } from '../types/mentoring.js';
 
@@ -12,7 +12,9 @@ const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const WHATSAPP_RE = /^\d{8,15}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MENTOR_EMPLOYMENT_TYPES: readonly MentorEmploymentType[] = ['full-time', 'part-time', 'contract', 'internship', 'freelance'];
 const BOOKING_STATUSES: readonly BookingStatus[] = ['booked', 'confirmed', 'completed', 'canceled'];
 // Statuses that occupy a mentor's slot — canceled frees it up for reuse.
 const OCCUPYING_STATUSES: readonly BookingStatus[] = ['booked', 'confirmed', 'completed'];
@@ -65,11 +67,41 @@ export function validateTopics(data: unknown): TopicsValidationResult {
           errors.push(`topics[${i}].materials: harus array string non-kosong.`);
         }
       }
+      if (topic.updatedAt !== undefined && typeof topic.updatedAt !== 'string') errors.push(`topics[${i}].updatedAt: harus string.`);
     });
   }
 
   if (errors.length > 0) return { ok: false, errors };
   return { ok: true, topics: data.topics as TopicConfig[] };
+}
+
+function validateMentorWorkExperience(workExperience: unknown, mentorIndex: number, errors: string[]): void {
+  if (!Array.isArray(workExperience)) {
+    errors.push(`mentors[${mentorIndex}].workExperience: harus array.`);
+    return;
+  }
+  workExperience.forEach((entry, i) => {
+    const prefix = `mentors[${mentorIndex}].workExperience[${i}]`;
+    if (!isRecord(entry)) { errors.push(`${prefix}: harus objek.`); return; }
+    if (!isNonEmptyString(entry.id)) errors.push(`${prefix}.id: wajib string non-kosong.`);
+    if (!isNonEmptyString(entry.company)) errors.push(`${prefix}.company: wajib string non-kosong.`);
+    if (entry.companyLogo !== undefined && typeof entry.companyLogo !== 'string') errors.push(`${prefix}.companyLogo: harus string.`);
+    if (!isNonEmptyString(entry.position)) errors.push(`${prefix}.position: wajib string non-kosong.`);
+    if (entry.employmentType !== undefined && !MENTOR_EMPLOYMENT_TYPES.includes(entry.employmentType as MentorEmploymentType)) {
+      errors.push(`${prefix}.employmentType: wajib salah satu dari ${MENTOR_EMPLOYMENT_TYPES.join(', ')}.`);
+    }
+    if (!isNonEmptyString(entry.startDate) || !MONTH_RE.test(entry.startDate as string)) {
+      errors.push(`${prefix}.startDate: wajib format YYYY-MM.`);
+    }
+    if (typeof entry.isCurrent !== 'boolean') errors.push(`${prefix}.isCurrent: wajib boolean.`);
+    if (entry.isCurrent === false) {
+      if (!isNonEmptyString(entry.endDate) || !MONTH_RE.test(entry.endDate as string)) {
+        errors.push(`${prefix}.endDate: wajib format YYYY-MM saat isCurrent false.`);
+      }
+    } else if (entry.endDate !== undefined && entry.endDate !== '') {
+      errors.push(`${prefix}.endDate: harus kosong saat isCurrent true.`);
+    }
+  });
 }
 
 export type MentorsValidationResult =
@@ -108,6 +140,7 @@ export function validateMentors(data: unknown, validTopicIds: Set<string>): Ment
         errors.push(`mentors[${i}].detailProfile: harus string.`);
       }
       if (mentor.avatar !== undefined && typeof mentor.avatar !== 'string') errors.push(`mentors[${i}].avatar: harus string.`);
+      if (mentor.workExperience !== undefined) validateMentorWorkExperience(mentor.workExperience, i, errors);
       if (!Array.isArray(mentor.expertise) || mentor.expertise.length === 0) {
         errors.push(`mentors[${i}].expertise: wajib array topic id non-kosong.`);
       } else {
@@ -147,6 +180,7 @@ export function validateMentors(data: unknown, validTopicIds: Set<string>): Ment
           });
         }
       }
+      if (mentor.updatedAt !== undefined && typeof mentor.updatedAt !== 'string') errors.push(`mentors[${i}].updatedAt: harus string.`);
     });
   }
 

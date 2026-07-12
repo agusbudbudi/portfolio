@@ -4,10 +4,10 @@ import { Menu, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const navLinks = [
-  { to: '/portfolio', label: 'Home', end: true },
-  { to: '/portfolio/about', label: 'About & Experience', end: false },
-  { to: '/portfolio/projects', label: 'Projects', end: false },
-  { to: '/portfolio/certifications', label: 'Certifications', end: false },
+  { to: '/personal-portfolio', label: 'Home', end: true },
+  { to: '/personal-portfolio/about', label: 'About & Experience', end: false },
+  { to: '/personal-portfolio/projects', label: 'Projects', end: false },
+  { to: '/personal-portfolio/certifications', label: 'Certifications', end: false },
   { to: '/mentoring', label: 'Mentoring', end: false },
 ];
 
@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
         <nav className="max-w-[1200px] mx-auto px-4 h-full flex justify-between items-center">
           {/* Logo */}
           <Link
-            to="/portfolio"
+            to="/personal-portfolio"
             className="flex items-center font-ld-display font-semibold text-xl md:text-2xl text-ld-graphite tracking-[-0.01em] no-underline"
             onClick={closeMenu}
           >

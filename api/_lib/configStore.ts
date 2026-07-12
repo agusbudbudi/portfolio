@@ -8,6 +8,7 @@ import type {
   BookingConfig, BookingRulesDocument, BookingsDocument, BookingStatus, MentoringConfig,
   MentorsDocument, TopicConfig, TopicsDocument,
 } from '../../src/types/mentoring';
+import type { ToolConfig, ToolsDocument } from '../../src/types/portfolio';
 // Bundled into the function at build time — the pre-seed fallback and the
 // permanent degradation path if a resource hasn't been written to Turso yet.
 import staticConfig from '../../public/config/qa-mentoring-config.json' with { type: 'json' };
@@ -103,6 +104,24 @@ export async function writeBookingRules(
   const result = await casWriteDocument('booking-rules', doc, expectedUpdatedAt);
   if (!result.ok) return { ok: false, current: await readBookingRules() };
   return { ok: true, doc: { ...doc, updatedAt: result.updatedAt } };
+}
+
+// Tools is a small shared lookup (mentee portfolio projects reference it by
+// id), same document-per-key shape as topics/mentors. No static seed — new
+// resource, starts empty until the admin adds tools.
+export async function readTools(): Promise<ToolsDocument> {
+  const doc = await readDocument<ToolConfig[]>('tools');
+  if (doc) return { tools: doc.data, updatedAt: doc.updatedAt };
+  return { tools: [] };
+}
+
+export async function writeTools(
+  doc: Pick<ToolsDocument, 'tools'>,
+  expectedUpdatedAt: string | undefined
+): Promise<WriteResult<ToolsDocument>> {
+  const result = await casWriteDocument('tools', doc.tools, expectedUpdatedAt);
+  if (!result.ok) return { ok: false, current: await readTools() };
+  return { ok: true, doc: { tools: doc.tools, updatedAt: result.updatedAt } };
 }
 
 function rowToBooking(row: Row): BookingConfig {

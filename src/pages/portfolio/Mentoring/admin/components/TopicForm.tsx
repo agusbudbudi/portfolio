@@ -72,10 +72,10 @@ const TopicForm: React.FC<TopicFormProps> = ({ onClose, onSubmit, topic, existin
           <ArrowLeft size={17} />
         </button>
         <div className="flex items-baseline gap-2">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-ld-onyx m-0">
+          <h2 className="text-sm font-semibold text-ld-onyx m-0">
             {isEdit ? 'Edit Topic' : 'Tambah Topic'}
           </h2>
-          {isEdit && <p className="text-xs text-ld-fog m-0">{topic.label}</p>}
+          {isEdit && <p className="text-sm font-semibold text-ld-onyx m-0">{topic.label}</p>}
         </div>
       </div>
 

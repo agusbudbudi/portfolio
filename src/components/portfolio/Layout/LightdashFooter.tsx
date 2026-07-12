@@ -50,7 +50,7 @@ const LightdashFooter: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <a href="/portfolio" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-ld-slate hover:text-ld-violet transition-colors no-underline">
+                <a href="/personal-portfolio" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-ld-slate hover:text-ld-violet transition-colors no-underline">
                   View Portfolio
                   <ExternalLink size={11} />
                 </a>
@@ -79,7 +79,7 @@ const LightdashFooter: React.FC = () => {
 
         <div className="mt-10">
           <p className="text-xs text-ld-fog text-center">
-            &copy; {new Date().getFullYear()} Agus Budiman &middot; Mentor.QA
+            &copy; {new Date().getFullYear()} Mentor.QA &middot; Platform Mentoring QA Engineer
           </p>
         </div>
       </div>

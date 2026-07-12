@@ -1,5 +1,6 @@
 // Thin fetch wrappers for the admin dashboard → /api endpoints.
 import type { BookingRulesDocument, BookingsDocument, MentorsDocument, TopicsDocument } from '../types/mentoring';
+import type { PortfolioData, PortfolioRecord, PortfolioStatus, PortfolioSummary, ToolsDocument } from '../types/portfolio';
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -130,4 +131,100 @@ export function apiPutBookings(
   token: string
 ): Promise<BookingsDocument> {
   return apiPut<BookingsDocument>('/api/bookings', doc, updatedAt, 'x-bookings-updated-at', token);
+}
+
+// POST endpoints (create, upload) don't have an optimistic-concurrency
+// "current doc" to resync from — a 409 here means a plain conflict (e.g.
+// slug already taken), surfaced as ApiError with its error messages, not
+// ConflictError (that's reserved for CAS version conflicts on PUT).
+async function apiPostAuth<T>(url: string, body: unknown, token: string): Promise<T> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) {
+    const resBody = await res.json().catch(() => null);
+    throw new ApiError(res.status, resBody?.message ?? `Gagal menyimpan (HTTP ${res.status}).`, resBody?.errors);
+  }
+  return res.json();
+}
+
+async function apiDeleteAuth(url: string, token: string): Promise<void> {
+  const res = await fetch(url, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok && res.status !== 204) {
+    const resBody = await res.json().catch(() => null);
+    throw new ApiError(res.status, resBody?.message ?? `Gagal menghapus (HTTP ${res.status}).`);
+  }
+}
+
+export function apiGetTools(): Promise<ToolsDocument> {
+  return apiGet<ToolsDocument>('/api/tools');
+}
+
+export function apiPutTools(
+  doc: Pick<ToolsDocument, 'tools'>,
+  updatedAt: string | undefined,
+  token: string
+): Promise<ToolsDocument> {
+  return apiPut<ToolsDocument>('/api/tools', doc, updatedAt, 'x-tools-updated-at', token);
+}
+
+export function apiListPortfolios(token: string): Promise<{ portfolios: PortfolioSummary[] }> {
+  return apiGetAuth<{ portfolios: PortfolioSummary[] }>('/api/portfolios', token);
+}
+
+export function apiGetPortfolio(slug: string, token: string): Promise<PortfolioRecord> {
+  return apiGetAuth<PortfolioRecord>(`/api/portfolios/${encodeURIComponent(slug)}`, token);
+}
+
+export interface PortfolioWritePayload {
+  slug: string;
+  status: PortfolioStatus;
+  data: PortfolioData;
+}
+
+export function apiCreatePortfolio(payload: PortfolioWritePayload, token: string): Promise<PortfolioRecord> {
+  return apiPostAuth<PortfolioRecord>('/api/portfolios', payload, token);
+}
+
+export function apiUpdatePortfolio(
+  currentSlug: string,
+  payload: PortfolioWritePayload,
+  updatedAt: string,
+  token: string
+): Promise<PortfolioRecord> {
+  return apiPut<PortfolioRecord>(`/api/portfolios/${encodeURIComponent(currentSlug)}`, payload, updatedAt, 'x-portfolio-updated-at', token);
+}
+
+export function apiDeletePortfolio(slug: string, token: string): Promise<void> {
+  return apiDeleteAuth(`/api/portfolios/${encodeURIComponent(slug)}`, token);
+}
+
+export async function apiCheckSlug(slug: string, excludeId?: string): Promise<{ available: boolean }> {
+  const params = new URLSearchParams({ slug });
+  if (excludeId) params.set('excludeId', excludeId);
+  const res = await fetch(`/api/portfolios/check-slug?${params.toString()}`, { cache: 'no-store' });
+  if (!res.ok) throw new ApiError(res.status, `Gagal cek slug (HTTP ${res.status}).`);
+  return res.json();
+}
+
+export async function apiUploadImage(
+  file: { filename: string; contentType: string; dataBase64: string },
+  token: string
+): Promise<{ url: string }> {
+  return apiPostAuth<{ url: string }>('/api/upload', file, token);
+}
+
+export interface ArticleMetadata {
+  title?: string;
+  description?: string;
+  thumbnail?: string;
+  source?: string;
+}
+
+export function apiFetchArticleMetadata(url: string, token: string): Promise<ArticleMetadata> {
+  return apiPostAuth<ArticleMetadata>('/api/article-metadata', { url }, token);
 }

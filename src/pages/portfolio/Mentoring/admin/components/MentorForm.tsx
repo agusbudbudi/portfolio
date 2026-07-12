@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import type { MentorConfig, TopicConfig } from '../../../../../types/mentoring';
 import ScheduleEditor from './ScheduleEditor';
 import TopicsSelect from './TopicsSelect';
+import MentorExperienceListEditor from './MentorExperienceListEditor';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from './adminCard';
 
 // Rendered conditionally by MentorsTab so form state re-initializes from
@@ -35,6 +36,7 @@ const emptyMentor: MentorConfig = {
   bio: '',
   detailProfile: '',
   avatar: '',
+  workExperience: [],
   schedule: {},
 };
 
@@ -42,7 +44,9 @@ const MentorForm: React.FC<MentorFormProps> = ({
   onClose, onSubmit, mentor, existingIds, topics, availableDays,
 }) => {
   const isEdit = mentor !== null;
-  const [form, setForm] = useState<MentorConfig>(mentor ?? emptyMentor);
+  const [form, setForm] = useState<MentorConfig>(
+    mentor ? { ...emptyMentor, ...mentor, workExperience: mentor.workExperience ?? [] } : emptyMentor
+  );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -101,10 +105,10 @@ const MentorForm: React.FC<MentorFormProps> = ({
           <ArrowLeft size={17} />
         </button>
         <div className="flex items-baseline gap-2">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-ld-onyx m-0">
+          <h2 className="text-sm font-semibold text-ld-onyx m-0">
             {isEdit ? 'Edit Mentor' : 'Tambah Mentor'}
           </h2>
-          {isEdit && <p className="text-xs text-ld-fog m-0">{mentor.name}</p>}
+          {isEdit && <p className="text-sm font-semibold text-ld-onyx m-0">{mentor.name}</p>}
         </div>
       </div>
 
@@ -216,6 +220,15 @@ const MentorForm: React.FC<MentorFormProps> = ({
             />
           </section>
         </div>
+
+        <section className="mt-8">
+          <h3 className="text-xs font-semibold uppercase tracking-widest text-ld-steel m-0 mb-1">Pengalaman Kerja</h3>
+          <p className="text-xs text-ld-fog m-0 mb-3">Riwayat karier mentor, tampil di halaman detail mentor.</p>
+          <MentorExperienceListEditor
+            experience={form.workExperience ?? []}
+            onChange={(workExperience) => setForm({ ...form, workExperience })}
+          />
+        </section>
 
         {error && <p className="text-sm text-red-500 m-0 mt-6">{error}</p>}
 

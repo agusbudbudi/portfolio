@@ -46,7 +46,7 @@ const Hero: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
               <NavLink
-                to="/portfolio/projects"
+                to="/personal-portfolio/projects"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-ld-violet text-white rounded-lg font-medium text-sm no-underline transition-colors hover:bg-[#1f87e6] w-full sm:w-auto"
               >
                 Lihat Portfolio <ArrowRight size={20} />

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   const location = useLocation();
-  const isHomePage = location.pathname === '/portfolio' || location.pathname === '/portfolio/' || location.pathname === '/';
+  const isHomePage = location.pathname === '/personal-portfolio' || location.pathname === '/personal-portfolio/' || location.pathname === '/';
 
   return (
     <footer className={`py-8 text-center ${isHomePage

@@ -1,10 +1,13 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 
 import PortfolioNavbar from './components/portfolio/Layout/Navbar';
 import PortfolioFooter from './components/portfolio/Layout/Footer';
 import LightdashNavbar from './components/portfolio/Layout/LightdashNavbar';
 import LightdashFooter from './components/portfolio/Layout/LightdashFooter';
+import PublicPortfolioNavbar from './components/portfolio/Layout/PublicPortfolioNavbar';
+import PublicPortfolioScrollBanner from './components/portfolio/Layout/PublicPortfolioScrollBanner';
+import PublicPortfolioFooter from './components/portfolio/Layout/PublicPortfolioFooter';
 import Seo from './components/portfolio/common/Seo';
 import LoadingState from './components/portfolio/common/LoadingState';
 
@@ -14,6 +17,8 @@ const PortfolioAbout = lazy(() => import('./pages/portfolio/About'));
 const PortfolioProjects = lazy(() => import('./pages/portfolio/Projects'));
 const PortfolioCertifications = lazy(() => import('./pages/portfolio/Certifications'));
 const PortfolioBookingPage = lazy(() => import('./pages/portfolio/Mentoring/BookingPage'));
+const MentorDetailPage = lazy(() => import('./pages/portfolio/Mentoring/MentorDetailPage'));
+const PublicPortfolioPage = lazy(() => import('./pages/portfolio/Mentoring/PublicPortfolioPage'));
 const AdminPage = lazy(() => import('./pages/portfolio/Mentoring/admin/AdminPage'));
 const NotFound = lazy(() => import('./pages/portfolio/NotFound'));
 
@@ -28,7 +33,7 @@ const personJsonLd = {
   '@type': 'Person',
   name: 'Agus Budiman',
   jobTitle: 'QA Engineer',
-  url: 'https://portfolio-qa-agus.vercel.app/portfolio',
+  url: 'https://portfolio-qa-agus.vercel.app/personal-portfolio',
   image: 'https://portfolio-qa-agus.vercel.app/img/profile/profile-agus.webp',
   sameAs: SAME_AS,
 };
@@ -52,6 +57,12 @@ const mentoringServiceJsonLd = {
 interface LayoutProps {
   children: React.ReactNode;
 }
+
+// Legacy /:slug/portfolio links (indexed, shared) now resolve under /portfolio/:slug.
+const LegacySlugPortfolioRedirect: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={`/portfolio/${slug}`} replace />;
+};
 
 // Suspense sits inside each layout (not around <Routes>) so the fixed
 // Navbar/Footer stay mounted across a lazy chunk load — only the content
@@ -85,6 +96,24 @@ const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
+// Dedicated mentee-facing layout: same navbar, but a lighter, general
+// footer (no booking-flow links) since this page stands on its own outside
+// the mentoring booking funnel.
+const PublicPortfolioLayout: React.FC<LayoutProps> = ({ children }) => {
+  return (
+    <div className="min-h-screen flex flex-col bg-ld-canvas">
+      <PublicPortfolioNavbar />
+      <PublicPortfolioScrollBanner />
+      <main className="flex-grow">
+        <Suspense fallback={<LoadingState className="min-h-[60vh] pt-16" />}>
+          {children}
+        </Suspense>
+      </main>
+      <PublicPortfolioFooter />
+    </div>
+  );
+};
+
 function App() {
   return (
     <Router>
@@ -104,11 +133,11 @@ function App() {
           }
         />
         <Route
-          path="/portfolio"
+          path="/personal-portfolio"
           element={
             <PortfolioLayout>
               <Seo
-                path="/portfolio"
+                path="/personal-portfolio"
                 title="Portfolio QA Engineer - Agus Budiman | Automation & Manual Testing"
                 description="Portfolio QA Engineer Agus Budiman: 6+ tahun pengalaman automation testing, manual testing, dan API testing. Lihat proyek, skill, dan pengalaman kerja QA Engineer."
                 jsonLd={personJsonLd}
@@ -118,11 +147,11 @@ function App() {
           }
         />
         <Route
-          path="/portfolio/about"
+          path="/personal-portfolio/about"
           element={
             <PortfolioLayout>
               <Seo
-                path="/portfolio/about"
+                path="/personal-portfolio/about"
                 title="Tentang Agus Budiman | Portfolio QA Engineer"
                 description="Kenali perjalanan karier, pengalaman kerja, dan latar belakang pendidikan Agus Budiman sebagai QA Engineer dengan 6+ tahun pengalaman testing."
                 jsonLd={personJsonLd}
@@ -132,11 +161,11 @@ function App() {
           }
         />
         <Route
-          path="/portfolio/projects"
+          path="/personal-portfolio/projects"
           element={
             <PortfolioLayout>
               <Seo
-                path="/portfolio/projects"
+                path="/personal-portfolio/projects"
                 title="Proyek QA Engineer | Portfolio Agus Budiman"
                 description="Kumpulan proyek automation testing, manual testing, dan tooling QA yang dikerjakan Agus Budiman, QA Engineer berpengalaman 6+ tahun."
               />
@@ -145,11 +174,11 @@ function App() {
           }
         />
         <Route
-          path="/portfolio/certifications"
+          path="/personal-portfolio/certifications"
           element={
             <PortfolioLayout>
               <Seo
-                path="/portfolio/certifications"
+                path="/personal-portfolio/certifications"
                 title="Sertifikasi QA Engineer | Agus Budiman"
                 description="Daftar sertifikasi profesional Agus Budiman di bidang Quality Assurance, software testing, dan automation testing."
               />
@@ -172,11 +201,27 @@ function App() {
           }
         />
         <Route
-          path="/mentoring/admin"
+          path="/mentor/:slug"
+          element={
+            <LightdashLayout>
+              <MentorDetailPage />
+            </LightdashLayout>
+          }
+        />
+        <Route
+          path="/portfolio/:slug"
+          element={
+            <PublicPortfolioLayout>
+              <PublicPortfolioPage />
+            </PublicPortfolioLayout>
+          }
+        />
+        <Route
+          path="/dashboard"
           element={
             <Suspense fallback={<LoadingState className="min-h-screen" />}>
               <Seo
-                path="/mentoring/admin"
+                path="/dashboard"
                 title="Admin Dashboard | Mentor.QA"
                 description="Dashboard admin mentoring QA."
                 noindex
@@ -185,8 +230,13 @@ function App() {
             </Suspense>
           }
         />
+        <Route path="/mentoring/admin" element={<Navigate to="/dashboard" replace />} />
         <Route path="/mentoring" element={<Navigate to="/" replace />} />
         <Route path="/portfolio/mentoring/booking" element={<Navigate to="/mentoring/booking" replace />} />
+        <Route path="/portfolio/about" element={<Navigate to="/personal-portfolio/about" replace />} />
+        <Route path="/portfolio/projects" element={<Navigate to="/personal-portfolio/projects" replace />} />
+        <Route path="/portfolio/certifications" element={<Navigate to="/personal-portfolio/certifications" replace />} />
+        <Route path="/:slug/portfolio" element={<LegacySlugPortfolioRedirect />} />
         <Route
           path="*"
           element={
