@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { requireAdminSession } from '../../_lib/auth.js';
+import { resolveAdminSession } from '../../_lib/auth.js';
 import { readMentorById, reviewMentor } from '../../_lib/mentorStore.js';
 import { validateReviewDecision } from '../../../src/lib/configValidation.js';
 
@@ -12,12 +12,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'method_not_allowed' });
   }
 
-  const sessionSecret = process.env.SESSION_SECRET;
-  if (!sessionSecret) {
-    return res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
-  }
-  const session = await requireAdminSession(sessionSecret, req.headers.authorization);
-  if (!session) return res.status(401).json({ error: 'unauthorized' });
+  const session = await resolveAdminSession(req, res);
+  if (!session) return;
 
   const { id } = req.query;
   if (typeof id !== 'string') return res.status(400).json({ error: 'missing_id' });

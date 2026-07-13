@@ -20,6 +20,7 @@ function rowToRecord(row: Row): PortfolioRecord {
     data: JSON.parse(row.data as string) as PortfolioData,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+    ownerId: (row.owner_id as string | null) ?? null,
   };
 }
 
@@ -32,13 +33,14 @@ function rowToSummary(row: Row): PortfolioSummary {
     name: data.profile?.name ?? '',
     photo: data.profile?.photo,
     updatedAt: row.updated_at as string,
+    ownerId: (row.owner_id as string | null) ?? null,
   };
 }
 
 export async function listPortfolios(): Promise<PortfolioSummary[]> {
   await migrate();
   const db = getClient();
-  const result = await db.execute('SELECT id, slug, status, data, updated_at FROM portfolios ORDER BY updated_at DESC');
+  const result = await db.execute('SELECT id, slug, status, data, updated_at, owner_id FROM portfolios ORDER BY updated_at DESC');
   return result.rows.map(rowToSummary);
 }
 
@@ -58,6 +60,14 @@ export async function readPortfolioById(id: string): Promise<PortfolioRecord | n
   return row ? rowToRecord(row) : null;
 }
 
+export async function readPortfolioByOwnerId(ownerId: string): Promise<PortfolioRecord | null> {
+  await migrate();
+  const db = getClient();
+  const result = await db.execute({ sql: 'SELECT * FROM portfolios WHERE owner_id = ?', args: [ownerId] });
+  const row = result.rows[0];
+  return row ? rowToRecord(row) : null;
+}
+
 export async function isSlugTaken(slug: string, excludeId?: string): Promise<boolean> {
   await migrate();
   const db = getClient();
@@ -71,18 +81,19 @@ export async function isSlugTaken(slug: string, excludeId?: string): Promise<boo
 export async function createPortfolio(
   slug: string,
   status: PortfolioStatus,
-  data: PortfolioData
+  data: PortfolioData,
+  ownerId: string | null = null
 ): Promise<PortfolioRecord> {
   await migrate();
   const db = getClient();
   const now = new Date().toISOString();
   const id = crypto.randomUUID();
   await db.execute({
-    sql: `INSERT INTO portfolios (id, slug, mentee_name, status, data, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    args: [id, slug, data.profile.name, status, JSON.stringify(data), now, now],
+    sql: `INSERT INTO portfolios (id, slug, mentee_name, status, data, owner_id, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [id, slug, data.profile.name, status, JSON.stringify(data), ownerId, now, now],
   });
-  return { id, slug, status, data, createdAt: now, updatedAt: now };
+  return { id, slug, status, data, createdAt: now, updatedAt: now, ownerId };
 }
 
 // Per-row compare-and-swap: only applies the write if the stored updated_at
@@ -101,7 +112,7 @@ export async function updatePortfolio(
   const result = await db.execute({
     sql: `UPDATE portfolios SET slug = ?, mentee_name = ?, status = ?, data = ?, updated_at = ?
           WHERE id = ? AND updated_at IS ?
-          RETURNING created_at`,
+          RETURNING created_at, owner_id`,
     args: [slug, data.profile.name, status, JSON.stringify(data), updatedAt, id, expectedUpdatedAt],
   });
   const row = result.rows[0];
@@ -110,7 +121,13 @@ export async function updatePortfolio(
     if (!current) return { ok: false, reason: 'not_found' };
     return { ok: false, reason: 'conflict', current };
   }
-  return { ok: true, record: { id, slug, status, data, createdAt: row.created_at as string, updatedAt } };
+  return {
+    ok: true,
+    record: {
+      id, slug, status, data, createdAt: row.created_at as string, updatedAt,
+      ownerId: (row.owner_id as string | null) ?? null,
+    },
+  };
 }
 
 export async function deletePortfolio(id: string): Promise<void> {

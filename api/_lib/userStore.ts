@@ -1,7 +1,8 @@
 // Read/write user identity rows in Turso. One row per Google account,
 // keyed by the stable `sub` claim — mirrors the row-table pattern in
-// portfolioStore.ts (crypto.randomUUID() ids, ISO timestamps).
-import type { Row } from '@libsql/client';
+// portfolioStore.ts (ISO timestamps), but `id` is a short 5-digit number
+// (not a UUID) since it's user-facing here (admin Users list).
+import type { Client, Row } from '@libsql/client';
 import { getClient, migrate } from './turso.js';
 
 export interface UserRecord {
@@ -28,6 +29,24 @@ function rowToUser(row: Row): UserRecord {
   };
 }
 
+export async function listUsers(): Promise<UserRecord[]> {
+  await migrate();
+  const db = getClient();
+  const result = await db.execute('SELECT * FROM users ORDER BY updated_at DESC');
+  return result.rows.map(rowToUser);
+}
+
+// 5-digit numeric id (10000-99999) — collision-checked against the table
+// since the space is small enough to matter, unlike a UUID.
+async function generateUniqueUserId(db: Client): Promise<string> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const candidate = String(Math.floor(10000 + Math.random() * 90000));
+    const existing = await db.execute({ sql: 'SELECT 1 FROM users WHERE id = ?', args: [candidate] });
+    if (existing.rows.length === 0) return candidate;
+  }
+  throw new Error('Gagal membuat user id unik, coba lagi.');
+}
+
 export interface UpsertUserInput {
   googleSub: string;
   email: string;
@@ -43,7 +62,7 @@ export async function upsertUserByGoogleSub(input: UpsertUserInput): Promise<Use
   await migrate();
   const db = getClient();
   const now = new Date().toISOString();
-  const id = crypto.randomUUID();
+  const id = await generateUniqueUserId(db);
   const result = await db.execute({
     sql: `INSERT INTO users (id, google_sub, email, name, avatar_url, roles, created_at, updated_at)
           VALUES (?, ?, ?, ?, ?, '["mentee"]', ?, ?)

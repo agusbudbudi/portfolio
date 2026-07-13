@@ -1,19 +1,14 @@
 // Read/write the mentoring config resources in Turso (libSQL) — topics,
 // tools, and booking-rules are stored as independent JSON documents in
 // `config_documents` (each edited as a whole-array/object replace by the
-// admin UI); bookings is a real table with a partial unique index so the
-// DB itself rejects a double-booked mentor slot, not just app validation.
-// Mentors moved to its own per-row table (see mentorStore.ts) since
-// self-edits need row-level concurrency, not whole-document CAS.
-import type { Row } from '@libsql/client';
-import type {
-  BookingConfig, BookingRulesDocument, BookingsDocument, BookingStatus, MentoringConfig,
-  TopicConfig, TopicsDocument,
-} from '../../src/types/mentoring';
+// admin UI). Mentors and bookings each moved to their own per-row table (see
+// mentorStore.ts, bookingStore.ts) since self-edits/self-serve creation need
+// row-level concurrency, not whole-document CAS.
+import type { BookingRulesDocument, MentoringConfig, TopicConfig, TopicsDocument } from '../../src/types/mentoring';
 import type { ToolConfig, ToolsDocument } from '../../src/types/portfolio';
 // Bundled into the function at build time — the pre-seed fallback and the
 // permanent degradation path if a resource hasn't been written to Turso yet.
-import staticConfig from '../../public/config/qa-mentoring-config.json' with { type: 'json' };
+import staticConfig from '../../public/mentoring/config/qa-mentoring-config.json' with { type: 'json' };
 import { getClient, migrate } from './turso.js';
 
 const staticSeed = staticConfig as unknown as MentoringConfig;
@@ -111,75 +106,3 @@ export async function writeTools(
   return { ok: true, doc: { tools: doc.tools, updatedAt: result.updatedAt } };
 }
 
-function rowToBooking(row: Row): BookingConfig {
-  return {
-    id: row.id as string,
-    menteeName: row.mentee_name as string,
-    menteeEmail: row.mentee_email as string,
-    menteeWhatsapp: row.mentee_whatsapp as string,
-    topics: JSON.parse(row.topics as string) as string[],
-    mentorId: row.mentor_id as string,
-    date: row.date as string,
-    time: row.time as string,
-    notes: row.notes as string,
-    status: row.status as BookingStatus,
-    createdAt: row.created_at as string,
-    updatedAt: row.updated_at as string,
-  };
-}
-
-async function readBookingsMetaUpdatedAt(): Promise<string | undefined> {
-  const db = getClient();
-  const result = await db.execute({ sql: 'SELECT updated_at FROM bookings_meta WHERE key = ?', args: ['bookings'] });
-  return (result.rows[0]?.updated_at as string | undefined) ?? undefined;
-}
-
-export async function readBookings(): Promise<BookingsDocument> {
-  await migrate();
-  const db = getClient();
-  const [rowsResult, updatedAt] = await Promise.all([
-    db.execute('SELECT * FROM bookings ORDER BY created_at ASC'),
-    readBookingsMetaUpdatedAt(),
-  ]);
-  return { bookings: rowsResult.rows.map(rowToBooking), updatedAt };
-}
-
-// Whole-array replace (matches the admin UI's PUT-the-full-list contract),
-// executed as one transaction: the bookings_meta CAS guards the replace
-// against a concurrent conflicting save, and the `bookings_slot_unique`
-// partial index (see turso.ts) guards against two occupying bookings for the
-// same mentor/date/time landing in the same write.
-export async function writeBookings(
-  doc: Pick<BookingsDocument, 'bookings'>,
-  expectedUpdatedAt: string | undefined
-): Promise<WriteResult<BookingsDocument>> {
-  await migrate();
-  const db = getClient();
-  const newUpdatedAt = new Date().toISOString();
-
-  const casResult = await db.execute({
-    sql: `INSERT INTO bookings_meta (key, updated_at) VALUES ('bookings', ?)
-          ON CONFLICT(key) DO UPDATE SET updated_at = excluded.updated_at
-          WHERE bookings_meta.updated_at IS ?`,
-    args: [newUpdatedAt, expectedUpdatedAt ?? null],
-  });
-  if (casResult.rowsAffected === 0) return { ok: false, current: await readBookings() };
-
-  await db.batch(
-    [
-      { sql: 'DELETE FROM bookings', args: [] },
-      ...doc.bookings.map((b) => ({
-        sql: `INSERT INTO bookings
-                (id, mentee_name, mentee_email, mentee_whatsapp, mentor_id, date, time, notes, status, topics, created_at, updated_at)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        args: [
-          b.id, b.menteeName, b.menteeEmail, b.menteeWhatsapp, b.mentorId, b.date, b.time,
-          b.notes, b.status, JSON.stringify(b.topics), b.createdAt, b.updatedAt,
-        ],
-      })),
-    ],
-    'write'
-  );
-
-  return { ok: true, doc: { bookings: doc.bookings, updatedAt: newUpdatedAt } };
-}

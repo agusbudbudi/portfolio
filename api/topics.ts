@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { requireAdminSession } from './_lib/auth.js';
+import { resolveAdminSession } from './_lib/auth.js';
 import { readTopics, writeTopics } from './_lib/configStore.js';
 import { listMentors } from './_lib/mentorStore.js';
 import { validateTopics } from '../src/lib/configValidation.js';
@@ -11,14 +11,7 @@ async function handleGet(_req: VercelRequest, res: VercelResponse) {
 }
 
 async function handlePut(req: VercelRequest, res: VercelResponse) {
-  const sessionSecret = process.env.SESSION_SECRET;
-  if (!sessionSecret) {
-    return res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
-  }
-
-  if (!(await requireAdminSession(sessionSecret, req.headers.authorization))) {
-    return res.status(401).json({ error: 'unauthorized' });
-  }
+  if (!(await resolveAdminSession(req, res))) return;
 
   const result = validateTopics(req.body);
   if (!result.ok) {

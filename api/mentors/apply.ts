@@ -1,8 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { requireSession } from '../_lib/auth.js';
+import { resolveSession } from '../_lib/auth.js';
 import { readTopics } from '../_lib/configStore.js';
 import { createMentor, isMentorIdTaken, readMentorByUserId } from '../_lib/mentorStore.js';
+import { checkRateLimit } from '../_lib/rateLimit.js';
 import { isValidMentorId, validateMentorData } from '../../src/lib/configValidation.js';
+
+// Shares its budget with the resubmission path in api/mentors/[id].ts.
+const MENTOR_APPLICATION_RATE_LIMIT = { maxAttempts: 5, windowMs: 60 * 60 * 1000 };
 
 // Mentor onboarding is self-serve: any logged-in account (already at least
 // a mentee) can apply. The application lands as `pending` for admin review
@@ -13,13 +17,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'method_not_allowed' });
   }
 
-  const sessionSecret = process.env.SESSION_SECRET;
-  if (!sessionSecret) {
-    return res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
-  }
-  const session = await requireSession(sessionSecret, req.headers.authorization);
-  if (!session) {
-    return res.status(401).json({ error: 'unauthorized' });
+  const session = await resolveSession(req, res);
+  if (!session) return;
+
+  const allowed = await checkRateLimit(
+    `mentor-application:${session.userId}`,
+    MENTOR_APPLICATION_RATE_LIMIT.maxAttempts,
+    MENTOR_APPLICATION_RATE_LIMIT.windowMs
+  );
+  if (!allowed) {
+    return res.status(429).json({ error: 'rate_limited', message: 'Terlalu banyak pengajuan. Coba lagi nanti.' });
   }
 
   const existing = await readMentorByUserId(session.userId);

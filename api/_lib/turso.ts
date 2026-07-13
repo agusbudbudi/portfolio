@@ -73,6 +73,11 @@ async function runMigrate(): Promise<void> {
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )`,
+      `CREATE TABLE IF NOT EXISTS rate_limits (
+        key TEXT PRIMARY KEY,
+        count INTEGER NOT NULL,
+        window_start TEXT NOT NULL
+      )`,
       `CREATE TABLE IF NOT EXISTS mentors (
         id TEXT PRIMARY KEY,
         user_id TEXT UNIQUE,

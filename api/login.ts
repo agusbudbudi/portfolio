@@ -43,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const avatarUrl = typeof payload.picture === 'string' ? payload.picture : null;
 
   const user = await upsertUserByGoogleSub({ googleSub, email, name, avatarUrl });
-  const { token, expiresAt } = await signSession(sessionSecret, user.id, user.roles);
+  const { token, expiresAt } = await signSession(sessionSecret, user.id, user.roles, user.email);
 
   res.setHeader('Cache-Control', 'no-store');
   return res.status(200).json({

@@ -1,21 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { requireAdminSession, requireSession } from '../_lib/auth.js';
+import { requireOwnerOrAdmin, resolveAdminSession, resolveSession } from '../_lib/auth.js';
 import { readTopics } from '../_lib/configStore.js';
 import { countMentors, deleteMentor, readMentorById, updateMentor, type StatusPatch } from '../_lib/mentorStore.js';
+import { checkRateLimit } from '../_lib/rateLimit.js';
 import { validateMentorData } from '../../src/lib/configValidation.js';
 
-async function requireAuth(req: VercelRequest, res: VercelResponse): Promise<boolean> {
-  const sessionSecret = process.env.SESSION_SECRET;
-  if (!sessionSecret) {
-    res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
-    return false;
-  }
-  if (!(await requireAdminSession(sessionSecret, req.headers.authorization))) {
-    res.status(401).json({ error: 'unauthorized' });
-    return false;
-  }
-  return true;
-}
+// Shares its budget with api/mentors/apply.ts — a resubmission-after-rejection
+// is the same kind of event as a fresh application.
+const MENTOR_APPLICATION_RATE_LIMIT = { maxAttempts: 5, windowMs: 60 * 60 * 1000 };
 
 function getIdParam(req: VercelRequest): string | null {
   const { id } = req.query;
@@ -25,12 +17,8 @@ function getIdParam(req: VercelRequest): string | null {
 // Profile edits are admin-or-owning-mentor. Verify/reject decisions are a
 // separate admin-only action — see api/mentors/[id]/review.ts.
 async function handlePut(req: VercelRequest, res: VercelResponse) {
-  const sessionSecret = process.env.SESSION_SECRET;
-  if (!sessionSecret) {
-    return res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
-  }
-  const session = await requireSession(sessionSecret, req.headers.authorization);
-  if (!session) return res.status(401).json({ error: 'unauthorized' });
+  const session = await resolveSession(req, res);
+  if (!session) return;
 
   const id = getIdParam(req);
   if (!id) return res.status(400).json({ error: 'missing_id' });
@@ -38,9 +26,8 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
   const existing = await readMentorById(id);
   if (!existing) return res.status(404).json({ error: 'not_found' });
 
+  if (!requireOwnerOrAdmin(res, session, existing.userId)) return;
   const isAdmin = session.roles.includes('admin');
-  const isOwner = session.userId === existing.userId;
-  if (!isAdmin && !isOwner) return res.status(403).json({ error: 'forbidden' });
 
   const body = typeof req.body === 'object' && req.body !== null ? (req.body as Record<string, unknown>) : {};
   const { topics } = await readTopics();
@@ -54,6 +41,14 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
   // no re-review — only editing while rejected is a real resubmission.
   let statusPatch: StatusPatch | undefined;
   if (!isAdmin && existing.verificationStatus === 'rejected') {
+    const allowed = await checkRateLimit(
+      `mentor-application:${session.userId}`,
+      MENTOR_APPLICATION_RATE_LIMIT.maxAttempts,
+      MENTOR_APPLICATION_RATE_LIMIT.windowMs
+    );
+    if (!allowed) {
+      return res.status(429).json({ error: 'rate_limited', message: 'Terlalu banyak pengajuan ulang. Coba lagi nanti.' });
+    }
     statusPatch = { verificationStatus: 'pending', rejectionReason: null, submittedAt: new Date().toISOString() };
   }
 
@@ -74,7 +69,7 @@ async function handlePut(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleDelete(req: VercelRequest, res: VercelResponse) {
-  if (!(await requireAuth(req, res))) return;
+  if (!(await resolveAdminSession(req, res))) return;
   const id = getIdParam(req);
   if (!id) return res.status(400).json({ error: 'missing_id' });
 
