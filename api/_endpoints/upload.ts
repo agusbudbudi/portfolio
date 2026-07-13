@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { BlobError, put } from '@vercel/blob';
-import { resolveSession } from './_lib/auth.js';
+import { resolveSession } from '../_lib/auth.js';
 
 // File upload for the portfolio/mentor feature (profile photo, tool logo,
 // project thumbnail, endorsement photo, CV). Any authenticated account can

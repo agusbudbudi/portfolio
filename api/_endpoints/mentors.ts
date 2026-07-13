@@ -6,6 +6,7 @@ import {
   reviewMentor, updateMentor, type StatusPatch,
 } from '../_lib/mentorStore.js';
 import { checkRateLimit } from '../_lib/rateLimit.js';
+import { grantRole } from '../_lib/userStore.js';
 import { isValidMentorId, validateMentorData, validateReviewDecision } from '../../src/lib/configValidation.js';
 
 // Shared by the apply and resubmission-after-rejection paths — a
@@ -105,6 +106,9 @@ async function handleReview(req: VercelRequest, res: VercelResponse, id: string)
   }
 
   const mentor = await reviewMentor(id, result.decision, result.rejectionReason, session.userId);
+  if (result.decision === 'verified' && existing.userId) {
+    await grantRole(existing.userId, 'mentor');
+  }
   res.setHeader('Cache-Control', 'no-store');
   return res.status(200).json(mentor);
 }

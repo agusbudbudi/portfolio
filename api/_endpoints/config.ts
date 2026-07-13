@@ -7,10 +7,10 @@
 // folded in here rather than its own function to stay under the Hobby plan's
 // 12-serverless-function cap; both are public read-only GETs anyway.
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { readBookingRules, readTopics } from './_lib/configStore.js';
-import { listMentors } from './_lib/mentorStore.js';
-import { listPortfolios } from './_lib/portfolioStore.js';
-import type { MentoringConfig } from '../src/types/mentoring';
+import { readBookingRules, readTopics } from '../_lib/configStore.js';
+import { listMentors } from '../_lib/mentorStore.js';
+import { listPortfolios } from '../_lib/portfolioStore.js';
+import type { MentoringConfig } from '../../src/types/mentoring';
 
 const SITE_URL = 'https://portfolio-qa-agus.vercel.app';
 

@@ -76,3 +76,21 @@ export async function upsertUserByGoogleSub(input: UpsertUserInput): Promise<Use
   });
   return rowToUser(result.rows[0]);
 }
+
+// Union-adds a role (never removes) — used when a mentor application gets
+// verified, so the mentor's own account can pass session.roles checks that
+// gate mentor-only UI/actions. No-op if the user already has the role.
+export async function grantRole(userId: string, role: string): Promise<void> {
+  await migrate();
+  const db = getClient();
+  const result = await db.execute({ sql: 'SELECT roles FROM users WHERE id = ?', args: [userId] });
+  const row = result.rows[0];
+  if (!row) return;
+  const roles = JSON.parse(row.roles as string) as string[];
+  if (roles.includes(role)) return;
+  const now = new Date().toISOString();
+  await db.execute({
+    sql: 'UPDATE users SET roles = ?, updated_at = ? WHERE id = ?',
+    args: [JSON.stringify([...roles, role]), now, userId],
+  });
+}

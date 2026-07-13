@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { resolveAdminSession } from '../_lib/auth.js';
+import { resolveAdminSession, resolveSession } from '../_lib/auth.js';
 import {
   readBookingRules, readTools, readTopics, writeBookingRules, writeTools, writeTopics,
 } from '../_lib/configStore.js';
@@ -60,7 +60,8 @@ async function handleToolsGet(_req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleToolsPut(req: VercelRequest, res: VercelResponse) {
-  if (!(await resolveAdminSession(req, res))) return;
+  // Any authenticated user can extend the shared tools list (needed for portfolio building).
+  if (!(await resolveSession(req, res))) return;
 
   const result = validateTools(req.body);
   if (!result.ok) {
