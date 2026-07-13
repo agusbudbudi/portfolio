@@ -31,7 +31,7 @@ const ProfileHeroBand: React.FC<{
             className="w-full h-full object-cover rounded-2xl border-[4px] border-ld-canvas shadow-ld-subtle-3"
           />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col justify-center gap-2">
           <h1 className="font-ld-display font-semibold text-3xl sm:text-5xl tracking-[-0.02em] text-white m-0 leading-tight">
             {profile.name}
           </h1>
