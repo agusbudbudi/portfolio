@@ -1,11 +1,12 @@
 // Structural validators for the Mentor.QA portfolio feature — tools and
 // portfolio records. Used by both the admin dashboard (client-side pre-save
-// check) and the /api/tools, /api/portfolios serverless functions.
+// check) and the /api/admin-config/tools, /api/portfolios serverless functions.
 // Keep this file free of browser-only imports — it is bundled into the API.
 
 import type { EmploymentType, PortfolioData, PortfolioStatus, ToolConfig } from '../types/portfolio';
 
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+export const GITHUB_USERNAME_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/;
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const URL_RE = /^https?:\/\/\S+$/;
@@ -231,6 +232,20 @@ function validateSocials(socials: unknown, errors: string[]): void {
   }
 }
 
+function validateGithubActivity(githubActivity: unknown, errors: string[]): void {
+  if (!isRecord(githubActivity)) { errors.push('githubActivity: wajib objek.'); return; }
+  if (typeof githubActivity.showActivity !== 'boolean') errors.push('githubActivity.showActivity: wajib boolean.');
+  if (githubActivity.showActivity === true) {
+    if (!isNonEmptyString(githubActivity.username)) {
+      errors.push('githubActivity.username: wajib diisi saat showActivity aktif.');
+    } else if (!GITHUB_USERNAME_RE.test(githubActivity.username)) {
+      errors.push('githubActivity.username: bukan format username GitHub yang valid.');
+    }
+  } else if (githubActivity.username !== undefined && typeof githubActivity.username !== 'string') {
+    errors.push('githubActivity.username: harus string.');
+  }
+}
+
 function validateCta(cta: unknown, socials: unknown, errors: string[]): void {
   if (!isRecord(cta)) { errors.push('cta: wajib objek.'); return; }
   if (cta.title !== undefined && typeof cta.title !== 'string') errors.push('cta.title: harus string.');
@@ -281,6 +296,7 @@ export function validatePortfolioData(data: unknown, validToolIds: Set<string>):
   validateCertifications(data.certifications, errors);
   validateArticles(data.articles, errors);
   validateSocials(data.socials, errors);
+  validateGithubActivity(data.githubActivity, errors);
   validateCta(data.cta, data.socials, errors);
 
   if (errors.length > 0) return { ok: false, errors };

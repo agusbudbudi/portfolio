@@ -94,6 +94,11 @@ export interface PortfolioSocials {
   portfolioUrl?: string;
 }
 
+export interface GithubActivityConfig {
+  username: string;
+  showActivity: boolean;
+}
+
 export interface PortfolioProfile {
   photo?: string;
   name: string;
@@ -116,6 +121,7 @@ export interface PortfolioData {
   articles: ArticleEntry[];
   socials: PortfolioSocials;
   cta: PortfolioCta;
+  githubActivity: GithubActivityConfig;
 }
 
 // Full record — GET-by-slug / create / update payloads.
@@ -126,6 +132,7 @@ export interface PortfolioRecord {
   data: PortfolioData;
   createdAt: string;
   updatedAt: string;
+  ownerId: string | null;
 }
 
 // Lightweight row for the admin list view — no nested data blob.
@@ -136,4 +143,5 @@ export interface PortfolioSummary {
   name: string;
   photo?: string;
   updatedAt: string;
+  ownerId: string | null;
 }

@@ -5,6 +5,7 @@ import {
   ApiError, ConflictError, type PortfolioWritePayload, UnauthorizedError,
 } from '../lib/adminApi';
 import { useAdminAuthStore } from './useAdminAuthStore';
+import { dedupeInFlight, type InFlightHolder } from '../lib/dedupeInFlight';
 
 export type ActionResult = { ok: boolean; reason?: string };
 
@@ -38,12 +39,14 @@ function requireToken(): string | null {
   return token;
 }
 
+const loadRef: InFlightHolder<void> = { promise: null, rerun: false };
+
 export const useAdminPortfolioStore = create<AdminPortfolioState>((set, get) => ({
   portfolios: [],
   loading: true,
   loadError: null,
 
-  load: async () => {
+  load: () => dedupeInFlight(loadRef, async () => {
     const token = requireToken();
     if (!token) return;
     set({ loading: true, loadError: null });
@@ -56,7 +59,7 @@ export const useAdminPortfolioStore = create<AdminPortfolioState>((set, get) => 
     } finally {
       set({ loading: false });
     }
-  },
+  }),
 
   current: null,
   currentLoading: false,

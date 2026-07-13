@@ -1,6 +1,6 @@
 // Structural validators for the mentoring config resources — topics, mentors, booking-rules.
 // Used by both the admin dashboard (client-side pre-save check) and the
-// /api/topics, /api/mentors, /api/booking-rules serverless functions (server-side write validation).
+// /api/admin-config/topics, /api/mentors, /api/admin-config/booking-rules serverless functions (server-side write validation).
 // Keep this file free of browser-only imports — it is bundled into the API.
 
 import type {
@@ -16,8 +16,17 @@ const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MENTOR_EMPLOYMENT_TYPES: readonly MentorEmploymentType[] = ['full-time', 'part-time', 'contract', 'internship', 'freelance'];
 const BOOKING_STATUSES: readonly BookingStatus[] = ['booked', 'confirmed', 'completed', 'canceled'];
-// Statuses that occupy a mentor's slot — canceled frees it up for reuse.
-const OCCUPYING_STATUSES: readonly BookingStatus[] = ['booked', 'confirmed', 'completed'];
+
+// One-way state machine — a booking can only move forward (or to canceled).
+// Shared by useAdminBookingsStore.ts/useAssignedBookingsStore.ts (client-side
+// UX guardrail) and api/bookings/[id].ts (server-side enforcement for the
+// less-trusted assigned-mentor path).
+export const ALLOWED_BOOKING_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
+  booked: ['confirmed', 'canceled'],
+  confirmed: ['completed', 'canceled'],
+  completed: [],
+  canceled: [],
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -75,13 +84,13 @@ export function validateTopics(data: unknown): TopicsValidationResult {
   return { ok: true, topics: data.topics as TopicConfig[] };
 }
 
-function validateMentorWorkExperience(workExperience: unknown, mentorIndex: number, errors: string[]): void {
+function validateMentorWorkExperience(workExperience: unknown, errors: string[]): void {
   if (!Array.isArray(workExperience)) {
-    errors.push(`mentors[${mentorIndex}].workExperience: harus array.`);
+    errors.push('workExperience: harus array.');
     return;
   }
   workExperience.forEach((entry, i) => {
-    const prefix = `mentors[${mentorIndex}].workExperience[${i}]`;
+    const prefix = `workExperience[${i}]`;
     if (!isRecord(entry)) { errors.push(`${prefix}: harus objek.`); return; }
     if (!isNonEmptyString(entry.id)) errors.push(`${prefix}.id: wajib string non-kosong.`);
     if (!isNonEmptyString(entry.company)) errors.push(`${prefix}.company: wajib string non-kosong.`);
@@ -104,88 +113,109 @@ function validateMentorWorkExperience(workExperience: unknown, mentorIndex: numb
   });
 }
 
-export type MentorsValidationResult =
-  | { ok: true; mentors: MentorConfig[] }
+export type MentorDataValidationResult =
+  | { ok: true; mentor: Omit<MentorConfig, 'id' | 'updatedAt'> }
   | { ok: false; errors: string[] };
 
-// validTopicIds cross-checks mentor.expertise against the topics resource —
-// the one place the split APIs still depend on each other.
-export function validateMentors(data: unknown, validTopicIds: Set<string>): MentorsValidationResult {
+export function isValidMentorId(id: string): boolean {
+  return SLUG_RE.test(id);
+}
+
+// Single-mentor validator — mentors is a real per-row table (see
+// api/_lib/mentorStore.ts), so there's no whole-array shape to validate
+// anymore. validTopicIds cross-checks mentor.expertise against the topics
+// resource — the one place the split APIs still depend on each other.
+export function validateMentorData(data: unknown, validTopicIds: Set<string>): MentorDataValidationResult {
   const errors: string[] = [];
 
   if (!isRecord(data)) return { ok: false, errors: ['Body harus berupa objek JSON.'] };
 
-  const mentorIds = new Set<string>();
-  if (!Array.isArray(data.mentors) || data.mentors.length === 0) {
-    errors.push('mentors: wajib array non-kosong.');
+  if (!isNonEmptyString(data.name)) errors.push('name: wajib string non-kosong.');
+  if (!isNonEmptyString(data.whatsapp) || !WHATSAPP_RE.test(data.whatsapp as string)) {
+    errors.push('whatsapp: wajib 8-15 digit angka (format internasional tanpa +).');
+  }
+  if (!isNonEmptyString(data.bio)) errors.push('bio: wajib string non-kosong.');
+  if (data.detailProfile !== undefined && typeof data.detailProfile !== 'string') {
+    errors.push('detailProfile: harus string.');
+  }
+  if (data.avatar !== undefined && typeof data.avatar !== 'string') errors.push('avatar: harus string.');
+  if (data.workExperience !== undefined) validateMentorWorkExperience(data.workExperience, errors);
+  if (!Array.isArray(data.expertise) || data.expertise.length === 0) {
+    errors.push('expertise: wajib array topic id non-kosong.');
   } else {
-    data.mentors.forEach((mentor, i) => {
-      if (!isRecord(mentor)) {
-        errors.push(`mentors[${i}]: harus objek.`);
-        return;
+    data.expertise.forEach((topicId) => {
+      if (typeof topicId !== 'string' || !validTopicIds.has(topicId)) {
+        errors.push(`expertise: topic id "${String(topicId)}" tidak ada di topics.`);
       }
-      if (!isNonEmptyString(mentor.id)) {
-        errors.push(`mentors[${i}].id: wajib string non-kosong.`);
-      } else if (mentorIds.has(mentor.id)) {
-        errors.push(`mentors[${i}].id: duplikat "${mentor.id}".`);
-      } else {
-        mentorIds.add(mentor.id);
-      }
-      if (!isNonEmptyString(mentor.name)) errors.push(`mentors[${i}].name: wajib string non-kosong.`);
-      if (!isNonEmptyString(mentor.whatsapp) || !WHATSAPP_RE.test(mentor.whatsapp as string)) {
-        errors.push(`mentors[${i}].whatsapp: wajib 8-15 digit angka (format internasional tanpa +).`);
-      }
-      if (!isNonEmptyString(mentor.bio)) errors.push(`mentors[${i}].bio: wajib string non-kosong.`);
-      if (mentor.detailProfile !== undefined && typeof mentor.detailProfile !== 'string') {
-        errors.push(`mentors[${i}].detailProfile: harus string.`);
-      }
-      if (mentor.avatar !== undefined && typeof mentor.avatar !== 'string') errors.push(`mentors[${i}].avatar: harus string.`);
-      if (mentor.workExperience !== undefined) validateMentorWorkExperience(mentor.workExperience, i, errors);
-      if (!Array.isArray(mentor.expertise) || mentor.expertise.length === 0) {
-        errors.push(`mentors[${i}].expertise: wajib array topic id non-kosong.`);
-      } else {
-        mentor.expertise.forEach((topicId) => {
-          if (typeof topicId !== 'string' || !validTopicIds.has(topicId)) {
-            errors.push(`mentors[${i}].expertise: topic id "${String(topicId)}" tidak ada di topics.`);
-          }
-        });
-      }
-      if (mentor.platforms !== undefined) {
-        if (!isRecord(mentor.platforms)) {
-          errors.push(`mentors[${i}].platforms: harus objek.`);
-        } else {
-          for (const key of ['digitalSkola', 'dealls'] as const) {
-            if (mentor.platforms[key] !== undefined && typeof mentor.platforms[key] !== 'boolean') {
-              errors.push(`mentors[${i}].platforms.${key}: harus boolean.`);
-            }
-          }
-        }
-      }
-      if (!isRecord(mentor.schedule)) {
-        errors.push(`mentors[${i}].schedule: wajib objek hari → jam.`);
-      } else {
-        for (const [day, slots] of Object.entries(mentor.schedule)) {
-          if (!(WEEKDAYS as readonly string[]).includes(day)) {
-            errors.push(`mentors[${i}].schedule: hari "${day}" tidak valid.`);
-            continue;
-          }
-          if (!Array.isArray(slots)) {
-            errors.push(`mentors[${i}].schedule.${day}: harus array jam.`);
-            continue;
-          }
-          slots.forEach((slot) => {
-            if (typeof slot !== 'string' || !TIME_RE.test(slot)) {
-              errors.push(`mentors[${i}].schedule.${day}: slot "${String(slot)}" harus format HH:MM.`);
-            }
-          });
-        }
-      }
-      if (mentor.updatedAt !== undefined && typeof mentor.updatedAt !== 'string') errors.push(`mentors[${i}].updatedAt: harus string.`);
     });
+  }
+  if (data.platforms !== undefined) {
+    if (!isRecord(data.platforms)) {
+      errors.push('platforms: harus objek.');
+    } else {
+      for (const key of ['digitalSkola', 'dealls'] as const) {
+        if (data.platforms[key] !== undefined && typeof data.platforms[key] !== 'boolean') {
+          errors.push(`platforms.${key}: harus boolean.`);
+        }
+      }
+    }
+  }
+  if (!isRecord(data.schedule)) {
+    errors.push('schedule: wajib objek hari → jam.');
+  } else {
+    for (const [day, slots] of Object.entries(data.schedule)) {
+      if (!(WEEKDAYS as readonly string[]).includes(day)) {
+        errors.push(`schedule: hari "${day}" tidak valid.`);
+        continue;
+      }
+      if (!Array.isArray(slots)) {
+        errors.push(`schedule.${day}: harus array jam.`);
+        continue;
+      }
+      slots.forEach((slot) => {
+        if (typeof slot !== 'string' || !TIME_RE.test(slot)) {
+          errors.push(`schedule.${day}: slot "${String(slot)}" harus format HH:MM.`);
+        }
+      });
+    }
   }
 
   if (errors.length > 0) return { ok: false, errors };
-  return { ok: true, mentors: data.mentors as MentorConfig[] };
+  return {
+    ok: true,
+    mentor: {
+      name: data.name as string,
+      whatsapp: data.whatsapp as string,
+      bio: data.bio as string,
+      detailProfile: data.detailProfile as string | undefined,
+      avatar: data.avatar as string | undefined,
+      workExperience: data.workExperience as MentorConfig['workExperience'],
+      expertise: data.expertise as string[],
+      platforms: data.platforms as MentorConfig['platforms'],
+      schedule: data.schedule as MentorConfig['schedule'],
+    },
+  };
+}
+
+export type ReviewDecisionValidationResult =
+  | { ok: true; decision: 'verified' | 'rejected'; rejectionReason: string | null }
+  | { ok: false; errors: string[] };
+
+export function validateReviewDecision(data: unknown): ReviewDecisionValidationResult {
+  if (!isRecord(data)) return { ok: false, errors: ['Body harus berupa objek JSON.'] };
+
+  if (data.decision !== 'verified' && data.decision !== 'rejected') {
+    return { ok: false, errors: ['decision: wajib "verified" atau "rejected".'] };
+  }
+  if (data.decision === 'rejected' && !isNonEmptyString(data.rejectionReason)) {
+    return { ok: false, errors: ['rejectionReason: wajib diisi saat menolak mentor.'] };
+  }
+
+  return {
+    ok: true,
+    decision: data.decision,
+    rejectionReason: data.decision === 'rejected' ? (data.rejectionReason as string) : null,
+  };
 }
 
 export type BookingRulesValidationResult =
@@ -247,89 +277,56 @@ export function validateBookingRules(data: unknown): BookingRulesValidationResul
   };
 }
 
-export type BookingsValidationResult =
-  | { ok: true; bookings: BookingConfig[] }
+export type BookingValidationResult =
+  | { ok: true; booking: Omit<BookingConfig, 'id' | 'createdAt' | 'updatedAt' | 'menteeUserId'> }
   | { ok: false; errors: string[] };
 
+// Single-record validator — slot-conflict checking is not this function's
+// job anymore (that moved to bookingStore.isSlotTaken, a DB query run by the
+// route handler) since a per-row write has no sibling array to scan.
 // validMentorIds/validTopicIds cross-check against the mentors/topics resources.
-export function validateBookings(
+export function validateBookingData(
   data: unknown,
   validMentorIds: Set<string>,
   validTopicIds: Set<string>
-): BookingsValidationResult {
+): BookingValidationResult {
   const errors: string[] = [];
 
   if (!isRecord(data)) return { ok: false, errors: ['Body harus berupa objek JSON.'] };
 
-  if (!Array.isArray(data.bookings)) {
-    errors.push('bookings: wajib array.');
-    return { ok: false, errors };
+  if (!isNonEmptyString(data.menteeName)) errors.push('menteeName: wajib string non-kosong.');
+  if (!isNonEmptyString(data.menteeEmail) || !EMAIL_RE.test(data.menteeEmail as string)) {
+    errors.push('menteeEmail: wajib email valid.');
+  }
+  if (!isNonEmptyString(data.menteeWhatsapp) || !WHATSAPP_RE.test(data.menteeWhatsapp as string)) {
+    errors.push('menteeWhatsapp: wajib 8-15 digit angka (format internasional tanpa +).');
+  }
+  if (!Array.isArray(data.topics) || data.topics.length === 0) {
+    errors.push('topics: wajib array topic id non-kosong.');
+  } else {
+    data.topics.forEach((topicId) => {
+      if (typeof topicId !== 'string' || !validTopicIds.has(topicId)) {
+        errors.push(`topics: topic id "${String(topicId)}" tidak ada di topics.`);
+      }
+    });
+  }
+  if (!isNonEmptyString(data.mentorId) || !validMentorIds.has(data.mentorId as string)) {
+    errors.push('mentorId: mentor id tidak ditemukan.');
+  }
+  if (!isNonEmptyString(data.date) || !DATE_RE.test(data.date as string)) {
+    errors.push('date: wajib format YYYY-MM-DD.');
+  }
+  if (!isNonEmptyString(data.time) || !TIME_RE.test(data.time as string)) {
+    errors.push('time: wajib format HH:MM.');
+  }
+  if (!isNonEmptyString(data.notes)) errors.push('notes: wajib string non-kosong.');
+  if (typeof data.status !== 'string' || !BOOKING_STATUSES.includes(data.status as BookingStatus)) {
+    errors.push(`status: wajib salah satu dari ${BOOKING_STATUSES.join(', ')}.`);
   }
 
-  const bookingIds = new Set<string>();
-  // mentorId|date|time -> booking index, tracked only for occupying statuses.
-  const occupiedSlots = new Map<string, number>();
-
-  data.bookings.forEach((booking, i) => {
-    if (!isRecord(booking)) {
-      errors.push(`bookings[${i}]: harus objek.`);
-      return;
-    }
-    if (!isNonEmptyString(booking.id)) {
-      errors.push(`bookings[${i}].id: wajib string non-kosong.`);
-    } else if (bookingIds.has(booking.id)) {
-      errors.push(`bookings[${i}].id: duplikat "${booking.id}".`);
-    } else {
-      bookingIds.add(booking.id);
-    }
-    if (!isNonEmptyString(booking.menteeName)) errors.push(`bookings[${i}].menteeName: wajib string non-kosong.`);
-    if (!isNonEmptyString(booking.menteeEmail) || !EMAIL_RE.test(booking.menteeEmail as string)) {
-      errors.push(`bookings[${i}].menteeEmail: wajib email valid.`);
-    }
-    if (!isNonEmptyString(booking.menteeWhatsapp) || !WHATSAPP_RE.test(booking.menteeWhatsapp as string)) {
-      errors.push(`bookings[${i}].menteeWhatsapp: wajib 8-15 digit angka (format internasional tanpa +).`);
-    }
-    if (!Array.isArray(booking.topics) || booking.topics.length === 0) {
-      errors.push(`bookings[${i}].topics: wajib array topic id non-kosong.`);
-    } else {
-      booking.topics.forEach((topicId) => {
-        if (typeof topicId !== 'string' || !validTopicIds.has(topicId)) {
-          errors.push(`bookings[${i}].topics: topic id "${String(topicId)}" tidak ada di topics.`);
-        }
-      });
-    }
-    if (!isNonEmptyString(booking.mentorId) || !validMentorIds.has(booking.mentorId as string)) {
-      errors.push(`bookings[${i}].mentorId: mentor id tidak ditemukan.`);
-    }
-    if (!isNonEmptyString(booking.date) || !DATE_RE.test(booking.date as string)) {
-      errors.push(`bookings[${i}].date: wajib format YYYY-MM-DD.`);
-    }
-    if (!isNonEmptyString(booking.time) || !TIME_RE.test(booking.time as string)) {
-      errors.push(`bookings[${i}].time: wajib format HH:MM.`);
-    }
-    if (!isNonEmptyString(booking.notes)) errors.push(`bookings[${i}].notes: wajib string non-kosong.`);
-    if (typeof booking.status !== 'string' || !BOOKING_STATUSES.includes(booking.status as BookingStatus)) {
-      errors.push(`bookings[${i}].status: wajib salah satu dari ${BOOKING_STATUSES.join(', ')}.`);
-    }
-    if (!isNonEmptyString(booking.createdAt)) errors.push(`bookings[${i}].createdAt: wajib string non-kosong.`);
-    if (!isNonEmptyString(booking.updatedAt)) errors.push(`bookings[${i}].updatedAt: wajib string non-kosong.`);
-
-    if (
-      isNonEmptyString(booking.mentorId) &&
-      isNonEmptyString(booking.date) &&
-      isNonEmptyString(booking.time) &&
-      typeof booking.status === 'string' &&
-      OCCUPYING_STATUSES.includes(booking.status as BookingStatus)
-    ) {
-      const key = `${booking.mentorId}|${booking.date}|${booking.time}`;
-      if (occupiedSlots.has(key)) {
-        errors.push(`bookings[${i}]: bentrok jadwal dengan bookings[${occupiedSlots.get(key)}] (mentor, tanggal, jam sama).`);
-      } else {
-        occupiedSlots.set(key, i);
-      }
-    }
-  });
-
   if (errors.length > 0) return { ok: false, errors };
-  return { ok: true, bookings: data.bookings as BookingConfig[] };
+  return {
+    ok: true,
+    booking: data as Omit<BookingConfig, 'id' | 'createdAt' | 'updatedAt' | 'menteeUserId'>,
+  };
 }

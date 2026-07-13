@@ -29,6 +29,8 @@ export interface MentorWorkExperienceEntry {
   isCurrent: boolean;
 }
 
+export type MentorVerificationStatus = 'pending' | 'verified' | 'rejected';
+
 export interface MentorConfig {
   id: string;
   name: string;
@@ -41,6 +43,15 @@ export interface MentorConfig {
   schedule: Record<string, string[]>;
   platforms?: MentorPlatforms;
   updatedAt?: string;
+  // Optional (not required) even though every DB row always has these —
+  // keeps MentorForm.tsx's local draft-state literal valid without needing
+  // dummy values, same reasoning as `updatedAt?` above.
+  userId?: string;
+  verificationStatus?: MentorVerificationStatus;
+  rejectionReason?: string;
+  submittedAt?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
 }
 
 export interface BookingRules {
@@ -64,7 +75,7 @@ export interface MentoringConfig {
   bookingRules: BookingRules;
 }
 
-// Per-resource API document shapes — /api/topics, /api/mentors, /api/booking-rules.
+// Per-resource API document shapes — /api/admin-config/topics, /api/mentors, /api/admin-config/booking-rules.
 // Each is stored, validated, and saved independently of the others.
 export interface TopicsDocument {
   topics: TopicConfig[];
@@ -83,9 +94,9 @@ export interface BookingRulesDocument {
   updatedAt?: string;
 }
 
-// Admin-created booking record — MVP scope is admin-only CRUD (create/edit/
-// cancel), no public-facing booking persistence yet. Status is a one-way
-// state machine advanced by explicit admin actions:
+// Booking record — created either by an admin (BookingsTab) or self-serve by
+// a logged-in mentee (api/bookings/mine.ts). Status is a one-way state
+// machine advanced by explicit admin actions:
 //   booked -> confirmed -> completed
 //   booked | confirmed -> canceled
 export type BookingStatus = 'booked' | 'confirmed' | 'completed' | 'canceled';
@@ -103,11 +114,9 @@ export interface BookingConfig {
   status: BookingStatus;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface BookingsDocument {
-  bookings: BookingConfig[];
-  updatedAt?: string;
+  // Set for self-serve bookings created by a logged-in mentee; undefined for
+  // admin-created bookings (no owning account).
+  menteeUserId?: string;
 }
 
 export const WEEKDAYS = [

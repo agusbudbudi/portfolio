@@ -24,7 +24,7 @@ async function fetchJson(url: string): Promise<MentoringConfig> {
 function loadConfig(): Promise<MentoringConfig> {
   if (!configPromise) {
     configPromise = fetchJson('/api/config').catch(() =>
-      fetchJson('/config/qa-mentoring-config.json')
+      fetchJson('/mentoring/config/qa-mentoring-config.json')
     );
     // Don't cache failures — let the next caller retry from scratch.
     configPromise.catch(() => { configPromise = null; });

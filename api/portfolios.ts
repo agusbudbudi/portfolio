@@ -1,34 +1,20 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { bearerToken, verifyToken } from './_lib/auth.js';
+import { resolveAdminSession } from './_lib/auth.js';
 import { readTools } from './_lib/configStore.js';
 import { createPortfolio, isSlugTaken, listPortfolios } from './_lib/portfolioStore.js';
 import { isValidSlug, validatePortfolioData, validatePortfolioStatus } from '../src/lib/portfolioValidation.js';
 
-// Portfolio records aren't public yet (no reader page until phase 2), and the
-// list/create surface is admin tooling only — same auth-on-everything shape
-// as bookings.ts.
-async function requireAuth(req: VercelRequest, res: VercelResponse): Promise<boolean> {
-  const sessionSecret = process.env.SESSION_SECRET;
-  if (!sessionSecret) {
-    res.status(500).json({ error: 'server_not_configured', message: 'SESSION_SECRET env var is not set.' });
-    return false;
-  }
-  if (!(await verifyToken(sessionSecret, bearerToken(req.headers.authorization)))) {
-    res.status(401).json({ error: 'unauthorized' });
-    return false;
-  }
-  return true;
-}
-
+// Published records are public via GET /api/portfolios/[slug] — this
+// list/create surface is admin tooling only, same shape as bookings.ts.
 async function handleGet(req: VercelRequest, res: VercelResponse) {
-  if (!(await requireAuth(req, res))) return;
+  if (!(await resolveAdminSession(req, res))) return;
   const portfolios = await listPortfolios();
   res.setHeader('Cache-Control', 'no-store');
   return res.status(200).json({ portfolios });
 }
 
 async function handlePost(req: VercelRequest, res: VercelResponse) {
-  if (!(await requireAuth(req, res))) return;
+  if (!(await resolveAdminSession(req, res))) return;
 
   const body = typeof req.body === 'object' && req.body !== null ? (req.body as Record<string, unknown>) : {};
   const slug = typeof body.slug === 'string' ? body.slug : '';
