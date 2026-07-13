@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  LogOut, RefreshCw,
-  Users, BookOpen, SlidersHorizontal, CalendarCheck, Menu, X, ExternalLink,
+  RefreshCw,
+  Users, BookOpen, SlidersHorizontal, CalendarCheck, Menu, X,
   UserSquare2, Wrench, LayoutDashboard, UserCog,
   type LucideIcon,
 } from 'lucide-react';
@@ -177,23 +177,6 @@ const AdminDashboard: React.FC = () => {
           </div>
         ))}
       </nav>
-
-      <div className="p-3 border-t border-ld-frost/60 space-y-1">
-        <a
-          href="/mentoring/booking"
-          target="_blank"
-          rel="noreferrer"
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-ld-slate hover:bg-ld-cloud hover:text-ld-graphite no-underline transition-colors"
-        >
-          <ExternalLink size={17} className="shrink-0" /> Lihat Booking Page
-        </a>
-        <button
-          onClick={() => { logout(); showSnackbar('Kamu telah berhasil keluar.', 'info'); }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-ld-slate hover:bg-red-50 hover:text-red-500 cursor-pointer bg-transparent border-none text-left transition-colors"
-        >
-          <LogOut size={17} className="shrink-0" /> Logout
-        </button>
-      </div>
     </>
   );
 
