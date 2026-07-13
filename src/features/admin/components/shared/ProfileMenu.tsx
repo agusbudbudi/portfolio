@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, LogOut } from 'lucide-react';
 
-const ROLE_BADGE_OUTLINE = 'border border-ld-violet text-ld-violet bg-transparent rounded-sm px-1.5 text-[10px] font-medium';
+const ROLE_BADGE_OUTLINE = 'text-ld-violet bg-ld-lilac rounded-full px-1.5 py-0 text-[10px] font-medium';
 
 interface ProfileMenuUser {
   name: string;
@@ -40,9 +40,9 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ user, roleLabel, onLogout }) 
         onClick={() => setOpen((prev) => !prev)}
         className="flex items-center gap-2.5 min-w-0 cursor-pointer bg-transparent border-none p-0"
       >
-        <div className="hidden sm:flex items-center gap-1.5 min-w-0">
-          <span className={`inline-block ${ROLE_BADGE_OUTLINE}`}>{roleLabel}</span>
+        <div className="hidden sm:flex flex-col items-end min-w-0">
           <p className="m-0 text-sm font-semibold text-ld-onyx leading-tight truncate">{user.name}</p>
+          <span className={`inline-block ${ROLE_BADGE_OUTLINE}`}>{roleLabel}</span>
         </div>
         {user.avatarUrl ? (
           <img src={user.avatarUrl} alt={user.name} width={32} height={32} className="w-8 h-8 rounded-full object-cover shrink-0" referrerPolicy="no-referrer" />
