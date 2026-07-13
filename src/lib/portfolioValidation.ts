@@ -1,6 +1,6 @@
 // Structural validators for the Mentor.QA portfolio feature — tools and
 // portfolio records. Used by both the admin dashboard (client-side pre-save
-// check) and the /api/tools, /api/portfolios serverless functions.
+// check) and the /api/admin-config/tools, /api/portfolios serverless functions.
 // Keep this file free of browser-only imports — it is bundled into the API.
 
 import type { EmploymentType, PortfolioData, PortfolioStatus, ToolConfig } from '../types/portfolio';

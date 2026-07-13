@@ -75,7 +75,7 @@ export interface MentoringConfig {
   bookingRules: BookingRules;
 }
 
-// Per-resource API document shapes — /api/topics, /api/mentors, /api/booking-rules.
+// Per-resource API document shapes — /api/admin-config/topics, /api/mentors, /api/admin-config/booking-rules.
 // Each is stored, validated, and saved independently of the others.
 export interface TopicsDocument {
   topics: TopicConfig[];

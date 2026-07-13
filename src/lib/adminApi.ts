@@ -99,7 +99,7 @@ async function apiPut<T>(
 }
 
 export function apiGetTopics(): Promise<TopicsDocument> {
-  return apiGet<TopicsDocument>('/api/topics');
+  return apiGet<TopicsDocument>('/api/admin-config/topics');
 }
 
 export function apiPutTopics(
@@ -107,7 +107,7 @@ export function apiPutTopics(
   updatedAt: string | undefined,
   token: string
 ): Promise<TopicsDocument> {
-  return apiPut<TopicsDocument>('/api/topics', doc, updatedAt, 'x-topics-updated-at', token);
+  return apiPut<TopicsDocument>('/api/admin-config/topics', doc, updatedAt, 'x-topics-updated-at', token);
 }
 
 export type MentorWritePayload = Omit<MentorConfig, 'updatedAt'>;
@@ -167,7 +167,7 @@ export function apiReviewMentor(
 }
 
 export function apiGetBookingRules(): Promise<BookingRulesDocument> {
-  return apiGet<BookingRulesDocument>('/api/booking-rules');
+  return apiGet<BookingRulesDocument>('/api/admin-config/booking-rules');
 }
 
 export function apiPutBookingRules(
@@ -175,7 +175,7 @@ export function apiPutBookingRules(
   updatedAt: string | undefined,
   token: string
 ): Promise<BookingRulesDocument> {
-  return apiPut<BookingRulesDocument>('/api/booking-rules', doc, updatedAt, 'x-booking-rules-updated-at', token);
+  return apiPut<BookingRulesDocument>('/api/admin-config/booking-rules', doc, updatedAt, 'x-booking-rules-updated-at', token);
 }
 
 export function apiListUsers(token: string): Promise<{ users: AdminUserRecord[] }> {
@@ -261,7 +261,7 @@ async function apiDeleteAuth(url: string, token: string): Promise<void> {
 }
 
 export function apiGetTools(): Promise<ToolsDocument> {
-  return apiGet<ToolsDocument>('/api/tools');
+  return apiGet<ToolsDocument>('/api/admin-config/tools');
 }
 
 export function apiPutTools(
@@ -269,7 +269,7 @@ export function apiPutTools(
   updatedAt: string | undefined,
   token: string
 ): Promise<ToolsDocument> {
-  return apiPut<ToolsDocument>('/api/tools', doc, updatedAt, 'x-tools-updated-at', token);
+  return apiPut<ToolsDocument>('/api/admin-config/tools', doc, updatedAt, 'x-tools-updated-at', token);
 }
 
 export function apiListPortfolios(token: string): Promise<{ portfolios: PortfolioSummary[] }> {

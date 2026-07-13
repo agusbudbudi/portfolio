@@ -27,7 +27,7 @@ export function usePortfolio(slug: string | undefined): UsePortfolioReturn {
 
     Promise.all([
       fetch(`/api/portfolios/${encodeURIComponent(slug)}`),
-      fetch('/api/tools'),
+      fetch('/api/admin-config/tools'),
     ])
       .then(async ([portfolioRes, toolsRes]) => {
         if (cancelled) return;

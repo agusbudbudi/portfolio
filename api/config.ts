@@ -1,7 +1,7 @@
 // Public aggregate read of the mentoring config — merges the three
 // independently-stored resources (topics, mentors, booking-rules) into the
 // full MentoringConfig shape the public site (useConfig) expects.
-// Read-only: writes go through /api/topics, /api/mentors, /api/booking-rules.
+// Read-only: writes go through /api/admin-config/topics, /api/mentors, /api/admin-config/booking-rules.
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { readBookingRules, readTopics } from './_lib/configStore.js';
 import { listMentors } from './_lib/mentorStore.js';

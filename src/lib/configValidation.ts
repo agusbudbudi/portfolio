@@ -1,6 +1,6 @@
 // Structural validators for the mentoring config resources — topics, mentors, booking-rules.
 // Used by both the admin dashboard (client-side pre-save check) and the
-// /api/topics, /api/mentors, /api/booking-rules serverless functions (server-side write validation).
+// /api/admin-config/topics, /api/mentors, /api/admin-config/booking-rules serverless functions (server-side write validation).
 // Keep this file free of browser-only imports — it is bundled into the API.
 
 import type {
