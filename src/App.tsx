@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
 
 import PortfolioNavbar from './features/personal-portfolio/components/Navbar';
 import PortfolioFooter from './features/personal-portfolio/components/Footer';
@@ -24,6 +24,19 @@ const AdminPage = lazy(() => import('./features/admin/pages/AdminPage'));
 const LoginScreen = lazy(() => import('./features/admin/components/shared/LoginScreen'));
 const Snackbar = lazy(() => import('./features/admin/components/shared/Snackbar').then((m) => ({ default: m.Snackbar })));
 const NotFound = lazy(() => import('./components/NotFound'));
+
+// React Router doesn't reset scroll on navigate — restore top-of-page on
+// path change, but skip when a hash is present so anchor-scroll effects
+// (e.g. MentoringPage, About) can take over.
+const ScrollToTop: React.FC = () => {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (!hash) window.scrollTo(0, 0);
+  }, [pathname, hash]);
+
+  return null;
+};
 
 const SAME_AS = [
   'https://linkedin.com/in/agus-budiman',
@@ -136,6 +149,7 @@ const PublicPortfolioLayout: React.FC<LayoutProps> = ({ children }) => {
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route
           path="/"
