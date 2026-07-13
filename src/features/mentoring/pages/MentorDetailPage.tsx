@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, BadgeCheck, Building2, Award, Calendar, Clock, MessageCircle } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, Building2, Award, Calendar, Clock } from 'lucide-react';
+import { thesvgIconUrl } from '../../../lib/thesvgRegistry';
 import { useConfig } from '../../../hooks/useConfig';
 import Seo from '../../../components/common/Seo';
 import LoadingState from '../../../components/common/LoadingState';
@@ -133,7 +134,7 @@ const MentorDetailPage: React.FC = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg bg-white/10 border border-white/30 text-white text-sm font-medium no-underline hover:bg-white/20 backdrop-blur-md transition-colors"
               >
-                <MessageCircle size={16} /> Chat WhatsApp
+                <img src={thesvgIconUrl('whatsapp', 'mono')} alt="" className="w-4 h-4 brightness-0 invert" /> Chat WhatsApp
               </a>
             </div>
           </div>
