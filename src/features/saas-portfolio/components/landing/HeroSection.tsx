@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="relative overflow-hidden bg-ld-canvas pt-24 pb-16 lg:pt-32 lg:pb-16 font-ld-sans">
-      <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6">
+    <section className="relative overflow-hidden bg-ld-canvas min-h-screen flex items-center pt-24 pb-16 lg:pt-32 lg:pb-16 font-ld-sans">
+      <div className="relative w-full max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-14 lg:gap-8 items-center">
           {/* Left two-thirds: headline + sub + CTAs */}
           <div className="lg:col-span-3">
