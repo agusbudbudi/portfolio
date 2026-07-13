@@ -26,7 +26,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({ label, size = 40, className
         aria-hidden="true"
       />
       <img
-        src="/img/mentor-logo.webp"
+        src="/shared/img/mentor-logo.webp"
         alt=""
         className="rounded-full object-contain bg-white shadow-[0_1px_6px_rgba(30,27,75,0.18)]"
         style={{ width: size * 0.56, height: size * 0.56 }}

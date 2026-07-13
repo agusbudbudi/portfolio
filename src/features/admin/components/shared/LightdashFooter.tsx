@@ -26,7 +26,7 @@ const LightdashFooter: React.FC = () => {
           <div className="flex flex-col gap-3">
             <span className="flex items-center gap-2 text-lg font-medium text-ld-graphite tracking-tight font-ld-display">
               <img
-                src="/img/mentor-logo.webp"
+                src="/shared/img/mentor-logo.webp"
                 alt="Mentor.QA"
                 width={28}
                 height={28}

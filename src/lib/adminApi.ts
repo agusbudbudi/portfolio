@@ -1,5 +1,5 @@
 // Thin fetch wrappers for the admin dashboard → /api endpoints.
-import type { BookingRulesDocument, BookingsDocument, MentorConfig, TopicsDocument } from '../types/mentoring';
+import type { BookingConfig, BookingRulesDocument, MentorConfig, TopicsDocument } from '../types/mentoring';
 import type { PortfolioData, PortfolioRecord, PortfolioStatus, PortfolioSummary, ToolsDocument } from '../types/portfolio';
 
 export class UnauthorizedError extends Error {
@@ -35,6 +35,11 @@ export interface AdminUser {
   name: string;
   avatarUrl: string | null;
   roles: string[];
+}
+
+export interface AdminUserRecord extends AdminUser {
+  createdAt: string;
+  updatedAt: string;
 }
 
 export async function apiLogin(credential: string): Promise<{ token: string; expiresAt: number; user: AdminUser }> {
@@ -173,16 +178,59 @@ export function apiPutBookingRules(
   return apiPut<BookingRulesDocument>('/api/booking-rules', doc, updatedAt, 'x-booking-rules-updated-at', token);
 }
 
-export function apiGetBookings(token: string): Promise<BookingsDocument> {
-  return apiGetAuth<BookingsDocument>('/api/bookings', token);
+export function apiListUsers(token: string): Promise<{ users: AdminUserRecord[] }> {
+  return apiGetAuth<{ users: AdminUserRecord[] }>('/api/users', token);
 }
 
-export function apiPutBookings(
-  doc: Pick<BookingsDocument, 'bookings'>,
-  updatedAt: string | undefined,
+export function apiListBookings(token: string): Promise<{ bookings: BookingConfig[] }> {
+  return apiGetAuth<{ bookings: BookingConfig[] }>('/api/bookings', token);
+}
+
+export function apiCreateBooking(payload: BookingConfig, token: string): Promise<BookingConfig> {
+  return apiPostAuth<BookingConfig>('/api/bookings', payload, token);
+}
+
+export function apiUpdateBooking(
+  id: string,
+  payload: BookingConfig,
+  updatedAt: string,
   token: string
-): Promise<BookingsDocument> {
-  return apiPut<BookingsDocument>('/api/bookings', doc, updatedAt, 'x-bookings-updated-at', token);
+): Promise<BookingConfig> {
+  return apiPut<BookingConfig>(`/api/bookings/${encodeURIComponent(id)}`, payload, updatedAt, 'x-booking-updated-at', token);
+}
+
+// 404 -> [] not expected (mine.ts always 200s with an array), but keep the
+// same UnauthorizedError shape as the other apiGetMy* wrappers.
+export async function apiGetMyBookings(token: string): Promise<{ bookings: BookingConfig[] }> {
+  const res = await fetch(`/api/bookings/mine?t=${Date.now()}`, {
+    cache: 'no-store',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new ApiError(res.status, `Gagal memuat data (HTTP ${res.status}).`);
+  return res.json();
+}
+
+// Mentor-side counterpart — bookings assigned to the logged-in mentor.
+export async function apiGetAssignedBookings(token: string): Promise<{ bookings: BookingConfig[] }> {
+  const res = await fetch(`/api/bookings/assigned?t=${Date.now()}`, {
+    cache: 'no-store',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new ApiError(res.status, `Gagal memuat data (HTTP ${res.status}).`);
+  return res.json();
+}
+
+export function apiCreateMyBooking(payload: BookingConfig, token: string): Promise<BookingConfig> {
+  return apiPostAuth<BookingConfig>('/api/bookings/mine', payload, token);
+}
+
+export async function apiCheckBookingAvailability(mentorId: string, date: string): Promise<{ occupiedTimes: string[] }> {
+  const params = new URLSearchParams({ mentorId, date });
+  const res = await fetch(`/api/bookings/availability?${params.toString()}`, { cache: 'no-store' });
+  if (!res.ok) throw new ApiError(res.status, `Gagal cek ketersediaan (HTTP ${res.status}).`);
+  return res.json();
 }
 
 // POST endpoints (create, upload) don't have an optimistic-concurrency
@@ -255,6 +303,36 @@ export function apiDeletePortfolio(slug: string, token: string): Promise<void> {
   return apiDeleteAuth(`/api/portfolios/${encodeURIComponent(slug)}`, token);
 }
 
+// 404 -> null (no portfolio yet) rather than throwing, mirroring apiGetMyMentor.
+export async function apiGetMyPortfolio(token: string): Promise<PortfolioRecord | null> {
+  const res = await fetch(`/api/portfolios/mine?t=${Date.now()}`, {
+    cache: 'no-store',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (res.status === 404) return null;
+  if (!res.ok) throw new ApiError(res.status, `Gagal memuat data (HTTP ${res.status}).`);
+  return res.json();
+}
+
+export function apiCreateMyPortfolio(payload: PortfolioWritePayload, token: string): Promise<PortfolioRecord> {
+  return apiPostAuth<PortfolioRecord>('/api/portfolios/mine', payload, token);
+}
+
+// Mentor-side lookup — does this mentee (booking.menteeUserId) have a
+// published portfolio/CV? 404 -> null, same not-found-is-fine pattern as
+// apiGetMyPortfolio (draft portfolios also read as "nothing to show" here).
+export async function apiGetPortfolioByOwner(userId: string, token: string): Promise<{ slug: string | null; cvUrl: string | null } | null> {
+  const res = await fetch(`/api/portfolios/by-owner/${encodeURIComponent(userId)}?t=${Date.now()}`, {
+    cache: 'no-store',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (res.status === 404) return null;
+  if (!res.ok) throw new ApiError(res.status, `Gagal memuat data (HTTP ${res.status}).`);
+  return res.json();
+}
+
 export async function apiCheckSlug(slug: string, excludeId?: string): Promise<{ available: boolean }> {
   const params = new URLSearchParams({ slug });
   if (excludeId) params.set('excludeId', excludeId);
@@ -263,8 +341,10 @@ export async function apiCheckSlug(slug: string, excludeId?: string): Promise<{ 
   return res.json();
 }
 
+export type UploadFeature = 'mentor' | 'portfolio' | 'cv' | 'tools';
+
 export async function apiUploadImage(
-  file: { filename: string; contentType: string; dataBase64: string },
+  file: { filename: string; contentType: string; dataBase64: string; feature: UploadFeature },
   token: string
 ): Promise<{ url: string }> {
   return apiPostAuth<{ url: string }>('/api/upload', file, token);

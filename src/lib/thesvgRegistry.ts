@@ -12,8 +12,8 @@ export interface ThesvgIcon {
 const REGISTRY_URL = 'https://thesvg.org/api/registry.json';
 export const THESVG_CDN_BASE = 'https://thesvg.org/icons';
 
-export function thesvgIconUrl(slug: string): string {
-  return `${THESVG_CDN_BASE}/${slug}/default.svg`;
+export function thesvgIconUrl(slug: string, variant: 'default' | 'mono' | 'color' = 'default'): string {
+  return `${THESVG_CDN_BASE}/${slug}/${variant}.svg`;
 }
 
 interface RawRegistry {
@@ -44,6 +44,15 @@ export async function loadThesvgRegistry(): Promise<ThesvgIcon[]> {
     });
 
   return inflight;
+}
+
+// Exact-match lookup (title/slug/alias) — used where a wrong guess would be
+// worse than no icon at all, e.g. auto-labelling a GitHub repo language.
+export function findThesvgIconByName(icons: ThesvgIcon[], name: string): ThesvgIcon | null {
+  const q = name.trim().toLowerCase();
+  return icons.find((icon) =>
+    icon.title.toLowerCase() === q || icon.slug.toLowerCase() === q || icon.aliases.some((a) => a.toLowerCase() === q)
+  ) ?? null;
 }
 
 export function searchThesvgIcons(icons: ThesvgIcon[], query: string, limit = 8): ThesvgIcon[] {

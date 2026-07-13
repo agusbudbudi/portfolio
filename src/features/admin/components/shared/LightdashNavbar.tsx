@@ -9,13 +9,15 @@ const navLinks = [
   { label: 'FAQ', href: '#faq' },
 ];
 
+const portfolioLink = { label: 'Portfolio QA', to: '/portfolio' };
+
 const LightdashNavbar: React.FC = () => {
   return (
     <header className="fixed top-0 left-0 w-full h-16 bg-ld-canvas/90 backdrop-blur-md border-b border-ld-ash z-[1000] font-ld-sans">
       <nav className="max-w-[1200px] mx-auto px-4 sm:px-6 h-full flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2 text-lg font-medium text-ld-graphite tracking-tight no-underline font-ld-display">
           <img
-            src="/img/mentor-logo.webp"
+            src="/shared/img/mentor-logo.webp"
             alt="Mentor.QA"
             width={28}
             height={28}
@@ -27,6 +29,15 @@ const LightdashNavbar: React.FC = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-7">
+          <Link
+            to={portfolioLink.to}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-ld-graphite hover:text-ld-violet transition-colors no-underline"
+          >
+            {portfolioLink.label}
+            <span className="inline-flex items-center px-1.5 py-1 rounded-sm bg-ld-violet text-white text-[10px] font-semibold leading-none tracking-wide">
+              New
+            </span>
+          </Link>
           {navLinks.map(link => (
             <a
               key={link.label}

@@ -27,13 +27,13 @@ const PublicPortfolioScrollBanner: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -16 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="fixed top-16 left-0 w-full z-[999] bg-gradient-to-r from-ld-violet via-sky-500/60 via-45% to-white to-90% backdrop-blur-md shadow-ld-subtle-2"
+          className="fixed top-16 left-0 w-full z-[999] bg-gradient-to-r from-ld-lilac/90 to-ld-canvas/90 backdrop-blur-md border-b border-ld-ash/20"
         >
           <Link
             to="/"
             className="max-w-[1200px] mx-auto px-4 sm:px-6 py-1.5 flex items-center justify-between flex-nowrap gap-2 no-underline"
           >
-            <p className="text-xs font-medium text-white m-0 truncate min-w-0">
+            <p className="text-xs font-medium text-ld-graphite m-0 truncate min-w-0">
               Bikin Portfolio QA Engineer-mu di <span className="font-bold">Mentor.QA</span>
             </p>
             <div className="flex items-center gap-3 shrink-0">

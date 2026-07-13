@@ -94,9 +94,9 @@ export interface BookingRulesDocument {
   updatedAt?: string;
 }
 
-// Admin-created booking record — MVP scope is admin-only CRUD (create/edit/
-// cancel), no public-facing booking persistence yet. Status is a one-way
-// state machine advanced by explicit admin actions:
+// Booking record — created either by an admin (BookingsTab) or self-serve by
+// a logged-in mentee (api/bookings/mine.ts). Status is a one-way state
+// machine advanced by explicit admin actions:
 //   booked -> confirmed -> completed
 //   booked | confirmed -> canceled
 export type BookingStatus = 'booked' | 'confirmed' | 'completed' | 'canceled';
@@ -114,11 +114,9 @@ export interface BookingConfig {
   status: BookingStatus;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface BookingsDocument {
-  bookings: BookingConfig[];
-  updatedAt?: string;
+  // Set for self-serve bookings created by a logged-in mentee; undefined for
+  // admin-created bookings (no owning account).
+  menteeUserId?: string;
 }
 
 export const WEEKDAYS = [

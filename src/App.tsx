@@ -1,26 +1,29 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 
-import PortfolioNavbar from './components/portfolio/Layout/Navbar';
-import PortfolioFooter from './components/portfolio/Layout/Footer';
-import LightdashNavbar from './components/portfolio/Layout/LightdashNavbar';
-import LightdashFooter from './components/portfolio/Layout/LightdashFooter';
-import PublicPortfolioNavbar from './components/portfolio/Layout/PublicPortfolioNavbar';
-import PublicPortfolioScrollBanner from './components/portfolio/Layout/PublicPortfolioScrollBanner';
-import PublicPortfolioFooter from './components/portfolio/Layout/PublicPortfolioFooter';
-import Seo from './components/portfolio/common/Seo';
-import LoadingState from './components/portfolio/common/LoadingState';
+import PortfolioNavbar from './features/personal-portfolio/components/Navbar';
+import PortfolioFooter from './features/personal-portfolio/components/Footer';
+import LightdashNavbar from './features/admin/components/shared/LightdashNavbar';
+import LightdashFooter from './features/admin/components/shared/LightdashFooter';
+import PublicPortfolioNavbar from './features/saas-portfolio/components/PublicPortfolioNavbar';
+import PublicPortfolioScrollBanner from './features/saas-portfolio/components/PublicPortfolioScrollBanner';
+import PublicPortfolioFooter from './features/saas-portfolio/components/PublicPortfolioFooter';
+import Seo from './components/common/Seo';
+import LoadingState from './components/common/LoadingState';
 
-const MentoringPage = lazy(() => import('./pages/portfolio/Mentoring/MentoringPage'));
-const PortfolioHome = lazy(() => import('./pages/portfolio/Home'));
-const PortfolioAbout = lazy(() => import('./pages/portfolio/About'));
-const PortfolioProjects = lazy(() => import('./pages/portfolio/Projects'));
-const PortfolioCertifications = lazy(() => import('./pages/portfolio/Certifications'));
-const PortfolioBookingPage = lazy(() => import('./pages/portfolio/Mentoring/BookingPage'));
-const MentorDetailPage = lazy(() => import('./pages/portfolio/Mentoring/MentorDetailPage'));
-const PublicPortfolioPage = lazy(() => import('./pages/portfolio/Mentoring/PublicPortfolioPage'));
-const AdminPage = lazy(() => import('./pages/portfolio/Mentoring/admin/AdminPage'));
-const NotFound = lazy(() => import('./pages/portfolio/NotFound'));
+const MentoringPage = lazy(() => import('./features/mentoring/pages/MentoringPage'));
+const PortfolioHome = lazy(() => import('./features/personal-portfolio/pages/Home'));
+const PortfolioAbout = lazy(() => import('./features/personal-portfolio/pages/About'));
+const PortfolioProjects = lazy(() => import('./features/personal-portfolio/pages/Projects'));
+const PortfolioCertifications = lazy(() => import('./features/personal-portfolio/pages/Certifications'));
+const PortfolioBookingPage = lazy(() => import('./features/mentoring/pages/BookingPage'));
+const MentorDetailPage = lazy(() => import('./features/mentoring/pages/MentorDetailPage'));
+const PortfolioLandingPage = lazy(() => import('./features/saas-portfolio/pages/PortfolioLandingPage'));
+const PublicPortfolioPage = lazy(() => import('./features/saas-portfolio/pages/PublicPortfolioPage'));
+const AdminPage = lazy(() => import('./features/admin/pages/AdminPage'));
+const LoginScreen = lazy(() => import('./features/admin/components/shared/LoginScreen'));
+const Snackbar = lazy(() => import('./features/admin/components/shared/Snackbar').then((m) => ({ default: m.Snackbar })));
+const NotFound = lazy(() => import('./components/NotFound'));
 
 const SAME_AS = [
   'https://linkedin.com/in/agus-budiman',
@@ -34,7 +37,7 @@ const personJsonLd = {
   name: 'Agus Budiman',
   jobTitle: 'QA Engineer',
   url: 'https://portfolio-qa-agus.vercel.app/personal-portfolio',
-  image: 'https://portfolio-qa-agus.vercel.app/img/profile/profile-agus.webp',
+  image: 'https://portfolio-qa-agus.vercel.app/personal-portfolio/img/profile/profile-agus.webp',
   sameAs: SAME_AS,
 };
 
@@ -52,6 +55,22 @@ const mentoringServiceJsonLd = {
   },
   areaServed: 'ID',
   url: 'https://portfolio-qa-agus.vercel.app/',
+};
+
+const portfolioPlatformJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Portfolio QA Engineer - Mentor.QA',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  description:
+    'Buat portfolio QA Engineer gratis: showcase proyek, sertifikasi, dan pengalaman kerja dengan link portfolio sendiri.',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'IDR',
+  },
+  url: 'https://portfolio-qa-agus.vercel.app/portfolio',
 };
 
 interface LayoutProps {
@@ -209,6 +228,20 @@ function App() {
           }
         />
         <Route
+          path="/portfolio"
+          element={
+            <LightdashLayout>
+              <Seo
+                path="/portfolio"
+                title="Buat Portfolio QA Engineer Gratis | Mentor.QA"
+                description="Buat portfolio QA Engineer gratis di Mentor.QA: showcase proyek, sertifikasi, dan pengalaman kerja dengan link portfolio sendiri. Untuk fresh graduate hingga QA berpengalaman."
+                jsonLd={portfolioPlatformJsonLd}
+              />
+              <PortfolioLandingPage />
+            </LightdashLayout>
+          }
+        />
+        <Route
           path="/portfolio/:slug"
           element={
             <PublicPortfolioLayout>
@@ -217,7 +250,22 @@ function App() {
           }
         />
         <Route
-          path="/dashboard"
+          path="/login"
+          element={
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
+              <Seo
+                path="/login"
+                title="Login | Mentor.QA"
+                description="Login ke dashboard admin Mentor.QA."
+                noindex
+              />
+              <LoginScreen />
+              <Snackbar />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/dashboard/*"
           element={
             <Suspense fallback={<LoadingState className="min-h-screen" />}>
               <Seo

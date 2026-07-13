@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
           >
             <div className="relative w-9 h-9 mr-2">
               <img
-                src="/img/profile/logo-portfolio.webp"
+                src="/personal-portfolio/img/profile/logo-portfolio.webp"
                 alt="Logo"
                 width={36}
                 height={36}
