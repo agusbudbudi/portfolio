@@ -9,6 +9,7 @@
     { "source": "/portfolio/mentoring/booking", "destination": "/mentoring/booking", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" },
     { "source": "/((?!api/|@|.*\\..*).*)", "destination": "/index.html" }
   ]
 }
