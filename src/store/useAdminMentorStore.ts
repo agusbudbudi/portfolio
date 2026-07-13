@@ -5,6 +5,7 @@ import {
   ApiError, ConflictError, type MentorWritePayload, UnauthorizedError,
 } from '../lib/adminApi';
 import { useAdminAuthStore } from './useAdminAuthStore';
+import { dedupeInFlight, type InFlightHolder } from '../lib/dedupeInFlight';
 
 export type ActionResult = { ok: boolean; reason?: string };
 
@@ -30,12 +31,14 @@ function requireToken(): string | null {
   return token;
 }
 
+const loadRef: InFlightHolder<void> = { promise: null, rerun: false };
+
 export const useAdminMentorStore = create<AdminMentorState>((set, get) => ({
   mentors: [],
   loading: true,
   loadError: null,
 
-  load: async () => {
+  load: () => dedupeInFlight(loadRef, async () => {
     set({ loading: true, loadError: null });
     try {
       const token = useAdminAuthStore.getState().token ?? undefined;
@@ -46,7 +49,7 @@ export const useAdminMentorStore = create<AdminMentorState>((set, get) => ({
     } finally {
       set({ loading: false });
     }
-  },
+  }),
 
   create: async (payload) => {
     const token = requireToken();

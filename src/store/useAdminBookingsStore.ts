@@ -5,6 +5,7 @@ import {
 } from '../lib/adminApi';
 import { ALLOWED_BOOKING_TRANSITIONS } from '../lib/configValidation';
 import { useAdminAuthStore } from './useAdminAuthStore';
+import { dedupeInFlight, type InFlightHolder } from '../lib/dedupeInFlight';
 
 const deepCopy = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 
@@ -21,12 +22,14 @@ interface AdminBookingsState {
   transitionBooking: (bookingId: string, newStatus: BookingStatus) => Promise<ActionResult>;
 }
 
+const loadRef: InFlightHolder<void> = { promise: null, rerun: false };
+
 export const useAdminBookingsStore = create<AdminBookingsState>((set, get) => ({
   bookings: [],
   loading: true,
   loadError: null,
 
-  load: async () => {
+  load: () => dedupeInFlight(loadRef, async () => {
     const token = useAdminAuthStore.getState().token;
     if (!token) {
       useAdminAuthStore.getState().logout();
@@ -45,7 +48,7 @@ export const useAdminBookingsStore = create<AdminBookingsState>((set, get) => ({
     } finally {
       set({ loading: false });
     }
-  },
+  }),
 
   create: async (booking) => {
     const token = useAdminAuthStore.getState().token;

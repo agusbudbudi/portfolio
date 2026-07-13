@@ -9,6 +9,7 @@ import { validateBookingRules, validateTopics } from '../lib/configValidation';
 import { invalidateConfigCache } from '../hooks/useConfig';
 import { useAdminAuthStore } from './useAdminAuthStore';
 import { useAdminMentorStore } from './useAdminMentorStore';
+import { dedupeInFlight, type InFlightHolder } from '../lib/dedupeInFlight';
 
 const deepCopy = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 
@@ -105,6 +106,8 @@ async function commitTopics(set: Setter, get: Getter, topics: TopicConfig[]): Pr
   }
 }
 
+const loadRef: InFlightHolder<void> = { promise: null, rerun: false };
+
 export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   topics: [],
   metadata: EMPTY_METADATA,
@@ -125,7 +128,7 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
   loading: true,
   loadError: null,
 
-  load: async () => {
+  load: () => dedupeInFlight(loadRef, async () => {
     set({ loading: true, loadError: null });
     try {
       const [topicsDoc, rulesDoc] = await Promise.all([
@@ -150,7 +153,7 @@ export const useAdminConfigStore = create<AdminConfigState>((set, get) => ({
     } finally {
       set({ loading: false });
     }
-  },
+  }),
 
   // ---- topics (save immediately on each action) ----
 

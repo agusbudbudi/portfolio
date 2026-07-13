@@ -3,6 +3,7 @@ import type { ToolConfig } from '../types/portfolio';
 import { apiGetTools, apiPutTools, ConflictError, UnauthorizedError } from '../lib/adminApi';
 import { validateTools } from '../lib/portfolioValidation';
 import { useAdminAuthStore } from './useAdminAuthStore';
+import { dedupeInFlight, type InFlightHolder } from '../lib/dedupeInFlight';
 
 const deepCopy = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 
@@ -54,13 +55,15 @@ async function commitTools(
   }
 }
 
+const loadRef: InFlightHolder<void> = { promise: null, rerun: false };
+
 export const useAdminToolsStore = create<AdminToolsState>((set, get) => ({
   tools: [],
   toolsUpdatedAt: undefined,
   loading: true,
   loadError: null,
 
-  load: async () => {
+  load: () => dedupeInFlight(loadRef, async () => {
     set({ loading: true, loadError: null });
     try {
       const doc = await apiGetTools();
@@ -70,7 +73,7 @@ export const useAdminToolsStore = create<AdminToolsState>((set, get) => ({
     } finally {
       set({ loading: false });
     }
-  },
+  }),
 
   upsertTool: async (tool) => {
     const stamped = { ...tool, updatedAt: new Date().toISOString() };
