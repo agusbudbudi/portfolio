@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { signSession } from './_lib/auth.js';
-import { upsertUserByGoogleSub } from './_lib/userStore.js';
+import { signSession } from '../_lib/auth.js';
+import { upsertUserByGoogleSub } from '../_lib/userStore.js';
 
 const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 const GOOGLE_ISSUERS = ['https://accounts.google.com', 'accounts.google.com'];

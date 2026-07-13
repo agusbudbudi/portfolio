@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Check, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useAdminConfigStore } from '../../../../store/useAdminConfigStore';
 import { useAdminMentorStore } from '../../../../store/useAdminMentorStore';
+import { useConfirmStore } from '../../../../store/useConfirmStore';
 import type { MentorConfig, MentorVerificationStatus } from '../../../../types/mentoring';
 import { usePagination } from '../../../../hooks/usePagination';
 import { sortByUpdatedAtDesc } from '../../../../lib/sortByUpdatedAt';
@@ -20,6 +21,7 @@ const STATUS_TONE: Record<MentorVerificationStatus, StatusBadgeTone> = {
 const MentorsTab: React.FC = () => {
   const { topics, availableDays } = useAdminConfigStore();
   const { mentors, loading, loadError, load, create, update, remove, review } = useAdminMentorStore();
+  const openConfirm = useConfirmStore((s) => s.open);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<MentorConfig | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -68,14 +70,22 @@ const MentorsTab: React.FC = () => {
     if (!result.ok) setReviewError(result.reason ?? 'Gagal memverifikasi mentor.');
   };
 
-  const handleReject = async (mentor: MentorConfig) => {
+  const handleReject = (mentor: MentorConfig) => {
     setReviewError(null);
-    const reason = window.prompt(`Alasan menolak "${mentor.name}":`);
-    if (!reason || !reason.trim()) return;
-    setReviewingId(mentor.id);
-    const result = await review(mentor.id, 'rejected', reason.trim());
-    setReviewingId(null);
-    if (!result.ok) setReviewError(result.reason ?? 'Gagal menolak mentor.');
+    openConfirm({
+      mode: 'reason',
+      variant: 'danger',
+      title: `Tolak "${mentor.name}"?`,
+      reasonLabel: 'Alasan menolak',
+      reasonPlaceholder: 'Tuliskan alasan penolakan…',
+      confirmLabel: 'Tolak Mentor',
+      onConfirm: async (reason) => {
+        setReviewingId(mentor.id);
+        const result = await review(mentor.id, 'rejected', reason);
+        setReviewingId(null);
+        if (!result.ok) setReviewError(result.reason ?? 'Gagal menolak mentor.');
+      },
+    });
   };
 
   return (

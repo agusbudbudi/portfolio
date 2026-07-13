@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { resolveAdminSession } from './_lib/auth.js';
-import { listUsers } from './_lib/userStore.js';
+import { resolveAdminSession } from '../_lib/auth.js';
+import { listUsers } from '../_lib/userStore.js';
 
 // User records carry PII (email, name, avatar) — admin-only, same gate as bookings.ts.
 async function handleGet(req: VercelRequest, res: VercelResponse) {

@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { resolveAdminSession } from './_lib/auth.js';
+import { resolveSession } from '../_lib/auth.js';
 
-// Admin-only: given an article URL, fetches the page server-side (avoids
-// browser CORS) and scrapes <head> meta tags for the Article preview card
-// (title/description/thumbnail/source) in the portfolio admin.
+// Any authenticated user: given an article URL, fetches the page server-side
+// (avoids browser CORS) and scrapes <head> meta tags for the Article preview
+// card (title/description/thumbnail/source) in the portfolio admin and member editor.
 const FETCH_TIMEOUT_MS = 8000;
 const MAX_HEAD_BYTES = 300 * 1024; // <head> is always well under this; caps a malicious/huge response
 
@@ -43,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'method_not_allowed' });
   }
 
-  if (!(await resolveAdminSession(req, res))) return;
+  if (!(await resolveSession(req, res))) return;
 
   const body = typeof req.body === 'object' && req.body !== null ? (req.body as Record<string, unknown>) : {};
   const { url } = body as { url?: unknown };

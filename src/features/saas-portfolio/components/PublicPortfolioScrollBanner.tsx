@@ -30,7 +30,7 @@ const PublicPortfolioScrollBanner: React.FC = () => {
           className="fixed top-16 left-0 w-full z-[999] bg-gradient-to-r from-ld-lilac/90 to-ld-canvas/90 backdrop-blur-md border-b border-ld-ash/20"
         >
           <Link
-            to="/"
+            to="/portfolio"
             className="max-w-[1200px] mx-auto px-4 sm:px-6 py-1.5 flex items-center justify-between flex-nowrap gap-2 no-underline"
           >
             <p className="text-xs font-medium text-ld-graphite m-0 truncate min-w-0">
