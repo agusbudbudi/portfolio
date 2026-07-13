@@ -5,42 +5,42 @@ const features = [
   {
     icon: FolderKanban,
     title: 'Showcase Proyek',
-    description: 'Tampilkan test case, automation script, atau proyek QA lain lengkap dengan deskripsi dan tools yang dipakai.',
+    description: 'Test case, automation script, dan proyek QA lengkap dengan tools yang dipakai.',
   },
   {
     icon: Award,
     title: 'Sertifikasi & Skill',
-    description: 'Pajang sertifikasi ISTQB, kursus, atau training yang sudah kamu selesaikan.',
+    description: 'Pajang sertifikasi ISTQB, kursus, dan training yang sudah kamu selesaikan.',
   },
   {
     icon: Briefcase,
     title: 'Pengalaman Kerja',
-    description: 'Timeline pengalaman kerja dan pendidikan, rapi dan mudah dibaca recruiter.',
+    description: 'Timeline kerja dan pendidikan, rapi dan mudah dibaca recruiter.',
   },
   {
     icon: Wrench,
     title: 'Tools & Teknologi',
-    description: 'Highlight tools yang kamu kuasai — Cypress, Postman, Selenium, JMeter, dan lainnya.',
+    description: 'Highlight tools yang kamu kuasai Cypress, Postman, Selenium, JMeter, dll.',
   },
   {
     icon: MessageSquareQuote,
     title: 'Endorsement',
-    description: 'Kumpulkan rekomendasi dari rekan kerja, mentor, atau atasan langsung di portfolio-mu.',
+    description: 'Rekomendasi dari rekan kerja, mentor, atau atasan langsung.',
   },
   {
     icon: Link2,
     title: 'Custom URL',
-    description: 'Link portfolio sendiri yang gampang dibagikan ke recruiter atau di CV kamu.',
+    description: 'Link portfolio sendiri, gampang dibagikan ke recruiter atau di CV.',
   },
   {
     icon: Search,
     title: 'SEO-Friendly',
-    description: 'Halaman portfolio dioptimasi supaya bisa muncul di hasil pencarian Google.',
+    description: 'Dioptimasi supaya portfolio-mu muncul di hasil pencarian Google.',
   },
   {
     icon: GraduationCap,
     title: 'Untuk Semua Level QA',
-    description: 'Fresh graduate yang baru masuk dunia kerja sampai QA berpengalaman, portfolio ini cocok buat semua.',
+    description: 'Cocok buat fresh graduate sampai QA berpengalaman.',
   },
 ];
 
@@ -53,7 +53,7 @@ const FeaturesSection: React.FC = () => {
             Semua yang Kamu Butuhkan dalam Satu Portfolio
           </h2>
           <p className="text-ld-slate max-w-xl mx-auto text-base leading-relaxed">
-            Bukan cuma CV digital — portfolio yang benar-benar menunjukkan cara kerja dan kemampuan QA-mu.
+            Bukan cuma CV digital - portfolio yang benar-benar menunjukkan cara kerja dan kemampuan QA-mu.
           </p>
         </div>
 

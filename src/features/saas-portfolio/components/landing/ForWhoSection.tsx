@@ -38,11 +38,11 @@ const ForWhoSection: React.FC = () => {
 
           <div className="space-y-4">
             {groups.map(({ label, title, points }) => (
-              <div key={label} className="rounded-xl bg-ld-canvas p-6 shadow-[0_20px_50px_rgba(30,27,75,0.25)]">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-ld-lilac text-ld-violet text-xs font-medium mb-4">
+              <div key={label} className="relative overflow-hidden rounded-xl bg-ld-canvas p-6 shadow-[0_20px_50px_rgba(30,27,75,0.25)]">
+                <span className="absolute top-0 right-0 px-2.5 py-1 rounded-bl-lg bg-ld-violet text-white text-[10px] font-medium uppercase tracking-wide">
                   {label}
                 </span>
-                <h3 className="font-ld-display font-semibold text-xl text-ld-graphite tracking-[-0.01em] mb-4">
+                <h3 className="font-ld-display font-semibold text-xl text-ld-graphite tracking-[-0.01em] mb-4 pr-16">
                   {title}
                 </h3>
                 <ul className="space-y-3 list-none p-0 m-0">
