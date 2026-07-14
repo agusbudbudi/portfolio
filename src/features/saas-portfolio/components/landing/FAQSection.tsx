@@ -4,28 +4,28 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
+    q: 'Apakah portfolio ini cocok untuk fresh graduate yang belum punya pengalaman kerja?',
+    a: 'Tentu bisa. Portfolio tetap bisa diisi dengan capstone project, automation practice, API testing, atau project bootcamp — recruiter lebih peduli pada bukti kerja nyata daripada status pengalaman.',
+  },
+  {
     q: 'Apakah benar-benar gratis?',
     a: 'Ya, membuat dan mempublikasikan portfolio QA di Mentor.QA sepenuhnya gratis, tanpa biaya tersembunyi.',
   },
   {
-    q: 'Siapa yang bisa membuat portfolio di sini?',
-    a: 'Siapa saja yang login dengan akun Google — fresh graduate yang baru masuk dunia kerja, QA yang lagi belajar, sampai QA berpengalaman dan praktisi.',
+    q: 'Bagaimana kalau saya belum pernah membuat automation?',
+    a: 'Tidak masalah. Kamu bisa mulai dari manual testing dan test case yang sudah pernah kamu kerjakan — automation bisa ditambahkan belakangan begitu kamu mulai belajar.',
   },
   {
-    q: 'Apakah saya mendapat link portfolio sendiri?',
-    a: 'Ya, portfolio kamu akan punya URL sendiri (mentor.qa/portfolio/nama-kamu) yang bisa dibagikan ke recruiter atau dilampirkan di CV.',
+    q: 'Apakah project dari bootcamp boleh dimasukkan ke portfolio?',
+    a: 'Boleh banget. Project bootcamp, capstone, atau latihan pribadi tetap valid ditampilkan, selama menunjukkan proses dan hasil kerjamu sebagai QA.',
   },
   {
     q: 'Perlu skill desain atau coding untuk membuatnya?',
     a: 'Tidak perlu. Kamu cukup mengisi profil, proyek, sertifikasi, dan pengalaman kerja — tampilan portfolio sudah didesain untuk kamu.',
   },
   {
-    q: 'Apakah portfolio saya bisa muncul di pencarian Google?',
-    a: 'Ya, setiap halaman portfolio dioptimasi SEO supaya lebih mudah ditemukan lewat pencarian Google.',
-  },
-  {
-    q: 'Bagaimana kalau saya ingin update data setelah publish?',
-    a: 'Kamu bisa memperbarui profil, proyek, atau pengalaman kerja kapan saja setelah login.',
+    q: 'Berapa lama waktu yang dibutuhkan untuk membuat portfolio?',
+    a: 'Sekitar 5-10 menit kalau data profil, proyek, dan sertifikasimu sudah siap. Kamu juga bisa simpan draft dan lanjutkan kapan saja.',
   },
 ];
 

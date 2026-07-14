@@ -1,20 +1,20 @@
 import React from 'react';
-import { ArrowRight, LogIn, PenLine, Share2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const steps = [
   {
-    icon: LogIn,
+    icon: '/saas-portfolio/img/portfolio-public/login.png',
     title: 'Login dengan Google',
     description: 'Masuk pakai akun Google, gratis dan langsung bisa dipakai.',
   },
   {
-    icon: PenLine,
+    icon: '/saas-portfolio/img/portfolio-public/fill-portfolio.png',
     title: 'Isi Profil & Proyek',
     description: 'Lengkapi profil, proyek, sertifikasi, dan pengalaman kerjamu.',
   },
   {
-    icon: Share2,
+    icon: '/saas-portfolio/img/portfolio-public/share.png',
     title: 'Publish & Bagikan Link',
     description: 'Portfolio langsung online dengan link sendiri, siap dibagikan.',
   },
@@ -22,7 +22,7 @@ const steps = [
 
 const HowItWorksSection: React.FC = () => {
   return (
-    <section id="how-it-works" className="py-8 md:py-20 bg-ld-cloud font-ld-sans">
+    <section id="how-it-works" className="py-8 md:py-20 bg-ld-canvas font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 sm:mb-14">
           <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
@@ -37,11 +37,11 @@ const HowItWorksSection: React.FC = () => {
           <div className="hidden md:block absolute top-10 left-[calc(16.667%+3.083rem)] right-[calc(50%+3.75rem)] h-px z-0 bg-ld-ash" />
           <div className="hidden md:block absolute top-10 left-[calc(50%+3.75rem)] right-[calc(16.667%+3.083rem)] h-px z-0 bg-ld-ash" />
 
-          {steps.map(({ icon: Icon, title, description }, idx) => (
+          {steps.map(({ icon, title, description }, idx) => (
             <div key={title} className="relative z-10 flex flex-col items-center text-center">
               <div className="relative z-10 mb-5">
-                <div className="w-20 h-20 rounded-xl flex items-center justify-center bg-ld-lilac border border-ld-ash/60">
-                  <Icon size={28} className="text-ld-violet" />
+                <div className="w-20 h-20 rounded-xl flex items-center justify-center bg-white border-2 border-blue-600 shadow-[4px_4px_0_0_#2563eb]">
+                  <img src={icon} alt="" className="w-11 h-11 object-contain" />
                 </div>
                 <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ld-canvas border border-ld-ash text-xs font-medium text-ld-slate flex items-center justify-center">
                   {idx + 1}

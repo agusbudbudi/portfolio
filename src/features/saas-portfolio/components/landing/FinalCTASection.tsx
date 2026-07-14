@@ -13,8 +13,8 @@ const FinalCTASection: React.FC = () => {
               Gratis Selamanya
             </div>
 
-            <h2 className="font-ld-display font-semibold text-2xl sm:text-4xl lg:text-5xl text-white tracking-[-0.025em] leading-[1.02] mb-4 whitespace-nowrap">
-              Siap Punya Portfolio QA Sendiri?
+            <h2 className="font-ld-display font-semibold text-2xl sm:text-4xl lg:text-5xl text-white tracking-[-0.025em] leading-[1.02] mb-4">
+              Siap Mendapatkan Interview QA Berikutnya?
             </h2>
             <p className="text-ld-fog text-base sm:text-lg mb-8 leading-relaxed max-w-lg mx-auto">
               Login dengan Google dan mulai bangun portfolio yang menunjukkan kemampuanmu sebagai QA Engineer.
