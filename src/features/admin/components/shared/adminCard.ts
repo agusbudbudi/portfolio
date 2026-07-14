@@ -2,7 +2,7 @@
 // screen owns its own bg-white/border/rounded card instead of relying on a
 // shared padded wrapper in AdminDashboard, so a form's header can sit flush
 // against the card edge without fighting outer padding.
-export const ADMIN_CARD = 'bg-white rounded-xl border border-ld-frost/70 overflow-hidden';
+export const ADMIN_CARD = 'bg-white rounded-xl border border-ld-frost/70 overflow-hidden shadow-[0_4px_18px_rgba(30,27,75,0.035)]';
 export const ADMIN_CARD_HEADER = 'flex items-center gap-3 px-4 md:px-6 py-4 border-b border-ld-frost/60';
 export const ADMIN_CARD_BODY = 'p-4 md:p-6';
 

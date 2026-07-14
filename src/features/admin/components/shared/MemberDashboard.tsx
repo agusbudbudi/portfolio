@@ -121,10 +121,15 @@ const MemberDashboard: React.FC = () => {
     portfolio, loading: portfolioLoading, loadError: portfolioLoadError,
     load: loadPortfolio, create: createPortfolio, update: updatePortfolio,
   } = usePortfolioProfileStore();
+  const portfolioPercent = portfolio
+    ? Math.round((countCompletedPortfolioSections(portfolio.data) / PORTFOLIO_SECTION_COUNT) * 100)
+    : null;
+  const showMentorNudge = portfolioPercent !== null && portfolioPercent < 80;
   const {
     bookings: myBookings, loading: bookingsLoading, loadError: bookingsLoadError,
     load: loadBookings, create: createBooking, cancel: cancelBooking,
   } = useBookingProfileStore();
+  const activeBooking = myBookings.find((b) => b.status === 'booked' || b.status === 'confirmed') ?? myBookings[0] ?? null;
   const {
     bookings: assignedBookings, loading: assignedLoading, loadError: assignedLoadError,
     load: loadAssigned, transition: transitionAssigned,
@@ -1011,39 +1016,113 @@ const MemberDashboard: React.FC = () => {
           {activeNav === 'home' && (
             <div className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5 mb-4 md:mb-5">
-                <button
-                  onClick={() => { navigate(navPath('booking')); if (myBookings.length === 0) setBookingFormOpen(true); }}
-                  className="group relative overflow-hidden rounded-xl border border-ld-frost/60 bg-white p-5 cursor-pointer text-left transition-all duration-300 hover:shadow-md hover:border-ld-violet hover:-translate-y-0.5"
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => { navigate(navPath('portfolios')); if (!portfolio) setPortfolioFormOpen(true); }}
+                  onKeyDown={(e) => {
+                    if (e.key !== 'Enter' && e.key !== ' ') return;
+                    e.preventDefault();
+                    navigate(navPath('portfolios'));
+                    if (!portfolio) setPortfolioFormOpen(true);
+                  }}
+                  className={`group relative overflow-hidden rounded-xl border border-ld-frost/60 bg-white p-5 cursor-pointer text-left shadow-[0_4px_18px_rgba(30,27,75,0.035)] transition-all duration-300 hover:shadow-md hover:border-ld-violet hover:-translate-y-0.5 ${showMentorNudge ? 'pb-14' : ''}`}
                 >
                   <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-ld-lilac/5 group-hover:bg-ld-lilac/10 transition-colors" />
                   <div className="flex items-start gap-4 relative z-10">
-                    <div className="flex items-center justify-center w-11 h-11 rounded-lg bg-ld-lilac/40 text-ld-violet shrink-0 group-hover:bg-ld-violet group-hover:text-white transition-all duration-300">
-                      <CalendarCheck size={22} />
-                    </div>
+                    {portfolio && portfolioPercent !== null ? (
+                      <div className="relative w-11 h-11 shrink-0">
+                        <svg viewBox="0 0 44 44" className="w-11 h-11 -rotate-90">
+                          <circle cx="22" cy="22" r="18" fill="none" strokeWidth="4" className="stroke-ld-frost" />
+                          <circle
+                            cx="22" cy="22" r="18" fill="none" strokeWidth="4" strokeLinecap="round"
+                            className="stroke-ld-violet transition-all duration-500"
+                            strokeDasharray={2 * Math.PI * 18}
+                            strokeDashoffset={2 * Math.PI * 18 * (1 - portfolioPercent / 100)}
+                          />
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-ld-violet">
+                          {portfolioPercent}%
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center w-11 h-11 shrink-0">
+                        <img src="/admin/img/portfolio.png" alt="" className="w-11 h-11 object-contain" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
-                      <p className="m-0 text-sm font-bold text-ld-onyx tracking-wide group-hover:text-ld-violet transition-colors">Booking Mentoring</p>
-                      <p className="m-0 mt-1 text-xs text-ld-fog leading-relaxed">Jadwalkan sesi 1:1 dengan mentor.</p>
+                      <p className="m-0 text-sm font-bold text-ld-onyx tracking-wide group-hover:text-ld-violet transition-colors">Portfolio QA</p>
+                      <p className="m-0 mt-1 text-xs text-ld-fog leading-relaxed">
+                        {!portfolio
+                          ? 'Buat portfolio QA kamu.'
+                          : portfolioPercent === 100
+                            ? 'Portfolio kamu udah lengkap.'
+                            : `${portfolioPercent}% lengkap — yuk tambahin detailnya.`}
+                      </p>
                       <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-ld-violet">
-                        Mulai Booking <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
+                        {portfolio ? 'Kelola Portfolio' : 'Buat Sekarang'} <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
                       </span>
                     </div>
                   </div>
-                </button>
+
+                  {showMentorNudge && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); navigate('/mentoring/booking'); }}
+                      className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between gap-2 px-4 py-2.5 bg-gradient-to-r from-ld-violet to-[#1f87e6] text-white border-none cursor-pointer rounded-b-lg hover:brightness-110 transition-[filter]"
+                    >
+                      <span className="text-[11px] font-medium leading-tight text-left">Biar makin siap, minta mentor review portfoliomu</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold shrink-0">
+                        Minta Review <ArrowRight size={12} />
+                      </span>
+                    </button>
+                  )}
+                </div>
 
                 <button
-                  onClick={() => { navigate(navPath('portfolios')); if (!portfolio) setPortfolioFormOpen(true); }}
-                  className="group relative overflow-hidden rounded-xl border border-ld-frost/60 bg-white p-5 cursor-pointer text-left transition-all duration-300 hover:shadow-md hover:border-ld-violet hover:-translate-y-0.5"
+                  onClick={() => {
+                    navigate(navPath('booking'));
+                    if (activeBooking) setBookingDetailId(activeBooking.id);
+                    else setBookingFormOpen(true);
+                  }}
+                  className="group relative overflow-hidden rounded-xl border border-ld-frost/60 bg-white p-5 cursor-pointer text-left shadow-[0_4px_18px_rgba(30,27,75,0.035)] transition-all duration-300 hover:shadow-md hover:border-ld-violet hover:-translate-y-0.5"
                 >
                   <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-ld-lilac/5 group-hover:bg-ld-lilac/10 transition-colors" />
                   <div className="flex items-start gap-4 relative z-10">
-                    <div className="flex items-center justify-center w-11 h-11 rounded-lg bg-ld-lilac/40 text-ld-violet shrink-0 group-hover:bg-ld-violet group-hover:text-white transition-all duration-300">
-                      <UserSquare2 size={22} />
-                    </div>
+                    {activeBooking ? (
+                      <img
+                        src={mentorAvatar(activeBooking.mentorId) || DEFAULT_MENTOR_AVATAR}
+                        alt={mentorName(activeBooking.mentorId)}
+                        width={44}
+                        height={44}
+                        className="w-11 h-11 rounded-lg object-cover shrink-0"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center w-11 h-11 shrink-0">
+                        <img src="/admin/img/booking.png" alt="" className="w-11 h-11 object-contain" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
-                      <p className="m-0 text-sm font-bold text-ld-onyx tracking-wide group-hover:text-ld-violet transition-colors">Portfolio QA</p>
-                      <p className="m-0 mt-1 text-xs text-ld-fog leading-relaxed">{portfolio ? 'Kelola portfolio kamu.' : 'Buat portfolio QA kamu.'}</p>
+                      {activeBooking ? (
+                        <>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="m-0 text-sm font-bold text-ld-onyx tracking-wide truncate group-hover:text-ld-violet transition-colors">Booking Mentoring</p>
+                            <StatusBadge tone={BOOKING_STATUS_TONE[activeBooking.status]} className="shrink-0">
+                              {BOOKING_STATUS_LABEL[activeBooking.status]}
+                            </StatusBadge>
+                          </div>
+                          <p className="m-0 text-xs text-ld-fog leading-relaxed truncate">
+                            {mentorName(activeBooking.mentorId)} · {formatDateLabel(parseDateId(activeBooking.date))} · {activeBooking.time} WIB
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="m-0 text-sm font-bold text-ld-onyx tracking-wide group-hover:text-ld-violet transition-colors">Booking Mentoring</p>
+                          <p className="m-0 mt-1 text-xs text-ld-fog leading-relaxed">Jadwalkan sesi 1:1 dengan mentor.</p>
+                        </>
+                      )}
                       <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-ld-violet">
-                        {portfolio ? 'Kelola Portfolio' : 'Buat Sekarang'} <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
+                        {activeBooking ? 'Lihat Detail' : 'Mulai Booking'} <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
                       </span>
                     </div>
                   </div>
