@@ -1,8 +1,8 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-const SITE_URL = 'https://portfolio-qa-agus.vercel.app';
-const DEFAULT_OG_IMAGE = `${SITE_URL}/personal-portfolio/img/profile/profile-agus.webp`;
+const SITE_URL = 'https://www.mentorqa.com';
+const DEFAULT_OG_IMAGE = `${SITE_URL}/shared/img/DEFAULT_OG_IMAGE.png`;
 
 interface SeoProps {
   title: string;

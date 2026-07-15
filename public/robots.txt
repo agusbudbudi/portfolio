@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /dashboard
 
-Sitemap: https://portfolio-qa-agus.vercel.app/sitemap.xml
+Sitemap: https://www.mentorqa.com/sitemap.xml

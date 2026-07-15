@@ -76,7 +76,7 @@ const MentorDetailPage: React.FC = () => {
     <div className="font-ld-sans pb-12">
       <Seo
         path={`/mentor/${mentor.id}`}
-        title={`${mentor.name} - Mentor QA | Agus Budiman`}
+        title={`${mentor.name} - Mentor QA | Mentor.QA`}
         description={mentor.bio}
       />
 

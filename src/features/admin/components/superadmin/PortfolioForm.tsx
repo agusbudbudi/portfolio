@@ -57,14 +57,14 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
   const [data, setData] = useState<PortfolioData>(
     record
       ? {
-          ...emptyData,
-          ...record.data,
-          education: record.data.education ?? [],
-          certifications: record.data.certifications ?? [],
-          articles: record.data.articles ?? [],
-          cta: record.data.cta ?? emptyData.cta,
-          githubActivity: record.data.githubActivity ?? emptyData.githubActivity,
-        }
+        ...emptyData,
+        ...record.data,
+        education: record.data.education ?? [],
+        certifications: record.data.certifications ?? [],
+        articles: record.data.articles ?? [],
+        cta: record.data.cta ?? emptyData.cta,
+        githubActivity: record.data.githubActivity ?? emptyData.githubActivity,
+      }
       : emptyData
   );
   const [slug, setSlug] = useState(record?.slug ?? '');
@@ -470,7 +470,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
                 type="text"
                 value={data.githubActivity.username}
                 onChange={(e) => setData({ ...data, githubActivity: { ...data.githubActivity, username: e.target.value.trim() } })}
-                placeholder="agusbudbudi"
+                placeholder="username"
                 className={inputClass}
               />
             </FormField>

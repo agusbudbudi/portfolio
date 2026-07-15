@@ -12,7 +12,7 @@ import { listMentors } from '../_lib/mentorStore.js';
 import { listPortfolios } from '../_lib/portfolioStore.js';
 import type { MentoringConfig } from '../../src/types/mentoring';
 
-const SITE_URL = 'https://portfolio-qa-agus.vercel.app';
+const SITE_URL = 'https://www.mentorqa.com';
 
 interface UrlEntry {
   loc: string;

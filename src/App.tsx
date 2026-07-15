@@ -49,8 +49,8 @@ const personJsonLd = {
   '@type': 'Person',
   name: 'Agus Budiman',
   jobTitle: 'QA Engineer',
-  url: 'https://portfolio-qa-agus.vercel.app/personal-portfolio',
-  image: 'https://portfolio-qa-agus.vercel.app/personal-portfolio/img/profile/profile-agus.webp',
+  url: 'https://www.mentorqa.com/personal-portfolio',
+  image: 'https://www.mentorqa.com/personal-portfolio/img/profile/profile-agus.webp',
   sameAs: SAME_AS,
 };
 
@@ -62,12 +62,12 @@ const mentoringServiceJsonLd = {
   description:
     'Mentoring dan kursus QA online 1-on-1 bersama praktisi QA Engineer berpengalaman 6+ tahun: manual testing, automation testing, API testing.',
   provider: {
-    '@type': 'Person',
-    name: 'Agus Budiman',
+    '@type': 'Organization',
+    name: 'Mentor.QA',
     sameAs: SAME_AS,
   },
   areaServed: 'ID',
-  url: 'https://portfolio-qa-agus.vercel.app/',
+  url: 'https://www.mentorqa.com/',
 };
 
 const portfolioPlatformJsonLd = {
@@ -83,7 +83,7 @@ const portfolioPlatformJsonLd = {
     price: '0',
     priceCurrency: 'IDR',
   },
-  url: 'https://portfolio-qa-agus.vercel.app/portfolio',
+  url: 'https://www.mentorqa.com/portfolio',
 };
 
 interface LayoutProps {
@@ -157,8 +157,8 @@ function App() {
             <LightdashLayout>
               <Seo
                 path="/"
-                title="Mentoring QA & Kursus QA Online 1-on-1 | Agus Budiman"
-                description="Mentoring QA Engineer 1-on-1 bareng praktisi 6+ tahun pengalaman. Kursus QA online: manual testing, automation testing Cypress, API testing. Booking sesi mentor QA sekarang."
+                title="Mentoring QA & Kursus QA Online 1-on-1 | Mentor.QA"
+                description="Mentoring QA Engineer 1-on-1 bareng praktisi 6+ tahun pengalaman. Kursus manual testing, automation testing, API testing. Booking sesi mentor sekarang."
                 jsonLd={mentoringServiceJsonLd}
               />
               <MentoringPage />
@@ -171,8 +171,8 @@ function App() {
             <PortfolioLayout>
               <Seo
                 path="/personal-portfolio"
-                title="Portfolio QA Engineer - Agus Budiman | Automation & Manual Testing"
-                description="Portfolio QA Engineer Agus Budiman: 6+ tahun pengalaman automation testing, manual testing, dan API testing. Lihat proyek, skill, dan pengalaman kerja QA Engineer."
+                title="Agus Budiman | Portfolio QA Engineer & Automation Testing"
+                description="Portfolio QA Engineer Agus Budiman: 6+ tahun pengalaman automation testing, manual testing, dan API testing. Lihat proyek, skill, dan pengalaman kerja."
                 jsonLd={personJsonLd}
               />
               <PortfolioHome />
@@ -225,7 +225,7 @@ function App() {
             <LightdashLayout>
               <Seo
                 path="/mentoring/booking"
-                title="Booking Mentoring QA - Pilih Mentor & Jadwal | Agus Budiman"
+                title="Booking Mentoring QA - Pilih Mentor & Jadwal | Mentor.QA"
                 description="Booking sesi mentoring QA 1-on-1. Pilih topik, mentor QA berpengalaman, dan jadwal yang sesuai untuk kelas atau kursus QA kamu."
                 jsonLd={mentoringServiceJsonLd}
               />
@@ -248,7 +248,7 @@ function App() {
               <Seo
                 path="/portfolio"
                 title="Buat Portfolio QA Engineer Gratis | Mentor.QA"
-                description="Buat portfolio QA Engineer gratis di Mentor.QA: showcase proyek, sertifikasi, dan pengalaman kerja dengan link portfolio sendiri. Untuk fresh graduate hingga QA berpengalaman."
+                description="Buat portfolio QA Engineer gratis di Mentor.QA: showcase proyek, sertifikasi, dan pengalaman kerja pakai link sendiri. Cocok fresh graduate sampai QA senior."
                 jsonLd={portfolioPlatformJsonLd}
               />
               <PortfolioLandingPage />
@@ -305,8 +305,8 @@ function App() {
             <LightdashLayout>
               <Seo
                 path="/404"
-                title="Halaman Tidak Ditemukan | Agus Budiman"
-                description="Halaman yang kamu cari tidak ditemukan. Kembali ke halaman utama Agus Budiman, QA Engineer."
+                title="Halaman Tidak Ditemukan | Mentor.QA"
+                description="Halaman yang kamu cari tidak ditemukan. Kembali ke halaman utama Mentor.QA, platform mentoring dan portfolio QA Engineer."
               />
               <NotFound />
             </LightdashLayout>

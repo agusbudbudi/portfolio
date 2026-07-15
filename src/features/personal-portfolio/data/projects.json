@@ -9,11 +9,26 @@
     "icon": "uil-flask",
     "link": "https://testgen-diri.vercel.app/generate",
     "tools": [
-      { "name": "HTML", "src": "/personal-portfolio/img/tools/html-logo.webp" },
-      { "name": "CSS", "src": "/personal-portfolio/img/tools/css-logo.webp" },
-      { "name": "JavaScript", "src": "/personal-portfolio/img/tools/javascript-logo.webp" },
-      { "name": "Github Pages", "src": "/personal-portfolio/img/tools/github-pages-logo.webp" },
-      { "name": "Open AI", "src": "/personal-portfolio/img/tools/open-ai-logo.webp" }
+      {
+        "name": "HTML",
+        "src": "/personal-portfolio/img/tools/html-logo.webp"
+      },
+      {
+        "name": "CSS",
+        "src": "/personal-portfolio/img/tools/css-logo.webp"
+      },
+      {
+        "name": "JavaScript",
+        "src": "/personal-portfolio/img/tools/javascript-logo.webp"
+      },
+      {
+        "name": "Github Pages",
+        "src": "/personal-portfolio/img/tools/github-pages-logo.webp"
+      },
+      {
+        "name": "Open AI",
+        "src": "/personal-portfolio/img/tools/open-ai-logo.webp"
+      }
     ]
   },
   {
@@ -27,11 +42,26 @@
     "link": "#",
     "isPopup": true,
     "tools": [
-      { "name": "Cypress", "src": "/personal-portfolio/img/tools/cypress-logo.svg" },
-      { "name": "Allure", "src": "/personal-portfolio/img/tools/allure-logo.webp" },
-      { "name": "Google Chat", "src": "/personal-portfolio/img/tools/google-chat-logo.webp" },
-      { "name": "JavaScript", "src": "/personal-portfolio/img/tools/javascript-logo.webp" },
-      { "name": "Webhooks", "src": "/personal-portfolio/img/tools/webhooks-logo.webp" }
+      {
+        "name": "Cypress",
+        "src": "/personal-portfolio/img/tools/cypress-logo.svg"
+      },
+      {
+        "name": "Allure",
+        "src": "/personal-portfolio/img/tools/allure-logo.webp"
+      },
+      {
+        "name": "Google Chat",
+        "src": "/personal-portfolio/img/tools/google-chat-logo.webp"
+      },
+      {
+        "name": "JavaScript",
+        "src": "/personal-portfolio/img/tools/javascript-logo.webp"
+      },
+      {
+        "name": "Webhooks",
+        "src": "/personal-portfolio/img/tools/webhooks-logo.webp"
+      }
     ]
   },
   {
@@ -44,11 +74,26 @@
     "icon": "uil-bill",
     "link": "https://splitbill-alpha.vercel.app/",
     "tools": [
-      { "name": "HTML", "src": "/personal-portfolio/img/tools/html-logo.webp" },
-      { "name": "CSS", "src": "/personal-portfolio/img/tools/css-logo.webp" },
-      { "name": "JavaScript", "src": "/personal-portfolio/img/tools/javascript-logo.webp" },
-      { "name": "Vercel", "src": "/personal-portfolio/img/tools/vercel-logo.svg" },
-      { "name": "GitHub", "src": "/personal-portfolio/img/tools/github-logo.webp" }
+      {
+        "name": "HTML",
+        "src": "/personal-portfolio/img/tools/html-logo.webp"
+      },
+      {
+        "name": "CSS",
+        "src": "/personal-portfolio/img/tools/css-logo.webp"
+      },
+      {
+        "name": "JavaScript",
+        "src": "/personal-portfolio/img/tools/javascript-logo.webp"
+      },
+      {
+        "name": "Vercel",
+        "src": "/personal-portfolio/img/tools/vercel-logo.svg"
+      },
+      {
+        "name": "GitHub",
+        "src": "/personal-portfolio/img/tools/github-logo.webp"
+      }
     ]
   },
   {
@@ -59,13 +104,28 @@
     "detail-project": "### Overview\nA premium personal portfolio designed to showcase professional achievements, technical skills, and a collection of impactful QA projects.\n\n### Key Features\n*   **Dynamic Theme**: Seamless switching between light and dark modes.\n*   **Interactive Modals**: Detailed project views with rich text support.\n*   **Responsive Layout**: Fully optimized for desktop, tablet, and mobile views.\n\n### Design Principles\nFocuses on clean typography, smooth transitions, and a 'quality-first' aesthetic that reflects my professional background.",
     "image": "/personal-portfolio/img/banner/portfolio-banner.webp",
     "icon": "uil-briefcase-alt",
-    "link": "https://portfolio-qa-agus.vercel.app/",
+    "link": "https://www.mentorqa.com/",
     "tools": [
-      { "name": "HTML", "src": "/personal-portfolio/img/tools/html-logo.webp" },
-      { "name": "CSS", "src": "/personal-portfolio/img/tools/css-logo.webp" },
-      { "name": "JavaScript", "src": "/personal-portfolio/img/tools/javascript-logo.webp" },
-      { "name": "Github Pages", "src": "/personal-portfolio/img/tools/github-pages-logo.webp" },
-      { "name": "GitHub", "src": "/personal-portfolio/img/tools/github-logo.webp" }
+      {
+        "name": "HTML",
+        "src": "/personal-portfolio/img/tools/html-logo.webp"
+      },
+      {
+        "name": "CSS",
+        "src": "/personal-portfolio/img/tools/css-logo.webp"
+      },
+      {
+        "name": "JavaScript",
+        "src": "/personal-portfolio/img/tools/javascript-logo.webp"
+      },
+      {
+        "name": "Github Pages",
+        "src": "/personal-portfolio/img/tools/github-pages-logo.webp"
+      },
+      {
+        "name": "GitHub",
+        "src": "/personal-portfolio/img/tools/github-logo.webp"
+      }
     ]
   },
   {
@@ -78,10 +138,22 @@
     "icon": "uil-camera-rps",
     "link": "https://gousstudio.vercel.app/",
     "tools": [
-      { "name": "React", "src": "/personal-portfolio/img/tools/react-logo.webp" },
-      { "name": "Tailwind", "src": "/personal-portfolio/img/tools/tailwind-logo.webp" },
-      { "name": "Vercel", "src": "/personal-portfolio/img/tools/vercel-logo.svg" },
-      { "name": "GitHub", "src": "/personal-portfolio/img/tools/github-logo.webp" }
+      {
+        "name": "React",
+        "src": "/personal-portfolio/img/tools/react-logo.webp"
+      },
+      {
+        "name": "Tailwind",
+        "src": "/personal-portfolio/img/tools/tailwind-logo.webp"
+      },
+      {
+        "name": "Vercel",
+        "src": "/personal-portfolio/img/tools/vercel-logo.svg"
+      },
+      {
+        "name": "GitHub",
+        "src": "/personal-portfolio/img/tools/github-logo.webp"
+      }
     ]
   }
 ]

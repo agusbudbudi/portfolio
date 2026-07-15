@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { BlobError, put } from '@vercel/blob';
 import { resolveSession } from '../_lib/auth.js';
+import { checkRateLimit } from '../_lib/rateLimit.js';
 
 // File upload for the portfolio/mentor feature (profile photo, tool logo,
 // project thumbnail, endorsement photo, CV). Any authenticated account can
@@ -12,6 +13,7 @@ import { resolveSession } from '../_lib/auth.js';
 // Vercel's ~4.5MB serverless body limit at the 2MB pre-encode cap below.
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'application/pdf']);
+const UPLOAD_RATE_LIMIT = { maxAttempts: 30, windowMs: 60 * 60 * 1000 };
 
 // Blob key prefix per feature. Uploads are grouped by the uploading
 // account's email (not the record owner's — admin-on-behalf-of uploads land
@@ -36,6 +38,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!session) return;
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return res.status(500).json({ error: 'server_not_configured', message: 'BLOB_READ_WRITE_TOKEN env var is not set.' });
+  }
+
+  const allowed = await checkRateLimit(`upload:${session.userId}`, UPLOAD_RATE_LIMIT.maxAttempts, UPLOAD_RATE_LIMIT.windowMs);
+  if (!allowed) {
+    return res.status(429).json({ error: 'rate_limited', message: 'Terlalu banyak upload. Coba lagi nanti.' });
   }
 
   const body = typeof req.body === 'object' && req.body !== null ? (req.body as Record<string, unknown>) : {};
