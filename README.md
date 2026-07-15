@@ -4,7 +4,7 @@
 
 A modern, responsive personal portfolio website built with **React + TypeScript + Vite**, showcasing my experience, projects, skills, and certifications as a QA Engineer.
 
-🌐 **Live Site:** [portfolio-qa-agus.vercel.app](https://portfolio-qa-agus.vercel.app/) 
+🌐 **Live Site:** [www.mentorqa.com](https://www.mentorqa.com/) 
 
 ---
 

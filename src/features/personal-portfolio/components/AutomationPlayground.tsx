@@ -11,7 +11,7 @@ interface LogEntry {
 const SIMULATION_STEPS: Omit<LogEntry, 'id' | 'timestamp'>[] = [
   { text: 'Initializing test runner (Cypress v13.0)...', type: 'info' },
   { text: 'Connecting to browser: Chrome 124...', type: 'info' },
-  { text: 'Visiting: https://portfolio-qa-agus.vercel.app', type: 'info' },
+  { text: 'Visiting: https://www.mentorqa.com', type: 'info' },
   { text: 'PASS: Navigation to Homepage', type: 'pass' },
   { text: 'PASS: Hero section visibility check', type: 'pass' },
   { text: 'PASS: Responsive menu toggle (Mobile)', type: 'pass' },
