@@ -7,7 +7,7 @@ import {
   DEFAULT_SECTION_ORDER, PROJECT_PLATFORM_OPTIONS, PROJECT_TYPE_OPTIONS, SKILL_LEVEL_OPTIONS, WORK_ARRANGEMENT_OPTIONS,
   type EmploymentType, type PortfolioData, type PortfolioSectionId, type PortfolioStatus,
   type SkillConfig, type SkillLevel, type ToolConfig, type WorkArrangement,
-} from '../types/portfolio';
+} from '../types/portfolio.js';
 
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export const GITHUB_USERNAME_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/;
