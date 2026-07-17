@@ -5,7 +5,7 @@ import SectionHeading from '../../../../components/common/SectionHeading';
 import EndorsementCard from './EndorsementCard';
 
 const EndorsementsSection: React.FC<{ endorsements: EndorsementEntry[] }> = ({ endorsements }) => (
-  <section>
+  <section className="mb-14">
     <SectionHeading
       icon={<Quote size={20} />}
       iconClassName="bg-blue-500/10 text-blue-500"

@@ -5,7 +5,7 @@ import type { CertificationEntry } from '../../../../types/portfolio';
 import SectionHeading from '../../../../components/common/SectionHeading';
 
 const CertificationsSection: React.FC<{ certifications: CertificationEntry[] }> = ({ certifications }) => (
-  <section className="mt-14">
+  <section className="mb-14">
     <SectionHeading
       icon={<Award size={20} />}
       iconClassName="bg-emerald-500/10 text-emerald-600"

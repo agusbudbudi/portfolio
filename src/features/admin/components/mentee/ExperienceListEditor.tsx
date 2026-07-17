@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import type { EmploymentType, ExperienceEntry } from '../../../../types/portfolio';
+import { WORK_ARRANGEMENT_OPTIONS, type EmploymentType, type ExperienceEntry, type WorkArrangement } from '../../../../types/portfolio';
 import ImageUploadField from '../superadmin/ImageUploadField';
 import FormField from '../shared/FormField';
 import { ADD_ITEM_BUTTON } from '../shared/adminCard';
@@ -28,6 +28,8 @@ const emptyEntry = (): ExperienceEntry => ({
   companyLogo: '',
   position: '',
   employmentType: 'full-time',
+  workArrangement: undefined,
+  location: '',
   jobDesc: '',
   startDate: '',
   endDate: '',
@@ -81,6 +83,27 @@ const ExperienceListEditor: React.FC<ExperienceListEditorProps> = ({ experience,
                     <option key={value} value={value}>{label}</option>
                   ))}
                 </select>
+              </FormField>
+              <FormField label="Working Arrangement (opsional)" compact>
+                <select
+                  value={entry.workArrangement ?? ''}
+                  onChange={(e) => update(entry.id, { workArrangement: (e.target.value || undefined) as WorkArrangement | undefined })}
+                  className={inputClass}
+                >
+                  <option value="">—</option>
+                  {WORK_ARRANGEMENT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </FormField>
+              <FormField label="Lokasi (opsional)" compact>
+                <input
+                  type="text"
+                  value={entry.location ?? ''}
+                  onChange={(e) => update(entry.id, { location: e.target.value })}
+                  placeholder="Jakarta, Indonesia"
+                  className={inputClass}
+                />
               </FormField>
               <FormField label="Mulai (bulan-tahun)" required compact error={submitted && !entry.startDate.trim() ? 'Tanggal mulai wajib diisi.' : null}>
                 <input type="month" value={entry.startDate} onChange={(e) => update(entry.id, { startDate: e.target.value })} className={inputClass} />

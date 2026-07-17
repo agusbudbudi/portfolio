@@ -14,7 +14,7 @@ const GithubActivitySection: React.FC<{ username: string }> = ({ username }) => 
   const languageIcons = useThesvgIcons(stats?.topLanguages.map((l) => l.name) ?? []);
 
   return (
-    <section className="mt-14">
+    <section className="mb-14">
       <SectionHeading
         icon={<Github size={20} />}
         iconClassName="bg-ld-graphite/10 text-ld-graphite"

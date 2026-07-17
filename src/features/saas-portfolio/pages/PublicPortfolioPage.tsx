@@ -10,15 +10,19 @@ import BioAndToolsPanel from '../components/public-profile/BioAndToolsPanel';
 import ExperienceSection from '../components/public-profile/ExperienceSection';
 import EducationSection from '../components/public-profile/EducationSection';
 import ProjectsSection from '../components/public-profile/ProjectsSection';
+import SkillsSection from '../components/public-profile/SkillsSection';
+import QaDeliverablesSection from '../components/public-profile/QaDeliverablesSection';
 import EndorsementsSection from '../components/public-profile/EndorsementsSection';
 import CertificationsSection from '../components/public-profile/CertificationsSection';
 import ArticlesSection from '../components/public-profile/ArticlesSection';
 import GithubActivitySection from '../components/public-profile/GithubActivitySection';
+import GithubReposSection from '../components/public-profile/GithubReposSection';
 import CtaSection from '../components/public-profile/CtaSection';
-import type { ToolConfig } from '../../../types/portfolio';
+import { normalizeSectionOrder } from '../../../lib/portfolioValidation';
+import type { PortfolioSectionId, SkillLevel, ToolConfig } from '../../../types/portfolio';
 
 const PortfolioContent: React.FC<{ slug: string | undefined }> = ({ slug }) => {
-  const { portfolio, tools, loading, notFound, error, retry } = usePortfolio(slug);
+  const { portfolio, tools, skills, loading, notFound, error, retry } = usePortfolio(slug);
 
   if (loading) return <LoadingState className="min-h-[60vh] pt-16" />;
 
@@ -54,6 +58,7 @@ const PortfolioContent: React.FC<{ slug: string | undefined }> = ({ slug }) => {
 
   const { profile, experience, projects, endorsements, socials } = portfolio.data;
   const education = portfolio.data.education ?? [];
+  const skillEntries = portfolio.data.skillEntries ?? [];
   const articles = portfolio.data.articles ?? [];
   const certifications = portfolio.data.certifications ?? [];
   const cta = portfolio.data.cta;
@@ -66,6 +71,16 @@ const PortfolioContent: React.FC<{ slug: string | undefined }> = ({ slug }) => {
   const hasCertifications = certifications.length > 0;
   const hasProjects = projects.length > 0;
   const hasEndorsements = endorsements.length > 0;
+  const qaDeliverables = portfolio.data.qaDeliverables;
+  const hasQaDeliverables = Boolean(qaDeliverables?.items.length);
+  const skillById = new Map(skills.map((s) => [s.id, s]));
+  const portfolioSkills = skillEntries
+    .map((entry) => {
+      const skill = skillById.get(entry.skillId);
+      return skill ? { ...skill, level: entry.level } : null;
+    })
+    .filter((s): s is (typeof skills)[number] & { level: SkillLevel } => Boolean(s));
+  const hasSkills = portfolioSkills.length > 0;
 
   const socialLinks: { key: string; href: string; icon: React.ReactNode; label: string }[] = [];
   if (socials.linkedin) socialLinks.push({ key: 'linkedin', href: socials.linkedin, icon: <Linkedin size={16} />, label: 'LinkedIn' });
@@ -79,6 +94,41 @@ const PortfolioContent: React.FC<{ slug: string | undefined }> = ({ slug }) => {
     .map((id) => toolById.get(id))
     .filter((t): t is ToolConfig => Boolean(t));
 
+  const githubUsername = portfolio.data.githubActivity?.showActivity ? portfolio.data.githubActivity.username : undefined;
+  const hasGithubActivity = Boolean(githubUsername);
+  const githubRepos = portfolio.data.githubRepos ?? [];
+  const hasGithubRepos = githubRepos.length > 0;
+  const sectionVisible: Record<PortfolioSectionId, boolean> = {
+    experience: hasExperience,
+    education: hasEducation,
+    skills: hasSkills,
+    projects: hasProjects,
+    qaDeliverables: hasQaDeliverables,
+    endorsements: hasEndorsements,
+    certifications: hasCertifications,
+    articles: hasArticles,
+    githubActivity: hasGithubActivity,
+    githubRepos: hasGithubRepos,
+  };
+  // flushBottom lets two adjacent full-bleed ("banded") sections sit with no
+  // gap so their colored backgrounds merge into one continuous band instead
+  // of showing a white seam — computed against the *visible* sequence so a
+  // hidden section in between doesn't falsely break the adjacency.
+  const BANDED_SECTIONS = new Set<PortfolioSectionId>(['skills', 'projects']);
+  const sectionRenderers: Record<PortfolioSectionId, (flushBottom: boolean) => React.ReactNode> = {
+    experience: () => <ExperienceSection key="experience" experience={experience} />,
+    education: () => <EducationSection key="education" education={education} />,
+    skills: (flushBottom) => <SkillsSection key="skills" skills={portfolioSkills} flushBottom={flushBottom} />,
+    projects: (flushBottom) => <ProjectsSection key="projects" projects={projects} toolById={toolById} flushBottom={flushBottom} />,
+    qaDeliverables: () => qaDeliverables && <QaDeliverablesSection key="qaDeliverables" qaDeliverables={qaDeliverables} />,
+    endorsements: () => <EndorsementsSection key="endorsements" endorsements={endorsements} />,
+    certifications: () => <CertificationsSection key="certifications" certifications={certifications} />,
+    articles: () => <ArticlesSection key="articles" articles={articles} />,
+    githubActivity: () => githubUsername && <GithubActivitySection key="githubActivity" username={githubUsername} />,
+    githubRepos: () => <GithubReposSection key="githubRepos" repos={githubRepos} />,
+  };
+  const visibleSectionOrder = normalizeSectionOrder(portfolio.data.sectionOrder).filter((id) => sectionVisible[id]);
+
   return (
     <div className="font-ld-sans bg-ld-canvas">
       <Seo
@@ -88,21 +138,16 @@ const PortfolioContent: React.FC<{ slug: string | undefined }> = ({ slug }) => {
         image={profile.photo}
       />
 
-      <ProfileHeroBand profile={profile} whatsapp={socials.whatsapp} socialLinks={socialLinks} />
+      <ProfileHeroBand profile={profile} availability={portfolio.data.availability} whatsapp={socials.whatsapp} socialLinks={socialLinks} />
 
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-8 pb-16">
-        <BioAndToolsPanel bio={profile.bio} tools={usedTools} />
+        <BioAndToolsPanel bio={profile.bio} availability={portfolio.data.availability} tools={usedTools} />
 
-        {hasExperience && <ExperienceSection experience={experience} />}
-        {hasEducation && <EducationSection education={education} />}
-        {hasProjects && <ProjectsSection projects={projects} toolById={toolById} />}
-        {hasEndorsements && <EndorsementsSection endorsements={endorsements} />}
-        {hasCertifications && <CertificationsSection certifications={certifications} />}
-        {hasArticles && <ArticlesSection articles={articles} />}
-
-        {portfolio.data.githubActivity?.showActivity && portfolio.data.githubActivity.username && (
-          <GithubActivitySection username={portfolio.data.githubActivity.username} />
-        )}
+        {visibleSectionOrder.map((id, i) => {
+          const next = visibleSectionOrder[i + 1];
+          const flushBottom = BANDED_SECTIONS.has(id) && next !== undefined && BANDED_SECTIONS.has(next);
+          return sectionRenderers[id](flushBottom);
+        })}
       </div>
 
       {hasCta && cta && (

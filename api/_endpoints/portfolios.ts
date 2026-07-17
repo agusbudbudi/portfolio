@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import {
   isResourceOwner, requireOwnerOrAdmin, requireSession, resolveAdminSession, resolveSession,
 } from '../_lib/auth.js';
-import { readTools } from '../_lib/configStore.js';
+import { readSkills, readTools } from '../_lib/configStore.js';
 import {
   createPortfolio, deletePortfolio, isSlugTaken, readPortfolioByOwnerId, readPortfolioBySlug, updatePortfolio,
 } from '../_lib/portfolioStore.js';
@@ -71,7 +71,9 @@ async function handleMinePost(req: VercelRequest, res: VercelResponse) {
 
   const { tools } = await readTools();
   const validToolIds = new Set(tools.map((t) => t.id));
-  const result = validatePortfolioData(body.data, validToolIds);
+  const { skills } = await readSkills();
+  const validSkillIds = new Set(skills.map((s) => s.id));
+  const result = validatePortfolioData(body.data, validToolIds, validSkillIds);
   if (!result.ok) {
     return res.status(400).json({ error: 'invalid_portfolio', errors: result.errors });
   }
@@ -166,7 +168,9 @@ async function handleSlugPut(req: VercelRequest, res: VercelResponse, currentSlu
 
   const { tools } = await readTools();
   const validToolIds = new Set(tools.map((t) => t.id));
-  const result = validatePortfolioData(body.data, validToolIds);
+  const { skills } = await readSkills();
+  const validSkillIds = new Set(skills.map((s) => s.id));
+  const result = validatePortfolioData(body.data, validToolIds, validSkillIds);
   if (!result.ok) {
     return res.status(400).json({ error: 'invalid_portfolio', errors: result.errors });
   }

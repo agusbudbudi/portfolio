@@ -7,13 +7,13 @@ const EndorsementCard: React.FC<{
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-ld-canvas border border-ld-ash rounded-xl p-4 sm:p-8 flex flex-col gap-6 transition-shadow hover:shadow-ld-subtle-3">
-      <div className="flex items-center gap-5">
-        <div className="relative w-[60px] h-[60px] min-w-[60px] rounded-xl border-2 border-ld-canvas shadow-ld-subtle-2 bg-ld-cloud flex items-center justify-center overflow-hidden">
+    <div className="bg-ld-canvas border border-ld-ash rounded-xl p-4 sm:p-5 flex flex-col gap-3 transition-shadow hover:shadow-ld-subtle-3">
+      <div className="flex items-center gap-3">
+        <div className="relative w-[44px] h-[44px] min-w-[44px] rounded-xl border-2 border-ld-canvas shadow-ld-subtle-2 bg-ld-cloud flex items-center justify-center overflow-hidden">
           {photo ? (
             <img src={photo} alt={name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
           ) : (
-            <User size={22} className="text-ld-mist" />
+            <User size={18} className="text-ld-mist" />
           )}
         </div>
         <div className="flex flex-col gap-0.5">
@@ -35,7 +35,7 @@ const EndorsementCard: React.FC<{
         </div>
         {message.length > 200 && (
           <button
-            className="mt-3 bg-transparent border-none text-ld-violet font-medium text-xs cursor-pointer p-0 hover:opacity-75 transition-opacity"
+            className="mt-1.5 bg-transparent border-none text-ld-violet font-medium text-xs cursor-pointer p-0 hover:opacity-75 transition-opacity"
             onClick={() => setExpanded((v) => !v)}
           >
             {expanded ? 'Sembunyikan' : 'Baca Selengkapnya'}

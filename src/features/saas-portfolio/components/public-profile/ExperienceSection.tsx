@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Briefcase, ChevronDown, ChevronUp } from 'lucide-react';
+import { Briefcase, ChevronDown, ChevronUp, MapPin } from 'lucide-react';
 import { EMPLOYMENT_TYPE_LABEL, formatDuration, formatMonth } from '../../../../lib/portfolioFormat';
-import type { ExperienceEntry } from '../../../../types/portfolio';
+import { WORK_ARRANGEMENT_OPTIONS, type ExperienceEntry } from '../../../../types/portfolio';
 import SectionHeading from '../../../../components/common/SectionHeading';
 import TimelineRail from './TimelineRail';
+
+const WORK_ARRANGEMENT_LABEL = Object.fromEntries(WORK_ARRANGEMENT_OPTIONS.map((o) => [o.value, o.label]));
 
 const ExperienceSection: React.FC<{ experience: ExperienceEntry[] }> = ({ experience }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -20,6 +22,10 @@ const ExperienceSection: React.FC<{ experience: ExperienceEntry[] }> = ({ experi
       <div className="flex flex-col relative">
         {experience.map((entry, index) => {
           const duration = formatDuration(entry.startDate, entry.endDate, entry.isCurrent);
+          const typeArrangement = [
+            entry.employmentType && EMPLOYMENT_TYPE_LABEL[entry.employmentType],
+            entry.workArrangement && WORK_ARRANGEMENT_LABEL[entry.workArrangement],
+          ].filter(Boolean).join(' · ');
           return (
             <TimelineRail
               key={entry.id}
@@ -44,8 +50,15 @@ const ExperienceSection: React.FC<{ experience: ExperienceEntry[] }> = ({ experi
                       )}
                     </div>
                     <h4 className="text-sm font-medium text-ld-violet m-0">{entry.position}</h4>
-                    {entry.employmentType && (
-                      <span className="text-xs text-ld-fog">{EMPLOYMENT_TYPE_LABEL[entry.employmentType]}</span>
+                    {(typeArrangement || entry.location) && (
+                      <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 text-xs text-ld-fog">
+                        {typeArrangement && <span>{typeArrangement}</span>}
+                        {entry.location && (
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin size={11} /> {entry.location}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
