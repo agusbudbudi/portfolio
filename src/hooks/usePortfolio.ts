@@ -1,11 +1,12 @@
 // usePortfolio – loads a published mentee portfolio by slug plus the shared
 // tools catalog (for project tool badges), for the public /portfolio/:slug page.
 import { useEffect, useState } from 'react';
-import type { PortfolioRecord, ToolConfig } from '../types/portfolio';
+import type { PortfolioRecord, SkillConfig, ToolConfig } from '../types/portfolio';
 
 interface UsePortfolioReturn {
   portfolio: PortfolioRecord | null;
   tools: ToolConfig[];
+  skills: SkillConfig[];
   loading: boolean;
   notFound: boolean;
   error: string | null;
@@ -15,6 +16,7 @@ interface UsePortfolioReturn {
 export function usePortfolio(slug: string | undefined): UsePortfolioReturn {
   const [portfolio, setPortfolio] = useState<PortfolioRecord | null>(null);
   const [tools, setTools] = useState<ToolConfig[]>([]);
+  const [skills, setSkills] = useState<SkillConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,8 +30,9 @@ export function usePortfolio(slug: string | undefined): UsePortfolioReturn {
     Promise.all([
       fetch(`/api/portfolios/${encodeURIComponent(slug)}`),
       fetch('/api/admin-config/tools'),
+      fetch('/api/admin-config/skills'),
     ])
-      .then(async ([portfolioRes, toolsRes]) => {
+      .then(async ([portfolioRes, toolsRes, skillsRes]) => {
         if (cancelled) return;
         if (portfolioRes.status === 404) {
           setNotFound(true);
@@ -39,8 +42,10 @@ export function usePortfolio(slug: string | undefined): UsePortfolioReturn {
 
         const record = (await portfolioRes.json()) as PortfolioRecord;
         const toolsDoc = toolsRes.ok ? await toolsRes.json() : { tools: [] };
+        const skillsDoc = skillsRes.ok ? await skillsRes.json() : { skills: [] };
         setPortfolio(record);
         setTools(Array.isArray(toolsDoc.tools) ? toolsDoc.tools : []);
+        setSkills(Array.isArray(skillsDoc.skills) ? skillsDoc.skills : []);
       })
       .catch((err) => {
         if (!cancelled) {
@@ -62,5 +67,5 @@ export function usePortfolio(slug: string | undefined): UsePortfolioReturn {
     setRetryCount((c) => c + 1);
   };
 
-  return { portfolio, tools, loading, notFound, error, retry };
+  return { portfolio, tools, skills, loading, notFound, error, retry };
 }

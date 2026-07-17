@@ -1,17 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft, BadgeCheck, CheckCircle2, ExternalLink, Loader2, XCircle,
-  UserCircle2, Briefcase, GraduationCap, Award, FolderKanban, Quote, Newspaper, Share2, MousePointerClick, Github,
+  UserCircle2, Briefcase, GraduationCap, Award, FolderKanban, Sparkles, FileCheck2, Quote, Newspaper, Share2, MousePointerClick, Github, FolderGit2, ListOrdered, CalendarClock,
 } from 'lucide-react';
-import type { PortfolioData, PortfolioRecord, PortfolioStatus, ToolConfig } from '../../../../types/portfolio';
+import type {
+  PortfolioData, PortfolioRecord, PortfolioStatus, SkillConfig, ToolConfig,
+} from '../../../../types/portfolio';
+import { QA_DELIVERABLES_DEFAULT_TITLE, QA_DELIVERABLES_DEFAULT_SUBTITLE, DEFAULT_SECTION_ORDER } from '../../../../types/portfolio';
 import { apiCheckSlug } from '../../../../lib/adminApi';
-import { slugify, isValidSlug, GITHUB_USERNAME_RE } from '../../../../lib/portfolioValidation';
+import { slugify, isValidSlug, GITHUB_USERNAME_RE, GITHUB_REPO_URL_RE, normalizeSectionOrder } from '../../../../lib/portfolioValidation';
 import ImageUploadField from './ImageUploadField';
 import CvUploadField from '../mentee/CvUploadField';
+import AvailabilityField from '../mentee/AvailabilityField';
 import AccordionSection from '../shared/AccordionSection';
 import ExperienceListEditor from '../mentee/ExperienceListEditor';
 import EducationListEditor from '../mentee/EducationListEditor';
 import ProjectListEditor from '../mentee/ProjectListEditor';
+import PortfolioSkillsField from '../mentee/PortfolioSkillsField';
+import QaDeliverablesEditor from '../mentee/QaDeliverablesEditor';
+import GithubRepoListEditor from '../mentee/GithubRepoListEditor';
+import SectionOrderEditor from '../mentee/SectionOrderEditor';
 import EndorsementListEditor from '../mentee/EndorsementListEditor';
 import CertificationListEditor from '../mentee/CertificationListEditor';
 import ArticleListEditor from '../mentee/ArticleListEditor';
@@ -24,6 +32,7 @@ interface PortfolioFormProps {
   onSubmit: (payload: { slug: string; status: PortfolioStatus; data: PortfolioData }) => Promise<{ ok: boolean; reason?: string }>;
   record: PortfolioRecord | null; // null = create
   tools: ToolConfig[];
+  skills: SkillConfig[];
   canVerify?: boolean; // admin-only — server also enforces this, see api/portfolios/[slug].ts
 }
 
@@ -39,31 +48,41 @@ const STATUS_TONE: Record<PortfolioStatus, StatusBadgeTone> = {
 
 const emptyData: PortfolioData = {
   profile: { photo: '', name: '', bio: '', role: '', yearsOfExperience: undefined },
+  availability: { showOpenToWork: false, showPreferences: false, noticePeriod: '', employmentTypes: [], workArrangements: [], location: '' },
   experience: [],
   education: [],
   projects: [],
+  skillEntries: [],
+  qaDeliverables: { title: QA_DELIVERABLES_DEFAULT_TITLE, subtitle: QA_DELIVERABLES_DEFAULT_SUBTITLE, items: [] },
   endorsements: [],
   certifications: [],
   articles: [],
   socials: { linkedin: '', github: '', whatsapp: '', email: '', portfolioUrl: '' },
   cta: { title: '', description: '', showViewCv: false, showConnectLinkedin: false },
   githubActivity: { username: '', showActivity: false },
+  githubRepos: [],
+  sectionOrder: [...DEFAULT_SECTION_ORDER],
 };
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
-const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record, tools, canVerify = false }) => {
+const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record, tools, skills, canVerify = false }) => {
   const isEdit = record !== null;
   const [data, setData] = useState<PortfolioData>(
     record
       ? {
         ...emptyData,
         ...record.data,
+        availability: record.data.availability ?? emptyData.availability,
         education: record.data.education ?? [],
+        skillEntries: record.data.skillEntries ?? [],
+        qaDeliverables: record.data.qaDeliverables ?? emptyData.qaDeliverables,
         certifications: record.data.certifications ?? [],
         articles: record.data.articles ?? [],
         cta: record.data.cta ?? emptyData.cta,
         githubActivity: record.data.githubActivity ?? emptyData.githubActivity,
+        githubRepos: record.data.githubRepos ?? [],
+        sectionOrder: normalizeSectionOrder(record.data.sectionOrder),
       }
       : emptyData
   );
@@ -121,7 +140,10 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
     if (data.education.some((e) => !e.institution.trim() || !e.degree.trim() || !e.startDate.trim() || (!e.isCurrent && !e.endDate?.trim()))) {
       return;
     }
-    if (data.projects.some((p) => !p.name.trim() || !p.description.trim() || (p.projectUrl?.trim() && !URL_RE.test(p.projectUrl.trim())))) {
+    if (data.projects.some((p) =>
+      !p.name.trim() || !p.description.trim() || (p.projectUrl?.trim() && !URL_RE.test(p.projectUrl.trim())) ||
+      p.platforms?.some((pl) => pl.url?.trim() && !URL_RE.test(pl.url.trim()))
+    )) {
       return;
     }
     if (data.endorsements.some((e) => !e.name.trim() || !e.relation.trim() || !e.message.trim() || (e.linkedinUrl?.trim() && !URL_RE.test(e.linkedinUrl.trim())))) {
@@ -133,6 +155,12 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
     if (data.articles.some((a) => !a.title.trim() || !URL_RE.test(a.url.trim()))) {
       return;
     }
+    if (
+      !data.qaDeliverables.title.trim() || !data.qaDeliverables.subtitle.trim() ||
+      data.qaDeliverables.items.some((d) => !d.title.trim() || !URL_RE.test(d.url.trim()))
+    ) {
+      return;
+    }
     const ctaActive = data.cta.showViewCv || data.cta.showConnectLinkedin;
     if (ctaActive && (!data.cta.title.trim() || !data.cta.description.trim())) {
       return;
@@ -141,6 +169,9 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
       return;
     }
     if (data.githubActivity.showActivity && !GITHUB_USERNAME_RE.test(data.githubActivity.username.trim())) {
+      return;
+    }
+    if (data.githubRepos.some((r) => !GITHUB_REPO_URL_RE.test(r.url.trim()))) {
       return;
     }
     setError(null);
@@ -190,7 +221,8 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
     !e.institution.trim() || !e.degree.trim() || !e.startDate.trim() || (!e.isCurrent && !e.endDate?.trim())
   );
   const projectHasError = submitted && data.projects.some((p) =>
-    !p.name.trim() || !p.description.trim() || Boolean(p.projectUrl?.trim() && !URL_RE.test(p.projectUrl.trim()))
+    !p.name.trim() || !p.description.trim() || Boolean(p.projectUrl?.trim() && !URL_RE.test(p.projectUrl.trim())) ||
+    Boolean(p.platforms?.some((pl) => pl.url?.trim() && !URL_RE.test(pl.url.trim())))
   );
   const endorsementHasError = submitted && data.endorsements.some((e) =>
     !e.name.trim() || !e.relation.trim() || !e.message.trim() || Boolean(e.linkedinUrl?.trim() && !URL_RE.test(e.linkedinUrl.trim()))
@@ -199,9 +231,14 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
     !c.name.trim() || !c.issuer.trim() || !c.issueDate.trim() || Boolean(c.credentialUrl?.trim() && !URL_RE.test(c.credentialUrl.trim()))
   );
   const articleHasError = submitted && data.articles.some((a) => !a.title.trim() || !URL_RE.test(a.url.trim()));
+  const qaDeliverablesHasError = submitted && (
+    !data.qaDeliverables.title.trim() || !data.qaDeliverables.subtitle.trim() ||
+    data.qaDeliverables.items.some((d) => !d.title.trim() || !URL_RE.test(d.url.trim()))
+  );
   const ctaHasError = submitted && ctaActive && (!data.cta.title.trim() || !data.cta.description.trim());
   const socialHasError = submitted && data.cta.showConnectLinkedin && !data.socials.linkedin?.trim();
   const githubActivityHasError = submitted && data.githubActivity.showActivity && !GITHUB_USERNAME_RE.test(data.githubActivity.username.trim());
+  const githubReposHasError = submitted && data.githubRepos.some((r) => !GITHUB_REPO_URL_RE.test(r.url.trim()));
 
   // On a failed submit, force open every section with an invalid field and
   // scroll to the topmost one — double rAF so this runs after the accordion
@@ -212,7 +249,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
     const hasAnyError =
       profileHasError || experienceHasError || educationHasError || projectHasError ||
       endorsementHasError || certificationHasError || articleHasError || ctaHasError || socialHasError ||
-      githubActivityHasError;
+      githubActivityHasError || githubReposHasError;
     if (!hasAnyError) return;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -345,6 +382,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
           </div>
         </AccordionSection>
 
+        <AccordionSection title="Availability & Work Preference" icon={CalendarClock}>
+          <AvailabilityField
+            value={data.availability}
+            onChange={(availability) => setData({ ...data, availability })}
+          />
+        </AccordionSection>
+
         <AccordionSection title="Experience" icon={Briefcase} badge={data.experience.length} hasError={experienceHasError} errorSignal={submitAttempt}>
           <ExperienceListEditor
             experience={data.experience}
@@ -367,6 +411,28 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
             tools={tools}
             onChange={(projects) => setData({ ...data, projects })}
             submitted={submitted}
+          />
+        </AccordionSection>
+
+        <AccordionSection
+          title="QA Documentation & Deliverables"
+          icon={FileCheck2}
+          badge={data.qaDeliverables.items.length}
+          hasError={qaDeliverablesHasError}
+          errorSignal={submitAttempt}
+        >
+          <QaDeliverablesEditor
+            value={data.qaDeliverables}
+            onChange={(qaDeliverables) => setData({ ...data, qaDeliverables })}
+            submitted={submitted}
+          />
+        </AccordionSection>
+
+        <AccordionSection title="Skills" icon={Sparkles} badge={data.skillEntries.length} errorSignal={submitAttempt}>
+          <PortfolioSkillsField
+            allSkills={skills}
+            entries={data.skillEntries}
+            onChange={(skillEntries) => setData({ ...data, skillEntries })}
           />
         </AccordionSection>
 
@@ -477,6 +543,20 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
           </div>
         </AccordionSection>
 
+        <AccordionSection
+          title="GitHub Repos"
+          icon={FolderGit2}
+          badge={data.githubRepos.length}
+          hasError={githubReposHasError}
+          errorSignal={submitAttempt}
+        >
+          <GithubRepoListEditor
+            repos={data.githubRepos}
+            onChange={(githubRepos) => setData({ ...data, githubRepos })}
+            submitted={submitted}
+          />
+        </AccordionSection>
+
         <AccordionSection title="CTA" icon={MousePointerClick} hasError={ctaHasError} errorSignal={submitAttempt}>
           <div className="grid grid-cols-1 gap-y-4">
             <FormField label="Judul" required={ctaActive} error={submitted && ctaActive && !data.cta.title.trim() ? 'Judul CTA wajib diisi.' : null}>
@@ -515,6 +595,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
               <span className="text-xs text-ld-graphite">Tampilkan tombol Connect LinkedIn</span>
             </label>
           </div>
+        </AccordionSection>
+
+        <AccordionSection title="Configuration Order" icon={ListOrdered}>
+          <SectionOrderEditor
+            order={data.sectionOrder}
+            onChange={(sectionOrder) => setData({ ...data, sectionOrder })}
+          />
         </AccordionSection>
 
         {error && <p className="text-sm text-red-500 m-0">{error}</p>}

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { resolveAdminSession } from './_lib/auth.js';
-import { readTools } from './_lib/configStore.js';
+import { readSkills, readTools } from './_lib/configStore.js';
 import { createPortfolio, isSlugTaken, listPortfolios } from './_lib/portfolioStore.js';
 import { isValidSlug, validatePortfolioData, validatePortfolioStatus } from '../src/lib/portfolioValidation.js';
 
@@ -32,7 +32,9 @@ async function handlePost(req: VercelRequest, res: VercelResponse) {
 
   const { tools } = await readTools();
   const validToolIds = new Set(tools.map((t) => t.id));
-  const result = validatePortfolioData(body.data, validToolIds);
+  const { skills } = await readSkills();
+  const validSkillIds = new Set(skills.map((s) => s.id));
+  const result = validatePortfolioData(body.data, validToolIds, validSkillIds);
   if (!result.ok) {
     return res.status(400).json({ error: 'invalid_portfolio', errors: result.errors });
   }

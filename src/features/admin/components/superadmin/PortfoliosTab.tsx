@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useAdminPortfolioStore } from '../../../../store/useAdminPortfolioStore';
 import { useAdminToolsStore } from '../../../../store/useAdminToolsStore';
+import { useAdminSkillsStore } from '../../../../store/useAdminSkillsStore';
 import type { PortfolioSummary } from '../../../../types/portfolio';
 import { usePagination } from '../../../../hooks/usePagination';
 import { sortByUpdatedAtDesc } from '../../../../lib/sortByUpdatedAt';
@@ -21,6 +22,7 @@ const PortfoliosTab: React.FC = () => {
     portfolios, loading, loadError, load, current, currentLoading, loadOne, clearCurrent, create, update, remove,
   } = useAdminPortfolioStore();
   const { tools, load: loadTools } = useAdminToolsStore();
+  const { skills, load: loadSkills } = useAdminSkillsStore();
   const [formOpen, setFormOpen] = useState(false);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ const PortfoliosTab: React.FC = () => {
   const sorted = sortByUpdatedAtDesc(portfolios);
   const { page, setPage, totalPages, pageItems: pagedPortfolios } = usePagination(sorted);
 
-  useEffect(() => { load(); loadTools(); }, [load, loadTools]);
+  useEffect(() => { load(); loadTools(); loadSkills(); }, [load, loadTools, loadSkills]);
 
   const openCreate = () => { clearCurrent(); setMode('create'); setFormOpen(true); };
   const openEdit = async (slug: string) => {
@@ -61,6 +63,7 @@ const PortfoliosTab: React.FC = () => {
         onSubmit={(payload) => (mode === 'edit' && current ? update(current.slug, payload) : create(payload))}
         record={mode === 'edit' ? current : null}
         tools={tools}
+        skills={skills}
         canVerify
       />
     );

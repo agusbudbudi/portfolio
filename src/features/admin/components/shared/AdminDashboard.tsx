@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   RefreshCw,
   Users, BookOpen, SlidersHorizontal, CalendarCheck, Menu, X,
-  UserSquare2, Wrench, LayoutDashboard, UserCog,
+  UserSquare2, Wrench, LayoutDashboard, UserCog, Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
@@ -20,10 +20,11 @@ import MentorsTab from '../mentor/MentorsTab';
 import BookingsTab from '../superadmin/BookingsTab';
 import PortfoliosTab from '../superadmin/PortfoliosTab';
 import ToolsTab from '../superadmin/ToolsTab';
+import SkillsTab from '../superadmin/SkillsTab';
 import UsersTab from '../superadmin/UsersTab';
 import ProfileMenu from './ProfileMenu';
 
-type NavId = 'home' | 'bookings' | 'mentors' | 'users' | 'topics' | 'rules' | 'portfolios' | 'tools';
+type NavId = 'home' | 'bookings' | 'mentors' | 'users' | 'topics' | 'rules' | 'portfolios' | 'tools' | 'skills';
 
 interface NavItem {
   id: NavId;
@@ -74,6 +75,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'topics', label: 'Topics', description: 'Topik sesi mentoring', icon: BookOpen },
       { id: 'tools', label: 'Tools', description: 'Master tools untuk project portfolio', icon: Wrench },
+      { id: 'skills', label: 'Skills', description: 'Master skill untuk portfolio mentee', icon: Sparkles },
       { id: 'rules', label: 'Booking Rules', description: 'Hari aktif, aturan & batasan booking', icon: SlidersHorizontal },
     ],
   },
@@ -96,7 +98,7 @@ const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const activeNav: NavId = (() => {
     const seg = location.pathname.replace(/^\/dashboard\/?/, '').split('/')[0];
-    const validIds: NavId[] = ['bookings', 'mentors', 'users', 'topics', 'rules', 'portfolios', 'tools'];
+    const validIds: NavId[] = ['bookings', 'mentors', 'users', 'topics', 'rules', 'portfolios', 'tools', 'skills'];
     return (validIds as string[]).includes(seg) ? (seg as NavId) : 'home';
   })();
   const navPath = (id: NavId) => (id === 'home' ? '/dashboard' : `/dashboard/${id}`);
@@ -237,6 +239,7 @@ const AdminDashboard: React.FC = () => {
           {activeNav === 'rules' && <BookingRulesTab />}
           {activeNav === 'portfolios' && <PortfoliosTab />}
           {activeNav === 'tools' && <ToolsTab />}
+          {activeNav === 'skills' && <SkillsTab />}
         </main>
       </div>
     </div>

@@ -11,6 +11,7 @@ import { usePortfolioProfileStore } from '../../../../store/usePortfolioProfileS
 import { useBookingProfileStore } from '../../../../store/useBookingProfileStore';
 import { useAssignedBookingsStore } from '../../../../store/useAssignedBookingsStore';
 import { useAdminToolsStore } from '../../../../store/useAdminToolsStore';
+import { useAdminSkillsStore } from '../../../../store/useAdminSkillsStore';
 import { useConfig } from '../../../../hooks/useConfig';
 import { useSnackbarStore } from '../../../../store/useSnackbarStore';
 import { useConfirmStore } from '../../../../store/useConfirmStore';
@@ -135,6 +136,7 @@ const MemberDashboard: React.FC = () => {
     load: loadAssigned, transition: transitionAssigned,
   } = useAssignedBookingsStore();
   const { tools, load: loadTools } = useAdminToolsStore();
+  const { skills, load: loadSkills } = useAdminSkillsStore();
   const { config } = useConfig();
   const location = useLocation();
   const navigate = useNavigate();
@@ -156,8 +158,8 @@ const MemberDashboard: React.FC = () => {
   const [cancelingBookingId, setCancelingBookingId] = useState<string | null>(null);
 
   useEffect(() => {
-    load(); loadPortfolio(); loadBookings(); loadAssigned(); loadTools();
-  }, [load, loadPortfolio, loadBookings, loadAssigned, loadTools]);
+    load(); loadPortfolio(); loadBookings(); loadAssigned(); loadTools(); loadSkills();
+  }, [load, loadPortfolio, loadBookings, loadAssigned, loadTools, loadSkills]);
 
   useEffect(() => {
     const menteeUserId = assignedBookings.find((b) => b.id === assignedBookingDetailId)?.menteeUserId;
@@ -1207,6 +1209,7 @@ const MemberDashboard: React.FC = () => {
                 }}
                 record={portfolio}
                 tools={tools}
+                skills={skills}
               />
             ) : portfolioStatusCard
           )}

@@ -1,11 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { resolveAdminSession, resolveSession } from '../_lib/auth.js';
 import {
-  readBookingRules, readTools, readTopics, writeBookingRules, writeTools, writeTopics,
+  readBookingRules, readSkills, readTools, readTopics, writeBookingRules, writeSkills, writeTools, writeTopics,
 } from '../_lib/configStore.js';
 import { listMentors } from '../_lib/mentorStore.js';
 import { validateBookingRules, validateTopics } from '../../src/lib/configValidation.js';
-import { validateTools } from '../../src/lib/portfolioValidation.js';
+import { validateSkills, validateTools } from '../../src/lib/portfolioValidation.js';
 
 async function handleTopicsGet(_req: VercelRequest, res: VercelResponse) {
   const doc = await readTopics();
@@ -87,6 +87,40 @@ async function handleTools(req: VercelRequest, res: VercelResponse) {
   return res.status(405).json({ error: 'method_not_allowed' });
 }
 
+async function handleSkillsGet(_req: VercelRequest, res: VercelResponse) {
+  const doc = await readSkills();
+  res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
+  return res.status(200).json(doc);
+}
+
+async function handleSkillsPut(req: VercelRequest, res: VercelResponse) {
+  // Any authenticated user can extend the shared skills list (needed for portfolio building).
+  if (!(await resolveSession(req, res))) return;
+
+  const result = validateSkills(req.body);
+  if (!result.ok) {
+    return res.status(400).json({ error: 'invalid_skills', errors: result.errors });
+  }
+
+  // Optimistic concurrency: client echoes the updatedAt it loaded, applied
+  // atomically as part of the write itself (see writeSkills).
+  const clientVersion = req.headers['x-skills-updated-at'];
+  const write = await writeSkills({ skills: result.skills }, typeof clientVersion === 'string' ? clientVersion : undefined);
+  if (!write.ok) {
+    return res.status(409).json({ error: 'conflict', current: write.current });
+  }
+
+  res.setHeader('Cache-Control', 'no-store');
+  return res.status(200).json(write.doc);
+}
+
+async function handleSkills(req: VercelRequest, res: VercelResponse) {
+  if (req.method === 'GET') return handleSkillsGet(req, res);
+  if (req.method === 'PUT') return handleSkillsPut(req, res);
+  res.setHeader('Allow', 'GET, PUT');
+  return res.status(405).json({ error: 'method_not_allowed' });
+}
+
 async function handleBookingRulesGet(_req: VercelRequest, res: VercelResponse) {
   const doc = await readBookingRules();
   res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
@@ -128,6 +162,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (resource === 'topics') return handleTopics(req, res);
   if (resource === 'tools') return handleTools(req, res);
+  if (resource === 'skills') return handleSkills(req, res);
   if (resource === 'booking-rules') return handleBookingRules(req, res);
   return res.status(404).json({ error: 'not_found' });
 }

@@ -1,6 +1,6 @@
 // Thin fetch wrappers for the admin dashboard → /api endpoints.
 import type { BookingConfig, BookingRulesDocument, MentorConfig, TopicsDocument } from '../types/mentoring';
-import type { PortfolioData, PortfolioRecord, PortfolioStatus, PortfolioSummary, ToolsDocument } from '../types/portfolio';
+import type { PortfolioData, PortfolioRecord, PortfolioStatus, PortfolioSummary, SkillsDocument, ToolsDocument } from '../types/portfolio';
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -270,6 +270,18 @@ export function apiPutTools(
   token: string
 ): Promise<ToolsDocument> {
   return apiPut<ToolsDocument>('/api/admin-config/tools', doc, updatedAt, 'x-tools-updated-at', token);
+}
+
+export function apiGetSkills(): Promise<SkillsDocument> {
+  return apiGet<SkillsDocument>('/api/admin-config/skills');
+}
+
+export function apiPutSkills(
+  doc: Pick<SkillsDocument, 'skills'>,
+  updatedAt: string | undefined,
+  token: string
+): Promise<SkillsDocument> {
+  return apiPut<SkillsDocument>('/api/admin-config/skills', doc, updatedAt, 'x-skills-updated-at', token);
 }
 
 export function apiListPortfolios(token: string): Promise<{ portfolios: PortfolioSummary[] }> {

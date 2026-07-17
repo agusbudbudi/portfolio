@@ -5,7 +5,7 @@
 // mentorStore.ts, bookingStore.ts) since self-edits/self-serve creation need
 // row-level concurrency, not whole-document CAS.
 import type { BookingRulesDocument, MentoringConfig, TopicConfig, TopicsDocument } from '../../src/types/mentoring';
-import type { ToolConfig, ToolsDocument } from '../../src/types/portfolio';
+import type { SkillConfig, SkillsDocument, ToolConfig, ToolsDocument } from '../../src/types/portfolio';
 // Bundled into the function at build time — the pre-seed fallback and the
 // permanent degradation path if a resource hasn't been written to Turso yet.
 import staticConfig from '../../public/mentoring/config/qa-mentoring-config.json' with { type: 'json' };
@@ -104,5 +104,23 @@ export async function writeTools(
   const result = await casWriteDocument('tools', doc.tools, expectedUpdatedAt);
   if (!result.ok) return { ok: false, current: await readTools() };
   return { ok: true, doc: { tools: doc.tools, updatedAt: result.updatedAt } };
+}
+
+// Skills is the same shared-lookup shape as tools (mentee portfolio profiles
+// reference it by id via skillEntries), minus the logo field. No static
+// seed — starts empty until the admin adds skills.
+export async function readSkills(): Promise<SkillsDocument> {
+  const doc = await readDocument<SkillConfig[]>('skills');
+  if (doc) return { skills: doc.data, updatedAt: doc.updatedAt };
+  return { skills: [] };
+}
+
+export async function writeSkills(
+  doc: Pick<SkillsDocument, 'skills'>,
+  expectedUpdatedAt: string | undefined
+): Promise<WriteResult<SkillsDocument>> {
+  const result = await casWriteDocument('skills', doc.skills, expectedUpdatedAt);
+  if (!result.ok) return { ok: false, current: await readSkills() };
+  return { ok: true, doc: { skills: doc.skills, updatedAt: result.updatedAt } };
 }
 

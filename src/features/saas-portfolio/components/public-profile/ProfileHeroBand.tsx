@@ -1,13 +1,14 @@
 import React from 'react';
 import { BadgeCheck } from 'lucide-react';
 import { thesvgIconUrl } from '../../../../lib/thesvgRegistry';
-import type { PortfolioProfile } from '../../../../types/portfolio';
+import type { AvailabilityConfig, PortfolioProfile } from '../../../../types/portfolio';
 
 const ProfileHeroBand: React.FC<{
   profile: PortfolioProfile;
+  availability?: AvailabilityConfig;
   whatsapp?: string;
   socialLinks: { key: string; href: string; icon: React.ReactNode; label: string }[];
-}> = ({ profile, whatsapp, socialLinks }) => (
+}> = ({ profile, availability, whatsapp, socialLinks }) => (
   <div className="relative w-full bg-ld-violet pt-16 overflow-hidden">
     <div
       className="absolute inset-0 pointer-events-none opacity-[0.08]"
@@ -15,6 +16,8 @@ const ProfileHeroBand: React.FC<{
         backgroundImage:
           'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
         backgroundSize: '60px 60px',
+        maskImage: 'linear-gradient(to right, transparent, black)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent, black)',
       }}
     />
     <div className="relative max-w-[1200px] mx-auto px-4 sm:px-4 py-6 sm:py-8 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
@@ -30,6 +33,11 @@ const ProfileHeroBand: React.FC<{
             decoding="async"
             className="w-full h-full object-cover rounded-2xl border-[4px] border-ld-canvas shadow-ld-subtle-3"
           />
+          {availability?.showOpenToWork && (
+            <span className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1.5 py-1.5 rounded-b-2xl bg-emerald-500/80 backdrop-blur-sm text-white text-[10px] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-white" /> Open to Work
+            </span>
+          )}
         </div>
         <div className="flex flex-col justify-center gap-2">
           <h1 className="font-ld-display font-semibold text-3xl sm:text-5xl tracking-[-0.02em] text-white m-0 leading-tight">
