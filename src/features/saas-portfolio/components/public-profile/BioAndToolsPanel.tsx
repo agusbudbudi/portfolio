@@ -7,7 +7,7 @@ const TOOLS_LIMIT = 20;
 const WORK_ARRANGEMENT_LABEL = Object.fromEntries(WORK_ARRANGEMENT_OPTIONS.map((o) => [o.value, o.label]));
 
 const PreferenceBadge: React.FC<{ icon: React.ReactNode; children: React.ReactNode }> = ({ icon, children }) => (
-  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ld-cloud border border-ld-frost text-ld-graphite text-xs font-medium">
+  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-ld-frost text-ld-graphite text-xs font-medium">
     {icon} {children}
   </span>
 );
