@@ -6,6 +6,7 @@
 // row-level concurrency, not whole-document CAS.
 import type { BookingRulesDocument, MentoringConfig, TopicConfig, TopicsDocument } from '../../src/types/mentoring';
 import type { SkillConfig, SkillsDocument, ToolConfig, ToolsDocument } from '../../src/types/portfolio';
+import type { QaLibraryCategoriesDocument, QaLibraryCategory } from '../../src/types/qaLibrary';
 // Bundled into the function at build time — the pre-seed fallback and the
 // permanent degradation path if a resource hasn't been written to Turso yet.
 import staticConfig from '../../public/mentoring/config/qa-mentoring-config.json' with { type: 'json' };
@@ -122,5 +123,23 @@ export async function writeSkills(
   const result = await casWriteDocument('skills', doc.skills, expectedUpdatedAt);
   if (!result.ok) return { ok: false, current: await readSkills() };
   return { ok: true, doc: { skills: doc.skills, updatedAt: result.updatedAt } };
+}
+
+// QA Library categories is a small admin-curated taxonomy, same document-per-key
+// shape as topics/tools/skills. No static seed — new resource, starts empty
+// until the admin adds categories.
+export async function readQaLibraryCategories(): Promise<QaLibraryCategoriesDocument> {
+  const doc = await readDocument<QaLibraryCategory[]>('qa-library-categories');
+  if (doc) return { categories: doc.data, updatedAt: doc.updatedAt };
+  return { categories: [] };
+}
+
+export async function writeQaLibraryCategories(
+  doc: Pick<QaLibraryCategoriesDocument, 'categories'>,
+  expectedUpdatedAt: string | undefined
+): Promise<WriteResult<QaLibraryCategoriesDocument>> {
+  const result = await casWriteDocument('qa-library-categories', doc.categories, expectedUpdatedAt);
+  if (!result.ok) return { ok: false, current: await readQaLibraryCategories() };
+  return { ok: true, doc: { categories: doc.categories, updatedAt: result.updatedAt } };
 }
 

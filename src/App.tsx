@@ -20,6 +20,8 @@ const PortfolioBookingPage = lazy(() => import('./features/mentoring/pages/Booki
 const MentorDetailPage = lazy(() => import('./features/mentoring/pages/MentorDetailPage'));
 const PortfolioLandingPage = lazy(() => import('./features/saas-portfolio/pages/PortfolioLandingPage'));
 const PublicPortfolioPage = lazy(() => import('./features/saas-portfolio/pages/PublicPortfolioPage'));
+const QaLibraryIndexPage = lazy(() => import('./features/qa-library/pages/QaLibraryIndexPage'));
+const QaLibraryArticleDetailPage = lazy(() => import('./features/qa-library/pages/QaLibraryArticleDetailPage'));
 const AdminPage = lazy(() => import('./features/admin/pages/AdminPage'));
 const LoginScreen = lazy(() => import('./features/admin/components/shared/LoginScreen'));
 const Snackbar = lazy(() => import('./features/admin/components/shared/Snackbar').then((m) => ({ default: m.Snackbar })));
@@ -238,6 +240,27 @@ function App() {
           element={
             <LightdashLayout>
               <MentorDetailPage />
+            </LightdashLayout>
+          }
+        />
+        <Route
+          path="/qa-library"
+          element={
+            <LightdashLayout>
+              <Seo
+                path="/qa-library"
+                title="QA Library - Artikel & Materi QA Engineer | Mentor.QA"
+                description="Kumpulan artikel dan materi seputar manual testing, automation testing, dan API testing untuk QA Engineer."
+              />
+              <QaLibraryIndexPage />
+            </LightdashLayout>
+          }
+        />
+        <Route
+          path="/qa-library/:slug"
+          element={
+            <LightdashLayout>
+              <QaLibraryArticleDetailPage />
             </LightdashLayout>
           }
         />

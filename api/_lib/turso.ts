@@ -98,6 +98,28 @@ async function runMigrate(): Promise<void> {
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )`,
+      `CREATE TABLE IF NOT EXISTS qa_library_articles (
+        id TEXT PRIMARY KEY,
+        slug TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        category_id TEXT NOT NULL,
+        excerpt TEXT NOT NULL,
+        body TEXT NOT NULL,
+        thumbnail_url TEXT,
+        doc_url TEXT,
+        doc_filename TEXT,
+        doc_size_bytes INTEGER,
+        tags TEXT NOT NULL DEFAULT '[]',
+        author_name TEXT NOT NULL DEFAULT 'Mentor.QA Team',
+        reading_time_minutes INTEGER NOT NULL DEFAULT 1,
+        status TEXT NOT NULL DEFAULT 'draft',
+        seo_meta_title TEXT,
+        seo_meta_description TEXT,
+        seo_og_image TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS qa_library_articles_status_category ON qa_library_articles(status, category_id)`,
     ],
     'write'
   );
@@ -105,6 +127,9 @@ async function runMigrate(): Promise<void> {
   await ensureColumn(db, 'portfolios', 'owner_id', 'TEXT');
   await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS portfolios_owner_id_unique ON portfolios(owner_id)');
   await ensureColumn(db, 'bookings', 'mentee_user_id', 'TEXT');
+  await ensureColumn(db, 'qa_library_articles', 'author_user_id', 'TEXT');
+  await ensureColumn(db, 'qa_library_articles', 'author_avatar_url', 'TEXT');
+  await ensureColumn(db, 'qa_library_articles', 'view_count', 'INTEGER NOT NULL DEFAULT 0');
 
   await carryOverLegacyMentors(db);
 }

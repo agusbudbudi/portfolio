@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   RefreshCw,
   Users, BookOpen, SlidersHorizontal, CalendarCheck, Menu, X,
-  UserSquare2, Wrench, LayoutDashboard, UserCog, Sparkles,
+  UserSquare2, Wrench, LayoutDashboard, UserCog, Sparkles, Newspaper, Tag,
   type LucideIcon,
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
@@ -12,6 +12,7 @@ import { useAdminMentorStore } from '../../../../store/useAdminMentorStore';
 import { useAdminBookingsStore } from '../../../../store/useAdminBookingsStore';
 import { useAdminPortfolioStore } from '../../../../store/useAdminPortfolioStore';
 import { useAdminUsersStore } from '../../../../store/useAdminUsersStore';
+import { useAdminQaLibraryCategoriesStore } from '../../../../store/useAdminQaLibraryCategoriesStore';
 import LoadingState from '../../../../components/common/LoadingState';
 import AdminHomeTab from '../superadmin/AdminHomeTab';
 import BookingRulesTab from '../superadmin/BookingRulesTab';
@@ -22,9 +23,13 @@ import PortfoliosTab from '../superadmin/PortfoliosTab';
 import ToolsTab from '../superadmin/ToolsTab';
 import SkillsTab from '../superadmin/SkillsTab';
 import UsersTab from '../superadmin/UsersTab';
+import QaLibraryTab from '../superadmin/QaLibraryTab';
+import QaLibraryCategoriesTab from '../superadmin/QaLibraryCategoriesTab';
 import ProfileMenu from './ProfileMenu';
 
-type NavId = 'home' | 'bookings' | 'mentors' | 'users' | 'topics' | 'rules' | 'portfolios' | 'tools' | 'skills';
+type NavId =
+  | 'home' | 'bookings' | 'mentors' | 'users' | 'topics' | 'rules' | 'portfolios' | 'tools' | 'skills'
+  | 'qa-library' | 'qa-library-categories';
 
 interface NavItem {
   id: NavId;
@@ -70,6 +75,14 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    id: 'content',
+    label: 'Content',
+    items: [
+      { id: 'qa-library', label: 'Articles', description: 'Artikel & materi QA library', icon: Newspaper },
+      { id: 'qa-library-categories', label: 'Article Categories', description: 'Kategori artikel QA library', icon: Tag },
+    ],
+  },
+  {
     id: 'master-data',
     label: 'Master Data',
     items: [
@@ -94,11 +107,15 @@ const AdminDashboard: React.FC = () => {
   const loadBookings = useAdminBookingsStore((s) => s.load);
   const loadPortfolios = useAdminPortfolioStore((s) => s.load);
   const loadUsers = useAdminUsersStore((s) => s.load);
+  const loadQaLibraryCategories = useAdminQaLibraryCategoriesStore((s) => s.load);
   const location = useLocation();
   const navigate = useNavigate();
   const activeNav: NavId = (() => {
     const seg = location.pathname.replace(/^\/dashboard\/?/, '').split('/')[0];
-    const validIds: NavId[] = ['bookings', 'mentors', 'users', 'topics', 'rules', 'portfolios', 'tools', 'skills'];
+    const validIds: NavId[] = [
+      'bookings', 'mentors', 'users', 'topics', 'rules', 'portfolios', 'tools', 'skills',
+      'qa-library', 'qa-library-categories',
+    ];
     return (validIds as string[]).includes(seg) ? (seg as NavId) : 'home';
   })();
   const navPath = (id: NavId) => (id === 'home' ? '/dashboard' : `/dashboard/${id}`);
@@ -115,7 +132,8 @@ const AdminDashboard: React.FC = () => {
     loadBookings();
     loadPortfolios();
     loadUsers();
-  }, [load, loadMentors, loadBookings, loadPortfolios, loadUsers]);
+    loadQaLibraryCategories();
+  }, [load, loadMentors, loadBookings, loadPortfolios, loadUsers, loadQaLibraryCategories]);
 
   if (loading) {
     return <LoadingState label="Memuat config…" className="min-h-screen" />;
@@ -240,6 +258,8 @@ const AdminDashboard: React.FC = () => {
           {activeNav === 'portfolios' && <PortfoliosTab />}
           {activeNav === 'tools' && <ToolsTab />}
           {activeNav === 'skills' && <SkillsTab />}
+          {activeNav === 'qa-library' && <QaLibraryTab />}
+          {activeNav === 'qa-library-categories' && <QaLibraryCategoriesTab />}
         </main>
       </div>
     </div>

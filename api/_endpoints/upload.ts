@@ -25,6 +25,7 @@ const FOLDER_BY_FEATURE = {
   portfolio: 'Portfolio',
   cv: 'CV',
   tools: 'Tools',
+  qaLibrary: 'QaLibrary',
 } as const;
 type UploadFeature = keyof typeof FOLDER_BY_FEATURE;
 
