@@ -10,6 +10,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { readBookingRules, readTopics } from '../_lib/configStore.js';
 import { listMentors } from '../_lib/mentorStore.js';
 import { listPortfolios } from '../_lib/portfolioStore.js';
+import { listQaLibraryArticles } from '../_lib/qaLibraryStore.js';
 import type { MentoringConfig } from '../../src/types/mentoring';
 
 const SITE_URL = 'https://www.mentorqa.com';
@@ -29,6 +30,7 @@ const STATIC_ROUTES: UrlEntry[] = [
   { loc: '/personal-portfolio/about', changefreq: 'monthly', priority: '0.6' },
   { loc: '/personal-portfolio/projects', changefreq: 'monthly', priority: '0.7' },
   { loc: '/personal-portfolio/certifications', changefreq: 'monthly', priority: '0.5' },
+  { loc: '/qa-library', changefreq: 'weekly', priority: '0.8' },
 ];
 
 function toXml(entries: UrlEntry[]): string {
@@ -42,9 +44,10 @@ function toXml(entries: UrlEntry[]): string {
 }
 
 async function handleSitemap(res: VercelResponse) {
-  const [mentors, portfolios] = await Promise.all([
+  const [mentors, portfolios, qaLibraryArticles] = await Promise.all([
     listMentors({ verifiedOnly: true }),
     listPortfolios(),
+    listQaLibraryArticles({ publishedOnly: true }),
   ]);
 
   const mentorEntries: UrlEntry[] = mentors.map((m) => ({
@@ -63,7 +66,14 @@ async function handleSitemap(res: VercelResponse) {
       lastmod: p.updatedAt,
     }));
 
-  const xml = toXml([...STATIC_ROUTES, ...mentorEntries, ...portfolioEntries]);
+  const qaLibraryEntries: UrlEntry[] = qaLibraryArticles.map((a) => ({
+    loc: `/qa-library/${a.slug}`,
+    changefreq: 'monthly',
+    priority: '0.6',
+    lastmod: a.updatedAt,
+  }));
+
+  const xml = toXml([...STATIC_ROUTES, ...mentorEntries, ...portfolioEntries, ...qaLibraryEntries]);
 
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400');

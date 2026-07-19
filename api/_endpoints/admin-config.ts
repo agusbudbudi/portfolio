@@ -1,11 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { resolveAdminSession, resolveSession } from '../_lib/auth.js';
 import {
-  readBookingRules, readSkills, readTools, readTopics, writeBookingRules, writeSkills, writeTools, writeTopics,
+  readBookingRules, readQaLibraryCategories, readSkills, readTools, readTopics,
+  writeBookingRules, writeQaLibraryCategories, writeSkills, writeTools, writeTopics,
 } from '../_lib/configStore.js';
 import { listMentors } from '../_lib/mentorStore.js';
+import { isCategoryInUse } from '../_lib/qaLibraryStore.js';
 import { validateBookingRules, validateTopics } from '../../src/lib/configValidation.js';
 import { validateSkills, validateTools } from '../../src/lib/portfolioValidation.js';
+import { validateQaLibraryCategories } from '../../src/lib/qaLibraryValidation.js';
 
 async function handleTopicsGet(_req: VercelRequest, res: VercelResponse) {
   const doc = await readTopics();
@@ -157,6 +160,58 @@ async function handleBookingRules(req: VercelRequest, res: VercelResponse) {
   return res.status(405).json({ error: 'method_not_allowed' });
 }
 
+async function handleQaLibraryCategoriesGet(_req: VercelRequest, res: VercelResponse) {
+  const doc = await readQaLibraryCategories();
+  res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
+  return res.status(200).json(doc);
+}
+
+async function handleQaLibraryCategoriesPut(req: VercelRequest, res: VercelResponse) {
+  // Admin-only, unlike tools/skills — categories are curated taxonomy for
+  // article organization, not a shared self-serve lookup.
+  if (!(await resolveAdminSession(req, res))) return;
+
+  const result = validateQaLibraryCategories(req.body);
+  if (!result.ok) {
+    return res.status(400).json({ error: 'invalid_categories', errors: result.errors });
+  }
+
+  // Referential integrity: block dropping a category id that a published or
+  // draft article still references (mirrors handleTopicsPut's mentor check).
+  const nextIds = new Set(result.categories.map((c) => c.id));
+  const { categories: currentCategories } = await readQaLibraryCategories();
+  const removedIds = currentCategories.map((c) => c.id).filter((id) => !nextIds.has(id));
+  for (const removedId of removedIds) {
+    if (await isCategoryInUse(removedId)) {
+      return res.status(400).json({
+        error: 'category_in_use',
+        errors: [`Category "${removedId}" masih dipakai oleh artikel. Hapus/ganti kategori artikel itu dulu.`],
+      });
+    }
+  }
+
+  // Optimistic concurrency: client echoes the updatedAt it loaded, applied
+  // atomically as part of the write itself (see writeQaLibraryCategories).
+  const clientVersion = req.headers['x-qa-library-categories-updated-at'];
+  const write = await writeQaLibraryCategories(
+    { categories: result.categories },
+    typeof clientVersion === 'string' ? clientVersion : undefined
+  );
+  if (!write.ok) {
+    return res.status(409).json({ error: 'conflict', current: write.current });
+  }
+
+  res.setHeader('Cache-Control', 'no-store');
+  return res.status(200).json(write.doc);
+}
+
+async function handleQaLibraryCategories(req: VercelRequest, res: VercelResponse) {
+  if (req.method === 'GET') return handleQaLibraryCategoriesGet(req, res);
+  if (req.method === 'PUT') return handleQaLibraryCategoriesPut(req, res);
+  res.setHeader('Allow', 'GET, PUT');
+  return res.status(405).json({ error: 'method_not_allowed' });
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { resource } = req.query;
 
@@ -164,5 +219,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (resource === 'tools') return handleTools(req, res);
   if (resource === 'skills') return handleSkills(req, res);
   if (resource === 'booking-rules') return handleBookingRules(req, res);
+  if (resource === 'qa-library-categories') return handleQaLibraryCategories(req, res);
   return res.status(404).json({ error: 'not_found' });
 }
