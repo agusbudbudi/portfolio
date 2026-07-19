@@ -1,6 +1,7 @@
 // Thin fetch wrappers for the admin dashboard → /api endpoints.
 import type { BookingConfig, BookingRulesDocument, MentorConfig, TopicsDocument } from '../types/mentoring';
 import type { PortfolioData, PortfolioRecord, PortfolioStatus, PortfolioSummary, SkillsDocument, ToolsDocument } from '../types/portfolio';
+import type { QaLibraryArticle, QaLibraryArticleData, QaLibraryArticleSummary, QaLibraryCategoriesDocument } from '../types/qaLibrary';
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -353,7 +354,7 @@ export async function apiCheckSlug(slug: string, excludeId?: string): Promise<{ 
   return res.json();
 }
 
-export type UploadFeature = 'mentor' | 'portfolio' | 'cv' | 'tools';
+export type UploadFeature = 'mentor' | 'portfolio' | 'cv' | 'tools' | 'qaLibrary';
 
 export async function apiUploadImage(
   file: { filename: string; contentType: string; dataBase64: string; feature: UploadFeature },
@@ -371,4 +372,47 @@ export interface ArticleMetadata {
 
 export function apiFetchArticleMetadata(url: string, token: string): Promise<ArticleMetadata> {
   return apiPostAuth<ArticleMetadata>('/api/article-metadata', { url }, token);
+}
+
+export function apiGetQaLibraryCategories(): Promise<QaLibraryCategoriesDocument> {
+  return apiGet<QaLibraryCategoriesDocument>('/api/admin-config/qa-library-categories');
+}
+
+export function apiPutQaLibraryCategories(
+  doc: Pick<QaLibraryCategoriesDocument, 'categories'>,
+  updatedAt: string | undefined,
+  token: string
+): Promise<QaLibraryCategoriesDocument> {
+  return apiPut<QaLibraryCategoriesDocument>(
+    '/api/admin-config/qa-library-categories', doc, updatedAt, 'x-qa-library-categories-updated-at', token
+  );
+}
+
+export function apiListQaLibraryArticlesAdmin(token: string): Promise<{ articles: QaLibraryArticleSummary[] }> {
+  return apiGetAuth<{ articles: QaLibraryArticleSummary[] }>('/api/qa-library/admin', token);
+}
+
+export function apiGetQaLibraryArticle(slug: string, token: string): Promise<QaLibraryArticle> {
+  return apiGetAuth<QaLibraryArticle>(`/api/qa-library/${encodeURIComponent(slug)}`, token);
+}
+
+export type QaLibraryArticleWritePayload = QaLibraryArticleData & { slug: string };
+
+export function apiCreateQaLibraryArticle(payload: QaLibraryArticleWritePayload, token: string): Promise<QaLibraryArticle> {
+  return apiPostAuth<QaLibraryArticle>('/api/qa-library', payload, token);
+}
+
+export function apiUpdateQaLibraryArticle(
+  currentSlug: string,
+  payload: QaLibraryArticleWritePayload,
+  updatedAt: string,
+  token: string
+): Promise<QaLibraryArticle> {
+  return apiPut<QaLibraryArticle>(
+    `/api/qa-library/${encodeURIComponent(currentSlug)}`, payload, updatedAt, 'x-qa-library-article-updated-at', token
+  );
+}
+
+export function apiDeleteQaLibraryArticle(slug: string, token: string): Promise<void> {
+  return apiDeleteAuth(`/api/qa-library/${encodeURIComponent(slug)}`, token);
 }
