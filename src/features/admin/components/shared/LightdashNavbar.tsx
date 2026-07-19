@@ -11,6 +11,7 @@ const navLinks = [
 ];
 
 const portfolioLink = { label: 'Portfolio QA', to: '/portfolio' };
+const qaLibraryLink = { label: 'QA Library', to: '/qa-library' };
 
 const LightdashNavbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,6 +50,12 @@ const LightdashNavbar: React.FC = () => {
               <span className="inline-flex items-center px-1.5 py-1 rounded-sm bg-ld-violet text-white text-[10px] font-semibold leading-none tracking-wide">
                 New
               </span>
+            </Link>
+            <Link
+              to={qaLibraryLink.to}
+              className="text-sm font-medium text-ld-graphite hover:text-ld-violet transition-colors no-underline"
+            >
+              {qaLibraryLink.label}
             </Link>
             {navLinks.map(link => (
               <Link
@@ -141,12 +148,21 @@ const LightdashNavbar: React.FC = () => {
                     </span>
                   </Link>
                 </motion.li>
+                <motion.li initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.045, duration: 0.18 }}>
+                  <Link
+                    to={qaLibraryLink.to}
+                    onClick={closeMenu}
+                    className="flex items-center px-6 py-4 text-[15px] font-medium text-ld-graphite hover:text-ld-violet hover:bg-ld-cloud transition-colors duration-150 no-underline"
+                  >
+                    {qaLibraryLink.label}
+                  </Link>
+                </motion.li>
                 {navLinks.map((link, idx) => (
                   <motion.li
                     key={link.label}
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: (idx + 1) * 0.045, duration: 0.18 }}
+                    transition={{ delay: (idx + 2) * 0.045, duration: 0.18 }}
                   >
                     <Link
                       to={`/${link.href}`}
