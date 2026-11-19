@@ -1,0 +1,851 @@
+{
+  "id": "splitbill",
+  "title": "Split Bill v2: Biaya Tambahan & Metode Pembagian",
+  "product": "SplitBill",
+  "productUrl": "https://splitbill.my.id",
+  "domain": "Fintech / Consumer App",
+  "difficulty": "beginner",
+  "estimatedHours": 4,
+  "summary": "Kamu baru bergabung sebagai QA di tim SplitBill. Sprint ini tim merilis fitur pembagian proporsional dengan pajak, service charge, dan diskon. Tugasmu: mengawal kualitas fitur ini dari PRD sampai siap rilis.",
+  "context": "**SplitBill** adalah aplikasi web untuk patungan tagihan: makan bareng, kos, sampai liburan. Kamu bergabung di **squad Core Split** sebagai satu-satunya QA, bersama 1 PM, 1 engineering lead, dan 2 engineer.\n\nSprint 24 berjalan **2 minggu**. Fitur yang dikerjakan adalah **Split Bill v2**: user bisa memasukkan item per orang, pajak, service charge, dan diskon, lalu memilih pembagian proporsional atau bagi rata.\n\nAlurnya sama seperti di kantor: baca PRD → klarifikasi → desain test case → eksekusi di staging → laporkan bug → beri rekomendasi rilis.\n",
+  "team": [
+    {
+      "id": "pm",
+      "name": "Rani Prameswari",
+      "role": "Product Manager",
+      "initials": "RP",
+      "color": "bg-rose-400"
+    },
+    {
+      "id": "lead",
+      "name": "Dimas Arya",
+      "role": "Engineering Lead",
+      "initials": "DA",
+      "color": "bg-amber-400"
+    },
+    {
+      "id": "qa-lead",
+      "name": "Sari Wulandari",
+      "role": "QA Lead (mentor kamu)",
+      "initials": "SW",
+      "color": "bg-emerald-500"
+    }
+  ],
+  "prd": {
+    "title": "PRD — Split Bill v2",
+    "version": "v1.0",
+    "markdown": "| Info | Detail |\n|---|---|\n| **Produk** | SplitBill (web, PWA, mobile-first) |\n| **Fitur** | Split Bill v2 — Biaya Tambahan & Metode Pembagian |\n| **PM** | Rani Prameswari |\n| **Status** | Ready for QA Review |\n| **Target rilis** | Sprint 24 |\n\n## 1. Latar Belakang\n\nSplit Bill v1 hanya bisa membagi **total** tagihan secara rata. Dari 1.240 feedback in-app 3 bulan terakhir, 38% mengeluh \"yang pesan sedikit bayarnya sama dengan yang pesan banyak\", terutama untuk tagihan restoran yang ada pajak dan service charge.\n\nSplit Bill v2 memungkinkan user memasukkan item per orang dan biaya tambahan, lalu memilih cara pembagiannya.\n\n## 2. Tujuan & Success Metrics\n\n- User bisa mencatat siapa memesan apa.\n- Pajak, service charge, dan diskon dibagi secara adil.\n- Hasil bisa langsung dibagikan ke WhatsApp.\n\n| Metric | Sekarang | Target |\n|---|---|---|\n| Completion rate split bill | 61% | 75% |\n| Ticket CS \"salah hitung\" / bulan | 42 | ≤ 20 |\n\n## 3. Scope\n\n**In scope:** input peserta, input item, biaya tambahan (service charge, pajak, diskon), metode pembagian (proporsional & bagi rata), halaman ringkasan, share ke WhatsApp.\n\n**Out of scope:** AI scan struk (PRD terpisah), pembayaran di dalam aplikasi, multi-currency.\n\n## 4. User Stories & Acceptance Criteria\n\n### US-01 — Input peserta\n\n> Sebagai user, saya ingin menambahkan teman yang ikut patungan supaya tagihan bisa dibagi ke mereka.\n\n1. User mengetik nama, lalu menekan Enter atau tombol **Tambah**.\n2. User sendiri otomatis menjadi peserta pertama dengan label **\"Gua\"**.\n3. Minimal **2 peserta** untuk bisa lanjut ke step berikutnya.\n4. Peserta bisa dihapus dari daftar.\n\n### US-02 — Input item\n\n> Sebagai user, saya ingin memasukkan item yang dipesan dan siapa yang memesannya.\n\n1. Item memiliki **nama**, **harga satuan**, dan **qty** (default 1).\n2. Item di-assign ke satu atau lebih peserta. Jika lebih dari satu, harga item dibagi rata di antara peserta tersebut.\n3. Harga dalam Rupiah.\n\n### US-03 — Biaya tambahan\n\n> Sebagai user, saya ingin memasukkan pajak, service charge, dan diskon sesuai struk.\n\n1. **Service charge** diinput dalam persen (%).\n2. **Pajak (PPN)** diinput dalam persen (%) dan dihitung dari subtotal **setelah** service charge.\n3. **Diskon** diinput dalam nominal Rupiah dan dikurangkan dari subtotal.\n4. Field yang dikosongkan dianggap 0.\n\n### US-04 — Metode pembagian\n\n> Sebagai user, saya ingin memilih cara membagi biaya tambahan.\n\n1. **Proporsional** (default): biaya tambahan dibagi sesuai porsi subtotal masing-masing peserta.\n2. **Bagi rata**: biaya tambahan dibagi rata ke peserta.\n3. Jumlah yang dibayar seluruh peserta harus sama dengan **Grand Total**.\n\n### US-05 — Ringkasan & share\n\n> Sebagai user, saya ingin melihat siapa bayar berapa dan membagikannya ke grup.\n\n1. Halaman ringkasan menampilkan total per orang beserta rincian item.\n2. Tombol **Share ke WhatsApp** membuka WhatsApp dengan pesan berisi ringkasan.\n3. Format nominal: `Rp 103.950`.\n\n## 5. Contoh Perhitungan\n\nSubtotal Rp 200.000 (Andi Rp 90.000, Budi Rp 60.000, Cici Rp 50.000), service 5%, PPN 10%.\n\n| | Nominal |\n|---|---|\n| Subtotal | Rp 200.000 |\n| Service 5% | Rp 10.000 |\n| PPN 10% × (200.000 + 10.000) | Rp 21.000 |\n| **Grand Total** | **Rp 231.000** |\n\nProporsional → Andi **Rp 103.950**, Budi **Rp 69.300**, Cici **Rp 57.750**.\n\n## 6. Non-Functional Requirements\n\n- Halaman ringkasan tampil < 2 detik.\n- Desain mobile-first.\n\n## 7. Analytics\n\n- Kirim event `split_bill_completed` dengan properti `participant_count`, `item_count`, `method`.\n\n## 8. Open Questions\n\n_Belum ada._\n"
+  },
+  "phases": [
+    {
+      "id": "requirement-analysis",
+      "title": "Requirement Analysis",
+      "shortTitle": "Requirement",
+      "summary": "Pahami PRD, temukan gap, ambiguitas, dan edge case sebelum satu baris kode ditulis.",
+      "requiresLogin": false,
+      "learn": {
+        "objectives": [
+          "Membaca PRD secara terstruktur: tujuan, scope, user story, acceptance criteria.",
+          "Membedakan requirement yang jelas, ambigu, dan yang belum ada.",
+          "Menulis pertanyaan klarifikasi yang spesifik dan bisa langsung dijawab PM."
+        ],
+        "keyPoints": [
+          {
+            "title": "Kenapa QA ikut requirement analysis?",
+            "body": "Bug termurah adalah bug yang tidak pernah ditulis. Gap di PRD yang lolos ke development akan berubah jadi bug, rework, atau debat di akhir sprint."
+          },
+          {
+            "title": "Cara membaca PRD",
+            "body": "Baca 2 kali. Pertama untuk memahami **tujuan & alur utama**. Kedua per acceptance criteria, sambil bertanya: *\"Bagaimana saya membuktikan ini pass/fail?\"* Kalau tidak bisa dijawab, itu gap."
+          },
+          {
+            "title": "Checklist mencari gap",
+            "body": "- **Batas (boundary)**: min/max, panjang teks, angka 0, negatif, desimal.\n- **Data tidak valid**: kosong, spasi, duplikat, karakter aneh.\n- **State & urutan**: apa yang terjadi kalau data diubah/dihapus di tengah alur?\n- **Kalkulasi**: urutan operasi, pembulatan, pembagian sisa.\n- **Kontradiksi**: AC yang saling bertentangan, atau contoh yang tidak cocok dengan aturan.\n- **Non-functional**: performa, offline, device, aksesibilitas, privasi data."
+          },
+          {
+            "title": "Pertanyaan yang baik vs buruk",
+            "body": "❌ *\"Tolong jelaskan soal diskon.\"*\n\n✅ *\"US-03 AC3: diskon dikurangkan sebelum atau sesudah service charge dihitung? Jika diskon Rp 50.000 dan subtotal Rp 30.000, apakah total jadi Rp 0 atau ditolak?\"*\n\nSebutkan **lokasi**, **skenario konkret**, dan **opsi jawaban**."
+          }
+        ],
+        "resources": [
+          {
+            "label": "QA Library — artikel manual testing",
+            "url": "/qa-library"
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "qa-lead",
+        "message": "Halo, selamat datang di squad! 👋\n\nPRD Split Bill v2 dari Rani baru masuk status **Ready for QA Review**. Sebelum refinement hari Kamis, tolong review dulu ya.\n\nAku butuh 2 hal:\n1. **Daftar gap & pertanyaan klarifikasi** untuk Rani. Minimal 5, makin tajam makin bagus.\n2. **Ringkasan pemahamanmu** soal fitur ini, biar kita yakin satu frekuensi.\n\nTips: fokus ke aturan hitung. Dari ticket CS, itu yang paling sering bikin user complain."
+      },
+      "assignments": [
+        {
+          "id": "ra-gaps",
+          "title": "Temukan gap & tulis pertanyaan klarifikasi",
+          "instructions": "Review PRD v1.0 di panel kanan. Untuk setiap gap yang kamu temukan, catat **lokasinya**, **jenis gap**, **pertanyaan** untuk PM, dan **risiko** jika tidak dijawab.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Gap",
+            "minItems": 5,
+            "fields": [
+              {
+                "id": "section",
+                "label": "Lokasi di PRD",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "US-01 Peserta",
+                  "US-02 Item",
+                  "US-03 Biaya tambahan",
+                  "US-04 Pembagian",
+                  "US-05 Ringkasan & share",
+                  "Contoh perhitungan",
+                  "Non-functional",
+                  "Analytics",
+                  "Lainnya"
+                ]
+              },
+              {
+                "id": "type",
+                "label": "Jenis",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Ambiguitas",
+                  "Missing requirement",
+                  "Edge case",
+                  "Kontradiksi",
+                  "Non-functional"
+                ]
+              },
+              {
+                "id": "question",
+                "label": "Pertanyaan untuk PM",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: US-01 AC3 — berapa jumlah maksimal peserta? Apa yang terjadi jika user menambahkan peserta ke-21?"
+              },
+              {
+                "id": "impact",
+                "label": "Risiko jika tidak diklarifikasi",
+                "type": "textarea",
+                "placeholder": "Contoh: engineer membuat asumsi sendiri, layout ringkasan rusak di 50+ peserta."
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 5 gap, tersebar di beberapa user story (bukan hanya satu bagian).",
+            "Setiap pertanyaan menyebut lokasi (US/AC) dan skenario konkret.",
+            "Mencakup aturan kalkulasi: urutan diskon, pembulatan, dan sisa pembagian.",
+            "Mencakup data tidak valid: nama kosong/duplikat, harga 0/negatif, persen > 100.",
+            "Minimal 1 gap non-functional atau UX (share di desktop, data guest, dll)."
+          ],
+          "rubric": [
+            {
+              "id": "count",
+              "label": "Menemukan ≥ 5 gap yang valid",
+              "weight": 2
+            },
+            {
+              "id": "calc",
+              "label": "Ada gap soal kalkulasi (urutan diskon / pembulatan / sisa)",
+              "weight": 3
+            },
+            {
+              "id": "boundary",
+              "label": "Ada gap soal batas & data tidak valid (max peserta, harga, persen)",
+              "weight": 2
+            },
+            {
+              "id": "state",
+              "label": "Ada gap soal perubahan state (hapus peserta yang punya item, item tanpa peserta)",
+              "weight": 2
+            },
+            {
+              "id": "specific",
+              "label": "Pertanyaan spesifik: menyebut lokasi + skenario + opsi jawaban",
+              "weight": 2
+            },
+            {
+              "id": "nfr",
+              "label": "Ada minimal 1 gap non-functional / UX",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Ini gap yang sengaja \"ditanam\" di PRD v1.0. Bandingkan dengan temuanmu. Temuan lain di luar daftar ini juga bisa valid.",
+            "items": [
+              {
+                "tag": "US-01",
+                "title": "Jumlah maksimal peserta tidak disebut",
+                "detail": "Hanya ada minimal 2. Apa batas atasnya? Dampaknya ke UI ringkasan dan panjang pesan WhatsApp."
+              },
+              {
+                "tag": "US-01",
+                "title": "Validasi nama peserta tidak ada",
+                "detail": "Nama kosong / hanya spasi? Panjang maksimal? Nama duplikat (\"Andi\" vs \"andi\") boleh?"
+              },
+              {
+                "tag": "US-01",
+                "title": "Apakah \"Gua\" bisa dihapus?",
+                "detail": "AC4 bilang peserta bisa dihapus, tapi AC2 menjadikan \"Gua\" peserta otomatis. Kontradiksi kecil yang perlu ditegaskan."
+              },
+              {
+                "tag": "US-01",
+                "title": "Hapus peserta yang sudah punya item",
+                "detail": "Itemnya ikut terhapus, jadi milik siapa, atau dibagi ulang? Ini sumber bug kalkulasi klasik."
+              },
+              {
+                "tag": "US-02",
+                "title": "Batas harga & qty tidak ada",
+                "detail": "Harga 0, negatif, desimal, atau sangat besar (overflow)? Qty 0 atau 1000?"
+              },
+              {
+                "tag": "US-02",
+                "title": "Item tanpa peserta",
+                "detail": "Bolehkah item tidak di-assign ke siapa pun? Kalau boleh, siapa yang membayarnya?"
+              },
+              {
+                "tag": "US-03",
+                "title": "Diskon dikurangkan sebelum atau sesudah service?",
+                "detail": "AC3 bilang \"dari subtotal\", tapi AC2 menghitung pajak dari subtotal setelah service. Urutan lengkapnya ambigu."
+              },
+              {
+                "tag": "US-03",
+                "title": "Diskon lebih besar dari subtotal",
+                "detail": "Grand total jadi negatif, nol, atau ditolak?"
+              },
+              {
+                "tag": "US-03",
+                "title": "Rentang persen tidak ada",
+                "detail": "Service/pajak boleh > 100%? Boleh desimal (PPN 11,5%)?"
+              },
+              {
+                "tag": "US-03",
+                "title": "Distribusi diskon",
+                "detail": "Diskon dibagi proporsional, rata, atau hanya ke peserta tertentu?"
+              },
+              {
+                "tag": "US-04",
+                "title": "Aturan pembulatan tidak ada",
+                "detail": "Rp 100.000 dibagi 3 = 33.333,33. Dibulatkan ke atas, ke bawah, atau terdekat? Sisa Rp 1 dibebankan ke siapa? Padahal AC3 mewajibkan total harus sama dengan Grand Total."
+              },
+              {
+                "tag": "US-04",
+                "title": "\"Bagi rata ke peserta\": peserta yang mana?",
+                "detail": "Termasuk peserta yang tidak memesan apa pun?"
+              },
+              {
+                "tag": "US-05",
+                "title": "Share di desktop / WhatsApp tidak terpasang",
+                "detail": "Buka WhatsApp Web, atau tombol disembunyikan? Isi pesan persisnya apa saja?"
+              },
+              {
+                "tag": "US-05",
+                "title": "Format nominal hanya dicontohkan di ringkasan",
+                "detail": "Apakah format yang sama berlaku di pesan WhatsApp?"
+              },
+              {
+                "tag": "NFR",
+                "title": "Penyimpanan data & offline",
+                "detail": "Bill user guest disimpan di mana? Bagaimana jika refresh / offline? Device & browser apa yang didukung?"
+              },
+              {
+                "tag": "Analytics",
+                "title": "Kapan event dikirim?",
+                "detail": "split_bill_completed dikirim saat klik Hitung, buka ringkasan, atau share? Apakah dikirim ulang kalau user kembali lalu menghitung lagi?"
+              },
+              {
+                "tag": "Scope",
+                "title": "Ongkir tidak disebut",
+                "detail": "Halaman marketing SplitBill menyebut ongkir sebagai biaya tambahan, tapi PRD tidak. In atau out of scope?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "ra-summary",
+          "title": "Tulis ringkasan pemahaman fitur",
+          "instructions": "Jelaskan ulang fitur ini **dengan bahasa kamu sendiri**, seolah menjelaskan ke engineer baru: masalah apa yang diselesaikan, siapa usernya, alur utama step by step, dan aturan hitung yang paling berisiko.",
+          "input": {
+            "type": "textarea",
+            "minLength": 200,
+            "placeholder": "Fitur ini menyelesaikan masalah… User mulai dari… Aturan hitung yang paling penting adalah…"
+          },
+          "expectedOutput": [
+            "Menyebut masalah user dan tujuan bisnis (bukan hanya daftar fitur).",
+            "Alur utama: peserta → item → biaya tambahan → metode → ringkasan → share.",
+            "Menyebut aturan hitung kunci: pajak setelah service, dan jumlah porsi = grand total.",
+            "Menyebut area paling berisiko menurutmu dan alasannya."
+          ],
+          "rubric": [
+            {
+              "id": "why",
+              "label": "Menjelaskan masalah user & tujuan bisnis",
+              "weight": 1
+            },
+            {
+              "id": "flow",
+              "label": "Alur utama lengkap dan berurutan",
+              "weight": 1
+            },
+            {
+              "id": "rules",
+              "label": "Menyebut aturan hitung kunci dengan benar",
+              "weight": 2
+            },
+            {
+              "id": "risk",
+              "label": "Mengidentifikasi area berisiko + alasannya",
+              "weight": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "test-design",
+      "title": "Test Scenario & Test Case Design",
+      "shortTitle": "Test Design",
+      "summary": "Ubah requirement (yang sudah diklarifikasi) menjadi skenario dan test case yang bisa dieksekusi.",
+      "requiresLogin": true,
+      "learn": {
+        "objectives": [
+          "Membedakan test scenario (apa yang diuji) dan test case (bagaimana mengujinya).",
+          "Memakai teknik test design: Boundary Value Analysis, Equivalence Partitioning, Decision Table.",
+          "Menjaga traceability: setiap test case terhubung ke requirement."
+        ],
+        "keyPoints": [
+          {
+            "title": "Scenario vs test case",
+            "body": "**Scenario**: *\"Verifikasi pembagian proporsional dengan pajak & service.\"*\n\n**Test case**: precondition, langkah, data uji, dan expected result yang spesifik, misalnya *\"Grand total = Rp 231.000, Andi = Rp 103.950\"*."
+          },
+          {
+            "title": "Boundary Value Analysis (BVA)",
+            "body": "Bug suka bersembunyi di tepi. Untuk rentang 1–30 karakter, uji **0, 1, 30, 31**. Untuk 2–20 peserta, uji **1, 2, 20, 21**."
+          },
+          {
+            "title": "Equivalence Partitioning (EP)",
+            "body": "Kelompokkan input yang perilakunya sama (valid, kosong, negatif, terlalu besar), lalu ambil 1 wakil per kelompok. Cakupan tetap luas, jumlah test case tetap hemat."
+          },
+          {
+            "title": "Decision Table untuk kalkulasi",
+            "body": "Kombinasikan kondisi (metode × ada diskon × ada service × ada pajak) supaya tidak ada kombinasi yang terlewat. Hitung expected result secara manual **sebelum** eksekusi."
+          },
+          {
+            "title": "Prioritas",
+            "body": "**P1**: alur utama & uang (kalkulasi). **P2**: validasi & error handling. **P3**: kosmetik. Saat waktu mepet, P1 dieksekusi dulu."
+          }
+        ],
+        "resources": [
+          {
+            "label": "QA Library",
+            "url": "/qa-library"
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "pm",
+        "message": "Thanks banget buat pertanyaannya, tajam-tajam! 🙏\n\nSemua sudah aku jawab dan aku rangkum jadi **PRD v1.1** (lihat bagian *Addendum* di panel PRD). Yang paling penting: **urutan hitung** dan **aturan pembulatan** sekarang sudah jelas.\n\nDimas dan tim mulai development hari ini, staging siap sekitar 3 hari lagi. Sambil menunggu, tolong siapkan test scenario dan test case-nya ya."
+      },
+      "prdAddendum": {
+        "version": "v1.1",
+        "markdown": "_Jawaban PM atas pertanyaan klarifikasi dari QA. Bagian ini **menggantikan** isi v1.0 jika ada yang bertentangan._\n\n### Peserta (US-01)\n- Maksimal **20 peserta**.\n- Nama wajib diisi, spasi di awal/akhir di-trim, panjang **1–30 karakter**.\n- Nama duplikat **tidak boleh** (tidak membedakan huruf besar/kecil: \"Andi\" = \"andi\").\n- Peserta **\"Gua\" tidak bisa dihapus**.\n- Menghapus peserta yang punya item: item yang **hanya** miliknya ikut terhapus setelah konfirmasi; item bersama dibagi ulang ke peserta yang tersisa.\n\n### Item (US-02)\n- Harga satuan bilangan bulat **Rp 1 – Rp 100.000.000**. Qty **1–99**.\n- Setiap item **wajib** di-assign ke minimal 1 peserta. Tidak bisa lanjut ke ringkasan jika ada item tanpa peserta.\n\n### Biaya tambahan (US-03)\n- Service charge & pajak: **0–100%**, boleh 1 angka desimal (mis. 11,5%).\n- Urutan hitung: **(subtotal − diskon) → + service → + pajak**, dengan pajak dihitung dari (subtotal − diskon + service).\n- Diskon maksimal = subtotal. Diskon ikut dibagi sesuai metode pembagian yang dipilih.\n- Ongkir **di luar scope** sprint ini.\n\n### Pembagian & pembulatan (US-04)\n- Porsi tiap peserta dibulatkan ke **rupiah terdekat**. Selisih pembulatan dibebankan ke **\"Gua\"** sehingga jumlah semua porsi **selalu sama** dengan Grand Total.\n- Bagi rata: biaya tambahan (dan diskon) dibagi rata ke peserta yang **punya minimal 1 item**.\n\n### Share (US-05)\n- Di desktop, tombol share membuka WhatsApp Web.\n- Pesan berisi: nama aktivitas, rincian per orang, dan Grand Total. Semua nominal memakai format `Rp 103.950` (titik sebagai pemisah ribuan).\n\n### Analytics\n- `split_bill_completed` dikirim saat user membuka halaman ringkasan untuk pertama kali per bill.\n"
+      },
+      "assignments": [
+        {
+          "id": "td-scenarios",
+          "title": "Susun daftar test scenario",
+          "instructions": "Buat daftar **test scenario** yang mencakup semua user story di PRD v1.1. Tandai tipe tiap scenario supaya terlihat keseimbangan antara positive dan negative.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Scenario",
+            "minItems": 10,
+            "fields": [
+              {
+                "id": "story",
+                "label": "User story",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "US-01",
+                  "US-02",
+                  "US-03",
+                  "US-04",
+                  "US-05",
+                  "Analytics",
+                  "Non-functional"
+                ]
+              },
+              {
+                "id": "type",
+                "label": "Tipe",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Positive",
+                  "Negative",
+                  "Boundary",
+                  "Edge case"
+                ]
+              },
+              {
+                "id": "scenario",
+                "label": "Scenario",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Verifikasi user tidak bisa menambahkan peserta dengan nama duplikat (beda huruf besar/kecil)"
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 10 scenario, setiap user story (US-01 s/d US-05) punya minimal 1.",
+            "Scenario negative/boundary minimal sepertiga dari total.",
+            "Ada scenario untuk aturan baru di v1.1: pembulatan, urutan hitung, hapus peserta."
+          ],
+          "rubric": [
+            {
+              "id": "coverage",
+              "label": "Semua user story tercakup",
+              "weight": 2
+            },
+            {
+              "id": "balance",
+              "label": "≥ 1/3 scenario negative/boundary/edge",
+              "weight": 2
+            },
+            {
+              "id": "v11",
+              "label": "Mencakup aturan baru dari PRD v1.1",
+              "weight": 2
+            },
+            {
+              "id": "clear",
+              "label": "Kalimat scenario jelas & bisa diverifikasi",
+              "weight": 1
+            }
+          ]
+        },
+        {
+          "id": "td-cases",
+          "title": "Tulis test case detail",
+          "instructions": "Pilih minimal **6 scenario terpenting** dan tulis test case detailnya. Wajib ada minimal 2 test case kalkulasi dengan **expected result berupa angka** yang kamu hitung manual.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Test case",
+            "minItems": 6,
+            "fields": [
+              {
+                "id": "title",
+                "label": "Judul",
+                "type": "text",
+                "required": true,
+                "placeholder": "TC-07 Pembulatan: Rp 100.000 dibagi rata ke 3 peserta"
+              },
+              {
+                "id": "priority",
+                "label": "Prioritas",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "P1",
+                  "P2",
+                  "P3"
+                ]
+              },
+              {
+                "id": "technique",
+                "label": "Teknik",
+                "type": "select",
+                "options": [
+                  "Boundary Value Analysis",
+                  "Equivalence Partitioning",
+                  "Decision Table",
+                  "State Transition",
+                  "Error Guessing",
+                  "Use Case / Happy path"
+                ]
+              },
+              {
+                "id": "precondition",
+                "label": "Precondition",
+                "type": "textarea",
+                "placeholder": "Peserta: Gua, Andi, Budi"
+              },
+              {
+                "id": "steps",
+                "label": "Langkah",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "1. Tambah item \"Paket\" Rp 100.000 qty 1, assign ke semua\n2. Pilih Bagi rata\n3. Klik Hitung"
+              },
+              {
+                "id": "expected",
+                "label": "Expected result",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Andi Rp 33.333, Budi Rp 33.333, Gua Rp 33.334. Total = Rp 100.000"
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 6 test case dengan langkah yang bisa diulang orang lain.",
+            "Expected result spesifik (angka, pesan error), bukan \"berhasil\" atau \"sesuai\".",
+            "Minimal 2 test case kalkulasi dengan angka yang dihitung manual.",
+            "Ada test case BVA untuk minimal 1 batas (peserta, nama, harga, atau persen).",
+            "Prioritas masuk akal: kalkulasi & alur utama = P1."
+          ],
+          "rubric": [
+            {
+              "id": "repeatable",
+              "label": "Langkah jelas & bisa diulang orang lain",
+              "weight": 2
+            },
+            {
+              "id": "specific",
+              "label": "Expected result spesifik (angka / pesan)",
+              "weight": 2
+            },
+            {
+              "id": "calc",
+              "label": "≥ 2 test case kalkulasi dengan angka manual yang benar",
+              "weight": 3
+            },
+            {
+              "id": "bva",
+              "label": "Ada BVA untuk minimal 1 batas",
+              "weight": 2
+            },
+            {
+              "id": "priority",
+              "label": "Prioritas masuk akal",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Contoh test case kunci yang diharapkan ada. Cocokkan angka expected kamu.",
+            "items": [
+              {
+                "tag": "P1 · Decision Table",
+                "title": "Proporsional + service + pajak (contoh PRD)",
+                "detail": "Andi 90.000, Budi 60.000, Cici 50.000, service 5%, pajak 10% → Grand Total Rp 231.000. Andi 103.950, Budi 69.300, Cici 57.750."
+              },
+              {
+                "tag": "P1 · Decision Table",
+                "title": "Urutan hitung dengan diskon",
+                "detail": "Subtotal 200.000, diskon 20.000, service 5%, pajak 10% → (180.000 + 9.000) × 1,1 = Rp 207.900."
+              },
+              {
+                "tag": "P1 · Error Guessing",
+                "title": "Pembulatan & sisa",
+                "detail": "Item Rp 100.000 dibagi ke Gua, Andi, Budi → Andi 33.333, Budi 33.333, Gua 33.334. Jumlah = 100.000."
+              },
+              {
+                "tag": "P1",
+                "title": "Bagi rata hanya ke peserta yang punya item",
+                "detail": "Gua, Andi, Budi; Budi tidak punya item; service 10% → service hanya dibagi ke Gua & Andi. Budi = Rp 0."
+              },
+              {
+                "tag": "P2 · BVA",
+                "title": "Jumlah peserta 1 / 2 / 20 / 21",
+                "detail": "Dengan 1 peserta tidak bisa lanjut. Dengan 2 bisa. Peserta ke-21 ditolak dengan pesan error."
+              },
+              {
+                "tag": "P2 · BVA",
+                "title": "Panjang nama 0 / 1 / 30 / 31 & hanya spasi",
+                "detail": "Nama hanya spasi ditolak (di-trim). 31 karakter ditolak."
+              },
+              {
+                "tag": "P2 · EP",
+                "title": "Harga 0, negatif, 1, 100.000.000, 100.000.001",
+                "detail": "Hanya rentang 1–100.000.000 yang diterima."
+              },
+              {
+                "tag": "P2",
+                "title": "Diskon > subtotal",
+                "detail": "Diskon Rp 300.000 pada subtotal Rp 200.000 → ditolak atau dibatasi ke subtotal. Grand total tidak pernah negatif."
+              },
+              {
+                "tag": "P2 · State",
+                "title": "Hapus peserta yang punya item bersama",
+                "detail": "Item Rp 90.000 untuk Andi & Budi, lalu Budi dihapus → item dibagi ulang, Andi menanggung Rp 90.000."
+              },
+              {
+                "tag": "P3",
+                "title": "Format nominal di pesan WhatsApp",
+                "detail": "Pesan memakai \"Rp 103.950\", bukan \"Rp 103,950\" atau \"103950\"."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "bug-hunting",
+      "title": "Test Execution & Bug Reporting",
+      "shortTitle": "Bug Hunting",
+      "summary": "Eksekusi test case di staging, temukan bug, laporkan dengan jelas, lalu beri rekomendasi rilis.",
+      "requiresLogin": true,
+      "learn": {
+        "objectives": [
+          "Mengeksekusi test case secara disiplin sekaligus melakukan exploratory testing.",
+          "Menulis bug report yang bisa langsung direproduksi engineer.",
+          "Membedakan severity (dampak) dan priority (urgensi)."
+        ],
+        "keyPoints": [
+          {
+            "title": "Anatomi bug report yang baik",
+            "body": "- **Judul**: [Area] apa yang salah + kondisinya. *\"[Ringkasan] Jumlah porsi tidak sama dengan Grand Total saat dibagi 3\"*\n- **Langkah reproduksi** bernomor, dengan data uji.\n- **Expected vs actual**, dengan rujukan ke AC.\n- **Environment** & **evidence** (screenshot / rekaman)."
+          },
+          {
+            "title": "Severity vs priority",
+            "body": "**Severity** = seberapa parah dampaknya ke user/bisnis. **Priority** = seberapa cepat harus diperbaiki. Salah hitung uang = Critical. Typo di tombol = Trivial, tapi bisa P1 kalau muncul di halaman promo."
+          },
+          {
+            "title": "Exploratory testing",
+            "body": "Setelah test case selesai, \"nakal\"-lah: kembali ke step sebelumnya, hapus data di tengah alur, isi angka ekstrem, ketik nama super panjang. Banyak bug muncul dari urutan aksi yang tidak terpikirkan."
+          },
+          {
+            "title": "Rekomendasi rilis (Go / No-Go)",
+            "body": "Dasarnya data: berapa test case pass/fail, bug apa yang masih open, dan risikonya. Bug Critical di kalkulasi uang biasanya = **No-Go**."
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "lead",
+        "message": "Staging sudah up! 🚀 Build `v2.0.0-rc1`.\n\nTolong jalankan test case-mu di sana, ya. Kalau ketemu bug, langsung laporkan dengan format standar biar tim gampang reproduce.\n\nRilis dijadwalkan Jumat. Rani butuh rekomendasi **Go / No-Go** dari QA paling lambat Kamis sore."
+      },
+      "sandbox": {
+        "label": "Buka SplitBill Staging",
+        "path": "/qa-simulator/sandbox/splitbill",
+        "description": "Aplikasi simulasi Split Bill v2 build rc1. Bug sengaja ditanam di dalamnya. Acuannya adalah PRD v1.1."
+      },
+      "assignments": [
+        {
+          "id": "bh-bugs",
+          "title": "Laporkan bug yang kamu temukan",
+          "instructions": "Eksekusi test case dari phase sebelumnya di **SplitBill Staging**, lalu lakukan exploratory testing. Laporkan setiap bug dengan format standar. Acuan expected behavior adalah **PRD v1.1**.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Bug",
+            "minItems": 3,
+            "fields": [
+              {
+                "id": "title",
+                "label": "Judul",
+                "type": "text",
+                "required": true,
+                "placeholder": "[Ringkasan] Jumlah porsi tidak sama dengan Grand Total saat dibagi 3"
+              },
+              {
+                "id": "severity",
+                "label": "Severity",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Critical",
+                  "Major",
+                  "Minor",
+                  "Trivial"
+                ]
+              },
+              {
+                "id": "priority",
+                "label": "Priority",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "P1",
+                  "P2",
+                  "P3"
+                ]
+              },
+              {
+                "id": "steps",
+                "label": "Langkah reproduksi",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "1. …\n2. …\n3. …"
+              },
+              {
+                "id": "expected",
+                "label": "Expected (rujuk PRD)",
+                "type": "textarea",
+                "required": true
+              },
+              {
+                "id": "actual",
+                "label": "Actual",
+                "type": "textarea",
+                "required": true
+              },
+              {
+                "id": "environment",
+                "label": "Environment",
+                "type": "text",
+                "placeholder": "Staging v2.0.0-rc1, Chrome 131, iPhone 13 viewport"
+              },
+              {
+                "id": "evidence",
+                "label": "Link evidence",
+                "type": "url",
+                "placeholder": "https://…"
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 3 bug valid. Target ideal: ≥ 8 dari 13 bug yang ditanam.",
+            "Minimal 1 bug kalkulasi berseverity Critical.",
+            "Langkah reproduksi bernomor dan menyertakan data uji.",
+            "Expected merujuk ke PRD v1.1, bukan pendapat pribadi.",
+            "Severity & priority masuk akal dan konsisten."
+          ],
+          "rubric": [
+            {
+              "id": "count",
+              "label": "Menemukan ≥ 5 bug valid",
+              "weight": 2
+            },
+            {
+              "id": "critical",
+              "label": "Menemukan bug kalkulasi Critical (urutan pajak / pembulatan / item tanpa peserta)",
+              "weight": 3
+            },
+            {
+              "id": "repro",
+              "label": "Langkah reproduksi bisa diulang tanpa bertanya",
+              "weight": 2
+            },
+            {
+              "id": "reference",
+              "label": "Expected merujuk ke PRD v1.1",
+              "weight": 1
+            },
+            {
+              "id": "severity",
+              "label": "Severity & priority tepat",
+              "weight": 2
+            }
+          ],
+          "answerKey": {
+            "intro": "Ada 13 bug yang ditanam di build rc1. Berapa yang kamu temukan?",
+            "items": [
+              {
+                "tag": "Critical",
+                "title": "BUG-01 Pajak dihitung dari subtotal, bukan setelah service",
+                "detail": "Contoh PRD (200.000, service 5%, pajak 10%) menghasilkan Grand Total Rp 230.000. Seharusnya Rp 231.000."
+              },
+              {
+                "tag": "Critical",
+                "title": "BUG-02 Jumlah porsi ≠ Grand Total (pembulatan ke bawah)",
+                "detail": "Rp 100.000 dibagi 3 → 33.333 × 3 = 99.999. Porsi dibulatkan ke bawah dan sisanya tidak dibebankan ke \"Gua\"."
+              },
+              {
+                "tag": "Critical",
+                "title": "BUG-03 Item tanpa peserta tetap masuk Grand Total",
+                "detail": "Item bisa disimpan tanpa peserta. Nominalnya masuk Grand Total, tapi tidak ditagihkan ke siapa pun."
+              },
+              {
+                "tag": "Major",
+                "title": "BUG-04 Hapus peserta: item bersama tidak dibagi ulang",
+                "detail": "Item Andi & Budi, lalu Budi dihapus → Andi tetap hanya menanggung setengah. Total porsi kurang dari Grand Total."
+              },
+              {
+                "tag": "Major",
+                "title": "BUG-05 Bagi rata ikut membebani peserta tanpa item",
+                "detail": "Peserta yang tidak memesan apa pun tetap kena bagian service/pajak."
+              },
+              {
+                "tag": "Major",
+                "title": "BUG-06 Diskon > subtotal → Grand Total negatif",
+                "detail": "Tidak ada validasi atau batas diskon maksimal."
+              },
+              {
+                "tag": "Major",
+                "title": "BUG-07 Harga 0 / negatif diterima",
+                "detail": "Item Rp -50.000 mengurangi total. Seharusnya ditolak (rentang 1–100.000.000)."
+              },
+              {
+                "tag": "Major",
+                "title": "BUG-08 Bisa lanjut dengan 1 peserta",
+                "detail": "Tombol \"Lanjut\" aktif meski hanya ada \"Gua\". Minimal seharusnya 2."
+              },
+              {
+                "tag": "Major",
+                "title": "BUG-09 Nama hanya spasi diterima",
+                "detail": "Input \"   \" menghasilkan chip peserta kosong. Nama tidak di-trim."
+              },
+              {
+                "tag": "Minor",
+                "title": "BUG-10 Nama duplikat diterima",
+                "detail": "\"Andi\" dan \"andi\" bisa ditambahkan bersamaan."
+              },
+              {
+                "tag": "Minor",
+                "title": "BUG-11 Service charge menerima > 100%",
+                "detail": "Service 150% diterima. Field pajak justru sudah divalidasi maksimal 100%, jadi perilakunya tidak konsisten."
+              },
+              {
+                "tag": "Minor",
+                "title": "BUG-12 Nama > 30 karakter diterima & merusak layout ringkasan",
+                "detail": "Tidak ada batas panjang nama, dan kartu ringkasan overflow secara horizontal di mobile."
+              },
+              {
+                "tag": "Minor",
+                "title": "BUG-13 Format nominal di pesan share salah",
+                "detail": "Pesan WhatsApp memakai \"Rp 103,950\" (format en-US). Seharusnya \"Rp 103.950\"."
+              }
+            ]
+          }
+        },
+        {
+          "id": "bh-report",
+          "title": "Test summary & rekomendasi Go / No-Go",
+          "instructions": "Tulis ringkasan hasil testing untuk Rani (PM) dan Dimas (Eng Lead): berapa test case dijalankan, pass/fail, bug open per severity, risiko, dan **rekomendasi Go / No-Go** beserta alasannya.",
+          "input": {
+            "type": "textarea",
+            "minLength": 150,
+            "placeholder": "Test summary — Split Bill v2 (rc1)\n\nDieksekusi: … TC (… pass, … fail)\nBug open: … Critical, … Major, … Minor\n\nRekomendasi: NO-GO karena…\nSyarat untuk GO: …"
+          },
+          "expectedOutput": [
+            "Angka eksekusi jelas (jumlah TC, pass, fail).",
+            "Ringkasan bug per severity.",
+            "Rekomendasi tegas (Go / No-Go) dengan alasan berbasis risiko.",
+            "Syarat yang harus dipenuhi untuk Go (mis. bug Critical fixed + retest + regression kalkulasi)."
+          ],
+          "rubric": [
+            {
+              "id": "numbers",
+              "label": "Menyertakan angka eksekusi & bug per severity",
+              "weight": 2
+            },
+            {
+              "id": "decision",
+              "label": "Rekomendasi tegas dengan alasan berbasis risiko",
+              "weight": 2
+            },
+            {
+              "id": "criteria",
+              "label": "Menyebut syarat untuk Go / rencana retest",
+              "weight": 1
+            },
+            {
+              "id": "audience",
+              "label": "Ringkas & mudah dipahami PM (non-teknis)",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "items": [
+              {
+                "tag": "Rekomendasi",
+                "title": "NO-GO",
+                "detail": "Ada bug Critical di kalkulasi uang (BUG-01, 02, 03). Ini menyentuh langsung success metric \"ticket salah hitung\". Syarat Go: semua Critical & Major kalkulasi fixed, retest, lalu regression seluruh test case P1 kalkulasi di build berikutnya."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

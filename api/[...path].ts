@@ -12,6 +12,7 @@ import portfoliosHandler from './_endpoints/portfolios.js';
 import adminConfigHandler from './_endpoints/admin-config.js';
 import qaLibraryHandler from './_endpoints/qa-library.js';
 import blobUploadHandler from './_endpoints/blob-upload.js';
+import simulatorHandler from './_endpoints/simulator.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const segments = req.query.path;
@@ -42,6 +43,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return qaLibraryHandler(req, res);
     case 'blob-upload':
       return blobUploadHandler(req, res);
+    case 'simulator':
+      return simulatorHandler(req, res);
     case 'admin-config': {
       // Map the resource parameter from path for the admin-config sub-handler
       const subPath = req.query.path;

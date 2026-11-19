@@ -39,7 +39,7 @@ const MentorProfileSection: React.FC = () => {
     <section id="mentor" className="py-8 md:py-20 bg-ld-cloud font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-0 sm:px-6">
         <div className="text-center mb-8 sm:mb-14 sm:mb-14 px-4">
-          <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
+          <h2 className="font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
             Belajar Langsung dari Praktisi
           </h2>
           <p className="text-ld-slate max-w-xl mx-auto text-base leading-relaxed">
@@ -82,7 +82,7 @@ const MentorProfileSection: React.FC = () => {
                     </div>
                     <div className="flex-1 min-w-0 pr-6 py-3 flex flex-col justify-center gap-1.5">
                       <div>
-                        <h3 className="text-base font-ld-display font-semibold text-white mb-0.5 truncate">{mentor.name}</h3>
+                        <h3 className="text-base font-semibold text-white mb-0.5 truncate">{mentor.name}</h3>
                         <p className="text-ld-fog text-xs leading-snug line-clamp-2">{mentor.bio}</p>
                       </div>
                       {mentor.verificationStatus === 'verified' && (

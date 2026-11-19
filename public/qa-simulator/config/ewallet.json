@@ -1,0 +1,1382 @@
+{
+  "id": "ewallet",
+  "title": "DompetKu: Top Up & Transfer Saldo",
+  "product": "DompetKu",
+  "domain": "Fintech / E-Wallet",
+  "difficulty": "intermediate",
+  "estimatedHours": 6,
+  "summary": "Kamu QA di squad Payments DompetKu. Sprint ini tim merilis top up saldo dan transfer antar pengguna. Tugasmu: review PRD, susun test plan, uji API, lalu jalankan regression sebelum rilis.",
+  "context": "**DompetKu** adalah e-wallet fiktif dengan ±1,2 juta pengguna aktif. Selama ini user hanya bisa top up dan bayar merchant. Sprint ini squad **Payments** merilis **transfer saldo antar pengguna** sekaligus merapikan alur **top up**.\n\nKamu bergabung sebagai QA di squad bersama 1 PM, 1 engineering lead, dan 1 backend engineer. Karena menyangkut uang, tim minta pengujian berlapis: requirement → test plan → API testing → regression sebelum rilis ke production.\n\nSemua nama, nomor, dan data di project ini fiktif. Aplikasi dan API yang kamu uji adalah simulasi di dalam browser.",
+  "team": [
+    {
+      "id": "pm",
+      "name": "Nadia Kusuma",
+      "role": "Product Manager",
+      "initials": "NK",
+      "color": "bg-sky-500"
+    },
+    {
+      "id": "lead",
+      "name": "Fajar Nugroho",
+      "role": "Engineering Lead",
+      "initials": "FN",
+      "color": "bg-amber-400"
+    },
+    {
+      "id": "be",
+      "name": "Yoga Pratama",
+      "role": "Backend Engineer",
+      "initials": "YP",
+      "color": "bg-indigo-400"
+    },
+    {
+      "id": "qa-lead",
+      "name": "Sari Wulandari",
+      "role": "QA Lead (mentor kamu)",
+      "initials": "SW",
+      "color": "bg-emerald-500"
+    }
+  ],
+  "prd": {
+    "title": "PRD — Top Up & Transfer Saldo",
+    "version": "v1.0",
+    "markdown": "| Info | Detail |\n|---|---|\n| **Produk** | DompetKu (Android, iOS, web) |\n| **Fitur** | Top Up Saldo & Transfer Antar Pengguna |\n| **PM** | Nadia Kusuma |\n| **Status** | Ready for QA Review |\n| **Target rilis** | Sprint 31 |\n\n## 1. Latar Belakang\n\nUser DompetKu sering diminta \"transfer dulu\" oleh teman (patungan, bayar utang kecil), tapi saat ini saldo DompetKu hanya bisa dipakai di merchant. Survei in-app (n = 3.400) menunjukkan **46%** user ingin bisa kirim saldo ke sesama pengguna.\n\nSelain itu, ticket CS soal **top up gagal / saldo tidak masuk** masih tinggi, jadi alur top up ikut dirapikan.\n\n## 2. Tujuan & Success Metrics\n\n| Metric | Sekarang | Target |\n|---|---|---|\n| User yang melakukan ≥ 1 transfer / bulan | 0% | 15% |\n| Ticket CS \"top up tidak masuk\" / bulan | 310 | ≤ 150 |\n| Transaksi gagal karena error sistem | 2,1% | ≤ 0,5% |\n\n## 3. Scope\n\n**In scope:** top up via Virtual Account (BCA, Mandiri) dan kartu debit, cek penerima, transfer saldo ke sesama pengguna via nomor HP, riwayat transaksi, notifikasi.\n\n**Out of scope:** transfer ke rekening bank, QRIS, request money, multi-currency.\n\n## 4. User Stories & Acceptance Criteria\n\n### US-01 — Top up saldo\n\n> Sebagai user, saya ingin mengisi saldo DompetKu agar bisa bertransaksi.\n\n- **AC1** User memilih metode: VA BCA, VA Mandiri, atau Kartu Debit.\n- **AC2** Nominal top up minimal **Rp 10.000**.\n- **AC3** Untuk VA, user mendapat nomor VA. Saldo masuk setelah pembayaran diterima.\n- **AC4** Untuk kartu debit, user memasukkan data kartu lalu verifikasi OTP.\n- **AC5** Top up berhasil → saldo bertambah dan user menerima notifikasi.\n\n### US-02 — Cek penerima\n\n> Sebagai pengirim, saya ingin memastikan penerima benar sebelum mengirim uang.\n\n- **AC1** User memasukkan nomor HP penerima.\n- **AC2** Sistem menampilkan **nama penerima** untuk dikonfirmasi.\n- **AC3** Nomor tidak valid → tampilkan pesan error.\n\n### US-03 — Transfer saldo\n\n> Sebagai user, saya ingin mengirim saldo ke teman yang juga memakai DompetKu.\n\n- **AC1** Nominal transfer minimal **Rp 1.000**.\n- **AC2** Batas transfer **Rp 20.000.000 per hari**.\n- **AC3** Transfer dikonfirmasi dengan **PIN 6 digit**.\n- **AC4** **5 transfer pertama setiap bulan gratis**, transfer berikutnya dikenakan biaya admin.\n- **AC5** User bisa menambahkan catatan (opsional).\n- **AC6** Transfer berhasil → saldo pengirim berkurang, saldo penerima bertambah, keduanya mendapat notifikasi.\n\n### US-04 — Riwayat transaksi\n\n> Sebagai user, saya ingin melihat semua transaksi saya.\n\n- **AC1** Riwayat menampilkan semua transaksi top up dan transfer.\n- **AC2** User bisa membuka detail transaksi.\n\n## 5. Non-functional\n\n- Transaksi harus aman dan **tidak boleh terduplikasi**.\n- Response API < 2 detik (p95).\n- Mendukung Android 9+, iOS 15+, dan browser modern.\n\n## 6. Analytics\n\n`topup_started`, `topup_success`, `transfer_started`, `transfer_success`, `transfer_failed`.\n"
+  },
+  "phases": [
+    {
+      "id": "requirement-analysis",
+      "title": "Requirement Analysis",
+      "shortTitle": "Requirement",
+      "summary": "Review PRD fitur uang: temukan gap aturan bisnis, batas, keamanan, dan kasus gagal sebelum tim mulai coding.",
+      "requiresLogin": false,
+      "learn": {
+        "objectives": [
+          "Membaca PRD fitur pembayaran dengan kacamata risiko: uang, keamanan, dan regulasi.",
+          "Menemukan aturan yang belum didefinisikan: batas, biaya, status gagal, dan perilaku duplikat.",
+          "Menulis pertanyaan klarifikasi yang menyebut lokasi di PRD dan dampaknya ke user atau bisnis."
+        ],
+        "keyPoints": [
+          {
+            "title": "Fitur uang punya standar lebih tinggi",
+            "body": "Satu bug di kalkulasi atau validasi saldo langsung jadi **kerugian uang** dan masalah kepercayaan. Setiap angka di PRD (minimal, maksimal, biaya) harus jelas **batasnya, inklusif atau tidak, dan apa yang terjadi kalau dilanggar**."
+          },
+          {
+            "title": "Cari 'happy path only'",
+            "body": "PRD sering hanya menjelaskan alur sukses. Tanyakan sisi sebaliknya: **saldo tidak cukup, PIN salah, penerima tidak terdaftar, pembayaran telat, tombol ditekan dua kali**. Tiap kasus gagal butuh perilaku dan pesan error yang jelas."
+          },
+          {
+            "title": "Ingat aspek non-fungsional",
+            "body": "Untuk e-wallet, pertanyaan soal **keamanan** (data pribadi, brute force PIN), **idempotency** (transaksi dobel), dan **regulasi** (batas saldo akun yang belum verifikasi) sama pentingnya dengan fitur."
+          },
+          {
+            "title": "Pertanyaan yang baik vs buruk",
+            "body": "❌ *\"Biaya adminnya gimana?\"*\n\n✅ *\"US-03 AC4: berapa biaya admin setelah 5 transfer gratis? 'Setiap bulan' dihitung per bulan kalender atau 30 hari bergulir? Kalau transfer ke-6 gagal, apakah kuota gratis ikut terpakai?\"*"
+          }
+        ],
+        "resources": [
+          {
+            "label": "QA Library — artikel manual testing",
+            "url": "/qa-library"
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "qa-lead",
+        "message": "Halo, selamat datang di squad Payments! 👋\n\nPRD **Top Up & Transfer** dari Nadia sudah **Ready for QA Review**. Fitur ini menyentuh uang user, jadi review-nya harus lebih teliti dari biasanya.\n\nAku butuh 2 hal sebelum refinement besok:\n1. **Daftar gap & pertanyaan klarifikasi** untuk Nadia. Minimal 6.\n2. **Ringkasan pemahamanmu** soal fitur ini.\n\nTips: untuk setiap angka di PRD, tanya *batasnya apa, dan apa yang terjadi kalau dilanggar*. Jangan lupa kasus gagal dan keamanan."
+      },
+      "assignments": [
+        {
+          "id": "rq-gaps",
+          "title": "Temukan gap & tulis pertanyaan klarifikasi",
+          "instructions": "Review PRD v1.0 di panel kanan. Untuk setiap gap, catat **lokasinya**, **jenis gap**, **pertanyaan** untuk Nadia, dan **risikonya** kalau tidak dijawab.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Gap",
+            "minItems": 6,
+            "fields": [
+              {
+                "id": "section",
+                "label": "Lokasi di PRD",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "US-01 Top up",
+                  "US-02 Cek penerima",
+                  "US-03 Transfer",
+                  "US-04 Riwayat",
+                  "Non-functional",
+                  "Analytics",
+                  "Lainnya"
+                ]
+              },
+              {
+                "id": "type",
+                "label": "Jenis",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Ambiguitas",
+                  "Missing requirement",
+                  "Edge case",
+                  "Keamanan",
+                  "Non-functional"
+                ]
+              },
+              {
+                "id": "question",
+                "label": "Pertanyaan untuk PM",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: US-01 AC2 — berapa nominal maksimal sekali top up? Apa yang terjadi kalau user mengisi di atas batas?"
+              },
+              {
+                "id": "impact",
+                "label": "Risiko jika tidak dijawab",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: dev menebak batas sendiri, dan saldo akun bisa melebihi batas regulasi."
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 6 gap, tersebar di beberapa user story.",
+            "Setiap pertanyaan menyebut lokasi (US/AC) dan skenario konkret.",
+            "Mencakup batas nominal yang belum lengkap: maksimal top up, maksimal per transfer.",
+            "Mencakup kasus gagal: saldo tidak cukup, PIN salah, penerima tidak terdaftar.",
+            "Minimal 1 gap keamanan atau non-fungsional: duplikat transaksi, masking nama, brute force PIN."
+          ],
+          "rubric": [
+            {
+              "id": "count",
+              "label": "Menemukan ≥ 6 gap yang valid",
+              "weight": 2
+            },
+            {
+              "id": "limits",
+              "label": "Ada gap soal batas nominal (maks top up / per transfer / batas saldo)",
+              "weight": 2
+            },
+            {
+              "id": "fee",
+              "label": "Ada gap soal biaya admin (besaran, definisi 'bulan', kuota saat gagal)",
+              "weight": 2
+            },
+            {
+              "id": "failure",
+              "label": "Ada gap soal kasus gagal (saldo kurang, PIN salah, penerima tidak ada)",
+              "weight": 2
+            },
+            {
+              "id": "security",
+              "label": "Ada gap keamanan/non-fungsional (duplikat, masking nama, lock PIN)",
+              "weight": 2
+            },
+            {
+              "id": "specific",
+              "label": "Pertanyaan spesifik: menyebut lokasi + skenario + risiko",
+              "weight": 2
+            }
+          ],
+          "answerKey": {
+            "intro": "Ini gap yang sengaja ditanam di PRD v1.0. Temuan lain di luar daftar ini juga bisa valid.",
+            "items": [
+              {
+                "tag": "US-01",
+                "title": "Nominal maksimal top up tidak ada",
+                "detail": "Hanya ada minimal Rp 10.000. Berapa maksimal sekali top up? Apakah batas minimal inklusif?"
+              },
+              {
+                "tag": "US-01",
+                "title": "Batas saldo akun belum verifikasi",
+                "detail": "Regulasi e-wallet membatasi saldo akun yang belum KYC. Berapa batasnya, dan apa yang terjadi kalau top up membuat saldo melewati batas?"
+              },
+              {
+                "tag": "US-01",
+                "title": "Masa berlaku VA & pembayaran telat",
+                "detail": "Berapa lama nomor VA berlaku? Bagaimana kalau user membayar setelah kedaluwarsa, atau notifikasi bank datang terlambat (status pending)?"
+              },
+              {
+                "tag": "US-01",
+                "title": "Biaya top up tidak disebut",
+                "detail": "Apakah top up via VA/kartu dikenai biaya? Siapa yang menanggung?"
+              },
+              {
+                "tag": "US-02",
+                "title": "Nama penerima tidak di-mask",
+                "detail": "Menampilkan nama lengkap dari nomor HP siapa pun membuka celah pengumpulan data pribadi. Perlu masking, misalnya \"Bu** Sa*****\"."
+              },
+              {
+                "tag": "US-02",
+                "title": "Nomor tidak terdaftar vs format salah",
+                "detail": "AC3 hanya bilang \"tidak valid\". Apakah nomor yang formatnya benar tapi bukan user DompetKu dibedakan? Format +62 dan 08 sama-sama diterima?"
+              },
+              {
+                "tag": "US-02/03",
+                "title": "Transfer ke nomor sendiri",
+                "detail": "Tidak disebut apakah user boleh transfer ke nomornya sendiri."
+              },
+              {
+                "tag": "US-03",
+                "title": "Maksimal per transaksi tidak ada",
+                "detail": "Hanya ada batas harian Rp 20.000.000. Apakah satu transaksi boleh Rp 20.000.000? Batas harian reset jam berapa, dan apakah biaya admin ikut dihitung?"
+              },
+              {
+                "tag": "US-03",
+                "title": "Besaran biaya admin & definisi 'bulan'",
+                "detail": "Biaya setelah 5 transfer gratis tidak disebut. 'Setiap bulan' itu bulan kalender atau 30 hari? Transfer gagal mengurangi kuota gratis atau tidak?"
+              },
+              {
+                "tag": "US-03",
+                "title": "Saldo tidak cukup",
+                "detail": "Perilaku saat saldo kurang (termasuk biaya admin) tidak didefinisikan."
+              },
+              {
+                "tag": "US-03",
+                "title": "PIN salah berkali-kali",
+                "detail": "Berapa kali boleh salah sebelum akun dikunci, dan berapa lama? Tanpa ini, PIN rawan brute force."
+              },
+              {
+                "tag": "US-03",
+                "title": "Panjang & isi catatan",
+                "detail": "Catatan opsional tanpa batas panjang dan karakter. Emoji? Maksimal berapa karakter?"
+              },
+              {
+                "tag": "Non-functional",
+                "title": "\"Tidak boleh terduplikasi\" belum operasional",
+                "detail": "Bagaimana mencegah transfer dobel saat tombol ditekan 2x atau jaringan retry? Perlu idempotency key dan aturan masa berlakunya."
+              },
+              {
+                "tag": "US-04",
+                "title": "Urutan, paginasi, dan status riwayat",
+                "detail": "Urutan riwayat (terbaru dulu?), jumlah per halaman, dan apakah transaksi pending/gagal ikut tampil tidak disebut."
+              },
+              {
+                "tag": "US-01/03",
+                "title": "Isi & waktu notifikasi",
+                "detail": "Notifikasi berisi apa, dikirim kapan, dan lewat kanal apa (push/in-app/email)?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "rq-summary",
+          "title": "Tulis ringkasan pemahaman fitur",
+          "instructions": "Jelaskan ulang fitur ini **dengan bahasa kamu sendiri** untuk engineer baru: masalah apa yang diselesaikan, alur top up dan transfer step by step, dan **3 area paling berisiko** menurutmu beserta alasannya.",
+          "input": {
+            "type": "textarea",
+            "minLength": 250,
+            "placeholder": "Fitur ini menyelesaikan masalah… Alur top up: … Alur transfer: … Area paling berisiko: 1) … karena …"
+          },
+          "expectedOutput": [
+            "Menyebut masalah user dan target bisnis (bukan sekadar daftar fitur).",
+            "Alur top up dan alur transfer lengkap, termasuk cek penerima dan PIN.",
+            "3 area berisiko dengan alasan, misalnya saldo/biaya, duplikasi transaksi, data pribadi."
+          ],
+          "rubric": [
+            {
+              "id": "why",
+              "label": "Menjelaskan masalah user & tujuan bisnis",
+              "weight": 1
+            },
+            {
+              "id": "flow",
+              "label": "Alur top up & transfer lengkap dan berurutan",
+              "weight": 2
+            },
+            {
+              "id": "risk",
+              "label": "Menyebut 3 area berisiko beserta alasannya",
+              "weight": 2
+            }
+          ],
+          "answerKey": {
+            "intro": "Contoh ringkasan yang baik. Kalimatmu tidak harus sama, yang penting isinya mencakup poin-poin ini.",
+            "items": [
+              {
+                "tag": "Masalah",
+                "title": "Saldo hanya bisa ke merchant",
+                "detail": "46% user ingin kirim saldo ke teman. Ticket top up gagal juga tinggi, jadi alur top up dirapikan."
+              },
+              {
+                "tag": "Alur",
+                "title": "Top up",
+                "detail": "Pilih metode (VA BCA/Mandiri/kartu debit) → isi nominal ≥ Rp 10.000 → bayar → saldo bertambah + notifikasi."
+              },
+              {
+                "tag": "Alur",
+                "title": "Transfer",
+                "detail": "Isi nomor HP → cek nama penerima → isi nominal ≥ Rp 1.000 (+ catatan) → konfirmasi PIN → saldo pindah, keduanya dapat notifikasi."
+              },
+              {
+                "tag": "Risiko",
+                "title": "Uang & biaya",
+                "detail": "Saldo kurang, batas harian, biaya admin setelah 5 transfer gratis. Salah hitung = kerugian."
+              },
+              {
+                "tag": "Risiko",
+                "title": "Duplikasi & keamanan",
+                "detail": "Transfer dobel, brute force PIN, nama penerima bocor."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "test-plan",
+      "title": "Test Planning & Risk Analysis",
+      "shortTitle": "Test Plan",
+      "summary": "Susun test plan berbasis risiko: tentukan scope, level pengujian, environment, dan kriteria masuk/keluar.",
+      "requiresLogin": true,
+      "prdAddendum": {
+        "version": "v1.1",
+        "markdown": "_Jawaban PM atas pertanyaan klarifikasi dari QA. Bagian ini **menggantikan** isi v1.0 jika ada yang bertentangan._\n\n### Top up (US-01)\n- Nominal top up bilangan bulat **Rp 10.000 – Rp 10.000.000** (keduanya **inklusif**). Tanpa biaya.\n- Akun **belum verifikasi (basic)**: saldo maksimal **Rp 2.000.000**. Top up yang membuat saldo melewati batas **ditolak seluruhnya**.\n- VA berlaku **24 jam**. Pembayaran setelah kedaluwarsa dikembalikan otomatis oleh bank.\n- Status top up: `pending` → `success` / `expired`. Saldo hanya bertambah saat `success`.\n\n### Cek penerima (US-02)\n- Nomor HP diterima dalam format `08…` atau `+628…` dan dinormalisasi ke `08…`.\n- Nama penerima **di-mask**: 2 huruf pertama setiap kata, sisanya `*` (contoh: **Bu** Sa*****).\n- Nomor format benar tapi bukan user DompetKu → error **\"Nomor belum terdaftar di DompetKu\"** (kode `RECIPIENT_NOT_FOUND`).\n- **Transfer ke nomor sendiri tidak diizinkan** (kode `SELF_TRANSFER`).\n\n### Transfer (US-03)\n- Nominal per transaksi **Rp 1.000 – Rp 5.000.000**. Batas harian **Rp 20.000.000** (tidak termasuk biaya), reset pukul **00.00 WIB**.\n- **5 transfer pertama per bulan kalender gratis**, berikutnya **Rp 2.500** per transfer. Transfer yang **gagal tidak mengurangi** kuota gratis.\n- Saldo harus cukup untuk **nominal + biaya**. Kalau tidak, transfer ditolak (kode `INSUFFICIENT_BALANCE`).\n- PIN salah **3 kali berturut-turut** → fitur transfer dikunci **1 jam** (kode `PIN_LOCKED`).\n- Catatan opsional, **maksimal 50 karakter**, emoji boleh.\n\n### Non-functional\n- Setiap request transfer wajib membawa header **`Idempotency-Key`**. Key yang sama dalam **24 jam** mengembalikan **hasil transaksi pertama** tanpa memotong saldo lagi.\n- Semua error memakai format `{ \"error\": { \"code\": \"…\", \"message\": \"…\" } }`.\n\n### Riwayat (US-04)\n- Urutan **terbaru di atas**, **20 item per halaman** (maksimal 50 lewat parameter `limit`).\n- Transaksi `pending` dan `failed` ikut tampil dengan label status.\n"
+      },
+      "learn": {
+        "objectives": [
+          "Menyusun test plan yang ringkas: scope, pendekatan, environment, data uji, dan kriteria masuk/keluar.",
+          "Melakukan analisis risiko (likelihood × impact) untuk menentukan prioritas pengujian.",
+          "Menentukan level pengujian yang tepat (API, UI, regression) untuk tiap area."
+        ],
+        "keyPoints": [
+          {
+            "title": "Test plan bukan dokumen tebal",
+            "body": "Test plan yang baik menjawab: **apa yang diuji dan tidak, bagaimana caranya, di mana, pakai data apa, dan kapan dianggap selesai**. 1–2 halaman yang dipakai tim lebih berguna daripada 20 halaman yang tidak dibaca."
+          },
+          {
+            "title": "Risk-based testing",
+            "body": "Nilai setiap area dengan **likelihood** (seberapa mungkin rusak) × **impact** (seberapa parah kalau rusak). Area **High × High**, seperti kalkulasi saldo dan duplikasi transfer, diuji paling dalam dan paling awal."
+          },
+          {
+            "title": "Entry & exit criteria",
+            "body": "**Entry**: syarat mulai testing (build stabil di staging, API contract final, data uji siap). **Exit**: syarat boleh rilis (mis. 0 bug Critical/Major open, semua test P1 pass, regression pass)."
+          },
+          {
+            "title": "Pilih level pengujian",
+            "body": "Aturan bisnis dan validasi paling efisien diuji di **level API** (cepat, presisi). UI cukup untuk alur utama dan tampilan. Setiap build baru wajib **regression** pada area yang tersentuh perubahan."
+          }
+        ],
+        "resources": [
+          {
+            "label": "QA Library",
+            "url": "/qa-library"
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "pm",
+        "message": "Thanks banget untuk pertanyaannya, banyak yang belum kepikiran 🙏\n\nSemua sudah aku jawab di **PRD v1.1** (lihat panel PRD, pilih versi v1.1). Highlight-nya: batas top up, biaya admin Rp 2.500 setelah 5 transfer gratis, lock PIN, dan idempotency key.\n\nFajar minta **test plan** sebelum tim mulai integrasi. Tolong fokus ke risiko terbesar, karena waktu testing kita cuma 4 hari kerja."
+      },
+      "assignments": [
+        {
+          "id": "tp-scope",
+          "title": "Tulis scope & strategi pengujian",
+          "instructions": "Tulis test plan ringkas untuk fitur ini: **in scope / out of scope**, **pendekatan & level pengujian**, **environment & data uji**, serta **entry & exit criteria**. Rujuk PRD v1.1.",
+          "input": {
+            "type": "textarea",
+            "minLength": 350,
+            "placeholder": "In scope: …\nOut of scope: …\n\nPendekatan: API testing untuk …, UI testing untuk …, regression …\n\nEnvironment & data: staging, akun basic & verified, …\n\nEntry criteria: …\nExit criteria: …"
+          },
+          "expectedOutput": [
+            "Scope jelas, termasuk yang sengaja tidak diuji (transfer ke bank, QRIS).",
+            "Pendekatan menyebut level pengujian per area (API untuk aturan bisnis, UI untuk alur, regression).",
+            "Data uji mencakup akun basic vs verified, saldo pas-pasan, dan user yang kuota gratisnya sudah habis.",
+            "Entry & exit criteria terukur, bukan kalimat umum."
+          ],
+          "rubric": [
+            {
+              "id": "scope",
+              "label": "In scope & out of scope jelas",
+              "weight": 1
+            },
+            {
+              "id": "levels",
+              "label": "Level pengujian dipilih per area dengan alasan",
+              "weight": 2
+            },
+            {
+              "id": "data",
+              "label": "Environment & data uji spesifik (jenis akun, saldo, kuota)",
+              "weight": 2
+            },
+            {
+              "id": "criteria",
+              "label": "Entry & exit criteria terukur",
+              "weight": 2
+            }
+          ],
+          "answerKey": {
+            "intro": "Elemen yang diharapkan ada di test plan fitur ini.",
+            "items": [
+              {
+                "tag": "Scope",
+                "title": "In / out of scope",
+                "detail": "In: top up (VA BCA, VA Mandiri, kartu debit), cek penerima, transfer, biaya admin, riwayat, notifikasi. Out: transfer ke bank, QRIS, request money."
+              },
+              {
+                "tag": "Pendekatan",
+                "title": "API dulu untuk aturan bisnis",
+                "detail": "Validasi nominal, batas, biaya, saldo, PIN, idempotency diuji di level API. UI untuk alur end-to-end dan pesan error."
+              },
+              {
+                "tag": "Data uji",
+                "title": "Akun dengan kondisi berbeda",
+                "detail": "Akun basic (batas saldo Rp 2 jt) vs verified, saldo pas untuk nominal + biaya, akun yang sudah 5x transfer bulan ini, akun dengan PIN terkunci, nomor tidak terdaftar."
+              },
+              {
+                "tag": "Environment",
+                "title": "Staging + simulator pembayaran",
+                "detail": "Staging dengan simulator callback VA (sukses, telat, kedaluwarsa) agar status pending dapat diuji."
+              },
+              {
+                "tag": "Entry",
+                "title": "Syarat mulai",
+                "detail": "Build ter-deploy di staging, kontrak API final, data uji tersedia, smoke test lolos."
+              },
+              {
+                "tag": "Exit",
+                "title": "Syarat rilis",
+                "detail": "0 bug Critical/Major open, semua test P1 pass, regression area uang pass, tidak ada transaksi dobel di uji idempotency."
+              }
+            ]
+          }
+        },
+        {
+          "id": "tp-risks",
+          "title": "Buat analisis risiko",
+          "instructions": "Daftar risiko produk untuk fitur ini. Untuk tiap risiko, nilai **likelihood** dan **impact**, lalu tulis **mitigasi testing**-nya: apa yang akan kamu uji dan di level apa.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Risiko",
+            "minItems": 5,
+            "fields": [
+              {
+                "id": "area",
+                "label": "Area",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Top up",
+                  "Cek penerima",
+                  "Transfer",
+                  "Biaya admin",
+                  "Keamanan",
+                  "Riwayat",
+                  "Notifikasi"
+                ]
+              },
+              {
+                "id": "risk",
+                "label": "Risiko",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: transfer terpotong dua kali saat request di-retry karena jaringan lambat."
+              },
+              {
+                "id": "likelihood",
+                "label": "Likelihood",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "High",
+                  "Medium",
+                  "Low"
+                ]
+              },
+              {
+                "id": "impact",
+                "label": "Impact",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "High",
+                  "Medium",
+                  "Low"
+                ]
+              },
+              {
+                "id": "mitigation",
+                "label": "Mitigasi testing",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: API test kirim 2 request dengan Idempotency-Key sama → saldo hanya terpotong sekali."
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 5 risiko, lebih banyak di area uang (saldo, biaya, duplikasi).",
+            "Likelihood dan impact masuk akal (risiko uang/keamanan = impact High).",
+            "Mitigasi berupa aktivitas testing konkret, bukan sekadar 'diuji dengan teliti'."
+          ],
+          "rubric": [
+            {
+              "id": "count",
+              "label": "≥ 5 risiko yang relevan",
+              "weight": 1
+            },
+            {
+              "id": "money",
+              "label": "Ada risiko kalkulasi saldo/biaya & duplikasi transaksi",
+              "weight": 2
+            },
+            {
+              "id": "security",
+              "label": "Ada risiko keamanan (auth, brute force PIN, data pribadi)",
+              "weight": 2
+            },
+            {
+              "id": "rating",
+              "label": "Penilaian likelihood × impact masuk akal",
+              "weight": 1
+            },
+            {
+              "id": "mitigation",
+              "label": "Mitigasi berupa test konkret + level pengujian",
+              "weight": 2
+            }
+          ],
+          "answerKey": {
+            "intro": "Risiko utama yang seharusnya masuk daftar. Penilaian likelihood bisa berbeda, tapi impact area uang & keamanan semestinya High.",
+            "items": [
+              {
+                "tag": "High × High",
+                "title": "Transfer dobel (idempotency)",
+                "detail": "Retry jaringan / double tap memotong saldo 2x. Mitigasi: API test Idempotency-Key sama 2x, uji double tap di UI."
+              },
+              {
+                "tag": "High × High",
+                "title": "Saldo minus / kurang dari nominal + biaya",
+                "detail": "Mitigasi: API test saldo pas, kurang Rp 1, dan transfer ke-6 (dengan biaya)."
+              },
+              {
+                "tag": "High × High",
+                "title": "Endpoint tanpa autentikasi",
+                "detail": "Saldo/riwayat bisa diakses tanpa token. Mitigasi: panggil setiap endpoint tanpa token & dengan token kedaluwarsa."
+              },
+              {
+                "tag": "Medium × High",
+                "title": "Validasi nominal top up/transfer",
+                "detail": "Nilai negatif, nol, desimal, di bawah minimal, di atas maksimal. Mitigasi: boundary value di API."
+              },
+              {
+                "tag": "Medium × High",
+                "title": "Biaya admin salah hitung",
+                "detail": "Kuota 5 gratis per bulan kalender, transfer gagal tidak mengurangi kuota. Mitigasi: test transfer ke-5, ke-6, dan setelah gagal."
+              },
+              {
+                "tag": "Medium × High",
+                "title": "Brute force PIN",
+                "detail": "Mitigasi: 3x PIN salah → PIN_LOCKED selama 1 jam, dan error PIN tidak membocorkan detail sistem."
+              },
+              {
+                "tag": "Medium × Medium",
+                "title": "Data pribadi penerima bocor",
+                "detail": "Nama tidak di-mask di cek penerima. Mitigasi: cek response inquiry & tampilan UI."
+              },
+              {
+                "tag": "Medium × Medium",
+                "title": "Top up pending / kedaluwarsa",
+                "detail": "Saldo bertambah padahal VA expired, atau callback telat. Mitigasi: simulasi callback."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "api-testing",
+      "title": "API Testing",
+      "shortTitle": "API Testing",
+      "summary": "Uji kontrak API top up & transfer: status code, body response, validasi, autentikasi, dan idempotency.",
+      "requiresLogin": true,
+      "prdAddendum": {
+        "version": "v1.2 · API",
+        "markdown": "_Kontrak API untuk pengujian. Semua endpoint ada di **API Console** (tombol di bawah). Bagian ini melengkapi PRD v1.1._\n\n### Akun uji\n| Peran | Nomor HP | PIN | Saldo awal |\n|---|---|---|---|\n| **Kamu** (akun basic) | `081200001111` | `123456` | Rp 250.000 |\n| Budi Santoso | `081234567890` | — | Rp 100.000 |\n| Citra Lestari | `085711112222` | — | Rp 50.000 |\n\nNomor tidak terdaftar untuk uji negatif: `089900000000`.\n\n### Autentikasi\n`POST /v1/auth/login` — body `{ \"phone\", \"pin\" }` → `200 { data: { token, expires_in } }`. Endpoint lain wajib header `Authorization: Bearer <token>`. Tanpa token → `401 UNAUTHORIZED`.\n\n### Endpoint\n| Method & path | Body / query | Sukses |\n|---|---|---|\n| `GET /v1/wallet/balance` | – | `200 { data: { balance, currency, kyc_level } }` |\n| `POST /v1/topup` | `{ amount, method }`, method: `va_bca` · `va_mandiri` · `debit_card` | `201 { data: { id, status, amount, balance_after } }` |\n| `POST /v1/transfer/inquiry` | `{ to_phone, amount }` | `200 { data: { recipient_name, fee, total } }` |\n| `POST /v1/transfer` | header `Idempotency-Key`, body `{ to_phone, amount, pin, note? }` | `201 { data: { id, status, amount, fee, balance_after } }` |\n| `GET /v1/transactions` | `?limit=20&page=1` | `200 { data: [...], meta: { page, limit, total } }` |\n\n### Kode error\n| HTTP | Kode | Kapan |\n|---|---|---|\n| 401 | `UNAUTHORIZED` | Token tidak ada / tidak valid |\n| 401 | `INVALID_PIN` | PIN salah |\n| 423 | `PIN_LOCKED` | 3x PIN salah berturut-turut |\n| 404 | `RECIPIENT_NOT_FOUND` | Nomor bukan user DompetKu |\n| 422 | `INVALID_AMOUNT` | Nominal di luar batas / bukan bilangan bulat positif |\n| 422 | `INVALID_METHOD` | Metode top up tidak dikenal |\n| 422 | `BALANCE_LIMIT_EXCEEDED` | Saldo akun basic akan melewati Rp 2.000.000 |\n| 422 | `INSUFFICIENT_BALANCE` | Saldo < nominal + biaya |\n| 422 | `SELF_TRANSFER` | Transfer ke nomor sendiri |\n| 422 | `MISSING_IDEMPOTENCY_KEY` | Header `Idempotency-Key` tidak ada |\n\nSemua error: `{ \"error\": { \"code\", \"message\" } }`.\n"
+      },
+      "sandbox": {
+        "label": "Buka API Console",
+        "path": "/qa-simulator/sandbox/dompetku-api",
+        "description": "API DompetKu staging build api-rc1 (simulasi di browser). Bug sengaja ditanam di dalamnya. Acuannya adalah PRD v1.1 dan kontrak API v1.2."
+      },
+      "learn": {
+        "objectives": [
+          "Menyusun API test case: request, expected status code, dan expected body.",
+          "Menguji validasi, autentikasi, dan aturan bisnis langsung di level API.",
+          "Menulis bug report API yang bisa direproduksi: endpoint, request lengkap, expected vs actual response."
+        ],
+        "keyPoints": [
+          {
+            "title": "Yang dicek di setiap response",
+            "body": "1) **Status code** sesuai kontrak. 2) **Body**: field lengkap, tipe data benar, format error konsisten. 3) **Side effect**: apakah saldo/riwayat benar-benar berubah (atau tidak berubah) setelah request."
+          },
+          {
+            "title": "Kategori test API",
+            "body": "**Positive** (alur benar), **negative** (input salah), **boundary** (tepat di batas, ±1), **security** (tanpa token, token orang lain, brute force), dan **idempotency** (request yang sama dikirim ulang)."
+          },
+          {
+            "title": "Selalu cek side effect",
+            "body": "Response `422` belum tentu aman. Panggil `GET /v1/wallet/balance` sebelum & sesudah untuk memastikan saldo **tidak berubah** saat request ditolak, dan **berubah tepat sekali** saat sukses."
+          },
+          {
+            "title": "Bug report API yang baik",
+            "body": "Sertakan **method + endpoint**, **header & body request** (hapus data sensitif), **expected** (rujuk kontrak), dan **actual** (status + body). Engineer harus bisa copy-paste request-mu untuk reproduksi."
+          }
+        ],
+        "resources": [
+          {
+            "label": "QA Library",
+            "url": "/qa-library"
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "be",
+        "message": "Halo! API untuk top up & transfer sudah aku deploy ke staging (**api-rc1**) 🚀\n\nKontraknya ada di **PRD v1.2 · API**, termasuk akun uji. Kamu bisa langsung coba lewat **API Console**, tidak perlu Postman.\n\nJujur ini masih rc pertama, jadi pasti ada yang belum sesuai. Tolong uji validasi, auth, dan terutama **idempotency transfer**. Kalau ketemu bug, tulis request lengkapnya ya biar aku gampang reproduksi."
+      },
+      "assignments": [
+        {
+          "id": "api-cases",
+          "title": "Susun API test case",
+          "instructions": "Tulis API test case untuk endpoint di kontrak v1.2. Campur kategori: positive, negative, boundary, security, dan idempotency. Jalankan di API Console dan isi hasilnya.",
+          "input": {
+            "type": "list",
+            "itemLabel": "API test",
+            "minItems": 8,
+            "fields": [
+              {
+                "id": "endpoint",
+                "label": "Endpoint",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "POST /v1/auth/login",
+                  "GET /v1/wallet/balance",
+                  "POST /v1/topup",
+                  "POST /v1/transfer/inquiry",
+                  "POST /v1/transfer",
+                  "GET /v1/transactions"
+                ]
+              },
+              {
+                "id": "category",
+                "label": "Kategori",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Positive",
+                  "Negative",
+                  "Boundary",
+                  "Security",
+                  "Idempotency"
+                ]
+              },
+              {
+                "id": "scenario",
+                "label": "Skenario",
+                "type": "text",
+                "required": true,
+                "placeholder": "Top up tepat di batas minimal Rp 10.000"
+              },
+              {
+                "id": "request",
+                "label": "Request (header & body)",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Authorization: Bearer <token>\n{ \"amount\": 10000, \"method\": \"va_bca\" }"
+              },
+              {
+                "id": "expected",
+                "label": "Expected (status + body)",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "201, status \"success\", balance_after = saldo awal + 10.000"
+              },
+              {
+                "id": "result",
+                "label": "Hasil",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Blocked"
+                ]
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 8 test, mencakup semua kategori (positive, negative, boundary, security, idempotency).",
+            "Expected menyebut status code DAN isi body / kode error dari kontrak.",
+            "Ada pengecekan side effect (saldo sebelum/sesudah).",
+            "Kolom hasil diisi berdasarkan eksekusi nyata di API Console."
+          ],
+          "rubric": [
+            {
+              "id": "coverage",
+              "label": "Mencakup ≥ 4 endpoint berbeda",
+              "weight": 1
+            },
+            {
+              "id": "categories",
+              "label": "Ada test negative, boundary, security, dan idempotency",
+              "weight": 2
+            },
+            {
+              "id": "expected",
+              "label": "Expected spesifik: status code + body / kode error",
+              "weight": 2
+            },
+            {
+              "id": "sideeffect",
+              "label": "Mengecek side effect saldo",
+              "weight": 2
+            },
+            {
+              "id": "executed",
+              "label": "Test benar-benar dijalankan (hasil Pass/Fail sesuai kenyataan)",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Test penting yang sebaiknya ada. Yang bertanda ✗ akan Fail di api-rc1 karena ada bug yang ditanam.",
+            "items": [
+              {
+                "tag": "Security ✗",
+                "title": "Saldo tanpa token",
+                "detail": "GET /v1/wallet/balance tanpa Authorization → expected 401 UNAUTHORIZED."
+              },
+              {
+                "tag": "Boundary",
+                "title": "Top up tepat Rp 10.000 dan Rp 10.000.000",
+                "detail": "Expected 201 (inklusif). Saldo bertambah tepat sebesar nominal (perhatikan batas akun basic)."
+              },
+              {
+                "tag": "Boundary ✗",
+                "title": "Top up Rp 9.999",
+                "detail": "Expected 422 INVALID_AMOUNT."
+              },
+              {
+                "tag": "Negative ✗",
+                "title": "Top up nominal negatif / nol",
+                "detail": "Expected 422 INVALID_AMOUNT, saldo tidak berubah."
+              },
+              {
+                "tag": "Negative",
+                "title": "Top up melewati batas saldo basic",
+                "detail": "Saldo akhir > Rp 2.000.000 → expected 422 BALANCE_LIMIT_EXCEEDED."
+              },
+              {
+                "tag": "Security ✗",
+                "title": "Inquiry: nama di-mask",
+                "detail": "POST /v1/transfer/inquiry ke 081234567890 → recipient_name \"Bu** Sa*****\"."
+              },
+              {
+                "tag": "Negative ✗",
+                "title": "Transfer ke nomor sendiri",
+                "detail": "Expected 422 SELF_TRANSFER."
+              },
+              {
+                "tag": "Negative ✗",
+                "title": "Saldo tidak cukup",
+                "detail": "Transfer > saldo → expected 422 INSUFFICIENT_BALANCE, saldo tidak berubah."
+              },
+              {
+                "tag": "Negative ✗",
+                "title": "PIN salah",
+                "detail": "Expected 401 INVALID_PIN (bukan 500). 3x berturut-turut → 423 PIN_LOCKED."
+              },
+              {
+                "tag": "Idempotency ✗",
+                "title": "Idempotency-Key sama dikirim 2x",
+                "detail": "Request kedua mengembalikan hasil pertama, saldo terpotong satu kali saja."
+              },
+              {
+                "tag": "Positive ✗",
+                "title": "Biaya admin transfer pertama",
+                "detail": "Inquiry/transfer pertama bulan ini → fee 0 (gratis)."
+              },
+              {
+                "tag": "Boundary ✗",
+                "title": "Riwayat limit di atas maksimal",
+                "detail": "GET /v1/transactions?limit=200 → maksimal 50 item, meta.limit = 50."
+              }
+            ]
+          }
+        },
+        {
+          "id": "api-bugs",
+          "title": "Laporkan bug API yang kamu temukan",
+          "instructions": "Untuk setiap test yang Fail, tulis bug report API. Sertakan request lengkap supaya Yoga bisa langsung reproduksi.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Bug",
+            "minItems": 4,
+            "fields": [
+              {
+                "id": "title",
+                "label": "Judul",
+                "type": "text",
+                "required": true,
+                "placeholder": "[API] POST /v1/topup menerima nominal negatif dan mengurangi saldo"
+              },
+              {
+                "id": "endpoint",
+                "label": "Endpoint",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "POST /v1/auth/login",
+                  "GET /v1/wallet/balance",
+                  "POST /v1/topup",
+                  "POST /v1/transfer/inquiry",
+                  "POST /v1/transfer",
+                  "GET /v1/transactions"
+                ]
+              },
+              {
+                "id": "severity",
+                "label": "Severity",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Critical",
+                  "Major",
+                  "Minor",
+                  "Trivial"
+                ]
+              },
+              {
+                "id": "priority",
+                "label": "Priority",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "P1",
+                  "P2",
+                  "P3"
+                ]
+              },
+              {
+                "id": "request",
+                "label": "Request lengkap",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "POST /v1/topup\nAuthorization: Bearer <token>\n{ \"amount\": -50000, \"method\": \"va_bca\" }"
+              },
+              {
+                "id": "expected",
+                "label": "Expected (rujuk kontrak)",
+                "type": "textarea",
+                "required": true
+              },
+              {
+                "id": "actual",
+                "label": "Actual (status + body)",
+                "type": "textarea",
+                "required": true
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 4 bug, dengan severity sesuai dampak (uang & keamanan = Critical/Major).",
+            "Request bisa langsung dipakai ulang: method, endpoint, header penting, body.",
+            "Expected merujuk kontrak/PRD, actual menyebut status code + body."
+          ],
+          "rubric": [
+            {
+              "id": "found",
+              "label": "Menemukan ≥ 4 bug valid",
+              "weight": 2
+            },
+            {
+              "id": "critical",
+              "label": "Menemukan minimal 2 bug Critical (auth, saldo minus, top up negatif, idempotency)",
+              "weight": 2
+            },
+            {
+              "id": "repro",
+              "label": "Request lengkap & bisa direproduksi",
+              "weight": 2
+            },
+            {
+              "id": "severity",
+              "label": "Severity & priority masuk akal",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Bug yang ditanam di api-rc1. Severity bisa sedikit berbeda, asal alasannya masuk akal.",
+            "items": [
+              {
+                "tag": "Critical",
+                "title": "API-01 Saldo bisa diakses tanpa token",
+                "detail": "GET /v1/wallet/balance tanpa Authorization mengembalikan 200 + saldo. Seharusnya 401 UNAUTHORIZED."
+              },
+              {
+                "tag": "Critical",
+                "title": "API-02 Top up nominal negatif mengurangi saldo",
+                "detail": "amount -50000 → 201 dan saldo berkurang. Seharusnya 422 INVALID_AMOUNT."
+              },
+              {
+                "tag": "Major",
+                "title": "API-03 Minimal top up salah (Rp 1.000)",
+                "detail": "Top up Rp 1.000–9.999 diterima. Minimal di PRD Rp 10.000."
+              },
+              {
+                "tag": "Critical",
+                "title": "API-04 Transfer melebihi saldo membuat saldo minus",
+                "detail": "Tidak ada cek INSUFFICIENT_BALANCE. Saldo pengirim menjadi negatif."
+              },
+              {
+                "tag": "Major",
+                "title": "API-05 PIN salah menghasilkan 500",
+                "detail": "Seharusnya 401 INVALID_PIN. Response 500 juga membocorkan detail internal dan lock 3x tidak berjalan."
+              },
+              {
+                "tag": "Critical",
+                "title": "API-06 Idempotency-Key diabaikan",
+                "detail": "Key yang sama dikirim 2x → dua transaksi, saldo terpotong 2x."
+              },
+              {
+                "tag": "Major",
+                "title": "API-07 Transfer ke nomor sendiri diizinkan",
+                "detail": "Inquiry & transfer ke 081200001111 sukses. Seharusnya 422 SELF_TRANSFER."
+              },
+              {
+                "tag": "Major",
+                "title": "API-08 Nama penerima tidak di-mask",
+                "detail": "Inquiry mengembalikan \"Budi Santoso\". Seharusnya \"Bu** Sa*****\"."
+              },
+              {
+                "tag": "Major",
+                "title": "API-09 Biaya admin dikenakan sejak transfer pertama",
+                "detail": "Fee 2.500 sudah muncul di transfer pertama bulan ini. Seharusnya gratis untuk 5 transfer pertama."
+              },
+              {
+                "tag": "Minor",
+                "title": "API-10 Limit riwayat tidak dibatasi",
+                "detail": "limit=200 diterima apa adanya. Maksimal seharusnya 50."
+              },
+              {
+                "tag": "Minor",
+                "title": "API-11 Format error top up tidak konsisten",
+                "detail": "INVALID_METHOD mengembalikan {\"message\": …}, bukan {\"error\": {code, message}}."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "regression",
+      "title": "Regression Testing & Release Sign-off",
+      "shortTitle": "Regression",
+      "summary": "Retest bug yang sudah di-fix, jalankan regression di area yang tersentuh perubahan, lalu beri sign-off rilis.",
+      "requiresLogin": true,
+      "prdAddendum": {
+        "version": "v1.3 · Rilis rc2",
+        "markdown": "_Catatan rilis build **app v3.4.0-rc2** (aplikasi + API). Uji di **DompetKu App (staging)**._\n\n### Perbaikan dari api-rc1\n- Saldo & riwayat kini **wajib token** (API-01).\n- Validasi nominal top up: hanya bilangan bulat **Rp 10.000 – Rp 10.000.000** (API-02, API-03).\n- Cek **saldo cukup** sebelum transfer, termasuk biaya (API-04).\n- PIN salah → pesan \"PIN salah\" + **lock 1 jam setelah 3x** (API-05).\n- **Idempotency** transfer aktif (API-06).\n- **Transfer ke nomor sendiri** diblokir (API-07).\n- Nama penerima **di-mask** (API-08).\n\n### Fitur baru\n- **Nominal cepat** saat top up: Rp 10.000 / 50.000 / 100.000 / 250.000.\n- **Penerima favorit** di halaman transfer.\n- **Catatan transfer** (maks. 50 karakter) tampil di detail & riwayat.\n- Input nominal transfer kini otomatis memakai **pemisah ribuan** (contoh: 50.000).\n\n### Belum termasuk rc2\n- Perbaikan API-09 (biaya admin), API-10, API-11 dijadwalkan ke rc3.\n\n### Area yang tersentuh perubahan\nTop up, transfer (input nominal, penerima, konfirmasi), riwayat, halaman beranda (saldo).\n"
+      },
+      "sandbox": {
+        "label": "Buka DompetKu App",
+        "path": "/qa-simulator/sandbox/dompetku",
+        "description": "Aplikasi DompetKu staging build v3.4.0-rc2. Beberapa bug sudah di-fix, tapi perubahan baru bisa merusak fitur lama. Acuannya PRD v1.1 dan catatan rilis v1.3."
+      },
+      "learn": {
+        "objectives": [
+          "Membedakan retest (memastikan bug yang di-fix benar-benar beres) dan regression (memastikan fitur lama tidak rusak).",
+          "Memilih regression suite berdasarkan area yang tersentuh perubahan dan risiko.",
+          "Memberi rekomendasi rilis (Go / No-Go) yang tegas dan bisa dipertanggungjawabkan."
+        ],
+        "keyPoints": [
+          {
+            "title": "Retest vs regression",
+            "body": "**Retest**: ulangi langkah bug lama di build baru, pastikan sudah benar. **Regression**: uji fitur yang *seharusnya tidak berubah*, karena fix dan fitur baru sering merusak hal lain di sekitarnya."
+          },
+          {
+            "title": "Baca catatan rilis dengan curiga",
+            "body": "Setiap baris di catatan rilis adalah petunjuk area berisiko. *\"Input nominal kini pakai pemisah ribuan\"* artinya parsing angka berubah, jadi uji ulang semua nominal (termasuk batas)."
+          },
+          {
+            "title": "Prioritaskan, jangan uji semuanya",
+            "body": "Waktu regression terbatas. Urutkan: 1) retest bug Critical/Major, 2) alur uang end-to-end (top up, transfer, saldo), 3) area yang disentuh perubahan, 4) fitur baru, 5) sisanya kalau sempat."
+          },
+          {
+            "title": "Sign-off berbasis risiko",
+            "body": "Rekomendasi rilis menyebut **apa yang diuji, hasilnya, bug yang masih open per severity, risiko kalau tetap rilis**, dan **syarat untuk Go**. Bug Critical di alur uang hampir selalu berarti **No-Go**."
+          }
+        ],
+        "resources": [
+          {
+            "label": "QA Library",
+            "url": "/qa-library"
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "lead",
+        "message": "Thanks untuk bug report API-nya, sangat membantu 🙌\n\nBuild **v3.4.0-rc2** sudah di staging. Isinya fix sebagian besar bug API plus 4 fitur kecil. Detailnya di **catatan rilis (PRD v1.3)**.\n\nRencananya rilis hari Jumat. Tolong:\n1. **Retest** bug yang di-fix dan jalankan **regression** di area yang berubah.\n2. Laporkan bug baru yang muncul.\n3. Kasih **rekomendasi Go / No-Go** untuk rilis Jumat."
+      },
+      "assignments": [
+        {
+          "id": "rg-suite",
+          "title": "Jalankan regression suite",
+          "instructions": "Susun dan jalankan regression suite di DompetKu App rc2. Campur **retest bug fix**, **regression** fitur lama di area yang berubah, dan **fitur baru**. Isi hasil setiap test.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Test",
+            "minItems": 8,
+            "fields": [
+              {
+                "id": "area",
+                "label": "Area",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Login / PIN",
+                  "Beranda & saldo",
+                  "Top up",
+                  "Transfer",
+                  "Penerima favorit (baru)",
+                  "Catatan transfer (baru)",
+                  "Riwayat"
+                ]
+              },
+              {
+                "id": "kind",
+                "label": "Jenis",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Retest bug fix",
+                  "Regression",
+                  "Fitur baru"
+                ]
+              },
+              {
+                "id": "check",
+                "label": "Yang diuji",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Top up dengan nominal cepat Rp 10.000 → saldo bertambah Rp 10.000"
+              },
+              {
+                "id": "result",
+                "label": "Hasil",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Blocked"
+                ]
+              },
+              {
+                "id": "note",
+                "label": "Catatan",
+                "type": "text",
+                "placeholder": "Mis. lihat BUG REG-01"
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 8 test yang mencakup ketiga jenis: retest, regression, fitur baru.",
+            "Retest mencakup bug Critical dari api-rc1 (saldo minus, top up negatif, nomor sendiri).",
+            "Regression menyentuh area yang disebut berubah di catatan rilis (nominal, riwayat, saldo beranda).",
+            "Hasil diisi sesuai eksekusi nyata di aplikasi."
+          ],
+          "rubric": [
+            {
+              "id": "mix",
+              "label": "Ada retest, regression, dan fitur baru",
+              "weight": 2
+            },
+            {
+              "id": "retest",
+              "label": "Retest bug Critical/Major dari api-rc1",
+              "weight": 2
+            },
+            {
+              "id": "impact",
+              "label": "Regression memilih area yang tersentuh perubahan",
+              "weight": 2
+            },
+            {
+              "id": "executed",
+              "label": "Hasil sesuai kenyataan (menemukan test yang Fail)",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Cakupan yang diharapkan. Test bertanda ✗ akan Fail di rc2.",
+            "items": [
+              {
+                "tag": "Retest",
+                "title": "Top up negatif / di bawah minimal ditolak",
+                "detail": "Pass di rc2 (API-02 & API-03 fixed)."
+              },
+              {
+                "tag": "Retest",
+                "title": "Transfer melebihi saldo ditolak",
+                "detail": "Pass di rc2 (API-04 fixed)."
+              },
+              {
+                "tag": "Retest",
+                "title": "Transfer ke nomor sendiri diblokir & nama di-mask",
+                "detail": "Pass di rc2 (API-07 & API-08 fixed)."
+              },
+              {
+                "tag": "Retest",
+                "title": "PIN salah 3x → terkunci",
+                "detail": "Pass di rc2 (API-05 fixed)."
+              },
+              {
+                "tag": "Regression ✗",
+                "title": "Top up tepat Rp 10.000",
+                "detail": "Nominal cepat maupun ketik manual Rp 10.000 ditolak. Batas minimal tidak lagi inklusif."
+              },
+              {
+                "tag": "Regression ✗",
+                "title": "Transfer nominal jutaan dengan pemisah ribuan",
+                "detail": "Ketik 1.500.000 → layar konfirmasi dan saldo menunjukkan yang terkirim Rp 1.500. Nominal di bawah sejuta (mis. 50.000) tampak normal."
+              },
+              {
+                "tag": "Regression ✗",
+                "title": "Urutan riwayat",
+                "detail": "Riwayat tampil terlama di atas, padahal PRD v1.1 meminta terbaru di atas."
+              },
+              {
+                "tag": "Regression ✗",
+                "title": "Saldo beranda setelah transaksi",
+                "detail": "Saldo di beranda tidak berubah setelah transfer sampai halaman di-reload."
+              },
+              {
+                "tag": "Regression ✗",
+                "title": "Metode top up lengkap",
+                "detail": "Kartu debit hilang dari pilihan metode."
+              },
+              {
+                "tag": "Fitur baru ✗",
+                "title": "Penerima favorit",
+                "detail": "Memilih favorit → \"Nomor belum terdaftar\"."
+              },
+              {
+                "tag": "Fitur baru ✗",
+                "title": "Catatan transfer",
+                "detail": "Catatan > 50 karakter tetap tersimpan (tanpa batas/counter), dan layar sukses transfer kedua tanpa catatan menampilkan catatan transfer sebelumnya."
+              }
+            ]
+          }
+        },
+        {
+          "id": "rg-bugs",
+          "title": "Laporkan bug regresi",
+          "instructions": "Tulis bug report untuk setiap test yang Fail di rc2. Sebutkan apakah ini **regresi** (dulu jalan, sekarang rusak) atau bug di **fitur baru**.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Bug",
+            "minItems": 4,
+            "fields": [
+              {
+                "id": "title",
+                "label": "Judul",
+                "type": "text",
+                "required": true,
+                "placeholder": "[Regresi] Transfer Rp 1.500.000 terkirim Rp 1.500"
+              },
+              {
+                "id": "kind",
+                "label": "Jenis",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Regresi",
+                  "Bug fitur baru",
+                  "Fix belum tuntas"
+                ]
+              },
+              {
+                "id": "severity",
+                "label": "Severity",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Critical",
+                  "Major",
+                  "Minor",
+                  "Trivial"
+                ]
+              },
+              {
+                "id": "priority",
+                "label": "Priority",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "P1",
+                  "P2",
+                  "P3"
+                ]
+              },
+              {
+                "id": "steps",
+                "label": "Langkah reproduksi",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "1. …\n2. …\n3. …"
+              },
+              {
+                "id": "expected",
+                "label": "Expected (rujuk PRD / catatan rilis)",
+                "type": "textarea",
+                "required": true
+              },
+              {
+                "id": "actual",
+                "label": "Actual",
+                "type": "textarea",
+                "required": true
+              },
+              {
+                "id": "environment",
+                "label": "Environment",
+                "type": "text",
+                "placeholder": "Staging app v3.4.0-rc2, Chrome 131"
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 4 bug, dengan jenis (regresi / fitur baru) yang tepat.",
+            "Bug parsing nominal transfer (1.500.000 → Rp 1.500) dinilai Critical.",
+            "Langkah reproduksi singkat dan bisa diulang."
+          ],
+          "rubric": [
+            {
+              "id": "found",
+              "label": "Menemukan ≥ 4 bug valid",
+              "weight": 2
+            },
+            {
+              "id": "critical",
+              "label": "Menemukan bug parsing nominal transfer (Critical)",
+              "weight": 2
+            },
+            {
+              "id": "kind",
+              "label": "Membedakan regresi vs bug fitur baru dengan benar",
+              "weight": 1
+            },
+            {
+              "id": "repro",
+              "label": "Langkah reproduksi & expected/actual jelas",
+              "weight": 2
+            }
+          ],
+          "answerKey": {
+            "intro": "Bug yang ditanam di rc2.",
+            "items": [
+              {
+                "tag": "Critical · Regresi",
+                "title": "REG-01 Nominal transfer \"1.500.000\" terkirim Rp 1.500",
+                "detail": "Hanya titik pemisah pertama yang dihapus saat parsing. Nominal ≥ Rp 1.000.000 terkirim jauh lebih kecil dari yang dimaksud user. Perlu top up dulu agar saldo cukup."
+              },
+              {
+                "tag": "Major · Regresi",
+                "title": "REG-02 Top up Rp 10.000 ditolak",
+                "detail": "Batas minimal berubah jadi eksklusif setelah fix API-03. Nominal cepat Rp 10.000 juga gagal."
+              },
+              {
+                "tag": "Major · Regresi",
+                "title": "REG-03 Kartu debit hilang dari metode top up",
+                "detail": "Hanya VA BCA & VA Mandiri yang tersedia."
+              },
+              {
+                "tag": "Major · Regresi",
+                "title": "REG-04 Saldo beranda tidak ter-update",
+                "detail": "Setelah transfer/top up, saldo di beranda tetap nilai lama sampai reload."
+              },
+              {
+                "tag": "Minor · Regresi",
+                "title": "REG-05 Riwayat terlama di atas",
+                "detail": "PRD v1.1: terbaru di atas."
+              },
+              {
+                "tag": "Major · Fitur baru",
+                "title": "REG-06 Penerima favorit gagal",
+                "detail": "Favorit mengisi nomor format +62…, tanpa normalisasi → \"Nomor belum terdaftar\"."
+              },
+              {
+                "tag": "Minor · Fitur baru",
+                "title": "REG-07 Catatan > 50 karakter diterima",
+                "detail": "Tidak ada batas maupun counter di input catatan."
+              },
+              {
+                "tag": "Minor · Fitur baru",
+                "title": "REG-08 Layar sukses menampilkan catatan lama",
+                "detail": "Transfer kedua tanpa catatan menampilkan catatan transfer sebelumnya."
+              }
+            ]
+          }
+        },
+        {
+          "id": "rg-signoff",
+          "title": "Tulis release sign-off (Go / No-Go)",
+          "instructions": "Tulis rekomendasi rilis untuk Fajar dan Nadia: ringkasan eksekusi, bug open per severity, risiko jika tetap rilis Jumat, **rekomendasi Go / No-Go**, dan syarat untuk Go.",
+          "input": {
+            "type": "textarea",
+            "minLength": 200,
+            "placeholder": "Release sign-off — DompetKu v3.4.0-rc2\n\nDieksekusi: … test (… pass, … fail)\nBug open: … Critical, … Major, … Minor\nRisiko jika rilis: …\n\nRekomendasi: NO-GO / GO karena…\nSyarat untuk GO: …"
+          },
+          "expectedOutput": [
+            "Angka eksekusi jelas (jumlah test, pass, fail).",
+            "Bug open diringkas per severity, termasuk yang belum di-fix dari api-rc1 (biaya admin).",
+            "Rekomendasi tegas dengan alasan berbasis risiko.",
+            "Syarat untuk Go konkret (bug apa yang harus fixed + retest apa)."
+          ],
+          "rubric": [
+            {
+              "id": "numbers",
+              "label": "Ringkasan eksekusi & bug per severity",
+              "weight": 1
+            },
+            {
+              "id": "decision",
+              "label": "Rekomendasi tegas berbasis risiko",
+              "weight": 2
+            },
+            {
+              "id": "conditions",
+              "label": "Syarat Go konkret",
+              "weight": 2
+            },
+            {
+              "id": "audience",
+              "label": "Bisa dipahami PM & lead (singkat, tidak teknis berlebihan)",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Contoh kesimpulan yang diharapkan.",
+            "items": [
+              {
+                "tag": "Rekomendasi",
+                "title": "NO-GO untuk rilis Jumat",
+                "detail": "REG-01 (nominal transfer salah baca) adalah bug Critical di alur uang: user bisa mengirim jumlah yang berbeda dari yang dimaksud. Ditambah REG-02/03/04/06 (Major) dan API-09 biaya admin yang belum di-fix."
+              },
+              {
+                "tag": "Syarat Go",
+                "title": "Yang harus beres dulu",
+                "detail": "Fix REG-01, REG-02, REG-03, REG-04, REG-06 dan API-09. Retest bug tersebut, lalu regression ulang alur top up → transfer → riwayat. Bug Minor (REG-05/07/08) boleh masuk backlog dengan persetujuan PM."
+              },
+              {
+                "tag": "Komunikasi",
+                "title": "Tawarkan opsi",
+                "detail": "Misalnya rilis top up dulu (setelah REG-02/03 fixed) dan tahan transfer sampai REG-01 & API-09 beres, jika bisnis butuh rilis bertahap."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -241,3 +241,9 @@ body {
   padding: 0;
   background: none;
 }
+
+/* PremiumBadge shine sweep (src/components/common/PremiumBadge.tsx) */
+@keyframes premium-shine {
+  0% { transform: translateX(0) skewX(-20deg); }
+  55%, 100% { transform: translateX(600%) skewX(-20deg); }
+}

@@ -56,7 +56,7 @@ const PricingSection: React.FC = () => {
     <section id="pricing" className="py-8 md:py-20 bg-ld-canvas font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 sm:mb-14 sm:mb-14">
-          <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
+          <h2 className="font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
             Harga Mentoring
           </h2>
           <p className="text-ld-slate max-w-xl mx-auto text-base leading-relaxed">
@@ -85,14 +85,14 @@ const PricingSection: React.FC = () => {
                 </span>
               )}
 
-              <h3 className="font-ld-display font-semibold text-lg text-ld-graphite mb-1">{plan.name}</h3>
+              <h3 className="font-semibold text-lg text-ld-graphite mb-1">{plan.name}</h3>
               <p className="text-sm text-ld-slate mb-5">{plan.description}</p>
 
               {plan.originalPrice && (
                 <span className="text-sm text-ld-fog line-through">{plan.originalPrice}</span>
               )}
               <div className="flex items-baseline gap-1 mb-5">
-                <span className="font-ld-display font-semibold text-3xl text-ld-graphite tracking-[-0.02em] text-ld-violet">
+                <span className="font-semibold text-3xl text-ld-graphite tracking-[-0.02em] text-ld-violet">
                   {plan.price}
                 </span>
                 <span className="text-sm text-ld-slate">{plan.unit}</span>

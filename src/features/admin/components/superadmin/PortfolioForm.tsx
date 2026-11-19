@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import Select from '../../../../components/common/Select';
 import {
   ArrowLeft, BadgeCheck, CheckCircle2, ExternalLink, Loader2, XCircle,
   UserCircle2, Briefcase, GraduationCap, Award, FolderKanban, Sparkles, FileCheck2, Quote, Newspaper, Share2, MousePointerClick, Github, FolderGit2, ListOrdered, CalendarClock,
@@ -357,14 +358,12 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
               />
             </FormField>
             <FormField label="Status">
-              <select
+              <Select
                 value={status}
-                onChange={(e) => setStatus(e.target.value as PortfolioStatus)}
-                className={inputClass}
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-              </select>
+                onChange={(v) => setStatus(v as PortfolioStatus)}
+                className={`${inputClass} w-full`}
+                options={[{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }]}
+              />
             </FormField>
             <FormField label="Bio" required className="md:col-span-2" error={submitted && !data.profile.bio.trim() ? 'Bio wajib diisi.' : null}>
               <textarea

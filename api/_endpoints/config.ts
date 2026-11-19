@@ -24,6 +24,7 @@ interface UrlEntry {
 
 const STATIC_ROUTES: UrlEntry[] = [
   { loc: '/', changefreq: 'weekly', priority: '1.0' },
+  { loc: '/mentoring', changefreq: 'weekly', priority: '0.9' },
   { loc: '/mentoring/booking', changefreq: 'weekly', priority: '0.9' },
   { loc: '/portfolio', changefreq: 'weekly', priority: '0.8' },
   { loc: '/personal-portfolio', changefreq: 'monthly', priority: '0.9' },
@@ -31,6 +32,7 @@ const STATIC_ROUTES: UrlEntry[] = [
   { loc: '/personal-portfolio/projects', changefreq: 'monthly', priority: '0.7' },
   { loc: '/personal-portfolio/certifications', changefreq: 'monthly', priority: '0.5' },
   { loc: '/qa-library', changefreq: 'weekly', priority: '0.8' },
+  { loc: '/qa-simulator', changefreq: 'weekly', priority: '0.8' },
 ];
 
 function toXml(entries: UrlEntry[]): string {

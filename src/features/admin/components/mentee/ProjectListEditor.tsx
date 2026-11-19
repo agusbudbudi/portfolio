@@ -1,4 +1,5 @@
 import React from 'react';
+import Select from '../../../../components/common/Select';
 import { Apple, ArrowDown, ArrowUp, ExternalLink, Globe, ImageIcon, Monitor, Plus, Smartphone, Trash2, X } from 'lucide-react';
 import { PROJECT_PLATFORM_OPTIONS, PROJECT_TYPE_BADGE_COLOR, PROJECT_TYPE_OPTIONS, type ProjectEntry, type ProjectPlatform, type ProjectPlatformLink, type ProjectType, type ToolConfig } from '../../../../types/portfolio';
 import ImageUploadField from '../superadmin/ImageUploadField';
@@ -115,16 +116,12 @@ const ProjectListEditor: React.FC<ProjectListEditorProps> = ({ projects, tools, 
                     <textarea value={entry.description} onChange={(e) => update(entry.id, { description: e.target.value })} rows={3} className={inputClass} />
                   </FormField>
                   <FormField label="Tipe Project (opsional)" compact>
-                    <select
+                    <Select
                       value={entry.projectType ?? ''}
-                      onChange={(e) => update(entry.id, { projectType: e.target.value ? (e.target.value as ProjectType) : undefined })}
-                      className={inputClass}
-                    >
-                      <option value="">Tidak ditentukan</option>
-                      {PROJECT_TYPE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => update(entry.id, { projectType: v ? (v as ProjectType) : undefined })}
+                      className={`${inputClass} w-full`}
+                      options={[{ value: '', label: 'Tidak ditentukan' }, ...PROJECT_TYPE_OPTIONS]}
+                    />
                   </FormField>
                   <FormField
                     label="Link Project (opsional)"
@@ -148,15 +145,13 @@ const ProjectListEditor: React.FC<ProjectListEditorProps> = ({ projects, tools, 
                         return (
                           <div key={j} className="flex flex-col gap-1">
                             <div className="flex gap-2 min-w-0">
-                              <select
+                              <Select
                                 value={link.platform}
-                                onChange={(e) => updatePlatform(j, { platform: e.target.value as ProjectPlatformLink['platform'] })}
+                                onChange={(v) => updatePlatform(j, { platform: v as ProjectPlatformLink['platform'] })}
                                 className={`${inputBaseClass} w-28 shrink-0`}
-                              >
-                                {PROJECT_PLATFORM_OPTIONS.map((opt) => (
-                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                              </select>
+                                aria-label="Platform"
+                                options={PROJECT_PLATFORM_OPTIONS}
+                              />
                               <input
                                 type="url"
                                 value={link.url ?? ''}

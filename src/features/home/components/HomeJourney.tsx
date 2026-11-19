@@ -1,0 +1,42 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { GuidedIllustration, LearnIllustration, PracticeIllustration, ShowcaseIllustration } from './JourneyIllustrations';
+
+// The four products as one path: learn → practice → show → get guided.
+
+const STEPS = [
+  { n: '01', art: LearnIllustration, verb: 'Belajar', title: 'Pahami dasarnya', body: 'Baca materi fundamental sampai automation di QA Library.', to: '/qa-library', link: 'QA Library' },
+  { n: '02', art: PracticeIllustration, verb: 'Praktik', title: 'Kerjakan project nyata', body: 'Review PRD, tulis test case, dan cari bug di aplikasi staging.', to: '/qa-simulator', link: 'QA Simulator' },
+  { n: '03', art: ShowcaseIllustration, verb: 'Tunjukkan', title: 'Bangun portfolio', body: 'Ubah hasil simulasi jadi studi kasus yang bisa dikirim ke recruiter.', to: '/portfolio', link: 'Portfolio QA' },
+  { n: '04', art: GuidedIllustration, verb: 'Dibimbing', title: 'Dapat arahan personal', body: 'Review CV, latihan interview, dan rencana belajar bareng mentor.', to: '/mentoring', link: 'Mentoring' },
+];
+
+const HomeJourney: React.FC = () => (
+  <section className="py-16 md:py-24 bg-ld-canvas font-ld-sans">
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+      <div className="max-w-2xl mb-12">
+        <p className="m-0 mb-3 text-xs font-semibold uppercase tracking-widest text-ld-violet">Alur belajar</p>
+        <h2 className="m-0 font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite leading-tight">
+          Dari nol sampai siap melamar, langkah demi langkah
+        </h2>
+      </div>
+      <ol className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0">
+        {STEPS.map(({ n, art: Art, verb, title, body, to, link }, i) => (
+          <li key={n} className="relative lg:pr-8">
+            {/* connector line between steps (desktop) */}
+            {i < STEPS.length - 1 && (
+              <span aria-hidden="true" className="hidden lg:block absolute top-9 left-[84px] right-3 border-t-2 border-dashed border-ld-frost" />
+            )}
+            <Art className="relative z-[1] w-[72px] h-[72px]" />
+            <p className="m-0 mt-5 font-ld-mono text-[11px] uppercase tracking-widest text-ld-fog">{n} · {verb}</p>
+            <h3 className="m-0 mt-1.5 text-lg font-semibold text-ld-onyx">{title}</h3>
+            <p className="m-0 mt-1.5 text-sm text-ld-slate leading-relaxed">{body}</p>
+            <Link to={to} className="inline-block mt-3 text-sm font-medium text-ld-violet no-underline hover:underline">{link} →</Link>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+);
+
+export default HomeJourney;

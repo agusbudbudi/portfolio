@@ -1,29 +1,30 @@
 import React from 'react';
 import { Link2, Search, MessageSquareQuote } from 'lucide-react';
+import FeatureIllustration, { type FeatureIllustrationName } from './FeatureIllustration';
 
-const coreFeatures = [
+const coreFeatures: { art: FeatureIllustrationName; title: string; description: string }[] = [
   {
-    icon: '/saas-portfolio/img/portfolio-public/project.png',
+    art: 'project',
     title: 'Project',
     description: 'Test case & automation script yang pernah kamu kerjakan.',
   },
   {
-    icon: '/saas-portfolio/img/portfolio-public/experience.png',
+    art: 'experience',
     title: 'Experience',
     description: 'Timeline kerja dan pendidikan.',
   },
   {
-    icon: '/saas-portfolio/img/portfolio-public/automation.png',
+    art: 'automation',
     title: 'Automation',
     description: 'Tools yang kamu kuasai — Cypress, Selenium, Playwright.',
   },
   {
-    icon: '/saas-portfolio/img/portfolio-public/test-case.png',
+    art: 'testCase',
     title: 'Test Case',
     description: 'Test case & test plan yang pernah kamu buat.',
   },
   {
-    icon: '/saas-portfolio/img/portfolio-public/certificate.png',
+    art: 'certification',
     title: 'Certification',
     description: 'Sertifikasi ISTQB, kursus, dan training.',
   },
@@ -66,13 +67,13 @@ const FeaturesSection: React.FC = () => {
           </span>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
-          {coreFeatures.map(({ icon, title, description }, idx) => (
+          {coreFeatures.map(({ art, title, description }, idx) => (
             <div
               key={title}
               className={`p-4 lg:p-6 rounded-xl bg-ld-canvas border border-ld-ash text-left ${idx === 0 ? 'col-span-2 lg:col-span-1' : ''}`}
             >
-              <div className="w-16 h-16 flex items-center justify-center mb-4">
-                <img src={icon} alt="" className="w-14 h-14 object-contain" />
+              <div className="mb-4 h-32 flex items-center justify-center">
+                <FeatureIllustration name={art} className="h-28 w-auto" />
               </div>
               <h3 className="text-base font-ld-display font-semibold text-ld-graphite tracking-[-0.01em] mb-1.5">{title}</h3>
               <p className="text-sm text-ld-slate leading-relaxed">{description}</p>

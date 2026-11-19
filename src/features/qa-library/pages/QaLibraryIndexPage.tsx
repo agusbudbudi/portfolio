@@ -6,6 +6,7 @@ import QaLibraryCategoryFilter from '../components/QaLibraryCategoryFilter';
 import LoadingState from '../../../components/common/LoadingState';
 import { usePagination } from '../../../hooks/usePagination';
 import Pagination from '../../admin/components/shared/Pagination';
+import QaLibraryHeroArt from '../components/QaLibraryHeroArt';
 
 const PAGE_SIZE = 12;
 
@@ -25,16 +26,26 @@ const QaLibraryIndexPage: React.FC = () => {
 
   return (
     <div className="font-ld-sans pb-16">
-      <div className="max-w-5xl mx-auto px-4 pt-24 md:pt-28 pb-8 text-center">
-        <h1 className="font-ld-display font-semibold text-3xl sm:text-4xl text-ld-onyx tracking-[-0.02em] mb-3">
-          QA Library
-        </h1>
-        <p className="text-ld-slate text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-          Kumpulan artikel dan materi seputar manual testing, automation testing, dan API testing untuk QA Engineer.
-        </p>
+      {/* Compact hero: copy left, small bookshelf art right (md+), on a soft
+          full-bleed brand gradient */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-ld-lilac via-ld-cloud to-white mb-8">
+      <div aria-hidden="true" className="pointer-events-none absolute -top-32 -left-24 w-[420px] h-[420px] rounded-full bg-white/70 blur-3xl" />
+      <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 pt-24 md:pt-28 pb-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h1 className="font-ld-display font-semibold text-3xl sm:text-4xl text-ld-onyx tracking-[-0.02em] mb-3">
+            QA Library
+          </h1>
+          <p className="text-ld-slate text-sm sm:text-base leading-relaxed max-w-xl m-0">
+            Kumpulan artikel dan materi seputar manual testing, automation testing, dan API testing untuk QA Engineer.
+          </p>
+        </div>
+        <div className="hidden md:block">
+          <QaLibraryHeroArt categories={categories} />
+        </div>
+      </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         {visibleCategories.length > 0 && (
           <div className="mb-8">
             <QaLibraryCategoryFilter categories={visibleCategories} activeCategoryId={activeCategoryId} onChange={setActiveCategoryId} />
@@ -57,7 +68,7 @@ const QaLibraryIndexPage: React.FC = () => {
           <p className="text-center text-sm text-ld-fog py-16">Belum ada artikel di category ini.</p>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {displayedArticles.map((article) => (
                 <QaLibraryArticleCard key={article.id} article={article} categoryLabel={categoryLabel(article.categoryId)} />
               ))}

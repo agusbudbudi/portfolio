@@ -1,20 +1,21 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import StepIllustration, { type StepIllustrationName } from './StepIllustration';
 
-const steps = [
+const steps: { art: StepIllustrationName; title: string; description: string }[] = [
   {
-    icon: '/saas-portfolio/img/portfolio-public/login.png',
+    art: 'login',
     title: 'Login dengan Google',
     description: 'Masuk pakai akun Google, gratis dan langsung bisa dipakai.',
   },
   {
-    icon: '/saas-portfolio/img/portfolio-public/fill-portfolio.png',
+    art: 'fill',
     title: 'Isi Profil & Proyek',
     description: 'Lengkapi profil, proyek, sertifikasi, dan pengalaman kerjamu.',
   },
   {
-    icon: '/saas-portfolio/img/portfolio-public/share.png',
+    art: 'publish',
     title: 'Publish & Bagikan Link',
     description: 'Portfolio langsung online dengan link sendiri, siap dibagikan.',
   },
@@ -34,16 +35,15 @@ const HowItWorksSection: React.FC = () => {
         </div>
 
         <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="hidden md:block absolute top-10 left-[calc(16.667%+3.083rem)] right-[calc(50%+3.75rem)] h-px z-0 bg-ld-ash" />
-          <div className="hidden md:block absolute top-10 left-[calc(50%+3.75rem)] right-[calc(16.667%+3.083rem)] h-px z-0 bg-ld-ash" />
+          {/* dashed connectors between the step illustrations */}
+          <div className="hidden md:block absolute top-[72px] left-[calc(16.667%+6.5rem)] right-[calc(50%+6.5rem)] border-t-2 border-dashed border-ld-ash z-0" />
+          <div className="hidden md:block absolute top-[72px] left-[calc(50%+6.5rem)] right-[calc(16.667%+6.5rem)] border-t-2 border-dashed border-ld-ash z-0" />
 
-          {steps.map(({ icon, title, description }, idx) => (
+          {steps.map(({ art, title, description }, idx) => (
             <div key={title} className="relative z-10 flex flex-col items-center text-center">
-              <div className="relative z-10 mb-5">
-                <div className="w-20 h-20 rounded-xl flex items-center justify-center bg-white border-2 border-blue-600 shadow-[4px_4px_0_0_#2563eb]">
-                  <img src={icon} alt="" className="w-11 h-11 object-contain" />
-                </div>
-                <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ld-canvas border border-ld-ash text-xs font-medium text-ld-slate flex items-center justify-center">
+              <div className="relative z-10 mb-4 h-36 flex items-center justify-center">
+                <StepIllustration name={art} className="h-36 w-auto" />
+                <span className="absolute top-1 left-1/2 -translate-x-[88px] w-7 h-7 rounded-full bg-ld-violet text-white text-xs font-semibold flex items-center justify-center shadow-[0_4px_10px_rgba(59,158,255,0.35)]">
                   {idx + 1}
                 </span>
               </div>

@@ -30,7 +30,7 @@ const ToolsSection: React.FC = () => {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-10 items-center">
           <div className="text-center lg:text-left">
-            <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-white mb-4">
+            <h2 className="font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-white mb-4">
               Tools yang Akan Dipelajari
             </h2>
             <p className="text-white/80 max-w-md mx-auto lg:mx-0 text-base leading-relaxed mb-6">

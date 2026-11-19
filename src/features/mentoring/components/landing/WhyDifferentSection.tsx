@@ -18,7 +18,7 @@ const WhyDifferentSection: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
         <div className="relative z-10 px-6 sm:px-10 lg:px-16 py-8">
-          <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-white leading-[1.1] mb-4 max-w-lg">
+          <h2 className="font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-white leading-[1.1] mb-4 max-w-lg">
             Kenapa Mentor.QA Berbeda?
           </h2>
           <p className="text-white/80 text-base leading-relaxed mb-8 max-w-md">
@@ -37,10 +37,10 @@ const WhyDifferentSection: React.FC = () => {
                   decoding="async"
                   className="w-4 h-4 sm:w-5 sm:h-5 object-contain flex-shrink-0 rounded-md border border-white"
                 />
-                <span className="font-ld-display font-semibold text-xs sm:text-sm text-white">Mentor.QA</span>
+                <span className="font-semibold text-xs sm:text-sm text-white">Mentor.QA</span>
               </div>
               <div className="px-4 py-3 sm:px-5 bg-ld-fog text-center border-l border-ld-ash">
-                <span className="font-ld-display font-semibold text-xs sm:text-sm text-white">Course Biasa</span>
+                <span className="font-semibold text-xs sm:text-sm text-white">Course Biasa</span>
               </div>
             </div>
 

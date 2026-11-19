@@ -12,6 +12,7 @@ import Seo from './components/common/Seo';
 import LoadingState from './components/common/LoadingState';
 
 const MentoringPage = lazy(() => import('./features/mentoring/pages/MentoringPage'));
+const HomePage = lazy(() => import('./features/home/pages/HomePage'));
 const PortfolioHome = lazy(() => import('./features/personal-portfolio/pages/Home'));
 const PortfolioAbout = lazy(() => import('./features/personal-portfolio/pages/About'));
 const PortfolioProjects = lazy(() => import('./features/personal-portfolio/pages/Projects'));
@@ -22,6 +23,14 @@ const PortfolioLandingPage = lazy(() => import('./features/saas-portfolio/pages/
 const PublicPortfolioPage = lazy(() => import('./features/saas-portfolio/pages/PublicPortfolioPage'));
 const QaLibraryIndexPage = lazy(() => import('./features/qa-library/pages/QaLibraryIndexPage'));
 const QaLibraryArticleDetailPage = lazy(() => import('./features/qa-library/pages/QaLibraryArticleDetailPage'));
+const QaSimulatorIndexPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorIndexPage'));
+const QaSimulatorProjectPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorProjectPage'));
+const QaSimulatorPortfolioPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorPortfolioPage'));
+import SimulatorLayout from './features/qa-simulator/components/SimulatorLayout';
+import { HOME_FAQ } from './features/home/data/homeFaq';
+const SplitBillSandboxPage = lazy(() => import('./features/qa-simulator/pages/SplitBillSandboxPage'));
+const DompetKuApiSandboxPage = lazy(() => import('./features/qa-simulator/pages/DompetKuApiSandboxPage'));
+const DompetKuAppSandboxPage = lazy(() => import('./features/qa-simulator/pages/DompetKuAppSandboxPage'));
 const AdminPage = lazy(() => import('./features/admin/pages/AdminPage'));
 const LoginScreen = lazy(() => import('./features/admin/components/shared/LoginScreen'));
 const Snackbar = lazy(() => import('./features/admin/components/shared/Snackbar').then((m) => ({ default: m.Snackbar })));
@@ -69,7 +78,27 @@ const mentoringServiceJsonLd = {
     sameAs: SAME_AS,
   },
   areaServed: 'ID',
+  url: 'https://www.mentorqa.com/mentoring',
+};
+
+const homeFaqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: HOME_FAQ.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
+const homeJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Mentor.QA',
   url: 'https://www.mentorqa.com/',
+  description:
+    'Platform karier QA Engineer: simulasi kerja QA, QA Library, portfolio QA online, dan mentoring 1-on-1.',
+  publisher: { '@type': 'Organization', name: 'Mentor.QA', sameAs: SAME_AS },
 };
 
 const portfolioPlatformJsonLd = {
@@ -159,6 +188,20 @@ function App() {
             <LightdashLayout>
               <Seo
                 path="/"
+                title="Mentor.QA: Belajar, Praktik & Berkarier sebagai QA Engineer"
+                description="Platform karier QA Engineer: simulasi kerja QA gratis, QA Library, portfolio QA online, dan mentoring 1-on-1 bareng praktisi. Mulai gratis sekarang."
+                jsonLd={[homeJsonLd, homeFaqJsonLd]}
+              />
+              <HomePage />
+            </LightdashLayout>
+          }
+        />
+        <Route
+          path="/mentoring"
+          element={
+            <LightdashLayout>
+              <Seo
+                path="/mentoring"
                 title="Mentoring QA & Kursus QA Online 1-on-1 | Mentor.QA"
                 description="Mentoring QA Engineer 1-on-1 bareng praktisi 6+ tahun pengalaman. Kursus manual testing, automation testing, API testing. Booking sesi mentor sekarang."
                 jsonLd={mentoringServiceJsonLd}
@@ -265,6 +308,55 @@ function App() {
           }
         />
         <Route
+          path="/qa-simulator"
+          element={
+            <LightdashLayout>
+              {/* Seo + JSON-LD (Course, FAQPage) rendered inside the page */}
+              <QaSimulatorIndexPage />
+            </LightdashLayout>
+          }
+        />
+        <Route
+          path="/qa-simulator/sandbox/splitbill"
+          element={
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
+              <SplitBillSandboxPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/qa-simulator/sandbox/dompetku-api"
+          element={
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
+              <DompetKuApiSandboxPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/qa-simulator/sandbox/dompetku"
+          element={
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
+              <DompetKuAppSandboxPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/qa-simulator/:projectId/portfolio"
+          element={
+            <SimulatorLayout>
+              <QaSimulatorPortfolioPage />
+            </SimulatorLayout>
+          }
+        />
+        <Route
+          path="/qa-simulator/:projectId"
+          element={
+            <SimulatorLayout>
+              <QaSimulatorProjectPage />
+            </SimulatorLayout>
+          }
+        />
+        <Route
           path="/portfolio"
           element={
             <LightdashLayout>
@@ -316,7 +408,6 @@ function App() {
           }
         />
         <Route path="/mentoring/admin" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/mentoring" element={<Navigate to="/" replace />} />
         <Route path="/portfolio/mentoring/booking" element={<Navigate to="/mentoring/booking" replace />} />
         <Route path="/portfolio/about" element={<Navigate to="/personal-portfolio/about" replace />} />
         <Route path="/portfolio/projects" element={<Navigate to="/personal-portfolio/projects" replace />} />

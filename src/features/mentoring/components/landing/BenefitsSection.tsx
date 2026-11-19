@@ -1,23 +1,24 @@
 import React from 'react';
+import BenefitIllustration, { type BenefitIllustrationName } from './BenefitIllustration';
 
-const benefits = [
+const benefits: { art: BenefitIllustrationName; title: string; description: string }[] = [
   {
-    image: '/mentoring/img/benefit/fokus-1-on-1.webp',
+    art: 'oneOnOne',
     title: 'Fokus 1-on-1',
     description: 'Kamu dan mentor, tanpa distraksi.',
   },
   {
-    image: '/mentoring/img/benefit/real-world-cases.webp',
+    art: 'cases',
     title: 'Real-world Cases',
     description: 'Kasus nyata, bukan teori generik.',
   },
   {
-    image: '/mentoring/img/benefit/booking-gampang.webp',
+    art: 'booking',
     title: 'Booking Gampang',
     description: 'Booking cepat, tanpa platform tambahan.',
   },
   {
-    image: '/mentoring/img/benefit/career-oriented.webp',
+    art: 'career',
     title: 'Career-Oriented',
     description: 'Bahas karir QA, bukan cuma teknikal.',
   },
@@ -28,7 +29,7 @@ const BenefitsSection: React.FC = () => {
     <section className="py-8 md:py-20 bg-ld-canvas font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 sm:mb-14">
-          <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
+          <h2 className="font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
             Lebih dari Sekadar Belajar
           </h2>
           <p className="text-ld-slate max-w-xl mx-auto text-base leading-relaxed">
@@ -37,19 +38,15 @@ const BenefitsSection: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {benefits.map(({ image, title, description }) => (
+          {benefits.map(({ art, title, description }) => (
             <div
               key={title}
               className="p-4 lg:p-6 rounded-xl bg-ld-canvas border border-ld-ash text-left"
             >
-              <div className="relative w-24 h-24 mb-4">
-                <img
-                  src={image}
-                  alt={title}
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-28 h-28 object-contain object-bottom"
-                />
+              <div className="mb-4 h-32 flex items-center justify-center">
+                <BenefitIllustration name={art} className="h-32 w-auto" />
               </div>
-              <h3 className="text-base font-ld-display font-semibold text-ld-graphite tracking-[-0.01em] mb-1.5">{title}</h3>
+              <h3 className="text-base font-semibold text-ld-graphite tracking-[-0.01em] mb-1.5">{title}</h3>
               <p className="text-sm text-ld-slate leading-relaxed">{description}</p>
             </div>
           ))}
