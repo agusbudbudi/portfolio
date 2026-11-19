@@ -1,4 +1,5 @@
 import React from 'react';
+import Select from '../../../../components/common/Select';
 import { Plus, Trash2 } from 'lucide-react';
 import { WORK_ARRANGEMENT_OPTIONS, type EmploymentType, type ExperienceEntry, type WorkArrangement } from '../../../../types/portfolio';
 import ImageUploadField from '../superadmin/ImageUploadField';
@@ -74,27 +75,20 @@ const ExperienceListEditor: React.FC<ExperienceListEditorProps> = ({ experience,
                 <input type="text" value={entry.position} onChange={(e) => update(entry.id, { position: e.target.value })} className={inputClass} />
               </FormField>
               <FormField label="Employment Type" compact>
-                <select
+                <Select
                   value={entry.employmentType ?? 'full-time'}
-                  onChange={(e) => update(entry.id, { employmentType: e.target.value as EmploymentType })}
-                  className={inputClass}
-                >
-                  {Object.entries(EMPLOYMENT_TYPE_LABEL).map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </select>
+                  onChange={(v) => update(entry.id, { employmentType: v as EmploymentType })}
+                  className={`${inputClass} w-full`}
+                  options={Object.entries(EMPLOYMENT_TYPE_LABEL).map(([value, label]) => ({ value, label }))}
+                />
               </FormField>
               <FormField label="Working Arrangement (opsional)" compact>
-                <select
+                <Select
                   value={entry.workArrangement ?? ''}
-                  onChange={(e) => update(entry.id, { workArrangement: (e.target.value || undefined) as WorkArrangement | undefined })}
-                  className={inputClass}
-                >
-                  <option value="">—</option>
-                  {WORK_ARRANGEMENT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
+                  onChange={(v) => update(entry.id, { workArrangement: (v || undefined) as WorkArrangement | undefined })}
+                  className={`${inputClass} w-full`}
+                  options={[{ value: '', label: '—' }, ...WORK_ARRANGEMENT_OPTIONS]}
+                />
               </FormField>
               <FormField label="Lokasi (opsional)" compact>
                 <input

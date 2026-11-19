@@ -1,0 +1,51 @@
+{
+  "projects": [
+    {
+      "id": "splitbill",
+      "title": "Split Bill v2: Biaya Tambahan & Metode Pembagian",
+      "product": "SplitBill",
+      "domain": "Fintech / Consumer App",
+      "summary": "Kamu baru bergabung sebagai QA di tim SplitBill. Sprint ini tim merilis fitur pembagian proporsional dengan pajak, service charge, dan diskon. Tugasmu: mengawal kualitas fitur ini dari PRD sampai siap rilis.",
+      "difficulty": "beginner",
+      "estimatedHours": 4,
+      "phaseTitles": [
+        "Requirement",
+        "Test Design",
+        "Bug Hunting"
+      ],
+      "status": "available"
+    },
+    {
+      "id": "ewallet",
+      "title": "DompetKu: Top Up & Transfer Saldo",
+      "product": "DompetKu",
+      "domain": "Fintech / E-Wallet",
+      "summary": "Kamu QA di squad Payments DompetKu. Review PRD fitur uang, susun test plan berbasis risiko, uji API langsung di API Console, lalu jalankan regression sebelum rilis.",
+      "difficulty": "intermediate",
+      "estimatedHours": 6,
+      "phaseTitles": [
+        "Requirement",
+        "Test Plan",
+        "API Testing",
+        "Regression"
+      ],
+      "status": "available"
+    },
+    {
+      "id": "ecommerce",
+      "title": "TokoKita: Checkout & Voucher Promo",
+      "product": "TokoKita",
+      "domain": "E-commerce / Marketplace",
+      "summary": "Kamu QA di tim Checkout TokoKita menjelang kampanye 11.11. Uji alur keranjang sampai pembayaran, kombinasi voucher dan ongkir, stok yang berebut, lalu pastikan rilis aman sebelum traffic puncak.",
+      "difficulty": "advanced",
+      "estimatedHours": 8,
+      "phaseTitles": [
+        "Requirement",
+        "Exploratory Testing",
+        "Automation",
+        "Release Readiness"
+      ],
+      "status": "coming-soon"
+    }
+  ]
+}

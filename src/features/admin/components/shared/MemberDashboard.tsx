@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, Building2, CalendarCheck, Check, CheckCircle2, Clock, Copy, ExternalLink, LayoutDashboard,
+  ArrowLeft, ArrowRight, Building2, CalendarCheck, Check, CheckCircle2, Clock, Copy, ExternalLink, FlaskConical, LayoutDashboard,
   Menu, Pencil, Plus, UserSquare2, Users, X, XCircle,
   type LucideIcon,
 } from 'lucide-react';
@@ -22,6 +22,7 @@ import MentorForm from '../mentor/MentorForm';
 import PortfolioForm from '../superadmin/PortfolioForm';
 import MemberBookingForm from '../mentee/MemberBookingForm';
 import ProfileMenu from './ProfileMenu';
+import SimulatorDashboardTab from '../../../qa-simulator/components/SimulatorDashboardTab';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
 import StatusBadge, { type StatusBadgeTone } from './StatusBadge';
 import type { BookingConfig, BookingStatus, MentorEmploymentType } from '../../../../types/mentoring';
@@ -96,7 +97,7 @@ function formatMonth(value?: string): string {
   return date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
 }
 
-type NavId = 'home' | 'booking' | 'mentor' | 'portfolios';
+type NavId = 'home' | 'booking' | 'mentor' | 'portfolios' | 'simulator';
 
 interface NavItem {
   id: NavId;
@@ -142,7 +143,7 @@ const MemberDashboard: React.FC = () => {
   const navigate = useNavigate();
   const activeNav: NavId = (() => {
     const seg = location.pathname.replace(/^\/dashboard\/?/, '').split('/')[0];
-    return seg === 'portfolios' || seg === 'booking' || seg === 'mentor' ? seg : 'home';
+    return seg === 'portfolios' || seg === 'booking' || seg === 'mentor' || seg === 'simulator' ? seg : 'home';
   })();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -223,6 +224,7 @@ const MemberDashboard: React.FC = () => {
     { id: 'home', label: 'Dashboard', description: 'Ringkasan akun kamu', icon: LayoutDashboard },
     { id: 'portfolios', label: 'Portfolio', description: 'Portfolio QA kamu', icon: UserSquare2 },
     { id: 'booking', label: 'Booking', description: 'Jadwalkan sesi mentoring', icon: CalendarCheck },
+    { id: 'simulator', label: 'QA Simulator', description: 'Simulasi kerja QA dari PRD sampai rilis', icon: FlaskConical },
     {
       id: 'mentor',
       label: isVerifiedMentor ? 'Profil Mentor' : 'Jadi Mentor',
@@ -1189,6 +1191,8 @@ const MemberDashboard: React.FC = () => {
               </div>
             )
           )}
+
+          {activeNav === 'simulator' && <SimulatorDashboardTab />}
 
           {activeNav === 'portfolios' && (
             portfolioFormOpen ? (

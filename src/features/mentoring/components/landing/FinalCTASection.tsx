@@ -13,7 +13,7 @@ const FinalCTASection: React.FC = () => {
               Mentor Tersedia Sekarang
             </div>
 
-            <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl lg:text-5xl text-white tracking-[-0.025em] leading-[1.02] mb-4">
+            <h2 className="font-semibold text-3xl sm:text-4xl lg:text-5xl text-white tracking-[-0.025em] leading-[1.02] mb-4">
               Siap tingkatkan skill QA-mu?
             </h2>
             <p className="text-ld-fog text-base sm:text-lg mb-8 leading-relaxed max-w-lg mx-auto">

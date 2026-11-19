@@ -120,6 +120,14 @@ async function runMigrate(): Promise<void> {
         updated_at TEXT NOT NULL
       )`,
       `CREATE INDEX IF NOT EXISTS qa_library_articles_status_category ON qa_library_articles(status, category_id)`,
+      `CREATE TABLE IF NOT EXISTS qa_simulator_progress (
+        user_id TEXT NOT NULL,
+        project_id TEXT NOT NULL,
+        data TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (user_id, project_id)
+      )`,
     ],
     'write'
   );

@@ -59,7 +59,7 @@ const MentorDetailPage: React.FC = () => {
           illustrationLabel="?"
           title="Mentor tidak ditemukan"
           description="Mentor yang kamu cari tidak tersedia atau sudah dipindahkan."
-          actionTo="/#mentor"
+          actionTo="/mentoring#mentor"
           actionLabel="Kembali ke Semua Mentor"
           actionIcon={<ArrowLeft size={16} />}
         />

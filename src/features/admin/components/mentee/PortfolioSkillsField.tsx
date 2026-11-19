@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Select from '../../../../components/common/Select';
 import { Loader2, Plus, X } from 'lucide-react';
 import { SKILL_LEVEL_OPTIONS, type PortfolioSkillEntry, type SkillConfig, type SkillLevel } from '../../../../types/portfolio';
 import { slugify } from '../../../../lib/portfolioValidation';
@@ -120,15 +121,13 @@ const PortfolioSkillsField: React.FC<PortfolioSkillsFieldProps> = ({ allSkills, 
                 className="flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-lg border border-ld-frost bg-ld-cloud/40"
               >
                 <span className="text-sm text-ld-onyx flex-grow truncate">{skill.name}</span>
-                <select
+                <Select
                   value={entry.level}
-                  onChange={(e) => setLevel(entry.skillId, e.target.value as SkillLevel)}
-                  className="px-2 py-1 rounded-md border border-ld-frost bg-white text-xs text-ld-graphite focus:outline-none focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac cursor-pointer"
-                >
-                  {SKILL_LEVEL_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
+                  onChange={(v) => setLevel(entry.skillId, v as SkillLevel)}
+                  className="px-2 py-1 rounded-md border border-ld-frost bg-white text-xs text-ld-graphite focus:outline-none focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac"
+                  aria-label={`Level ${skill.name}`}
+                  options={SKILL_LEVEL_OPTIONS}
+                />
                 <button
                   type="button"
                   onClick={() => remove(entry.skillId)}

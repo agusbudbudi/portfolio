@@ -1,4 +1,5 @@
 import React from 'react';
+import Select from '../../../../components/common/Select';
 import { Plus, Trash2 } from 'lucide-react';
 import type { MentorEmploymentType, MentorWorkExperienceEntry } from '../../../../types/mentoring';
 import ImageUploadField from '../superadmin/ImageUploadField';
@@ -71,15 +72,12 @@ const MentorExperienceListEditor: React.FC<MentorExperienceListEditorProps> = ({
                 <input type="text" value={entry.position} onChange={(e) => update(entry.id, { position: e.target.value })} className={inputClass} />
               </FormField>
               <FormField label="Employment Type" compact>
-                <select
+                <Select
                   value={entry.employmentType ?? 'full-time'}
-                  onChange={(e) => update(entry.id, { employmentType: e.target.value as MentorEmploymentType })}
-                  className={inputClass}
-                >
-                  {Object.entries(EMPLOYMENT_TYPE_LABEL).map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </select>
+                  onChange={(v) => update(entry.id, { employmentType: v as MentorEmploymentType })}
+                  className={`${inputClass} w-full`}
+                  options={Object.entries(EMPLOYMENT_TYPE_LABEL).map(([value, label]) => ({ value, label }))}
+                />
               </FormField>
               <FormField label="Mulai (bulan-tahun)" required compact error={submitted && !entry.startDate.trim() ? 'Tanggal mulai wajib diisi.' : null}>
                 <input type="month" value={entry.startDate} onChange={(e) => update(entry.id, { startDate: e.target.value })} className={inputClass} />

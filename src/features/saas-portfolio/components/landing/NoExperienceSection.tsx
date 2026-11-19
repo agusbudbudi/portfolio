@@ -1,13 +1,17 @@
 import React from 'react';
-import { Check } from 'lucide-react';
+import {
+  ApiTestingIcon, AutomationIcon, BootcampIcon, CapstoneIcon, DummyProjectIcon, LearningIcon,
+} from '../../../../components/illustration/ProjectTypeIcons';
 
+// Each project type gets a brand illustration icon (ProjectTypeIcons, same
+// style as the product icons) instead of a generic checkmark.
 const items = [
-  'Capstone Project',
-  'Automation Practice',
-  'API Testing',
-  'Bootcamp Project',
-  'Personal Learning',
-  'Dummy Project',
+  { label: 'Capstone Project', icon: CapstoneIcon },
+  { label: 'Automation Practice', icon: AutomationIcon },
+  { label: 'API Testing', icon: ApiTestingIcon },
+  { label: 'Bootcamp Project', icon: BootcampIcon },
+  { label: 'Personal Learning', icon: LearningIcon },
+  { label: 'Dummy Project', icon: DummyProjectIcon },
 ];
 
 const NoExperienceSection: React.FC = () => {
@@ -24,15 +28,13 @@ const NoExperienceSection: React.FC = () => {
         </div>
 
         <div className="max-w-2xl mx-auto grid grid-cols-2 gap-3">
-          {items.map(item => (
+          {items.map(({ label, icon: Icon }) => (
             <div
-              key={item}
-              className="flex items-center gap-2.5 p-3.5 rounded-lg border border-ld-ash bg-ld-canvas"
+              key={label}
+              className="flex items-center gap-3 p-3 rounded-lg border border-ld-ash bg-ld-canvas"
             >
-              <span className="w-5 h-5 shrink-0 rounded-full bg-ld-violet flex items-center justify-center">
-                <Check size={13} className="text-white" strokeWidth={3} />
-              </span>
-              <span className="text-sm font-medium text-ld-graphite">{item}</span>
+              <Icon size={40} className="shrink-0" />
+              <span className="text-sm font-medium text-ld-graphite">{label}</span>
             </div>
           ))}
         </div>

@@ -10,7 +10,7 @@ const PromotionSection: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center min-h-[440px] lg:min-h-[520px]">
         <div className="relative z-10 px-6 sm:px-10 lg:px-16 py-8 lg:py-0">
 
-          <h2 className="font-ld-display font-semibold text-3xl sm:text-4xl lg:text-[42px] text-white tracking-[-0.02em] leading-[1.1] mb-4 max-w-lg">
+          <h2 className="font-semibold text-3xl sm:text-4xl lg:text-[42px] text-white tracking-[-0.02em] leading-[1.1] mb-4 max-w-lg">
             Diskon 34% untuk Single Session Pertamamu
           </h2>
 

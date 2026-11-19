@@ -5,7 +5,6 @@
   "devCommand": "npm run dev -- --port $PORT",
   "outputDirectory": "dist",
   "redirects": [
-    { "source": "/mentoring", "destination": "/", "permanent": true },
     { "source": "/portfolio/mentoring/booking", "destination": "/mentoring/booking", "permanent": true }
   ],
   "rewrites": [
