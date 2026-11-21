@@ -354,7 +354,7 @@ export async function apiCheckSlug(slug: string, excludeId?: string): Promise<{ 
   return res.json();
 }
 
-export type UploadFeature = 'mentor' | 'portfolio' | 'cv' | 'tools' | 'qaLibrary';
+export type UploadFeature = 'mentor' | 'portfolio' | 'cv' | 'tools' | 'qaLibrary' | 'topics';
 
 export async function apiUploadImage(
   file: { filename: string; contentType: string; dataBase64: string; feature: UploadFeature },
