@@ -26,7 +26,9 @@ const pop = (delay: number): Variants => ({
 
 const AGENDA = ['Review CV QA', 'Latihan test case', 'Mock interview'];
 
-const MentoringShowcase: React.FC = () => {
+// `mosaic` picks the ornament tint (blue on white, white on blue) or 'none' when the
+// parent section draws its own larger mosaic (/mentoring hero).
+const MentoringShowcase: React.FC<{ mosaic?: 'blue' | 'white' | 'none' }> = ({ mosaic = 'blue' }) => {
   const reduce = !!useReducedMotion();
   const { config } = useConfig();
   const mentor = config?.mentors[0];
@@ -41,7 +43,9 @@ const MentoringShowcase: React.FC = () => {
       initial={reduce ? 'show' : 'hidden'}
       animate="show"
     >
-      <PixelMosaic variant="blue" className="absolute -top-6 -right-6" style={{ width: 'min(56%, 280px)' }} />
+      {mosaic !== 'none' && (
+        <PixelMosaic variant={mosaic} className="absolute -top-6 -right-6" style={{ width: 'min(56%, 280px)' }} />
+      )}
 
       {/* booking confirmed — left */}
       <motion.div variants={pop(0.05)} className={`relative w-fit max-w-[78%] origin-bottom-left flex items-center gap-3 rounded-xl bg-white border border-ld-frost pl-3 pr-4 py-2.5 ${SHADOW}`}>
