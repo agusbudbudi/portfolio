@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" fill="#e3f2ff"/>
+  <circle cx="200" cy="200" r="140" fill="#c9e4ff" opacity=".55"/>
+  <ellipse cx="200" cy="340" rx="118" ry="10" fill="#36394a" opacity=".08"/>
+  <!-- terminal / stack trace -->
+  <rect x="58" y="84" width="236" height="176" rx="16" fill="#36394a"/>
+  <circle cx="78" cy="102" r="4.5" fill="#ef4444"/>
+  <circle cx="92" cy="102" r="4.5" fill="#f59e0b"/>
+  <circle cx="106" cy="102" r="4.5" fill="#22c55e"/>
+  <rect x="76" y="124" width="74" height="7" rx="3.5" fill="#ef4444"/>
+  <rect x="156" y="124" width="94" height="7" rx="3.5" fill="#818898"/>
+  <rect x="90" y="142" width="128" height="6" rx="3" fill="#818898" opacity=".7"/>
+  <rect x="90" y="158" width="104" height="6" rx="3" fill="#818898" opacity=".7"/>
+  <rect x="84" y="171" width="176" height="20" rx="5" fill="#ef4444" opacity=".18"/>
+  <rect x="90" y="178" width="140" height="6" rx="3" fill="#fca5a5"/>
+  <rect x="90" y="200" width="116" height="6" rx="3" fill="#818898" opacity=".7"/>
+  <rect x="90" y="216" width="84" height="6" rx="3" fill="#818898" opacity=".7"/>
+  <rect x="76" y="236" width="10" height="10" rx="2" fill="#3b9eff"/>
+  <!-- magnifier with bug -->
+  <rect x="300" y="292" width="20" height="68" rx="10" transform="rotate(-45 310 326)" fill="#36394a"/>
+  <circle cx="262" cy="248" r="64" fill="#fff" stroke="#36394a" stroke-width="13"/>
+  <circle cx="262" cy="248" r="51" fill="#e3f2ff"/>
+  <!-- bug -->
+  <g>
+    <g stroke="#36394a" stroke-width="4.5" stroke-linecap="round">
+      <path d="M244 236l-14-8M244 252h-16M246 266l-13 9M280 236l14-8M280 252h16M278 266l13 9"/>
+      <path d="M254 216l-6-10M270 216l6-10"/>
+    </g>
+    <circle cx="262" cy="222" r="11" fill="#36394a"/>
+    <rect x="242" y="226" width="40" height="50" rx="20" fill="#ef4444"/>
+    <path d="M262 230v44" stroke="#36394a" stroke-width="3.5"/>
+    <circle cx="252" cy="246" r="4" fill="#36394a" opacity=".55"/>
+    <circle cx="272" cy="258" r="4" fill="#36394a" opacity=".55"/>
+  </g>
+  <path d="M220 222a46 46 0 0 1 24-22" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+  <!-- sparkles -->
+  <path d="M340 110l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#3b9eff"/>
+  <circle cx="74" cy="300" r="7" fill="#3b9eff" opacity=".5"/>
+  <circle cx="330" cy="164" r="5" fill="#fff"/>
+</svg>

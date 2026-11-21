@@ -9,7 +9,7 @@
       "id": "fundamental-qa",
       "label": "Fundamental QA",
       "description": "Dasar-dasar Software Quality Assurance, SDLC & STLC",
-      "image": "https://i.imgur.com/JA7Dd9N.png",
+      "image": "/mentoring/illustrations/topics/fundamental-qa.svg",
       "popular": true,
       "materials": [
         "Konsep SDLC & STLC",
@@ -23,7 +23,7 @@
       "id": "ai-assisted-qa",
       "label": "AI Assisted in QA Workflow",
       "description": "Memanfaatkan AI untuk mempercepat penulisan test case & code automation",
-      "image": "https://i.imgur.com/RRqKqA9.png",
+      "image": "/mentoring/illustrations/topics/ai-assisted-qa.svg",
       "popular": true,
       "materials": [
         "Prompt engineering untuk generate test case",
@@ -37,7 +37,7 @@
       "id": "cypress-web-automation",
       "label": "Cypress Web Automation",
       "description": "Otomatisasi pengujian aplikasi web dengan Cypress",
-      "image": "https://i.imgur.com/i8B6yp0.png",
+      "image": "/mentoring/illustrations/topics/cypress-web-automation.svg",
       "popular": true,
       "materials": [
         "Setup project Cypress",
@@ -51,7 +51,7 @@
       "id": "debugging-tips-tricks",
       "label": "Tips & Trik Debugging",
       "description": "Mendiagnosis error secara efektif pada code pengujian",
-      "image": "https://i.imgur.com/gAQrTbQ.png",
+      "image": "/mentoring/illustrations/topics/debugging-tips-tricks.svg",
       "materials": [
         "Membaca stack trace & error log",
         "Teknik isolasi bug",
@@ -64,7 +64,7 @@
       "id": "test-management-strategy",
       "label": "Test Management and Strategy",
       "description": "Merancang test plan, strategi pengujian, dan manajemen defect",
-      "image": "https://i.imgur.com/LiOvopU.png",
+      "image": "/mentoring/illustrations/topics/test-management-strategy.svg",
       "materials": [
         "Menyusun test plan & test strategy",
         "Risk-based testing",
@@ -77,7 +77,7 @@
       "id": "api-testing-postman",
       "label": "API Testing with Postman",
       "description": "Pengujian API manual & otomatisasi menggunakan Postman",
-      "image": "https://i.imgur.com/1UGNcsW.png",
+      "image": "/mentoring/illustrations/topics/api-testing-postman.svg",
       "materials": [
         "Dasar HTTP method & status code",
         "Membuat collection & environment di Postman",
@@ -90,7 +90,7 @@
       "id": "web-automation-basic",
       "label": "Web Automation Basic",
       "description": "Konsep dasar otomatisasi pengujian web & locator strategy",
-      "image": "https://i.imgur.com/c5lfUKG.png",
+      "image": "/mentoring/illustrations/topics/web-automation-basic.svg",
       "materials": [
         "Konsep dasar automation testing",
         "Locator strategy (CSS, XPath)",

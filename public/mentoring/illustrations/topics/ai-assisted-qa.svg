@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" fill="#e3f2ff"/>
+  <circle cx="200" cy="200" r="140" fill="#c9e4ff" opacity=".55"/>
+  <ellipse cx="200" cy="340" rx="112" ry="10" fill="#36394a" opacity=".08"/>
+  <!-- AI chip -->
+  <g>
+    <g stroke="#818898" stroke-width="6" stroke-linecap="round">
+      <path d="M92 132v-16M112 132v-16M132 132v-16M92 212v16M112 212v16M132 212v16M72 152h-16M72 172h-16M72 192h-16M152 152h16M152 172h16M152 192h16"/>
+    </g>
+    <rect x="72" y="132" width="80" height="80" rx="16" fill="#36394a"/>
+    <rect x="84" y="144" width="56" height="56" rx="10" fill="#3b9eff"/>
+    <text x="112" y="180" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#fff">AI</text>
+  </g>
+  <!-- prompt bubble -->
+  <g>
+    <rect x="186" y="88" width="148" height="58" rx="16" fill="#fff"/>
+    <path d="M196 146l-12 14 26-14z" fill="#fff"/>
+    <rect x="202" y="104" width="96" height="7" rx="3.5" fill="#36394a"/>
+    <rect x="202" y="118" width="70" height="6" rx="3" fill="#cdd2d9"/>
+    <rect x="276" y="118" width="38" height="6" rx="3" fill="#cdd2d9"/>
+  </g>
+  <!-- generated test case card -->
+  <g>
+    <rect x="176" y="176" width="168" height="140" rx="16" fill="#fff"/>
+    <rect x="176" y="176" width="168" height="34" rx="16" fill="#36394a"/>
+    <rect x="176" y="194" width="168" height="16" fill="#36394a"/>
+    <circle cx="194" cy="193" r="4" fill="#3b9eff"/>
+    <rect x="206" y="189" width="72" height="7" rx="3.5" fill="#fff" opacity=".9"/>
+    <g>
+      <circle cx="198" cy="232" r="8" fill="#22c55e"/>
+      <path d="M194 232l3 3 5-6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="214" y="228" width="100" height="7" rx="3.5" fill="#cdd2d9"/>
+    </g>
+    <g>
+      <circle cx="198" cy="258" r="8" fill="#22c55e"/>
+      <path d="M194 258l3 3 5-6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="214" y="254" width="82" height="7" rx="3.5" fill="#cdd2d9"/>
+    </g>
+    <g>
+      <circle cx="198" cy="284" r="8" fill="#f59e0b"/>
+      <rect x="196.5" y="279" width="3" height="6" rx="1.5" fill="#fff"/>
+      <circle cx="198" cy="288.5" r="1.6" fill="#fff"/>
+      <rect x="214" y="280" width="92" height="7" rx="3.5" fill="#cdd2d9"/>
+    </g>
+  </g>
+  <!-- connector -->
+  <path d="M152 236c14 0 14 0 24 0" stroke="#3b9eff" stroke-width="4" stroke-dasharray="2 8" stroke-linecap="round"/>
+  <!-- sparkles -->
+  <path d="M112 80l5 13 13 5-13 5-5 13-5-13-13-5 13-5z" fill="#3b9eff"/>
+  <path d="M352 168l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#3b9eff"/>
+  <path d="M96 268l3.5 9 9 3.5-9 3.5-3.5 9-3.5-9-9-3.5 9-3.5z" fill="#fff"/>
+</svg>
