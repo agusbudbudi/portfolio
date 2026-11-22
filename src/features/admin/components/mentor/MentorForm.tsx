@@ -8,7 +8,11 @@ import AccordionSection from '../shared/AccordionSection';
 import FormField from '../shared/FormField';
 import ImageUploadField from '../superadmin/ImageUploadField';
 import { slugify } from '../../../../lib/portfolioValidation';
-import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
+import {
+  ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY, ADMIN_FORM_FOOTER, ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY,
+} from '../shared/adminCard';
+import DashboardCardHeader, { CARD_ACTION_PRIMARY, CARD_ACTION_SECONDARY, FORM_FOOTER_STICKY_MOBILE } from '../shared/DashboardCardHeader';
+import { MentorIcon } from '../../../../components/illustration/ProductIcons';
 
 // Rendered conditionally by both MentorsTab (admin, managing any mentor) and
 // MemberDashboard (self-serve mentor application) — mode swaps the header
@@ -53,7 +57,8 @@ const MentorForm: React.FC<MentorFormProps> = ({
   onClose, onSubmit, mentor, existingIds, topics, availableDays, mode = 'admin',
 }) => {
   const isEdit = mentor !== null;
-  const isReapply = mode === 'member' && mentor?.verificationStatus === 'rejected';
+  const isMember = mode === 'member';
+  const isReapply = isMember && mentor?.verificationStatus === 'rejected';
   const title = mode === 'admin'
     ? (isEdit ? 'Edit Mentor' : 'Tambah Mentor')
     : (isReapply ? 'Edit & Ajukan Ulang' : isEdit ? 'Edit Profil Mentor' : 'Ajukan Jadi Mentor');
@@ -146,21 +151,25 @@ const MentorForm: React.FC<MentorFormProps> = ({
 
   return (
     <div className={ADMIN_CARD}>
-      <div className={ADMIN_CARD_HEADER}>
-        <button
-          onClick={onClose}
-          className="p-1.5 -ml-1 rounded-lg text-ld-fog hover:text-ld-graphite hover:bg-ld-cloud cursor-pointer border-none bg-transparent transition-colors"
-          aria-label="Kembali ke daftar mentor"
-        >
-          <ArrowLeft size={17} />
-        </button>
-        <div className="flex items-baseline gap-2">
-          <h2 className="text-sm font-semibold text-ld-onyx m-0">{title}</h2>
-          {mode === 'admin' && isEdit && <p className="text-sm font-semibold text-ld-onyx m-0">{mentor.name}</p>}
+      {isMember ? (
+        <DashboardCardHeader onBack={onClose} icon={<MentorIcon size={44} />} eyebrow="Program mentor" title={title} />
+      ) : (
+        <div className={ADMIN_CARD_HEADER}>
+          <button
+            onClick={onClose}
+            className="p-1.5 -ml-1 rounded-lg text-ld-fog hover:text-ld-graphite hover:bg-ld-cloud cursor-pointer border-none bg-transparent transition-colors"
+            aria-label="Kembali ke daftar mentor"
+          >
+            <ArrowLeft size={17} />
+          </button>
+          <div className="flex items-baseline gap-2">
+            <h2 className="text-sm font-semibold text-ld-onyx m-0">{title}</h2>
+            {isEdit && <p className="text-sm font-semibold text-ld-onyx m-0">{mentor.name}</p>}
+          </div>
         </div>
-      </div>
+      )}
 
-      <form ref={formRef} onSubmit={handleSubmit} className={`${ADMIN_CARD_BODY} w-full space-y-3`}>
+      <form ref={formRef} onSubmit={handleSubmit} className={`${ADMIN_CARD_BODY} w-full space-y-3 ${isMember ? 'max-md:pb-24' : ''}`}>
         <AccordionSection title="Profil" icon={UserCircle2} hasError={profileHasError} errorSignal={submitAttempt} defaultOpen>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
             <FormField label="ID (slug, tidak bisa diubah setelah dibuat)" required error={idError}>
@@ -251,7 +260,7 @@ const MentorForm: React.FC<MentorFormProps> = ({
         </AccordionSection>
 
         <AccordionSection title="Jadwal Mingguan" icon={CalendarClock}>
-          <p className="text-xs text-ld-fog m-0 mb-3">Jam mulai per hari — durasi sesi mengikuti Booking Rules.</p>
+          <p className="text-xs text-ld-fog m-0 mb-3">Jam mulai per hari. Durasi sesi mengikuti Booking Rules.</p>
           <ScheduleEditor
             schedule={form.schedule}
             availableDays={availableDays}
@@ -270,18 +279,18 @@ const MentorForm: React.FC<MentorFormProps> = ({
 
         {error && <p className="text-sm text-red-500 m-0 mt-3">{error}</p>}
 
-        <div className="flex justify-end gap-2 mt-8 pt-5 border-t border-ld-frost/60">
+        <div className={`mt-8 ${isMember ? FORM_FOOTER_STICKY_MOBILE : ADMIN_FORM_FOOTER}`}>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-ld-frost bg-white text-sm text-ld-graphite cursor-pointer"
+            className={isMember ? CARD_ACTION_SECONDARY : ADMIN_BTN_SECONDARY}
           >
             Batal
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium cursor-pointer border-none disabled:opacity-60 disabled:cursor-not-allowed"
+            className={isMember ? CARD_ACTION_PRIMARY : ADMIN_BTN_PRIMARY}
           >
             {saving ? 'Menyimpan…' : submitLabel}
           </button>

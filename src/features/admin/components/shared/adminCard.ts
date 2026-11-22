@@ -6,6 +6,14 @@ export const ADMIN_CARD = 'bg-white rounded-xl border border-ld-frost/70 overflo
 export const ADMIN_CARD_HEADER = 'flex items-center gap-3 px-4 md:px-6 py-4 border-b border-ld-frost/60';
 export const ADMIN_CARD_BODY = 'p-4 md:p-6';
 
+// Admin-variant form footer + buttons (MentorForm, PortfolioForm). The member
+// variant uses FORM_FOOTER_STICKY_MOBILE / CARD_ACTION_* instead.
+export const ADMIN_FORM_FOOTER = 'flex justify-end gap-2 pt-5 border-t border-ld-frost/60';
+export const ADMIN_BTN_SECONDARY =
+  'px-4 py-2 rounded-lg border border-ld-frost bg-white text-sm text-ld-graphite cursor-pointer';
+export const ADMIN_BTN_PRIMARY =
+  'px-4 py-2 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium cursor-pointer border-none disabled:opacity-60 disabled:cursor-not-allowed';
+
 // Shared "add item" button for list editors (Experience/Project/Endorsement,
 // etc.) — dashed outline in the primary color rather than a filled button,
 // since these sit inside an already-busy form and don't need full button

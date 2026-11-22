@@ -11,7 +11,8 @@ interface ProfileMenuUser {
 
 interface ProfileMenuProps {
   user: ProfileMenuUser;
-  roleLabel: string;
+  /** Omit/null to hide the role badge (e.g. plain mentee accounts). */
+  roleLabel?: string | null;
   onLogout: () => void;
 }
 
@@ -42,7 +43,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ user, roleLabel, onLogout }) 
       >
         <div className="hidden sm:flex flex-col items-end min-w-0">
           <p className="m-0 text-sm font-semibold text-ld-onyx leading-tight truncate">{user.name}</p>
-          <span className={`inline-block ${ROLE_BADGE_OUTLINE}`}>{roleLabel}</span>
+          {roleLabel && <span className={`inline-block ${ROLE_BADGE_OUTLINE}`}>{roleLabel}</span>}
         </div>
         {user.avatarUrl ? (
           <img src={user.avatarUrl} alt={user.name} width={32} height={32} className="w-8 h-8 rounded-full object-cover shrink-0" referrerPolicy="no-referrer" />
@@ -67,7 +68,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ user, roleLabel, onLogout }) 
             <div className="min-w-0">
               <p className="m-0 text-sm font-semibold text-ld-onyx leading-tight truncate">{user.name}</p>
               <p className="m-0 text-xs text-ld-fog leading-tight truncate mt-0.5">{user.email}</p>
-              <span className={`inline-block mt-1.5 ${ROLE_BADGE_OUTLINE}`}>{roleLabel}</span>
+              {roleLabel && <span className={`inline-block mt-1.5 ${ROLE_BADGE_OUTLINE}`}>{roleLabel}</span>}
             </div>
           </div>
           <div className="p-2">
