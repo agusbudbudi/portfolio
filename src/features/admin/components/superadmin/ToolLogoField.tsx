@@ -83,7 +83,7 @@ const ToolLogoField: React.FC<ToolLogoFieldProps> = ({ value, onChange, defaultS
               className={inputClass}
             />
             <p className="text-[11px] m-0 text-ld-fog">
-              {status === 'missing' && `Ikon "${slug}" tidak ditemukan di thesvg.org — logo dikosongkan. Coba slug lain atau upload manual.`}
+              {status === 'missing' && `Ikon "${slug}" tidak ditemukan di thesvg.org, jadi logo dikosongkan. Coba slug lain atau upload manual.`}
               {status === 'found' && 'Ikon ditemukan, otomatis dipakai.'}
               {status === 'idle' && !slug && 'Slug brand di thesvg.org, contoh: cypress, jira, postman.'}
             </p>

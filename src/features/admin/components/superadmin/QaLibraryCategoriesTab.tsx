@@ -92,7 +92,7 @@ const QaLibraryCategoriesTab: React.FC = () => {
                       <td className="px-4 py-3 whitespace-nowrap">
                         <code className="text-[11px] text-ld-slate">{category.id}</code>
                       </td>
-                      <td className="px-4 py-3 text-xs text-ld-fog">{category.description ?? '—'}</td>
+                      <td className="px-4 py-3 text-xs text-ld-fog">{category.description ?? '-'}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
                           <button

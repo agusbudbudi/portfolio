@@ -31,7 +31,7 @@ const HomeHero: React.FC = () => (
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
           </Link>
           <a
-            href="#produk"
+            href="#program"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-ld-ash bg-white text-ld-graphite text-sm font-medium rounded-lg no-underline hover:border-ld-steel transition-colors"
           >
             Jelajahi semua fitur

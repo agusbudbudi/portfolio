@@ -87,7 +87,7 @@ const ExperienceListEditor: React.FC<ExperienceListEditorProps> = ({ experience,
                   value={entry.workArrangement ?? ''}
                   onChange={(v) => update(entry.id, { workArrangement: (v || undefined) as WorkArrangement | undefined })}
                   className={`${inputClass} w-full`}
-                  options={[{ value: '', label: '—' }, ...WORK_ARRANGEMENT_OPTIONS]}
+                  options={[{ value: '', label: '-' }, ...WORK_ARRANGEMENT_OPTIONS]}
                 />
               </FormField>
               <FormField label="Lokasi (opsional)" compact>

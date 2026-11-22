@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&display=swap');
 @import "tailwindcss";
 
 /* Custom theme tokens matching the old tailwind.config.js */
@@ -34,7 +34,9 @@
   --color-ld-lavender: #c9e4ff;
   --color-ld-lilac: #e3f2ff;
 
-  --font-ld-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  /* Titles use Inter site-wide (owner decision, 2026-11-21) — the display
+     token stays so `font-ld-display` keeps marking "title" text. */
+  --font-ld-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-ld-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-ld-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 

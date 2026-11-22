@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { MentoringIcon, QaLibraryIcon, QaPortfolioIcon, QaSimulatorIcon } from '../../../../components/illustration/ProductIcons';
 import PremiumBadge from '../../../../components/common/PremiumBadge';
 
-// Shared product catalogue for the header "Produk" menu (desktop tray +
+// Shared program catalogue for the header "Program" menu (desktop tray +
 // mobile list). Kept separate from the navbar so both views stay in sync.
 
 type ProductIcon = React.FC<{ size?: number; className?: string }>;
@@ -32,7 +32,7 @@ const Badge: React.FC<{ text: string }> = ({ text }) => (
 
 /** Desktop tray: 4 product cards under the header, plus a footer strip. */
 export const ProductsTrayPanel: React.FC<{ onNavigate: () => void; id: string }> = ({ onNavigate, id }) => (
-  <div id={id} role="region" aria-label="Produk Mentor.QA" className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6">
+  <div id={id} role="region" aria-label="Program Mentor.QA" className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6">
     <ul className="m-0 p-0 list-none grid grid-cols-4 gap-3">
       {PRODUCTS.map(({ icon: Icon, name, desc, to, badge, paid }) => (
         <li key={to}>
@@ -58,9 +58,9 @@ export const ProductsTrayPanel: React.FC<{ onNavigate: () => void; id: string }>
       ))}
     </ul>
     <div className="mt-4 flex items-center justify-between gap-4 rounded-lg bg-ld-cloud px-4 py-3 text-xs text-ld-slate">
-      <span>Satu akun gratis untuk semua produk. Mentoring 1-on-1 tersedia sebagai sesi berbayar.</span>
-      <Link to="/#produk" onClick={onNavigate} className="inline-flex items-center gap-1 font-medium text-ld-violet no-underline hover:underline">
-        Bandingkan semua produk <ArrowRight size={12} />
+      <span>Satu akun gratis untuk semua program. Mentoring 1-on-1 tersedia sebagai sesi berbayar.</span>
+      <Link to="/#program" onClick={onNavigate} className="inline-flex items-center gap-1 font-medium text-ld-violet no-underline hover:underline">
+        Bandingkan semua program <ArrowRight size={12} />
       </Link>
     </div>
   </div>

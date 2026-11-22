@@ -136,7 +136,7 @@ const LightdashNavbar: React.FC = () => {
               aria-controls="products-tray"
               className={`relative inline-flex items-center gap-1 h-full bg-transparent border-none cursor-pointer text-sm font-medium transition-colors ${trayOpen ? 'text-ld-violet' : onBlue ? 'text-white/90 hover:text-white' : 'text-ld-graphite hover:text-ld-violet'}`}
             >
-              Produk
+              Program
               <ChevronDown size={15} className={`transition-transform ${trayOpen ? 'rotate-180' : ''}`} />
               <span aria-hidden="true" className={`absolute left-0 right-0 -bottom-px h-0.5 rounded-full bg-ld-violet transition-opacity ${trayOpen ? 'opacity-100' : 'opacity-0'}`} />
             </button>
@@ -261,7 +261,7 @@ const LightdashNavbar: React.FC = () => {
               className="fixed top-16 left-0 w-full bg-ld-canvas border-b border-ld-ash z-[1002] md:hidden"
             >
               <div className="border-b border-ld-ash py-2 max-h-[45vh] overflow-y-auto">
-                <p className="m-0 px-6 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-widest text-ld-fog">Produk</p>
+                <p className="m-0 px-6 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-widest text-ld-fog">Program</p>
                 <ProductsMobileList onNavigate={closeMenu} />
               </div>
               <ul className="list-none m-0 p-0 divide-y divide-ld-ash">

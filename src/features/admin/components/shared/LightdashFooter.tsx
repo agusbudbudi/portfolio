@@ -21,7 +21,7 @@ const SOCIAL_LINKS = [
 // Footer link groups. In-app routes use <Link>; `external` opens a new tab.
 const LINK_GROUPS: { title: string; links: { label: string; to: string; external?: boolean }[] }[] = [
   {
-    title: 'Produk',
+    title: 'Program',
     links: [
       { label: 'QA Simulator', to: '/qa-simulator' },
       { label: 'QA Library', to: '/qa-library' },
