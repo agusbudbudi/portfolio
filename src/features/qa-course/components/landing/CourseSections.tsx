@@ -77,6 +77,12 @@ const ComingSoonCard: React.FC<(typeof COMING_SOON)[number]> = ({ level, title, 
   </div>
 );
 
+// Mobile: horizontal snap slider bleeding to the screen edges, the next card
+// peeking in as a swipe hint (same pattern as the home sliders). md+: grid.
+// pb-2 keeps the cards' shadow from being clipped by the scroll container.
+const LIST = '-mx-4 px-4 pb-2 flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory scroll-px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-5 md:overflow-visible';
+const SLIDE = 'shrink-0 w-[82%] sm:w-[60%] snap-start md:w-auto';
+
 export const CourseListSection: React.FC<{
   courses: QaCourseSummary[] | null;
   error: string | null;
@@ -94,8 +100,8 @@ export const CourseListSection: React.FC<{
       </div>
 
       {courses === null && !error && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" role="status" aria-label="Memuat course…">
-          {[0, 1, 2].map((i) => <div key={i} className="h-[360px] rounded-2xl bg-white/15 animate-pulse" />)}
+        <div className={LIST} role="status" aria-label="Memuat course…">
+          {[0, 1, 2].map((i) => <div key={i} className={`${SLIDE} h-[360px] rounded-2xl bg-white/15 animate-pulse`} />)}
         </div>
       )}
       {error && <p className="text-center text-sm text-white/90 py-16 m-0">{error}</p>}
@@ -108,9 +114,11 @@ export const CourseListSection: React.FC<{
         </div>
       )}
       {courses && courses.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {courses.map((c) => <CourseCard key={c.id} course={c} />)}
-          {COMING_SOON.filter((p) => !courses.some((c) => c.slug === p.slug)).map((p) => <ComingSoonCard key={p.slug} {...p} />)}
+        <div className={LIST}>
+          {courses.map((c) => <div key={c.id} className={SLIDE}><CourseCard course={c} /></div>)}
+          {COMING_SOON.filter((p) => !courses.some((c) => c.slug === p.slug)).map((p) => (
+            <div key={p.slug} className={SLIDE}><ComingSoonCard {...p} /></div>
+          ))}
         </div>
       )}
     </div>
@@ -135,13 +143,18 @@ export const CourseHowItWorksSection: React.FC = () => (
         <h2 className="m-0 font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite">Belajar, praktik, lalu buktikan</h2>
         <p className="m-0 mt-4 text-ld-slate max-w-xl mx-auto leading-relaxed">Setiap modul mengulang tiga langkah ini, sampai semua skill dasar QA terkumpul jadi satu portfolio.</p>
       </div>
-      <ol className="m-0 p-0 list-none grid grid-cols-1 md:grid-cols-3 gap-5">
+      {/* Mobile: one card per row. md+: 3 columns. */}
+      <ol className="m-0 p-0 list-none grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
         {STEPS.map(({ icon: Icon, title, body }, i) => (
-          <li key={title} className="rounded-2xl border border-ld-frost bg-white p-6">
-            <Icon size={48} />
-            <p className="m-0 mt-5 text-xs font-semibold text-ld-fog tabular-nums">Langkah {i + 1}</p>
-            <h3 className="m-0 mt-1 text-lg font-semibold text-ld-graphite">{title}</h3>
-            <p className="m-0 mt-2 text-sm text-ld-slate leading-relaxed">{body}</p>
+          <li key={title} className="rounded-2xl border border-ld-frost bg-white p-5 md:p-6">
+            <div className="flex items-center gap-3">
+              <Icon size={44} className="shrink-0" />
+              <div className="min-w-0">
+                <p className="m-0 text-xs font-semibold text-ld-fog tabular-nums">Langkah {i + 1}</p>
+                <h3 className="m-0 mt-0.5 text-base md:text-lg font-semibold text-ld-graphite">{title}</h3>
+              </div>
+            </div>
+            <p className="m-0 mt-3 md:mt-4 text-sm text-ld-slate leading-relaxed">{body}</p>
           </li>
         ))}
       </ol>
@@ -174,7 +187,8 @@ export const CourseCompareSection: React.FC = () => (
         </div>
         {COMPARE.map((row) => (
           <div key={row.label} className="grid grid-cols-[1fr_1fr] sm:grid-cols-[160px_1fr_1fr] border-t border-ld-frost text-sm">
-            <span className="col-span-2 sm:col-span-1 px-5 pt-3 sm:py-4 text-xs sm:text-sm font-semibold text-ld-onyx">{row.label}</span>
+            {/* Mobile: the label is its own row, so a hairline separates it from the two cells. */}
+            <span className="col-span-2 sm:col-span-1 px-5 py-2.5 sm:py-4 border-b border-ld-frost sm:border-b-0 text-xs sm:text-sm font-semibold text-ld-onyx">{row.label}</span>
             <span className="px-5 py-3 sm:py-4 flex items-start gap-2 text-ld-slate"><X size={15} className="text-ld-fog mt-0.5 shrink-0" />{row.typical}</span>
             <span className="px-5 py-3 sm:py-4 flex items-start gap-2 text-ld-graphite bg-ld-lilac/30"><Check size={15} className="text-emerald-600 mt-0.5 shrink-0" />{row.ours}</span>
           </div>
