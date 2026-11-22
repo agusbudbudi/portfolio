@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Check, ThumbsUp } from 'lucide-react';
 import { MENTORING_PLANS } from '../../mentoring/data/pricingPlans';
 
-// Free tier (Simulator, Library, Portfolio) next to the paid mentoring plans,
+// Free tier (Course, Simulator, Library, Portfolio) next to the paid mentoring plans,
 // so "what's free / what does mentoring cost" is answered on the home page.
 // Mentoring prices come from mentoring/data/pricingPlans (shared with /mentoring).
 
 const FREE_FEATURES = [
+  'Semua QA Course, sampai lulus',
   'Semua project QA Simulator',
   'Semua artikel QA Library',
   'Portfolio QA dengan link sendiri',
@@ -29,7 +30,7 @@ const HomePricing: React.FC = () => (
         {/* Free tier */}
         <div className="flex flex-col rounded-xl p-6 border border-emerald-200 bg-emerald-50/40">
           <h3 className="m-0 font-semibold text-lg text-ld-graphite">Gratis</h3>
-          <p className="m-0 mt-1 mb-5 text-sm text-ld-slate lg:min-h-[3.75rem]">Simulator, Library, dan Portfolio QA.</p>
+          <p className="m-0 mt-1 mb-5 text-sm text-ld-slate lg:min-h-[3.75rem]">Course, Simulator, Library, dan Portfolio QA.</p>
           <span aria-hidden="true" className="text-sm invisible">-</span>
           <div className="flex items-baseline gap-1 mb-5">
             <span className="font-semibold text-3xl tracking-[-0.02em] text-emerald-700">Rp0</span>

@@ -92,6 +92,7 @@ const SimulatorFooter: React.FC = () => (
       </p>
       <div className="flex items-center gap-4">
         <Link to="/" className="text-ld-slate hover:text-ld-violet no-underline">Mentor.QA</Link>
+        <Link to="/courses" className="text-ld-slate hover:text-ld-violet no-underline">QA Course</Link>
         <Link to="/qa-library" className="text-ld-slate hover:text-ld-violet no-underline">QA Library</Link>
         <Link to="/mentoring/booking" className="text-ld-slate hover:text-ld-violet no-underline">Booking mentor</Link>
       </div>

@@ -1,14 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { GuidedIllustration, LearnIllustration, PracticeIllustration, ShowcaseIllustration } from './JourneyIllustrations';
+import { CourseIllustration, GuidedIllustration, LearnIllustration, PracticeIllustration, ShowcaseIllustration } from './JourneyIllustrations';
 
-// The four products as one path: learn → practice → show → get guided.
+// The five products as one path: start guided (QA Course) → go deeper
+// (QA Library) → practice → show → get guided.
 
 const STEPS = [
-  { n: '01', art: LearnIllustration, verb: 'Belajar', title: 'Pahami dasarnya', body: 'Baca materi fundamental sampai automation di QA Library.', to: '/qa-library', link: 'QA Library' },
-  { n: '02', art: PracticeIllustration, verb: 'Praktik', title: 'Kerjakan project nyata', body: 'Review PRD, tulis test case, dan cari bug di aplikasi staging.', to: '/qa-simulator', link: 'QA Simulator' },
-  { n: '03', art: ShowcaseIllustration, verb: 'Tunjukkan', title: 'Bangun portfolio', body: 'Ubah hasil simulasi jadi studi kasus yang bisa dikirim ke recruiter.', to: '/portfolio', link: 'Portfolio QA' },
-  { n: '04', art: GuidedIllustration, verb: 'Dibimbing', title: 'Dapat arahan personal', body: 'Review CV, latihan interview, dan rencana belajar bareng mentor.', to: '/mentoring', link: 'Mentoring' },
+  { n: '01', art: CourseIllustration, verb: 'Mulai', title: 'Ikuti jalur terarah', body: 'Mulai dari QA Course: lesson berurutan dari nol, diselingi misi praktik.', to: '/courses', link: 'QA Course' },
+  { n: '02', art: LearnIllustration, verb: 'Belajar', title: 'Perdalam materinya', body: 'Baca topik fundamental sampai automation di QA Library, kapan pun butuh.', to: '/qa-library', link: 'QA Library' },
+  { n: '03', art: PracticeIllustration, verb: 'Praktik', title: 'Kerjakan project nyata', body: 'Review PRD, tulis test case, dan cari bug di aplikasi staging.', to: '/qa-simulator', link: 'QA Simulator' },
+  { n: '04', art: ShowcaseIllustration, verb: 'Tunjukkan', title: 'Bangun portfolio', body: 'Ubah hasil simulasi jadi studi kasus yang bisa dikirim ke recruiter.', to: '/portfolio', link: 'Portfolio QA' },
+  { n: '05', art: GuidedIllustration, verb: 'Dibimbing', title: 'Dapat arahan personal', body: 'Review CV, latihan interview, dan rencana belajar bareng mentor.', to: '/mentoring', link: 'Mentoring' },
 ];
 
 const HomeJourney: React.FC = () => (
@@ -22,11 +24,11 @@ const HomeJourney: React.FC = () => (
       </div>
       {/* Mobile: horizontal snap slider bleeding to the screen edges, the next
           card peeking in as a swipe hint. sm+: regular grid. */}
-      <ol className="m-0 p-0 list-none -mx-4 px-4 flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory scroll-px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible lg:grid-cols-4 lg:gap-0">
+      <ol className="m-0 p-0 list-none -mx-4 px-4 flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory scroll-px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible lg:grid-cols-5 lg:gap-0">
         {STEPS.map(({ n, art: Art, verb, title, body, to, link }, i) => (
           <li
             key={n}
-            className="relative shrink-0 w-[78%] snap-start rounded-xl border border-ld-ash p-5 sm:w-auto sm:rounded-none sm:border-0 sm:p-0 lg:pr-8"
+            className="relative shrink-0 w-[78%] snap-start rounded-xl border border-ld-ash p-5 sm:w-auto sm:rounded-none sm:border-0 sm:p-0 lg:pr-6"
           >
             {/* connector line between steps (desktop) */}
             {i < STEPS.length - 1 && (

@@ -19,7 +19,56 @@ const Svg: React.FC<{ children: React.ReactNode; className?: string }> = ({ chil
   </svg>
 );
 
-/** 01 Belajar — open book whose text lines write themselves in. */
+/** 01 Mulai — a course card: lessons tick off in order while the progress
+ *  bar fills, then the graduation cap perched on the card hops. */
+export const CourseIllustration: React.FC<{ className?: string }> = ({ className }) => {
+  const still = useReducedMotion();
+  const rows = [{ y: 31, w: 20 }, { y: 40, w: 15 }, { y: 49, w: 18 }];
+  const tick = (i: number) => ({
+    duration: 4, times: [0, 0.1, 0.85, 1], repeat: Infinity, delay: 0.3 + i * 0.45,
+  });
+  return (
+    <Svg className={className}>
+      <rect x="16" y="20" width="46" height="46" rx="6" fill="#fff" stroke={LAVENDER} />
+      {rows.map((r, i) => (
+        <g key={i}>
+          <motion.circle
+            cx="25" cy={r.y} r="3.8"
+            initial={{ fill: still ? '#10b981' : LILAC }}
+            animate={still ? undefined : { fill: [LILAC, '#10b981', '#10b981', LILAC] }}
+            transition={tick(i)}
+          />
+          <motion.path
+            d={`M23.2 ${r.y}l1.3 1.3 2.4-2.6`} fill="none" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"
+            initial={{ opacity: still ? 1 : 0 }}
+            animate={still ? undefined : { opacity: [0, 1, 1, 0] }}
+            transition={tick(i)}
+          />
+          <rect x="32" y={r.y - 1.3} width={r.w} height="2.6" rx="1.3" fill={i === 0 ? ONYX : LAVENDER} />
+        </g>
+      ))}
+      <rect x="22" y="57" width="34" height="3" rx="1.5" fill={LILAC} />
+      <motion.rect
+        x="22" y="57" height="3" rx="1.5" fill={VIOLET}
+        initial={{ width: still ? 34 : 0 }}
+        animate={still ? undefined : { width: [0, 34, 34, 0] }}
+        transition={{ duration: 4, times: [0, 0.45, 0.85, 1], repeat: Infinity, delay: 0.3 }}
+      />
+      <motion.g
+        style={{ originX: 0.5, originY: 1 }}
+        animate={still ? undefined : { y: [0, 0, -4, 0, 0], rotate: [0, 0, -8, 0, 0] }}
+        transition={{ duration: 4, times: [0, 0.48, 0.56, 0.64, 1], repeat: Infinity, delay: 0.3 }}
+      >
+        <path d="M60 10L46 17l14 7 14-7z" fill={ONYX} />
+        <path d="M53 20.5v4.5c0 1.6 3.1 3 7 3s7-1.4 7-3v-4.5L60 24z" fill={VIOLET} />
+        <path d="M72 18v7" stroke={ONYX} strokeWidth="1.6" strokeLinecap="round" />
+        <circle cx="72" cy="26.5" r="2" fill={VIOLET} />
+      </motion.g>
+    </Svg>
+  );
+};
+
+/** 02 Belajar — open book whose text lines write themselves in. */
 export const LearnIllustration: React.FC<{ className?: string }> = ({ className }) => {
   const still = useReducedMotion();
   const lines = [
@@ -48,7 +97,7 @@ export const LearnIllustration: React.FC<{ className?: string }> = ({ className 
   );
 };
 
-/** 02 Praktik — a magnifier scans an app screen and a bug pops up on a row. */
+/** 03 Praktik — a magnifier scans an app screen and a bug pops up on a row. */
 export const PracticeIllustration: React.FC<{ className?: string }> = ({ className }) => {
   const still = useReducedMotion();
   return (
@@ -81,7 +130,7 @@ export const PracticeIllustration: React.FC<{ className?: string }> = ({ classNa
   );
 };
 
-/** 03 Tunjukkan — portfolio card whose tiles fill in, then a check. */
+/** 04 Tunjukkan — portfolio card whose tiles fill in, then a check. */
 export const ShowcaseIllustration: React.FC<{ className?: string }> = ({ className }) => {
   const still = useReducedMotion();
   const tiles = [{ x: 20 }, { x: 34 }, { x: 48 }];
@@ -113,7 +162,7 @@ export const ShowcaseIllustration: React.FC<{ className?: string }> = ({ classNa
   );
 };
 
-/** 04 Dibimbing — mentee and mentor trading chat bubbles. */
+/** 05 Dibimbing — mentee and mentor trading chat bubbles. */
 export const GuidedIllustration: React.FC<{ className?: string }> = ({ className }) => {
   const still = useReducedMotion();
   const pop = (delay: number, originX: number) =>

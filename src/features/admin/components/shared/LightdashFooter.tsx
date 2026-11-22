@@ -70,7 +70,7 @@ const LightdashFooter: React.FC = () => {
               <span>Mentor<span className="text-ld-violet">.QA</span></span>
             </Link>
             <p className="m-0 text-sm text-ld-slate leading-relaxed">
-              Platform karier QA Engineer: belajar di QA Library, praktik lewat simulasi kerja QA, bangun portfolio, dan dibimbing mentor 1-on-1.
+              Platform karier QA Engineer: belajar terarah di QA Course, praktik lewat simulasi kerja QA, bangun portfolio, dan dibimbing mentor 1-on-1.
             </p>
             <div className="flex items-center gap-2">
               {SOCIAL_LINKS.map(({ name, icon: Icon, url }) => (

@@ -87,7 +87,7 @@ const LoginScreen: React.FC = () => {
             Satu Akun untuk Semua Program Mentor.QA
           </h2>
           <p className="text-white/80 text-base leading-relaxed">
-            Latihan kasus nyata di QA Simulator, bangun portfolio, belajar dari QA Library, dan booking mentoring 1-on-1. Gratis untuk mulai.
+            Belajar terarah di QA Course, latihan kasus nyata di QA Simulator, bangun portfolio, dan booking mentoring 1-on-1. Gratis untuk mulai.
           </p>
         </div>
       </div>
