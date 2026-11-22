@@ -29,7 +29,7 @@ const WhyDifferentSection: React.FC = () => {
             <div className="grid grid-cols-2 border-b border-ld-ash">
               <div className="flex items-center justify-center gap-2 px-4 py-3 sm:px-5 bg-ld-violet text-center">
                 <img
-                  src="/shared/img/mentor-logo.webp"
+                  src="/shared/img/mentor-logo-96.webp"
                   alt=""
                   width={18}
                   height={18}

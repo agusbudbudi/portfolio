@@ -62,7 +62,7 @@ const ProfileHeroBand: React.FC<{
             <div className="inline-flex items-center gap-1.5 w-fit px-3 py-1.5 rounded-lg bg-white border-2 border-blue-600 shadow-[3px_3px_0_0_#2563eb]">
               <BadgeCheck size={18} className="text-blue-500" fill="currentColor" stroke="white" />
               <span className="text-xs font-medium text-ld-graphite">Verified by</span>
-              <img src="/shared/img/mentor-logo.webp" alt="Mentor.QA" width={14} height={14} loading="lazy" decoding="async" className="w-3.5 h-3.5 object-contain" />
+              <img src="/shared/img/mentor-logo-96.webp" alt="Mentor.QA" width={14} height={14} loading="lazy" decoding="async" className="w-3.5 h-3.5 object-contain" />
               <span className="text-xs font-semibold text-ld-graphite">Mentor<span className="text-ld-violet">.QA</span></span>
             </div>
           )}

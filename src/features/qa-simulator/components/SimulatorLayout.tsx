@@ -28,7 +28,7 @@ const SimulatorHeader: React.FC = () => {
             className="inline-flex items-center gap-1.5 text-xs font-medium text-white/60 hover:text-white no-underline transition-colors shrink-0"
             aria-label="Mentor.QA — halaman utama"
           >
-            <img src="/shared/img/mentor-logo.webp" alt="" width={20} height={20} className="w-5 h-5 object-contain" />
+            <img src="/shared/img/mentor-logo-96.webp" alt="" width={20} height={20} className="w-5 h-5 object-contain" />
             <span className="hidden sm:inline">Mentor.QA</span>
           </Link>
 

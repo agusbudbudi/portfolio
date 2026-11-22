@@ -80,7 +80,7 @@ const PortfolioShowcase: React.FC = () => {
               <span className="mt-1.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-white border-[1.5px] border-blue-600 shadow-[2px_2px_0_0_#2563eb]">
                 <BadgeCheck size={11} className="text-blue-500" fill="currentColor" stroke="white" />
                 <span className="text-[8px] font-medium text-ld-graphite">Verified by</span>
-                <img src="/shared/img/mentor-logo.webp" alt="" className="w-2.5 h-2.5 object-contain" />
+                <img src="/shared/img/mentor-logo-96.webp" alt="" className="w-2.5 h-2.5 object-contain" />
                 <span className="text-[8px] font-semibold text-ld-graphite">Mentor<span className="text-ld-violet">.QA</span></span>
               </span>
             </span>

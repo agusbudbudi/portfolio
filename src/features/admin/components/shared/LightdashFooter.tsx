@@ -59,7 +59,7 @@ const LightdashFooter: React.FC = () => {
           <div className="col-span-2 md:col-span-5 flex flex-col gap-4 max-w-sm">
             <Link to="/" className="flex items-center gap-2 text-lg font-medium text-ld-graphite tracking-tight no-underline">
               <img
-                src="/shared/img/mentor-logo.webp"
+                src="/shared/img/mentor-logo-96.webp"
                 alt="Mentor.QA"
                 width={28}
                 height={28}

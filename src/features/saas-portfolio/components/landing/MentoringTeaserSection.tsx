@@ -15,7 +15,7 @@ const MentoringTeaserSection: React.FC = () => {
             <div className="inline-flex flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-1 mb-3">
               <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ld-graphite">
                 <img
-                  src="/shared/img/mentor-logo.webp"
+                  src="/shared/img/mentor-logo-96.webp"
                   alt="Mentor.QA"
                   width={16}
                   height={16}

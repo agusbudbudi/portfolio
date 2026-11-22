@@ -10,7 +10,7 @@ const PublicPortfolioNavbar: React.FC = () => {
           <span className="text-[10px] leading-none text-ld-fog">Powered by:</span>
           <span className="flex items-center gap-2 text-lg font-medium text-ld-graphite tracking-tight leading-none font-ld-display">
             <img
-              src="/shared/img/mentor-logo.webp"
+              src="/shared/img/mentor-logo-96.webp"
               alt="Mentor.QA"
               width={24}
               height={24}

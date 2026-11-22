@@ -209,7 +209,7 @@ const OnboardingPage: React.FC = () => {
           <Link to="/" className="flex items-center gap-2 font-ld-display font-semibold text-[19px] tracking-[-0.02em] text-ld-onyx no-underline cursor-pointer">
             {/* Decorative: the wordmark next to it already names the link. */}
             <img
-              src="/shared/img/mentor-logo.webp"
+              src="/shared/img/mentor-logo-96.webp"
               alt=""
               width={28}
               height={28}

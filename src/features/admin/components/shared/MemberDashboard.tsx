@@ -274,7 +274,7 @@ const MemberDashboard: React.FC = () => {
   const renderSidebar = (mobile: boolean) => (
     <>
       <div className={`flex items-center gap-2.5 h-16 border-b border-ld-frost/60 ${mobile ? 'pl-5 pr-14' : 'px-4'}`}>
-        <img src="/shared/img/mentor-logo.webp" alt="Mentor.QA" width={36} height={36} className={`${mobile ? 'w-9 h-9' : 'w-8 h-8'} rounded-lg object-contain shrink-0`} />
+        <img src="/shared/img/mentor-logo-96.webp" alt="Mentor.QA" width={36} height={36} className={`${mobile ? 'w-9 h-9' : 'w-8 h-8'} rounded-lg object-contain shrink-0`} />
         <div className="min-w-0">
           <p className={`m-0 font-semibold text-ld-onyx leading-tight truncate ${mobile ? 'text-base' : 'text-sm'}`}>Mentor.QA</p>
           <p className={`m-0 text-ld-fog leading-tight truncate ${mobile ? 'text-xs' : 'text-[11px]'}`}>Dashboard</p>

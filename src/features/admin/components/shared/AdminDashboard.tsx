@@ -168,7 +168,7 @@ const AdminDashboard: React.FC = () => {
       <div className="flex items-center gap-2.5 px-4 h-16 border-b border-white/15">
         <span className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0">
           <img
-            src="/shared/img/mentor-logo.webp"
+            src="/shared/img/mentor-logo-96.webp"
             alt="Mentor.QA"
             width={24}
             height={24}

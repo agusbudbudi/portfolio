@@ -89,7 +89,7 @@ const MentorProfileSection: React.FC = () => {
                         <div className="inline-flex items-center gap-1.5 w-fit px-2 py-1 rounded-lg bg-white border-2 border-blue-600 shadow-[2px_2px_0_0_#2563eb]">
                           <BadgeCheck size={13} className="text-blue-500" fill="currentColor" stroke="white" />
                           <span className="text-[10px] font-medium text-ld-graphite">Verified by</span>
-                          <img src="/shared/img/mentor-logo.webp" alt="Mentor.QA" width={11} height={11} loading="lazy" decoding="async" className="w-[11px] h-[11px] object-contain" />
+                          <img src="/shared/img/mentor-logo-96.webp" alt="Mentor.QA" width={11} height={11} loading="lazy" decoding="async" className="w-[11px] h-[11px] object-contain" />
                           <span className="text-[10px] font-semibold text-ld-graphite">Mentor<span className="text-ld-violet">.QA</span></span>
                         </div>
                       )}
