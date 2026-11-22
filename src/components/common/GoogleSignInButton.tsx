@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useAdminAuthStore } from '../../store/useAdminAuthStore';
+import { loadGoogleIdentity } from '../../lib/loadGoogleIdentity';
 
 interface GoogleSignInButtonProps {
   onSuccess?: () => void;
@@ -25,18 +26,11 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ onSuccess, onEr
   useEffect(() => {
     if (!clientId) return;
     let cancelled = false;
-    let attempts = 0;
 
-    // The GSI script is loaded async in index.html — poll briefly for it.
-    const tryInit = () => {
-      if (cancelled) return;
+    const init = () => {
       const el = containerRef.current;
-      if (!window.google || !el) {
-        attempts += 1;
-        if (attempts > 50) { setLoadError('Gagal memuat Google Sign-In. Coba refresh halaman.'); return; }
-        window.setTimeout(tryInit, 100);
-        return;
-      }
+      if (cancelled || !window.google || !el) return;
+      setLoadError(null);
       window.google.accounts.id.initialize({
         client_id: clientId,
         callback: async (response) => {
@@ -58,7 +52,10 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ onSuccess, onEr
       });
     };
 
-    tryInit();
+    // Inject the GSI script on demand; the shared promise retries on failure.
+    loadGoogleIdentity().then(init, () => {
+      if (!cancelled) setLoadError('Gagal memuat Google Sign-In. Coba refresh halaman.');
+    });
     return () => { cancelled = true; };
   }, [clientId, login, text]);
 

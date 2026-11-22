@@ -1,5 +1,5 @@
 // Minimal ambient types for the Google Identity Services script loaded via
-// <script src="https://accounts.google.com/gsi/client"> in index.html.
+// <script src="https://accounts.google.com/gsi/client">, injected on demand by src/lib/loadGoogleIdentity.ts.
 // No official npm types package is worth depending on for this small a surface.
 interface GoogleCredentialResponse {
   credential: string;

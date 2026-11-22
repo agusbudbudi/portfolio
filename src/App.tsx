@@ -10,9 +10,17 @@ import PublicPortfolioScrollBanner from './features/saas-portfolio/components/Pu
 import PublicPortfolioFooter from './features/saas-portfolio/components/PublicPortfolioFooter';
 import Seo from './components/common/Seo';
 import LoadingState from './components/common/LoadingState';
+import { loadedHomePage, preloadHomePage } from './features/home/homePageLoader';
+
+// Code-split, but preloaded by main.tsx on "/" so the first render uses the
+// loaded module directly (no Suspense fallback, no layout shift). See homePageLoader.
+const LazyHomePage = lazy(preloadHomePage);
+const HomePage: React.FC = () => {
+  const mod = loadedHomePage();
+  return mod ? <mod.default /> : <LazyHomePage />;
+};
 
 const MentoringPage = lazy(() => import('./features/mentoring/pages/MentoringPage'));
-const HomePage = lazy(() => import('./features/home/pages/HomePage'));
 const PortfolioHome = lazy(() => import('./features/personal-portfolio/pages/Home'));
 const PortfolioAbout = lazy(() => import('./features/personal-portfolio/pages/About'));
 const PortfolioProjects = lazy(() => import('./features/personal-portfolio/pages/Projects'));

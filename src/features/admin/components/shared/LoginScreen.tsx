@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
 import { useSnackbarStore } from '../../../../store/useSnackbarStore';
+import { loadGoogleIdentity } from '../../../../lib/loadGoogleIdentity';
 
 const LoginScreen: React.FC = () => {
   const { login, loggingIn, token, user } = useAdminAuthStore();
@@ -28,22 +29,9 @@ const LoginScreen: React.FC = () => {
     if (!clientId) return;
 
     let cancelled = false;
-    let attempts = 0;
 
-    // index.html loads the GSI script with async/defer, so window.google may
-    // not exist yet on mount — poll briefly instead of failing immediately.
-    const tryInit = () => {
-      if (cancelled) return;
-      if (!window.google || !buttonRef.current) {
-        attempts += 1;
-        if (attempts > 50) {
-          setTimeout(() => { if (!cancelled) setError('Gagal memuat Google Sign-In. Coba refresh halaman.'); }, 0);
-          return;
-        }
-        setTimeout(tryInit, 100);
-        return;
-      }
-
+    const init = () => {
+      if (cancelled || !window.google || !buttonRef.current) return;
       window.google.accounts.id.initialize({
         client_id: clientId,
         callback: async (response) => {
@@ -67,7 +55,11 @@ const LoginScreen: React.FC = () => {
       });
     };
 
-    tryInit();
+    // The GSI script is injected on demand (not from index.html), so wait for
+    // the shared loader instead of assuming window.google exists on mount.
+    loadGoogleIdentity().then(init, () => {
+      if (!cancelled) setError('Gagal memuat Google Sign-In. Coba refresh halaman.');
+    });
     return () => { cancelled = true; };
   }, [login, clientId, showSnackbar]);
 
@@ -118,7 +110,7 @@ const LoginScreen: React.FC = () => {
           <div className="w-full max-w-sm">
             <Link to="/" className="flex items-center gap-3 mb-8 no-underline w-fit">
               <img
-                src="/shared/img/mentor-logo.webp"
+                src="/shared/img/mentor-logo-96.webp"
                 alt="Mentor.QA"
                 width={40}
                 height={40}
