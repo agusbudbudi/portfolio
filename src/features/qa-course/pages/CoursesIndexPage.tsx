@@ -69,7 +69,7 @@ const CoursesIndexPage: React.FC = () => {
   return (
     <div className="w-full bg-ld-canvas font-ld-sans">
       <Seo {...SEO} jsonLd={jsonLd} />
-      <CourseHeroSection courses={list.courses} />
+      <CourseHeroSection />
       <CourseListSection courses={list.courses} error={list.error} />
       <CourseHowItWorksSection />
       <CourseCompareSection />

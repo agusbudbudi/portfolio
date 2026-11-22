@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, Circle, Clock } from 'lucide-react';
 import LoadingState from '../../../components/common/LoadingState';
@@ -7,12 +7,9 @@ import DashboardCard from '../../admin/components/shared/DashboardCard';
 import DashboardBanner from '../../admin/components/shared/DashboardBanner';
 import { CARD_ACTION_PRIMARY } from '../../admin/components/shared/DashboardCardHeader';
 import { QaCourseIcon } from '../../../components/illustration/ProductIcons';
-import type { QaCourseDetail } from '../../../types/qaCourse';
 import { QA_COURSE_LEVEL_LABEL } from '../../../types/qaCourse';
-import type { ProjectProgress, SimulatorProject } from '../../../types/qaSimulator';
-import { apiListSimulatorProgress, fetchSimulatorProject } from '../../qa-simulator/lib/simulatorApi';
-import { fetchCourse, fetchCourseProgress, fetchCourses } from '../lib/courseApi';
-import { buildLessons, courseCompletion, nextLesson, type Lesson } from '../lib/courseOutline';
+import { courseCompletion, nextLesson } from '../lib/courseOutline';
+import { useLearnerCourses } from '../hooks/useLearnerCourses';
 import { COMING_SOON } from './landing/content';
 import CourseBannerIllustration from './CourseBannerIllustration';
 
@@ -22,55 +19,12 @@ const LEVEL_STYLE = {
   advanced: 'bg-rose-50 text-rose-700',
 } as const;
 
-interface Row {
-  course: QaCourseDetail;
-  lessons: Lesson[];
-}
-
 // Dashboard menu "QA Course": the learner's progress per published course and
 // a jump straight to the next lesson. Same layout as the QA Simulator tab
 // (banner, then one block per item with a progress bar and step chips).
 const CourseDashboardTab: React.FC = () => {
   const token = useAdminAuthStore((s) => s.token);
-  const [rows, setRows] = useState<Row[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const summaries = await fetchCourses();
-        const details = (await Promise.all(summaries.map((c) => fetchCourse(c.slug)))).filter((c): c is QaCourseDetail => Boolean(c));
-
-        // Simulator projects + the learner's simulator progress, for mission status.
-        const projectIds = [...new Set(details.flatMap((c) => c.modules.flatMap((m) => m.items)).flatMap((i) => (i.kind === 'mission' ? [i.projectId] : [])))];
-        const [projects, simRecords, progresses] = await Promise.all([
-          Promise.all(projectIds.map((id) => fetchSimulatorProject(id).catch(() => null))),
-          token && projectIds.length ? apiListSimulatorProgress(token).catch(() => []) : Promise.resolve([]),
-          Promise.all(details.map((c) => (token ? fetchCourseProgress(c.slug, token).catch(() => null) : Promise.resolve(null)))),
-        ]);
-        if (cancelled) return;
-
-        const projectMap: Record<string, SimulatorProject> = Object.fromEntries(
-          projects.filter((p): p is SimulatorProject => Boolean(p)).map((p) => [p.id, p])
-        );
-        const simMap: Record<string, ProjectProgress> = Object.fromEntries(simRecords.map((r) => [r.projectId, r.data]));
-        setRows(details.map((course, i) => ({
-          course,
-          lessons: buildLessons({
-            course,
-            projects: projectMap,
-            simulatorProgress: simMap,
-            completedArticleIds: new Set(progresses[i]?.completedArticleIds ?? []),
-            loggedIn: Boolean(token),
-          }),
-        })));
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Gagal memuat QA Course.');
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [token]);
+  const { rows, error } = useLearnerCourses(token);
 
   if (error) return <p className="text-sm text-red-500 m-0 p-4">{error}</p>;
   if (!rows) return <LoadingState label="Memuat course…" />;
