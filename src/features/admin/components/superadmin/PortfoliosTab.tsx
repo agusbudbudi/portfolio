@@ -133,7 +133,7 @@ const PortfoliosTab: React.FC = () => {
                         {portfolio.ownerId ? (
                           <code className="text-[11px] text-ld-slate">{portfolio.ownerId}</code>
                         ) : (
-                          <span className="text-xs text-ld-fog italic">—</span>
+                          <span className="text-xs text-ld-fog italic">-</span>
                         )}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">

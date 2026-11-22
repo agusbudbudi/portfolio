@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import type { TopicConfig } from '../../../../types/mentoring';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
+import TopicImageField from './TopicImageField';
 
 // Rendered conditionally by TopicsTab so form state re-initializes from
 // props on every open — no reset effect needed.
@@ -24,7 +25,6 @@ const TopicForm: React.FC<TopicFormProps> = ({ onClose, onSubmit, topic, existin
   const [form, setForm] = useState<TopicConfig>(topic ?? emptyTopic);
   const [materialsText, setMaterialsText] = useState((topic?.materials ?? []).join('\n'));
   const [error, setError] = useState<string | null>(null);
-  const [imageBroken, setImageBroken] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,6 +41,11 @@ const TopicForm: React.FC<TopicFormProps> = ({ onClose, onSubmit, topic, existin
       setError('Label dan description wajib diisi.');
       return;
     }
+    const image = form.image?.trim();
+    if (image && !/^(https?:\/\/|\/[^/])/i.test(image)) {
+      setError('Ilustrasi harus URL http/https atau path yang diawali "/".');
+      return;
+    }
     const materials = materialsText
       .split('\n')
       .map((line) => line.trim())
@@ -49,7 +54,7 @@ const TopicForm: React.FC<TopicFormProps> = ({ onClose, onSubmit, topic, existin
     setSaving(true);
     const result = await onSubmit({
       ...form,
-      image: form.image?.trim() || undefined,
+      image: image || undefined,
       popular: form.popular || undefined,
       materials: materials.length > 0 ? materials : undefined,
     });
@@ -128,32 +133,13 @@ const TopicForm: React.FC<TopicFormProps> = ({ onClose, onSubmit, topic, existin
 
           <section className="pt-6 lg:pt-0 border-t lg:border-t-0 lg:border-l border-ld-frost/60 lg:pl-8">
             <h3 className="text-xs font-semibold uppercase tracking-widest text-ld-steel m-0 mb-1">Tampilan</h3>
-            <p className="text-xs text-ld-fog m-0 mb-3">Gambar & penanda popular di form booking.</p>
+            <p className="text-xs text-ld-fog m-0 mb-3">Ilustrasi & penanda popular di landing page dan form booking.</p>
             <div className="space-y-4">
-              <label className="block">
-                <span className="block text-xs font-medium text-ld-graphite mb-1.5">Image URL (opsional)</span>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="url"
-                    value={form.image ?? ''}
-                    onChange={(e) => { setForm({ ...form, image: e.target.value }); setImageBroken(false); }}
-                    placeholder="https://…"
-                    className={inputClass}
-                  />
-                  {form.image && !imageBroken ? (
-                    <img
-                      src={form.image}
-                      alt="preview"
-                      onError={() => setImageBroken(true)}
-                      className="w-12 h-12 rounded-lg object-cover border border-ld-frost shrink-0"
-                    />
-                  ) : (
-                    <span className="w-12 h-12 rounded-lg bg-ld-cloud border border-ld-frost shrink-0 flex items-center justify-center text-[10px] text-ld-fog">
-                      {imageBroken ? 'rusak' : '—'}
-                    </span>
-                  )}
-                </div>
-              </label>
+              <TopicImageField
+                value={form.image}
+                onChange={(image) => setForm((f) => ({ ...f, image }))}
+                topicId={form.id}
+              />
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"

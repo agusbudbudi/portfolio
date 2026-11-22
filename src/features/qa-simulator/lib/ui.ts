@@ -5,3 +5,5 @@ export const SIM_INPUT =
 // radius (rounded-lg = 8px) so cards, tables, inputs and buttons share one size.
 export const SIM_CARD =
   'bg-white rounded-lg border border-ld-frost/70 overflow-hidden shadow-[0_4px_18px_rgba(30,27,75,0.035)]';
+
+export const DIFFICULTY_LABEL = { beginner: 'Pemula', intermediate: 'Menengah', advanced: 'Lanjutan' } as const;

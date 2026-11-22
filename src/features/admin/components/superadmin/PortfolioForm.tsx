@@ -25,7 +25,11 @@ import EndorsementListEditor from '../mentee/EndorsementListEditor';
 import CertificationListEditor from '../mentee/CertificationListEditor';
 import ArticleListEditor from '../mentee/ArticleListEditor';
 import FormField from '../shared/FormField';
-import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
+import {
+  ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY, ADMIN_FORM_FOOTER, ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY,
+} from '../shared/adminCard';
+import DashboardCardHeader, { CARD_ACTION_PRIMARY, CARD_ACTION_SECONDARY, FORM_FOOTER_STICKY_MOBILE } from '../shared/DashboardCardHeader';
+import { QaPortfolioIcon } from '../../../../components/illustration/ProductIcons';
 import StatusBadge, { type StatusBadgeTone } from '../shared/StatusBadge';
 
 interface PortfolioFormProps {
@@ -34,7 +38,9 @@ interface PortfolioFormProps {
   record: PortfolioRecord | null; // null = create
   tools: ToolConfig[];
   skills: SkillConfig[];
-  canVerify?: boolean; // admin-only — server also enforces this, see api/portfolios/[slug].ts
+  canVerify?: boolean; // admin-only; server also enforces this, see api/portfolios/[slug].ts
+  /** 'member' = member-dashboard brand header/buttons; admin keeps its own style. */
+  variant?: 'admin' | 'member';
 }
 
 const inputClass =
@@ -67,7 +73,8 @@ const emptyData: PortfolioData = {
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
-const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record, tools, skills, canVerify = false }) => {
+const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record, tools, skills, canVerify = false, variant = 'admin' }) => {
+  const isMember = variant === 'member';
   const isEdit = record !== null;
   const [data, setData] = useState<PortfolioData>(
     record
@@ -263,50 +270,72 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
 
   return (
     <div className={ADMIN_CARD}>
-      <div className={ADMIN_CARD_HEADER}>
-        <button
-          onClick={onClose}
-          className="p-1.5 -ml-1 rounded-lg text-ld-fog hover:text-ld-graphite hover:bg-ld-cloud cursor-pointer border-none bg-transparent transition-colors"
-          aria-label="Kembali ke daftar portfolio"
-        >
-          <ArrowLeft size={17} />
-        </button>
-        <div className="flex items-baseline gap-2 min-w-0">
-          <h2 className="text-sm font-semibold text-ld-onyx m-0">{isEdit ? 'Edit Portfolio' : 'Tambah Portfolio'}</h2>
-          {isEdit && <p className="text-sm font-semibold text-ld-onyx m-0 truncate">{record.data.profile.name}</p>}
-          {isEdit && data.profile.isVerified && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-widest shrink-0 bg-blue-50 text-blue-600">
-              <BadgeCheck size={11} /> Verified
-            </span>
+      {isMember ? (
+        <DashboardCardHeader
+          onBack={onClose}
+          icon={<QaPortfolioIcon size={44} />}
+          eyebrow={isEdit ? 'Edit portfolio' : 'Buat portfolio'}
+          title={isEdit ? (record.data.profile.name || 'Portfolio tanpa nama') : 'Portfolio baru'}
+          badge={isEdit && (
+            <>
+              <StatusBadge tone={STATUS_TONE[record.status]}>{record.status}</StatusBadge>
+              {data.profile.isVerified && (
+                <StatusBadge tone="sky" className="inline-flex items-center gap-1"><BadgeCheck size={11} /> Verified</StatusBadge>
+              )}
+            </>
           )}
-        </div>
-        {isEdit && (
-          <div className="ml-auto flex items-center gap-2 shrink-0">
-            <StatusBadge tone={STATUS_TONE[record.status]} className="shrink-0">{record.status}</StatusBadge>
-            {canVerify && !data.profile.isVerified && (
-              <button
-                type="button"
-                onClick={() => setData({ ...data, profile: { ...data.profile, isVerified: true } })}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-ld-frost bg-white text-xs font-medium text-ld-graphite hover:border-blue-500 hover:text-blue-600 cursor-pointer"
-              >
-                <BadgeCheck size={13} /> Verifikasi Mentee
-              </button>
-            )}
-            {record.status === 'published' && (
-              <a
-                href={`/portfolio/${record.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-ld-frost bg-white text-xs font-medium text-ld-graphite hover:border-ld-violet hover:text-ld-violet no-underline shrink-0"
-              >
-                <ExternalLink size={13} /> Lihat Profile
-              </a>
+          actions={isEdit && record.status === 'published' && (
+            <a href={`/portfolio/${record.slug}`} target="_blank" rel="noopener noreferrer" className={CARD_ACTION_SECONDARY}>
+              <ExternalLink size={16} /> Lihat
+            </a>
+          )}
+        />
+      ) : (
+        <div className={ADMIN_CARD_HEADER}>
+          <button
+            onClick={onClose}
+            className="p-1.5 -ml-1 rounded-lg text-ld-fog hover:text-ld-graphite hover:bg-ld-cloud cursor-pointer border-none bg-transparent transition-colors"
+            aria-label="Kembali ke daftar portfolio"
+          >
+            <ArrowLeft size={17} />
+          </button>
+          <div className="flex items-baseline gap-2 min-w-0">
+            <h2 className="text-sm font-semibold text-ld-onyx m-0">{isEdit ? 'Edit Portfolio' : 'Tambah Portfolio'}</h2>
+            {isEdit && <p className="text-sm font-semibold text-ld-onyx m-0 truncate">{record.data.profile.name}</p>}
+            {isEdit && data.profile.isVerified && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-widest shrink-0 bg-blue-50 text-blue-600">
+                <BadgeCheck size={11} /> Verified
+              </span>
             )}
           </div>
-        )}
-      </div>
+          {isEdit && (
+            <div className="ml-auto flex items-center gap-2 shrink-0">
+              <StatusBadge tone={STATUS_TONE[record.status]} className="shrink-0">{record.status}</StatusBadge>
+              {canVerify && !data.profile.isVerified && (
+                <button
+                  type="button"
+                  onClick={() => setData({ ...data, profile: { ...data.profile, isVerified: true } })}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-ld-frost bg-white text-xs font-medium text-ld-graphite hover:border-blue-500 hover:text-blue-600 cursor-pointer"
+                >
+                  <BadgeCheck size={13} /> Verifikasi Mentee
+                </button>
+              )}
+              {record.status === 'published' && (
+                <a
+                  href={`/portfolio/${record.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-ld-frost bg-white text-xs font-medium text-ld-graphite hover:border-ld-violet hover:text-ld-violet no-underline shrink-0"
+                >
+                  <ExternalLink size={13} /> Lihat Profile
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
-      <form ref={formRef} onSubmit={handleSubmit} className={`${ADMIN_CARD_BODY} w-full space-y-3`}>
+      <form ref={formRef} onSubmit={handleSubmit} className={`${ADMIN_CARD_BODY} w-full space-y-3 ${isMember ? 'max-md:pb-24' : ''}`}>
         <AccordionSection title="Profile" icon={UserCircle2} hasError={profileHasError} errorSignal={submitAttempt} defaultOpen>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
             <ImageUploadField
@@ -605,18 +634,18 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
 
         {error && <p className="text-sm text-red-500 m-0">{error}</p>}
 
-        <div className="flex justify-end gap-2 pt-5 border-t border-ld-frost/60">
+        <div className={isMember ? FORM_FOOTER_STICKY_MOBILE : ADMIN_FORM_FOOTER}>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-ld-frost bg-white text-sm text-ld-graphite cursor-pointer"
+            className={isMember ? CARD_ACTION_SECONDARY : ADMIN_BTN_SECONDARY}
           >
             Batal
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium cursor-pointer border-none disabled:opacity-60 disabled:cursor-not-allowed"
+            className={isMember ? CARD_ACTION_PRIMARY : ADMIN_BTN_PRIMARY}
           >
             {saving ? 'Menyimpan…' : isEdit ? 'Simpan Portfolio' : 'Tambah Portfolio'}
           </button>

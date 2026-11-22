@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Briefcase, FolderKanban, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import HeroBadge from '../../../../components/common/HeroBadge';
 
 const HeroSection: React.FC = () => {
   return (
@@ -9,10 +10,7 @@ const HeroSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-14 lg:gap-8 items-center">
           {/* Left two-thirds: pain-first headline + sub + CTAs */}
           <div className="lg:col-span-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-ld-lilac text-ld-violet text-xs font-medium mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-ld-violet" />
-              100% Gratis · Untuk Fresh Graduate &amp; QA Praktisi
-            </div>
+            <HeroBadge>100% Gratis · Untuk Fresh Graduate &amp; QA Praktisi</HeroBadge>
 
             <h1 className="font-ld-display font-semibold text-[42px] sm:text-[56px] lg:text-[64px] leading-[0.98] tracking-[-0.025em] text-ld-graphite mb-5">
               Recruiter Tidak Bisa Menilai Skill QA Hanya dari CV.

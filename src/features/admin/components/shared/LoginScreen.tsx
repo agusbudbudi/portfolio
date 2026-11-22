@@ -17,8 +17,11 @@ const LoginScreen: React.FC = () => {
 
   // Already authenticated (fresh login, or landed on /login manually while
   // a session is still valid) — bounce straight to the intended destination.
+  // A just-registered user is sent to onboarding by OnboardingGate once they
+  // land there (it re-checks the status server-side and carries `next`).
   useEffect(() => {
-    if (token && user) navigate(redirectTo, { replace: true });
+    if (!token || !user) return;
+    navigate(redirectTo, { replace: true });
   }, [token, user, navigate, redirectTo]);
 
   useEffect(() => {
@@ -89,10 +92,10 @@ const LoginScreen: React.FC = () => {
 
         <div className="relative z-10 flex-1 flex flex-col justify-center px-12 max-w-lg">
           <h2 className="font-ld-display font-semibold text-3xl xl:text-[40px] text-white tracking-[-0.02em] leading-[1.1] mb-4">
-            Satu Akun untuk Mentoring & Portofolio QA-mu
+            Satu Akun untuk Semua Program Mentor.QA
           </h2>
           <p className="text-white/80 text-base leading-relaxed">
-            Booking sesi mentoring, kelola jadwal, dan buat portofolio QA-mu sendiri secara gratis, semua dalam satu tempat.
+            Latihan kasus nyata di QA Simulator, bangun portfolio, belajar dari QA Library, dan booking mentoring 1-on-1. Gratis untuk mulai.
           </p>
         </div>
       </div>
@@ -139,7 +142,7 @@ const LoginScreen: React.FC = () => {
             {displayError && <p className="mt-3 text-sm text-red-500 m-0 text-center">{displayError}</p>}
 
             <p className="text-xs text-ld-fog text-center mt-6">
-              Platform mentoring buat #QAEngineer
+              Tempat belajar dan berkembang buat #QAEngineer
             </p>
           </div>
         </div>

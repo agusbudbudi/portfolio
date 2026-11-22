@@ -128,6 +128,18 @@ async function runMigrate(): Promise<void> {
         updated_at TEXT NOT NULL,
         PRIMARY KEY (user_id, project_id)
       )`,
+      `CREATE TABLE IF NOT EXISTS user_onboarding (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        questionnaire_version INTEGER NOT NULL,
+        answers TEXT NOT NULL,
+        scores TEXT NOT NULL,
+        primary_program TEXT NOT NULL,
+        secondary_programs TEXT NOT NULL,
+        recommendation TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS user_onboarding_user_created ON user_onboarding(user_id, created_at)`,
     ],
     'write'
   );
@@ -138,6 +150,11 @@ async function runMigrate(): Promise<void> {
   await ensureColumn(db, 'qa_library_articles', 'author_user_id', 'TEXT');
   await ensureColumn(db, 'qa_library_articles', 'author_avatar_url', 'TEXT');
   await ensureColumn(db, 'qa_library_articles', 'view_count', 'INTEGER NOT NULL DEFAULT 0');
+  // Deliberately no DEFAULT: rows that existed before onboarding shipped stay
+  // NULL and are read as 'completed' (they never see onboarding); new users
+  // are inserted with 'pending' explicitly in userStore.
+  await ensureColumn(db, 'users', 'onboarding_status', 'TEXT');
+  await ensureColumn(db, 'users', 'onboarding_completed_at', 'TEXT');
 
   await carryOverLegacyMentors(db);
 }

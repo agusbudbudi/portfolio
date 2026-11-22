@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import SimulatorShowcase from '../../../home/components/SimulatorShowcase';
 import { FEATURED_PROJECT_PATH } from './content';
+import HeroBadge from '../../../../components/common/HeroBadge';
 
 const TRUST_TAGS = ['Gratis', 'Phase 1 tanpa login', '±4 jam', 'Dapat portfolio studi kasus'];
 
@@ -14,10 +15,7 @@ const SimHeroSection: React.FC = () => (
     />
     <div className="relative w-full max-w-[1200px] mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-10 items-center">
       <div className="lg:col-span-7">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-ld-lavender bg-white text-ld-violet text-xs font-medium mb-6">
-          <span className="w-1.5 h-1.5 rounded-full bg-ld-violet animate-pulse" />
-          QA Simulator · Gratis untuk pemula &amp; fresh graduate
-        </div>
+        <HeroBadge>QA Simulator · Gratis untuk pemula &amp; fresh graduate</HeroBadge>
 
         <h1 className="font-semibold text-[40px] sm:text-[54px] lg:text-[62px] leading-[1] tracking-[-0.025em] text-ld-graphite m-0 mb-5">
           Simulasi Kerja QA Engineer <span className="text-ld-violet">dengan Project Nyata</span>

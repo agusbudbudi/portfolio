@@ -1,6 +1,6 @@
 import React, { Suspense, useCallback, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, LayoutGrid, LogIn } from 'lucide-react';
+import { FolderKanban, LogIn, TrendingUp } from 'lucide-react';
 import LoadingState from '../../../components/common/LoadingState';
 import { useAdminAuthStore } from '../../../store/useAdminAuthStore';
 import ProjectsDrawer from './ProjectsDrawer';
@@ -50,7 +50,7 @@ const SimulatorHeader: React.FC = () => {
             aria-expanded={drawerOpen}
             className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-sm border-none cursor-pointer transition-colors ${drawerOpen ? 'bg-white/10 text-white' : 'bg-transparent text-white/60 hover:text-white'}`}
           >
-            <LayoutGrid size={15} className="sm:hidden" aria-hidden="true" />
+            <FolderKanban size={15} className="sm:hidden" aria-hidden="true" />
             <span className="sr-only sm:not-sr-only">Projects</span>
           </button>
           {user ? (
@@ -66,7 +66,7 @@ const SimulatorHeader: React.FC = () => {
                   {user.name.charAt(0).toUpperCase()}
                 </span>
               )}
-              <LayoutDashboard size={14} className="sm:hidden" />
+              <TrendingUp size={14} className="sm:hidden" aria-hidden="true" />
               <span className="hidden sm:inline">Progress saya</span>
             </Link>
           ) : (

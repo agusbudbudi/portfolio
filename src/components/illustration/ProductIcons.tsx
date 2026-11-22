@@ -65,3 +65,29 @@ export const MentoringIcon: React.FC<IconProps> = (p) => (
     <rect x="22.8" y="30.4" width="6.5" height="2.2" rx="1.1" fill={C.white} opacity="0.75" />
   </Frame>
 );
+
+/** Dashboard — bento grid of cards, one blue focal tile and a mini bar chart. */
+export const DashboardIcon: React.FC<IconProps> = (p) => (
+  <Frame {...p}>
+    <rect x="10" y="10" width="13" height="16" rx="3" fill={C.white} stroke={C.graphite} strokeWidth="2" />
+    <rect x="13.5" y="14" width="6" height="2.2" rx="1.1" fill={C.graphite} />
+    <rect x="13.5" y="18.6" width="4.5" height="2.2" rx="1.1" fill={C.ash} />
+    <rect x="26" y="10" width="12" height="10" rx="3" fill={C.blue} />
+    <rect x="10" y="29" width="13" height="9" rx="3" fill={C.white} stroke={C.graphite} strokeWidth="2" />
+    <rect x="26" y="23" width="12" height="15" rx="3" fill={C.white} stroke={C.graphite} strokeWidth="2" />
+    <rect x="28.8" y="30.5" width="2" height="4.5" rx="1" fill={C.ash} />
+    <rect x="31.6" y="27.5" width="2" height="7.5" rx="1" fill={C.graphite} />
+    <rect x="34.4" y="29" width="2" height="6" rx="1" fill={C.ash} />
+  </Frame>
+);
+
+/** Mentor — person outline wearing a blue star medal (verified mentor). */
+export const MentorIcon: React.FC<IconProps> = (p) => (
+  <Frame {...p}>
+    <circle cx="21" cy="17.5" r="6" fill={C.white} stroke={C.graphite} strokeWidth="2" />
+    <path d="M9.5 37.5a11.5 9.5 0 0 1 23 0z" fill={C.white} stroke={C.graphite} strokeWidth="2" strokeLinejoin="round" />
+    <path d="M31 33.5l-1.6 6.3 2.6-1.2 1.6 2.2 1.2-6.6zM37 33.5l1.6 6.3-2.6-1.2-1.6 2.2-1.2-6.6z" fill={C.wash} stroke={C.graphite} strokeWidth="1.4" strokeLinejoin="round" />
+    <circle cx="34" cy="29.5" r="6.2" fill={C.blue} stroke={C.graphite} strokeWidth="2" />
+    <path d="M34.0 26.3L34.8 28.4L37.0 28.5L35.3 29.9L35.9 32.1L34.0 30.9L32.1 32.1L32.7 29.9L31.0 28.5L33.2 28.4z" fill={C.white} />
+  </Frame>
+);

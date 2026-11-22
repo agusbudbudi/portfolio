@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" fill="#e3f2ff"/>
+  <circle cx="200" cy="200" r="140" fill="#c9e4ff" opacity=".55"/>
+  <ellipse cx="200" cy="340" rx="124" ry="10" fill="#36394a" opacity=".08"/>
+  <!-- browser -->
+  <rect x="56" y="92" width="248" height="200" rx="16" fill="#fff"/>
+  <path d="M56 108a16 16 0 0 1 16-16h216a16 16 0 0 1 16 16v12H56z" fill="#36394a"/>
+  <circle cx="74" cy="106" r="4.5" fill="#ef4444"/>
+  <circle cx="88" cy="106" r="4.5" fill="#f59e0b"/>
+  <circle cx="102" cy="106" r="4.5" fill="#22c55e"/>
+  <!-- page content -->
+  <rect x="76" y="138" width="88" height="10" rx="5" fill="#36394a"/>
+  <rect x="76" y="156" width="130" height="6" rx="3" fill="#cdd2d9"/>
+  <rect x="76" y="168" width="110" height="6" rx="3" fill="#cdd2d9"/>
+  <rect x="220" y="136" width="64" height="48" rx="8" fill="#e3f2ff"/>
+  <path d="M228 176l14-16 10 10 8-6 16 12z" fill="#3b9eff" opacity=".6"/>
+  <circle cx="270" cy="148" r="5" fill="#3b9eff"/>
+  <!-- selected element -->
+  <rect x="70" y="194" width="148" height="34" rx="9" fill="#e3f2ff" stroke="#3b9eff" stroke-width="2.5" stroke-dasharray="7 5"/>
+  <rect x="82" y="206" width="66" height="10" rx="5" fill="#3b9eff"/>
+  <rect x="76" y="242" width="96" height="30" rx="8" fill="#36394a"/>
+  <rect x="98" y="254" width="52" height="6" rx="3" fill="#fff"/>
+  <!-- selector tag -->
+  <rect x="148" y="170" width="94" height="22" rx="6" fill="#3b9eff"/>
+  <text x="195" y="185.5" text-anchor="middle" font-family="'IBM Plex Mono', Menlo, monospace" font-size="11" font-weight="600" fill="#fff">#btn-login</text>
+  <!-- robot -->
+  <g>
+    <rect x="300" y="168" width="6" height="18" rx="3" fill="#36394a"/>
+    <circle cx="303" cy="164" r="7" fill="#3b9eff"/>
+    <rect x="262" y="184" width="82" height="64" rx="18" fill="#36394a"/>
+    <rect x="274" y="198" width="58" height="34" rx="10" fill="#4a4d63"/>
+    <circle cx="291" cy="215" r="6" fill="#4ade80"/>
+    <circle cx="315" cy="215" r="6" fill="#4ade80"/>
+    <rect x="270" y="252" width="66" height="54" rx="14" fill="#3b9eff"/>
+    <circle cx="303" cy="279" r="11" fill="#fff" opacity=".9"/>
+    <path d="M298 279l4 4 6-7" stroke="#3b9eff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M270 268c-20 0-34-12-40-28" stroke="#36394a" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="228" cy="236" r="8" fill="#36394a"/>
+    <rect x="276" y="306" width="14" height="22" rx="6" fill="#36394a"/>
+    <rect x="316" y="306" width="14" height="22" rx="6" fill="#36394a"/>
+  </g>
+  <!-- gear -->
+  <g transform="translate(96 312)">
+    <circle r="20" fill="none" stroke="#818898" stroke-width="10" stroke-dasharray="8 7.7"/>
+    <circle r="14" fill="#818898"/>
+    <circle r="6" fill="#e3f2ff"/>
+  </g>
+  <path d="M344 92l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#3b9eff"/>
+  <circle cx="58" cy="70" r="6" fill="#fff"/>
+</svg>

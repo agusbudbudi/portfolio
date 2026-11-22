@@ -220,7 +220,7 @@ const ProjectListEditor: React.FC<ProjectListEditorProps> = ({ projects, tools, 
                       ) : (
                         <div className="flex flex-col items-center justify-center gap-1.5 text-ld-mist p-4 text-center">
                           <ImageIcon size={24} />
-                          <span className="text-[11px] leading-snug">Belum ada thumbnail — upload rasio 16:9 (mis. 800×450px) biar pas di card</span>
+                          <span className="text-[11px] leading-snug">Belum ada thumbnail. Upload rasio 16:9 (mis. 800×450px) biar pas di card</span>
                         </div>
                       )}
                     </div>

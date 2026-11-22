@@ -72,6 +72,8 @@ export interface SimulatorPhase {
   prdAddendum?: { version: string; markdown: string };
   /** In-app practice target (bug-hunting phase). */
   sandbox?: { label: string; path: string; description: string };
+  /** Design file to compare the sandbox against (design-review phase). */
+  design?: { label: string; path: string; description: string };
   assignments: SimulatorAssignment[];
 }
 
@@ -80,8 +82,10 @@ export interface SimulatorTeamMember {
   name: string;
   role: string;
   initials: string;
-  /** Tailwind bg-* class for the avatar bubble. */
+  /** Tailwind bg-* class for the avatar bubble (also the fallback behind `avatar`). */
   color: string;
+  /** Optional photo path (public/), e.g. /qa-simulator/team/x.webp. Falls back to initials. */
+  avatar?: string;
 }
 
 export type SimulatorDifficulty = 'beginner' | 'intermediate' | 'advanced';

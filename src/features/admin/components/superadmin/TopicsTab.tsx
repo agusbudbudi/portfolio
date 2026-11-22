@@ -100,7 +100,7 @@ const TopicsTab: React.FC = () => {
                     {topic.popular ? (
                       <StatusBadge tone="violet">Popular</StatusBadge>
                     ) : (
-                      <span className="text-xs text-ld-fog">—</span>
+                      <span className="text-xs text-ld-fog">-</span>
                     )}
                   </td>
                   <td className="px-4 py-3">

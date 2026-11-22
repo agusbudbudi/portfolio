@@ -55,6 +55,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       name: user.name,
       avatarUrl: user.avatarUrl,
       roles: user.roles,
+      onboardingStatus: user.onboardingStatus,
     },
   });
 }

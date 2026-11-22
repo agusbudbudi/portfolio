@@ -13,6 +13,23 @@ import { checkRateLimit } from '../_lib/rateLimit.js';
 // Vercel's ~4.5MB serverless body limit at the 2MB pre-encode cap below.
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'application/pdf']);
+// SVG is admin-only and only for topic illustrations. Rendered via <img> on
+// our pages (scripts never run there), but a Blob URL opened directly would
+// execute inline script on the Blob origin, so active content is rejected.
+const SVG_TYPE = 'image/svg+xml';
+const SVG_FEATURES = new Set(['topics']);
+const SVG_FORBIDDEN = [
+  /<script[\s>]/i,
+  /<foreignObject[\s>]/i,
+  /<iframe[\s>]/i,
+  /<embed[\s>]/i,
+  /<object[\s>]/i,
+  /\son[a-z]+\s*=/i,
+  /javascript\s*:/i, // anywhere, e.g. <animate attributeName="href" values="javascript:…">
+  /data:text\/html/i,
+  /&#x?0*(6a|106|4a|74);?/i, // entity-encoded "j"/"J" used to smuggle javascript: past the check above
+  /<!ENTITY/i,
+];
 const UPLOAD_RATE_LIMIT = { maxAttempts: 30, windowMs: 60 * 60 * 1000 };
 
 // Blob key prefix per feature. Uploads are grouped by the uploading
@@ -26,6 +43,7 @@ const FOLDER_BY_FEATURE = {
   cv: 'CV',
   tools: 'Tools',
   qaLibrary: 'QaLibrary',
+  topics: 'Topics',
 } as const;
 type UploadFeature = keyof typeof FOLDER_BY_FEATURE;
 
@@ -57,7 +75,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (typeof feature !== 'string' || !(feature in FOLDER_BY_FEATURE)) {
     return res.status(400).json({ error: 'invalid_feature', message: `feature harus salah satu dari: ${Object.keys(FOLDER_BY_FEATURE).join(', ')}.` });
   }
-  if (typeof contentType !== 'string' || !ALLOWED_TYPES.has(contentType)) {
+  const isSvg = contentType === SVG_TYPE;
+  if (isSvg) {
+    if (!SVG_FEATURES.has(feature)) {
+      return res.status(400).json({ error: 'invalid_content_type', message: 'SVG hanya untuk ilustrasi topic.' });
+    }
+    if (!session.roles.includes('admin')) {
+      return res.status(403).json({ error: 'forbidden', message: 'Upload SVG hanya untuk admin.' });
+    }
+  } else if (typeof contentType !== 'string' || !ALLOWED_TYPES.has(contentType)) {
     return res.status(400).json({ error: 'invalid_content_type', message: `Tipe file harus salah satu dari: ${[...ALLOWED_TYPES].join(', ')}.` });
   }
   if (typeof dataBase64 !== 'string' || !dataBase64) {
@@ -69,9 +95,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(413).json({ error: 'file_too_large', message: `Ukuran file maksimal ${MAX_BYTES / (1024 * 1024)}MB.` });
   }
 
+  if (isSvg) {
+    const text = buffer.toString('utf8');
+    if (!/<svg[\s>]/i.test(text)) {
+      return res.status(400).json({ error: 'invalid_svg', message: 'File bukan SVG yang valid.' });
+    }
+    if (SVG_FORBIDDEN.some((re) => re.test(text))) {
+      return res.status(400).json({ error: 'unsafe_svg', message: 'SVG mengandung script/event handler. Hapus elemen tersebut lalu upload ulang.' });
+    }
+  }
+
   const folder = FOLDER_BY_FEATURE[feature as UploadFeature];
   const key =
-    folder === 'Tools'
+    folder === 'Tools' || folder === 'Topics'
       ? `${folder}/${Date.now()}-${filename}`
       : `${folder}/${session.email ?? session.userId}/${Date.now()}-${filename}`;
 

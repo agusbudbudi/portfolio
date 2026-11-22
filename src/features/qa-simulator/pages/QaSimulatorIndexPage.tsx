@@ -14,6 +14,7 @@ import SimFaqSection from '../components/landing/SimFaqSection';
 import SimFinalCtaSection from '../components/landing/SimFinalCtaSection';
 import { FAQ_ITEMS, SIM_PATH } from '../components/landing/content';
 import { PROJECT_MOCKUPS } from '../components/landing/projectMockupMap';
+import { DIFFICULTY_LABEL } from '../lib/ui';
 
 const SITE_URL = 'https://www.mentorqa.com';
 const SEO_TITLE = 'QA Simulator: Simulasi Kerja QA Engineer Gratis | Mentor.QA';
@@ -66,8 +67,6 @@ const JSON_LD = [
     ],
   },
 ];
-
-const DIFFICULTY_LABEL = { beginner: 'Pemula', intermediate: 'Menengah', advanced: 'Lanjutan' } as const;
 
 // Sits on the blue Projects band: available projects are solid white cards
 // (the one thing to click), coming-soon ones are frosted glass so they read as

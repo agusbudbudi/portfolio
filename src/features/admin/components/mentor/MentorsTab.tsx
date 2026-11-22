@@ -156,7 +156,7 @@ const MentorsTab: React.FC = () => {
                         {mentor.userId ? (
                           <code className="text-[11px] text-ld-slate">{mentor.userId}</code>
                         ) : (
-                          <span className="text-xs text-ld-fog italic">—</span>
+                          <span className="text-xs text-ld-fog italic">-</span>
                         )}
                       </td>
                       <td className="px-4 py-3 align-top text-xs text-ld-slate whitespace-nowrap">{mentor.whatsapp}</td>

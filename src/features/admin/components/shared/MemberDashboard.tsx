@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, Building2, CalendarCheck, Check, CheckCircle2, Clock, Copy, ExternalLink, FlaskConical, LayoutDashboard,
-  Menu, Pencil, Plus, UserSquare2, Users, X, XCircle,
-  type LucideIcon,
+  ArrowRight, Building2, CalendarCheck, Check, CheckCircle2, Copy, ExternalLink, Eye,
+  Menu, Pencil, Plus, X,
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
 import { useMentorProfileStore } from '../../../../store/useMentorProfileStore';
@@ -23,8 +22,23 @@ import PortfolioForm from '../superadmin/PortfolioForm';
 import MemberBookingForm from '../mentee/MemberBookingForm';
 import ProfileMenu from './ProfileMenu';
 import SimulatorDashboardTab from '../../../qa-simulator/components/SimulatorDashboardTab';
-import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
+import OnboardingRecommendationCard from '../../../onboarding/components/OnboardingRecommendationCard';
+import { DashboardIcon, MentorIcon, MentoringIcon, QaPortfolioIcon, QaSimulatorIcon, type IconProps } from '../../../../components/illustration/ProductIcons';
+import EmptyCalendarIllustration from '../../../../components/illustration/EmptyCalendarIllustration';
+import EmptyPortfolioIllustration from '../../../../components/illustration/EmptyPortfolioIllustration';
+import EmptyInboxIllustration from '../../../../components/illustration/EmptyInboxIllustration';
+import EmptyState from './EmptyState';
+import { ADMIN_CARD, ADMIN_CARD_BODY } from '../shared/adminCard';
 import StatusBadge, { type StatusBadgeTone } from './StatusBadge';
+import DashboardCard from './DashboardCard';
+import DashboardCardHeader from './DashboardCardHeader';
+import DashboardShortcutCard from './DashboardShortcutCard';
+import DashboardBanner from './DashboardBanner';
+import MentoringBannerIllustration from '../../../mentoring/components/MentoringBannerIllustration';
+import {
+  CARD_ACTION_DANGER, CARD_ACTION_PRIMARY, CARD_ACTION_SECONDARY, CARD_ACTION_SUCCESS,
+  LIST_ACTION_DANGER, LIST_ACTION_NEUTRAL, LIST_ACTION_SUCCESS,
+} from './DashboardCardHeader';
 import type { BookingConfig, BookingStatus, MentorEmploymentType } from '../../../../types/mentoring';
 import type { PortfolioData } from '../../../../types/portfolio';
 
@@ -33,20 +47,20 @@ const PORTFOLIO_SECTION_COUNT = 9;
 // A section counts as "done" once every field it exposes is filled — array
 // sections (experience/education/...) have no fixed field set, so "filled"
 // just means at least one entry was added.
-function countCompletedPortfolioSections(data: PortfolioData): number {
-  const checks = [
-    Boolean(data.profile.name && data.profile.bio && data.profile.role && data.profile.photo && data.profile.cvUrl),
-    data.experience.length > 0,
-    data.education.length > 0,
-    data.projects.length > 0,
-    data.endorsements.length > 0,
-    data.certifications.length > 0,
-    data.articles.length > 0,
-    Boolean(data.socials.linkedin && data.socials.github && data.socials.whatsapp && data.socials.email && data.socials.portfolioUrl),
-    Boolean(data.cta.title && data.cta.description),
+function portfolioSectionChecks(data: PortfolioData): { label: string; done: boolean }[] {
+  return [
+    { label: 'Profil', done: Boolean(data.profile.name && data.profile.bio && data.profile.role && data.profile.photo && data.profile.cvUrl) },
+    { label: 'Pengalaman', done: data.experience.length > 0 },
+    { label: 'Pendidikan', done: data.education.length > 0 },
+    { label: 'Project', done: data.projects.length > 0 },
+    { label: 'Endorsement', done: data.endorsements.length > 0 },
+    { label: 'Sertifikasi', done: data.certifications.length > 0 },
+    { label: 'Artikel', done: data.articles.length > 0 },
+    { label: 'Sosial media', done: Boolean(data.socials.linkedin && data.socials.github && data.socials.whatsapp && data.socials.email && data.socials.portfolioUrl) },
+    { label: 'Call to action', done: Boolean(data.cta.title && data.cta.description) },
   ];
-  return checks.filter(Boolean).length;
 }
+
 
 const PORTFOLIO_STATUS_TONE: Record<'draft' | 'published', StatusBadgeTone> = {
   draft: 'slate',
@@ -102,8 +116,9 @@ type NavId = 'home' | 'booking' | 'mentor' | 'portfolios' | 'simulator';
 interface NavItem {
   id: NavId;
   label: string;
-  description: string;
-  icon: LucideIcon;
+  icon: React.FC<IconProps>;
+  /** Small pill after the label, e.g. to flag a newly launched feature. */
+  badge?: string;
 }
 
 // Dashboard for any logged-in non-admin account (mentee, or mentee +
@@ -123,10 +138,12 @@ const MemberDashboard: React.FC = () => {
     portfolio, loading: portfolioLoading, loadError: portfolioLoadError,
     load: loadPortfolio, create: createPortfolio, update: updatePortfolio,
   } = usePortfolioProfileStore();
-  const portfolioPercent = portfolio
-    ? Math.round((countCompletedPortfolioSections(portfolio.data) / PORTFOLIO_SECTION_COUNT) * 100)
-    : null;
-  const showMentorNudge = portfolioPercent !== null && portfolioPercent < 80;
+  const portfolioChecks = portfolio ? portfolioSectionChecks(portfolio.data) : [];
+  const portfolioDone = portfolioChecks.filter((c) => c.done).length;
+  const portfolioPercent = portfolio ? Math.round((portfolioDone / PORTFOLIO_SECTION_COUNT) * 100) : null;
+  // Nudge toward a mentor review once the portfolio is substantially filled
+  // (≥80%) — independent of existing bookings, which may cover other topics.
+  const showMentorNudge = portfolioPercent !== null && portfolioPercent >= 80;
   const {
     bookings: myBookings, loading: bookingsLoading, loadError: bookingsLoadError,
     load: loadBookings, create: createBooking, cancel: cancelBooking,
@@ -138,7 +155,7 @@ const MemberDashboard: React.FC = () => {
   } = useAssignedBookingsStore();
   const { tools, load: loadTools } = useAdminToolsStore();
   const { skills, load: loadSkills } = useAdminSkillsStore();
-  const { config } = useConfig();
+  const { config, loading: configLoading } = useConfig();
   const location = useLocation();
   const navigate = useNavigate();
   const activeNav: NavId = (() => {
@@ -146,6 +163,19 @@ const MemberDashboard: React.FC = () => {
     return seg === 'portfolios' || seg === 'booking' || seg === 'mentor' || seg === 'simulator' ? seg : 'home';
   })();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Mobile drawer: close on Escape and lock page scroll while open.
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSidebarOpen(false); };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [sidebarOpen]);
   const [formOpen, setFormOpen] = useState(false);
   const [portfolioFormOpen, setPortfolioFormOpen] = useState(false);
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
@@ -153,6 +183,8 @@ const MemberDashboard: React.FC = () => {
   const [assignedBookingDetailId, setAssignedBookingDetailId] = useState<string | null>(null);
   const [menteePortfolio, setMenteePortfolio] = useState<{ forId: string; slug: string | null; cvUrl: string | null } | null>(null);
   const [urlCopied, setUrlCopied] = useState(false);
+  const copiedTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(copiedTimer.current), []);
   const [assignedActionError, setAssignedActionError] = useState<string | null>(null);
   const [assignedTransitioningId, setAssignedTransitioningId] = useState<string | null>(null);
   const [bookingActionError, setBookingActionError] = useState<string | null>(null);
@@ -221,469 +253,448 @@ const MemberDashboard: React.FC = () => {
   const assignedBookingDetail = assignedBookings.find((b) => b.id === assignedBookingDetailId) ?? null;
 
   const NAV_ITEMS: NavItem[] = [
-    { id: 'home', label: 'Dashboard', description: 'Ringkasan akun kamu', icon: LayoutDashboard },
-    { id: 'portfolios', label: 'Portfolio', description: 'Portfolio QA kamu', icon: UserSquare2 },
-    { id: 'booking', label: 'Booking', description: 'Jadwalkan sesi mentoring', icon: CalendarCheck },
-    { id: 'simulator', label: 'QA Simulator', description: 'Simulasi kerja QA dari PRD sampai rilis', icon: FlaskConical },
+    { id: 'home', label: 'Dashboard', icon: DashboardIcon },
+    { id: 'simulator', label: 'QA Simulator', icon: QaSimulatorIcon, badge: 'New' },
+    { id: 'portfolios', label: 'Portfolio', icon: QaPortfolioIcon },
+    { id: 'booking', label: 'Mentoring', icon: MentoringIcon },
     {
       id: 'mentor',
-      label: isVerifiedMentor ? 'Profil Mentor' : 'Jadi Mentor',
-      description: isVerifiedMentor ? 'Kelola profil mentor kamu' : 'Ajukan diri jadi mentor',
-      icon: Users,
+      label: isVerifiedMentor ? 'Profil Mentor' : 'Aplikasi Mentor',
+      icon: MentorIcon,
     },
   ];
 
   const activeItem = NAV_ITEMS.find((item) => item.id === activeNav) ?? NAV_ITEMS[0];
   const navPath = (id: NavId) => (id === 'home' ? '/dashboard' : `/dashboard/${id}`);
 
-  const sidebarContent = (
+  // Desktop rail is compact; the mobile drawer gets larger icons, text and
+  // ≥44px touch targets.
+  const renderSidebar = (mobile: boolean) => (
     <>
-      <div className="flex items-center gap-2.5 px-4 h-16 border-b border-ld-frost/60">
-        <img src="/shared/img/mentor-logo.webp" alt="Mentor.QA" width={32} height={32} className="w-8 h-8 rounded-lg object-contain shrink-0" />
+      <div className={`flex items-center gap-2.5 h-16 border-b border-ld-frost/60 ${mobile ? 'pl-5 pr-14' : 'px-4'}`}>
+        <img src="/shared/img/mentor-logo.webp" alt="Mentor.QA" width={36} height={36} className={`${mobile ? 'w-9 h-9' : 'w-8 h-8'} rounded-lg object-contain shrink-0`} />
         <div className="min-w-0">
-          <p className="m-0 text-sm font-semibold text-ld-onyx leading-tight truncate">Mentor.QA</p>
-          <p className="m-0 text-[11px] text-ld-fog leading-tight truncate">Dashboard</p>
+          <p className={`m-0 font-semibold text-ld-onyx leading-tight truncate ${mobile ? 'text-base' : 'text-sm'}`}>Mentor.QA</p>
+          <p className={`m-0 text-ld-fog leading-tight truncate ${mobile ? 'text-xs' : 'text-[11px]'}`}>Dashboard</p>
         </div>
       </div>
 
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {NAV_ITEMS.filter((item) => item.id !== 'mentor' || isVerifiedMentor).map((item) => {
+      <nav className={`flex-1 overflow-y-auto ${mobile ? 'p-4 space-y-1.5' : 'p-3 space-y-1'}`} aria-label="Menu dashboard">
+        {/* Non-applicants reach the mentor flow via the status card on the Mentoring tab. */}
+        {NAV_ITEMS.filter((item) => item.id !== 'mentor' || !!mentor).map((item) => {
           const Icon = item.icon;
           const active = activeNav === item.id;
           return (
             <button
               key={item.id}
               onClick={() => { navigate(navPath(item.id)); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left cursor-pointer border-none transition-colors ${active
+              aria-current={active ? 'page' : undefined}
+              className={`w-full flex items-center rounded-lg text-left cursor-pointer border-none transition-colors ${mobile ? 'gap-3 px-3 py-2.5 min-h-[52px]' : 'gap-2.5 px-2.5 py-1.5'} ${active
                 ? 'bg-ld-lilac/60 text-ld-violet'
                 : 'bg-transparent text-ld-slate hover:bg-ld-cloud hover:text-ld-graphite'
                 }`}
             >
-              <Icon size={17} className="shrink-0" />
-              <span className={`text-sm ${active ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
+              <Icon size={mobile ? 36 : 28} className={`shrink-0 ${mobile ? 'rounded-[9px]' : 'rounded-[7px]'} transition-shadow ${active ? 'ring-1 ring-ld-violet/50' : ''}`} />
+              <span className={`flex-1 min-w-0 truncate ${mobile ? 'text-[15px]' : 'text-sm'} ${active ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
+              {item.badge && (
+                <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-ld-violet text-white text-[10px] font-semibold uppercase tracking-wide leading-none">{item.badge}</span>
+              )}
             </button>
           );
         })}
       </nav>
-
-      {!isVerifiedMentor && (
-        <div className="px-3 pt-3 pb-5">
-          <button
-            onClick={() => { navigate(navPath('mentor')); setFormOpen(mentor === null); setSidebarOpen(false); }}
-            className="group relative w-full overflow-hidden rounded-lg border-none cursor-pointer text-left p-4 bg-gradient-to-br from-ld-violet via-[#3b82f6] to-[#6366f1] transition-transform hover:-translate-y-0.5"
-          >
-            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10" />
-            <div className="absolute -bottom-8 -left-4 w-20 h-20 rounded-full bg-white/10" />
-            <div className="relative min-w-0">
-              <p className="m-0 text-sm font-semibold text-white leading-tight">Jadi Mentor QA</p>
-              <p className="m-0 mt-1 text-xs text-white/80 leading-snug">
-                Bagikan ilmumu & bantu QA lain berkembang.
-              </p>
-              <span className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-white">
-                Ajukan sekarang <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
-              </span>
-            </div>
-          </button>
-        </div>
-      )}
-
     </>
   );
 
+  const mentorStatus = mentor?.verificationStatus;
   const mentorStatusCard = (
-    <div className={ADMIN_CARD}>
-      <div className="flex flex-col lg:flex-row">
-        <div className="relative w-full lg:w-42 h-48 lg:h-auto shrink-0 min-h-0 overflow-hidden">
-          <img src="/admin/img/image-promotion.webp" alt="Manfaat jadi mentor" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,transparent_65%,white_100%)] lg:bg-[linear-gradient(to_right,transparent_0%,transparent_65%,white_100%)]" />
-        </div>
-        <div className={`flex-1 min-w-0 ${ADMIN_CARD_BODY}`}>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <h2 className="text-sm font-semibold text-ld-onyx m-0">Yuk, Jadi Mentor QA!</h2>
-            <div className="flex items-center gap-2">
-              {isVerifiedMentor && mentor && (
-                <a
-                  href={`/mentor/${mentor.id}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-ld-frost bg-white text-sm font-medium text-ld-graphite no-underline hover:bg-ld-cloud transition-colors"
-                >
-                  <ExternalLink size={14} /> Lihat Profil Publik
-                </a>
-              )}
-              {mentor?.verificationStatus !== 'pending' && (
-                <button
-                  onClick={() => { navigate(navPath('mentor')); setFormOpen(true); }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium cursor-pointer border-none transition-colors"
-                >
-                  {!mentor && <><Plus size={14} /> Ajukan Jadi Mentor</>}
-                  {mentor?.verificationStatus === 'rejected' && 'Edit & Ajukan Ulang'}
-                  {isVerifiedMentor && <><Pencil size={14} /> Edit Profil Mentor</>}
-                </button>
-              )}
-            </div>
-          </div>
-          {loading ? (
-            <LoadingState label="Memuat status…" className="py-4" />
-          ) : loadError ? (
-            <p className="text-sm text-red-500 m-0">{loadError}</p>
-          ) : !mentor ? (
-            <p className="text-sm text-ld-fog m-0">
-              Punya pengalaman QA dan mau berbagi ilmu? Ajukan diri jadi mentor — admin akan review aplikasimu.
-            </p>
-          ) : mentor.verificationStatus === 'pending' ? (
-            <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-amber-50 border border-amber-200">
-              <Clock size={18} className="text-amber-500 shrink-0 mt-0.5" />
-              <div>
-                <p className="m-0 text-sm font-medium text-amber-700">Aplikasi sedang direview</p>
-                <p className="m-0 text-xs text-amber-600 mt-0.5">Admin akan meninjau profil mentor kamu. Cek lagi nanti.</p>
-              </div>
-            </div>
-          ) : mentor.verificationStatus === 'rejected' ? (
-            <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-red-50 border border-red-200">
-              <XCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
-              <div>
-                <p className="m-0 text-sm font-medium text-red-600">Aplikasi ditolak</p>
-                {mentor.rejectionReason && <p className="m-0 text-xs text-red-500 mt-0.5">{mentor.rejectionReason}</p>}
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-green-50 border border-green-200">
-              <CheckCircle2 size={18} className="text-green-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="m-0 text-sm font-medium text-green-700">Kamu terverifikasi sebagai mentor</p>
-                <p className="m-0 text-xs text-green-600 mt-0.5">Profilmu tampil publik di halaman mentor.</p>
-              </div>
-            </div>
+    <DashboardBanner
+      illustration={<MentoringBannerIllustration />}
+      title={
+        <span className="inline-flex flex-wrap items-center gap-2">
+          {!mentor ? 'Yuk, Jadi Mentor QA!' : isVerifiedMentor ? 'Kamu mentor terverifikasi' : mentorStatus === 'pending' ? 'Aplikasi mentor sedang direview' : 'Aplikasi mentor ditolak'}
+          {mentor && (
+            <StatusBadge tone={mentorStatus === 'pending' ? 'amber' : mentorStatus === 'rejected' ? 'red' : 'emerald'}>
+              {mentorStatus === 'pending' ? 'Direview' : mentorStatus === 'rejected' ? 'Ditolak' : 'Terverifikasi'}
+            </StatusBadge>
           )}
-        </div>
-      </div>
-    </div>
+        </span>
+      }
+      description={
+        loading ? 'Memuat status…'
+          : loadError ? <span className="text-red-500">{loadError}</span>
+          : !mentor ? 'Punya pengalaman QA? Bagikan ilmumu lewat sesi 1:1 dengan mentee. Admin akan review aplikasimu.'
+          : mentorStatus === 'pending' ? 'Admin akan meninjau profil mentor kamu. Cek lagi nanti.'
+          : mentorStatus === 'rejected' ? (mentor.rejectionReason || 'Perbaiki profilmu lalu ajukan ulang.')
+          : 'Profilmu tampil publik. Mentee bisa melihat profilmu dan booking sesi 1:1.'
+      }
+      actions={!loading && !loadError && (mentorStatus === 'pending' ? (
+        activeNav !== 'mentor' && (
+          <button type="button" onClick={() => navigate(navPath('mentor'))} className={CARD_ACTION_SECONDARY}>
+            <Eye size={16} /> Lihat Aplikasi
+          </button>
+        )
+      ) : (
+        <>
+          <button type="button" onClick={() => { navigate(navPath('mentor')); setFormOpen(true); }} className={CARD_ACTION_PRIMARY}>
+            {!mentor && <>Ajukan Jadi Mentor <ArrowRight size={16} /></>}
+            {mentorStatus === 'rejected' && <><Pencil size={16} /> Edit & Ajukan Ulang</>}
+            {isVerifiedMentor && <><Pencil size={16} /> Edit Profil Mentor</>}
+          </button>
+          {isVerifiedMentor && mentor && (
+            <a href={`/mentor/${mentor.id}`} target="_blank" rel="noreferrer" className={CARD_ACTION_SECONDARY}>
+              <ExternalLink size={16} /> Profil Publik
+            </a>
+          )}
+        </>
+      ))}
+    />
   );
 
   const mentorPreviewGrid = mentor && (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
       <div className="lg:col-span-3 space-y-5">
-        <div className={ADMIN_CARD}>
-          <div className={ADMIN_CARD_HEADER}>
-            <h2 className="text-sm font-semibold text-ld-onyx m-0">Profil</h2>
-          </div>
-          <div className={ADMIN_CARD_BODY}>
-            <div className="flex items-start justify-between gap-3 mb-4">
-              <div className="flex items-start gap-3 min-w-0">
-                <img
-                  src={mentor.avatar || DEFAULT_MENTOR_AVATAR}
-                  alt={mentor.name}
-                  width={56}
-                  height={56}
-                  className="w-14 h-14 rounded-xl object-cover shrink-0"
-                />
-                <div className="min-w-0">
-                  <p className="m-0 text-sm font-semibold text-ld-onyx truncate">{mentor.name}</p>
-                  <p className="m-0 text-sm text-ld-slate leading-relaxed mt-1">{mentor.bio}</p>
-                </div>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="m-0 text-xs text-ld-fog whitespace-nowrap">{mentor.whatsapp}</p>
-                <code className="inline-block px-2.5 py-1 rounded-md bg-ld-cloud text-ld-graphite text-xs font-medium">{mentor.id}</code>
+        <DashboardCard title="Profil">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+            <div className="flex items-start gap-3 min-w-0">
+              <img
+                src={mentor.avatar || DEFAULT_MENTOR_AVATAR}
+                alt={mentor.name}
+                width={56}
+                height={56}
+                className="w-14 h-14 rounded-xl object-cover shrink-0"
+              />
+              <div className="min-w-0">
+                <p className="m-0 font-ld-display text-base font-semibold tracking-[-0.01em] text-ld-onyx truncate">{mentor.name}</p>
+                <p className="m-0 text-sm text-ld-slate leading-relaxed mt-1">{mentor.bio}</p>
               </div>
             </div>
-            {mentor.detailProfile && (
-              <p className="text-sm text-ld-slate leading-relaxed whitespace-pre-line m-0">{mentor.detailProfile}</p>
-            )}
+            <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-0 shrink-0 sm:text-right">
+              <p className="m-0 text-xs text-ld-fog whitespace-nowrap">{mentor.whatsapp}</p>
+              <code className="inline-block px-2.5 py-1 rounded-md bg-ld-cloud text-ld-graphite text-xs font-medium">{mentor.id}</code>
+            </div>
           </div>
-        </div>
+          {mentor.detailProfile && (
+            <p className="text-sm text-ld-slate leading-relaxed whitespace-pre-line m-0">{mentor.detailProfile}</p>
+          )}
+        </DashboardCard>
 
-        <div className={ADMIN_CARD}>
-          <div className={ADMIN_CARD_HEADER}>
-            <h2 className="text-sm font-semibold text-ld-onyx m-0">Jadwal Mingguan</h2>
-          </div>
-          <div className={ADMIN_CARD_BODY}>
-            {DAY_ORDER.filter((day) => (mentor.schedule[day] ?? []).length > 0).length > 0 ? (
-              <div className="rounded-xl border border-ld-ash divide-y divide-ld-ash overflow-hidden">
-                <div className="flex items-center gap-3 px-3.5 py-2 bg-ld-cloud/60">
-                  <span className="w-14 flex-shrink-0 text-[11px] font-semibold text-ld-graphite uppercase tracking-wide">Hari</span>
-                  <span className="text-[11px] font-semibold text-ld-graphite uppercase tracking-wide">Jam Tersedia</span>
-                </div>
-                {DAY_ORDER.filter((day) => (mentor.schedule[day] ?? []).length > 0).map((day) => (
-                  <div key={day} className="flex items-center gap-3 px-3.5 py-2.5 bg-ld-canvas">
-                    <span className="w-14 flex-shrink-0 text-sm text-ld-slate">{DAY_LABELS[day]}</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {mentor.schedule[day].map((time) => (
-                        <span key={time} className="px-2.5 py-1 rounded-md bg-ld-cloud text-ld-graphite text-xs font-medium tabular-nums">
-                          {time}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+        <DashboardCard title="Jadwal Mingguan">
+          {DAY_ORDER.filter((day) => (mentor.schedule[day] ?? []).length > 0).length > 0 ? (
+            <div className="rounded-xl border border-ld-ash divide-y divide-ld-ash overflow-hidden">
+              <div className="flex items-center gap-3 px-3.5 py-2 bg-ld-cloud/60">
+                <span className="w-14 flex-shrink-0 text-[11px] font-semibold text-ld-graphite uppercase tracking-wide">Hari</span>
+                <span className="text-[11px] font-semibold text-ld-graphite uppercase tracking-wide">Jam Tersedia</span>
               </div>
-            ) : (
-              <p className="text-sm text-ld-fog italic m-0">Belum ada jadwal yang tersedia.</p>
-            )}
-          </div>
-        </div>
+              {DAY_ORDER.filter((day) => (mentor.schedule[day] ?? []).length > 0).map((day) => (
+                <div key={day} className="flex items-center gap-3 px-3.5 py-2.5 bg-ld-canvas">
+                  <span className="w-14 flex-shrink-0 text-sm text-ld-slate">{DAY_LABELS[day]}</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {mentor.schedule[day].map((time) => (
+                      <span key={time} className="px-2.5 py-1 rounded-md bg-ld-cloud text-ld-graphite text-xs font-medium tabular-nums">
+                        {time}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-ld-slate m-0">Belum ada jadwal yang tersedia.</p>
+          )}
+        </DashboardCard>
       </div>
 
       <div className="lg:col-span-2 space-y-5">
-        <div className={ADMIN_CARD}>
-          <div className={ADMIN_CARD_HEADER}>
-            <h2 className="text-sm font-semibold text-ld-onyx m-0">Expertise</h2>
-          </div>
-          <div className={ADMIN_CARD_BODY}>
-            {mentor.expertise.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {mentor.expertise.map((id) => (
-                  <span key={id} className="px-2.5 py-1 rounded-lg border border-ld-ash text-ld-graphite text-xs font-medium">
-                    {topics.find((t) => t.id === id)?.label ?? id}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-ld-fog italic m-0">Belum ada area keahlian ditambahkan.</p>
-            )}
-          </div>
-        </div>
+        <DashboardCard title="Expertise">
+          {mentor.expertise.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {mentor.expertise.map((id) => (
+                <span key={id} className="px-2.5 py-1 rounded-lg border border-ld-ash text-ld-graphite text-xs font-medium">
+                  {topics.find((t) => t.id === id)?.label ?? id}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-ld-slate m-0">Belum ada area keahlian ditambahkan.</p>
+          )}
+        </DashboardCard>
 
-        <div className={ADMIN_CARD}>
-          <div className={ADMIN_CARD_HEADER}>
-            <h2 className="text-sm font-semibold text-ld-onyx m-0">Pengalaman Kerja</h2>
-          </div>
-          <div className={ADMIN_CARD_BODY}>
-            {(mentor.workExperience ?? []).length > 0 ? (
-              <div className="flex flex-col gap-3">
-                {(mentor.workExperience ?? []).map((entry) => (
-                  <div key={entry.id} className="flex items-start gap-3 rounded-xl border border-ld-ash p-3.5">
-                    <div className={`w-10 h-10 min-w-10 flex items-center justify-center rounded-lg overflow-hidden ${entry.companyLogo ? 'bg-ld-cloud' : 'bg-ld-violet'}`}>
-                      {entry.companyLogo ? (
-                        <img src={entry.companyLogo} alt={entry.company} loading="lazy" decoding="async" className="w-full h-full object-contain" />
-                      ) : (
-                        <Building2 size={16} className="text-white" />
-                      )}
-                    </div>
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <h4 className="text-sm font-ld-display font-semibold text-ld-graphite tracking-[-0.01em] m-0">{entry.company}</h4>
-                      <p className="text-xs text-ld-violet font-medium m-0">{entry.position}</p>
-                      <span className="text-[11px] text-ld-fog">
-                        {entry.employmentType && `${EMPLOYMENT_TYPE_LABEL[entry.employmentType]} · `}
-                        {formatMonth(entry.startDate)} — {entry.isCurrent ? 'Sekarang' : formatMonth(entry.endDate)}
-                      </span>
-                    </div>
+        <DashboardCard title="Pengalaman Kerja">
+          {(mentor.workExperience ?? []).length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {(mentor.workExperience ?? []).map((entry) => (
+                <div key={entry.id} className="flex items-start gap-3 rounded-xl border border-ld-ash p-3.5">
+                  <div className={`w-10 h-10 min-w-10 flex items-center justify-center rounded-lg overflow-hidden ${entry.companyLogo ? 'bg-ld-cloud' : 'bg-ld-violet'}`}>
+                    {entry.companyLogo ? (
+                      <img src={entry.companyLogo} alt={entry.company} loading="lazy" decoding="async" className="w-full h-full object-contain" />
+                    ) : (
+                      <Building2 size={16} className="text-white" />
+                    )}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-ld-fog italic m-0">Belum ada pengalaman kerja ditambahkan.</p>
-            )}
-          </div>
-        </div>
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <h4 className="text-sm font-ld-display font-semibold text-ld-graphite tracking-[-0.01em] m-0">{entry.company}</h4>
+                    <p className="text-xs text-ld-violet font-medium m-0">{entry.position}</p>
+                    <span className="text-[11px] text-ld-fog">
+                      {entry.employmentType && `${EMPLOYMENT_TYPE_LABEL[entry.employmentType]} · `}
+                      {formatMonth(entry.startDate)} - {entry.isCurrent ? 'Sekarang' : formatMonth(entry.endDate)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-ld-slate m-0">Belum ada pengalaman kerja ditambahkan.</p>
+          )}
+        </DashboardCard>
 
-        <div className={ADMIN_CARD}>
-          <div className={ADMIN_CARD_HEADER}>
-            <h2 className="text-sm font-semibold text-ld-onyx m-0">Platform Mentoring</h2>
-          </div>
-          <div className={ADMIN_CARD_BODY}>
-            {MENTOR_PLATFORMS.some((p) => mentor.platforms?.[p.key]) ? (
-              <div className="flex flex-wrap gap-3">
-                {MENTOR_PLATFORMS.filter((p) => mentor.platforms?.[p.key]).map((p) => (
-                  <div key={p.key} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-ld-ash">
-                    <img src={p.logo} alt={p.name} loading="lazy" decoding="async" className="h-5 w-auto object-contain" />
-                    <span className="text-xs font-medium text-ld-graphite">{p.name}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-ld-fog italic m-0">Belum aktif di platform mentoring lain.</p>
-            )}
-          </div>
-        </div>
+        <DashboardCard title="Platform Mentoring">
+          {MENTOR_PLATFORMS.some((p) => mentor.platforms?.[p.key]) ? (
+            <div className="flex flex-wrap gap-3">
+              {MENTOR_PLATFORMS.filter((p) => mentor.platforms?.[p.key]).map((p) => (
+                <div key={p.key} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-ld-ash">
+                  <img src={p.logo} alt={p.name} loading="lazy" decoding="async" className="h-5 w-auto object-contain" />
+                  <span className="text-xs font-medium text-ld-graphite">{p.name}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-ld-slate m-0">Belum aktif di platform mentoring lain.</p>
+          )}
+        </DashboardCard>
       </div>
     </div>
   );
 
+  // Same visual language as OnboardingRecommendationCard: product icon,
+  // small label, display-font title, midnight CTA, divider footer.
+  const portfolioUrl = portfolio ? `${window.location.origin}/portfolio/${portfolio.slug}` : '';
+  const nextPortfolioSection = portfolioChecks.find((c) => !c.done)?.label;
   const portfolioStatusCard = (
-    <div className={ADMIN_CARD}>
-      <div className={`${ADMIN_CARD_HEADER} justify-between`}>
-        <h2 className="text-sm font-semibold text-ld-onyx m-0">Portfolio QA</h2>
-        <div className="flex items-center gap-2">
-          {portfolio?.status === 'published' && (
-            <a
-              href={`/portfolio/${portfolio.slug}`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-ld-frost bg-white text-sm font-medium text-ld-graphite no-underline hover:bg-ld-cloud transition-colors"
-            >
-              <ExternalLink size={14} /> Lihat Portfolio
-            </a>
-          )}
-          <button
-            onClick={() => setPortfolioFormOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium cursor-pointer border-none transition-colors"
-          >
-            {portfolio ? <><Pencil size={14} /> Edit Portfolio</> : <><Plus size={14} /> Buat Portfolio</>}
-          </button>
-        </div>
-      </div>
-      <div className={ADMIN_CARD_BODY}>
-        {portfolioLoading ? (
-          <LoadingState label="Memuat portfolio…" />
-        ) : portfolioLoadError ? (
-          <p className="text-sm text-red-500 m-0">{portfolioLoadError}</p>
-        ) : !portfolio ? (
-          <p className="text-sm text-ld-fog m-0">
-            Showcase pengalaman, proyek, dan sertifikasi QA kamu lewat halaman portfolio publik.
-          </p>
-        ) : (
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <StatusBadge tone={PORTFOLIO_STATUS_TONE[portfolio.status]}>{portfolio.status}</StatusBadge>
-              <code className="text-[11px] text-ld-slate truncate">{`${window.location.origin}/portfolio/${portfolio.slug}`}</code>
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/portfolio/${portfolio.slug}`);
-                  setUrlCopied(true);
-                  showSnackbar('Link portfolio berhasil disalin!', 'success');
-                  setTimeout(() => setUrlCopied(false), 1500);
-                }}
-                className="p-1 rounded-md text-ld-fog hover:text-ld-violet hover:bg-ld-cloud cursor-pointer border-none bg-transparent transition-colors shrink-0"
-                aria-label="Salin link portfolio"
-              >
-                {urlCopied ? <Check size={13} className="text-green-600" /> : <Copy size={13} />}
-              </button>
-            </div>
-
-            {(() => {
-              const done = countCompletedPortfolioSections(portfolio.data);
-              if (done >= PORTFOLIO_SECTION_COUNT) return null;
-              const percent = Math.round((done / PORTFOLIO_SECTION_COUNT) * 100);
-              return (
-                <div className="rounded-lg bg-ld-lilac/40 border border-ld-lilac p-3.5">
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <p className="m-0 text-xs font-medium text-ld-graphite">
-                      Portfolio kamu makin kece kalau lengkap - yuk tambahkan detail lainnya
-                    </p>
-                    <span className="text-xs font-semibold text-ld-violet shrink-0">{done}/{PORTFOLIO_SECTION_COUNT} selesai</span>
-                  </div>
-                  <div className="h-1.5 w-full rounded-full bg-white overflow-hidden">
-                    <div className="h-full rounded-full bg-ld-violet transition-all" style={{ width: `${percent}%` }} />
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
+    <DashboardCard
+        icon={<QaPortfolioIcon size={44} />}
+        eyebrow="Portfolio QA kamu"
+        title={portfolio ? (portfolio.data.profile.name || 'Portfolio tanpa nama') : 'Portfolio QA'}
+        badge={portfolio && <StatusBadge tone={PORTFOLIO_STATUS_TONE[portfolio.status]}>{portfolio.status}</StatusBadge>}
+        actions={!portfolioLoading && !portfolioLoadError && (
+          <>
+            {portfolio?.status === 'published' && (
+              <a href={`/portfolio/${portfolio.slug}`} target="_blank" rel="noreferrer" className={CARD_ACTION_SECONDARY}>
+                <ExternalLink size={16} /> Lihat
+              </a>
+            )}
+            <button type="button" onClick={() => setPortfolioFormOpen(true)} className={CARD_ACTION_PRIMARY}>
+              {portfolio ? <><Pencil size={16} /> Edit Portfolio</> : <>Buat Portfolio <ArrowRight size={16} /></>}
+            </button>
+          </>
         )}
-      </div>
-    </div>
+    >
+      {portfolioLoading ? (
+        <LoadingState label="Memuat portfolio…" />
+      ) : portfolioLoadError ? (
+        <p className="text-sm text-red-500 m-0">{portfolioLoadError}</p>
+      ) : !portfolio ? (
+        <EmptyState
+          illustration={<EmptyPortfolioIllustration />}
+          title="Belum ada portfolio"
+          description="Showcase pengalaman, proyek, dan sertifikasi QA kamu lewat halaman portfolio publik."
+        />
+      ) : (
+        // In-progress and complete share one layout — completeness panel on
+        // the left, public-link panel on the right — only the tone changes.
+        (() => {
+          const complete = portfolioDone >= PORTFOLIO_SECTION_COUNT;
+          const published = portfolio.status === 'published';
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className={`rounded-lg border px-4 py-3.5 flex flex-col ${complete ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 to-white' : 'border-ld-lilac bg-gradient-to-br from-ld-lilac/50 to-white'}`}>
+                <div className="flex items-end justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="m-0 text-sm font-semibold text-ld-onyx">{complete ? 'Portfolio kamu sudah lengkap' : 'Lengkapi portfolio kamu'}</p>
+                    <p className="m-0 mt-0.5 text-xs text-ld-slate">{complete ? 'Siap dibagikan ke recruiter.' : 'Biar makin dilirik recruiter.'}</p>
+                  </div>
+                  <span className={`font-ld-display text-2xl font-semibold tracking-[-0.02em] tabular-nums leading-none shrink-0 ${complete ? 'text-emerald-600' : 'text-ld-violet'}`}>
+                    {portfolioPercent ?? 0}<span className="text-sm">%</span>
+                  </span>
+                </div>
+                {/* One pixel block per section — echoes the brand's pixel mosaic. */}
+                <div
+                  className="mt-3 grid gap-1"
+                  style={{ gridTemplateColumns: `repeat(${PORTFOLIO_SECTION_COUNT}, minmax(0, 1fr))` }}
+                  role="progressbar"
+                  aria-label="Kelengkapan portfolio"
+                  aria-valuenow={portfolioDone}
+                  aria-valuemin={0}
+                  aria-valuemax={PORTFOLIO_SECTION_COUNT}
+                >
+                  {portfolioChecks.map((c) => (
+                    <span
+                      key={c.label}
+                      title={`${c.label}${c.done ? ' ✓' : ''}`}
+                      className={`h-2 rounded-[2px] ${c.done ? (complete ? 'bg-emerald-500' : 'bg-ld-violet') : 'bg-white border border-ld-lilac'}`}
+                    />
+                  ))}
+                </div>
+                <div className="mt-auto pt-3">
+                  {complete ? (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
+                      <CheckCircle2 size={13} /> {PORTFOLIO_SECTION_COUNT}/{PORTFOLIO_SECTION_COUNT} section terisi
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setPortfolioFormOpen(true)}
+                      className="inline-flex items-center gap-1 p-0 text-xs font-medium text-ld-slate bg-transparent border-none cursor-pointer hover:text-ld-violet transition-colors"
+                    >
+                      Berikutnya: <span className="font-semibold text-ld-violet">{nextPortfolioSection}</span>
+                      <ArrowRight size={12} className="text-ld-violet" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-ld-frost bg-white px-4 py-3.5 flex flex-col">
+                <p className="m-0 text-sm font-semibold text-ld-onyx">Link publik</p>
+                <p className="m-0 mt-0.5 text-xs text-ld-slate">
+                  {published ? 'Bisa dibuka siapa saja.' : 'Masih draft. Publish dulu agar link bisa dibuka.'}
+                </p>
+                <div className="mt-3 flex items-center gap-1.5 min-w-0 rounded-md bg-ld-cloud pl-3 pr-1 py-1">
+                  <span className="flex-1 font-ld-mono text-xs text-ld-slate truncate">{portfolioUrl.replace(/^https?:\/\//, '')}</span>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(portfolioUrl);
+                      } catch {
+                        showSnackbar('Gagal menyalin link. Salin manual dari kolom di sampingnya.', 'error');
+                        return;
+                      }
+                      setUrlCopied(true);
+                      showSnackbar('Link portfolio berhasil disalin!', 'success');
+                      window.clearTimeout(copiedTimer.current);
+                      copiedTimer.current = window.setTimeout(() => setUrlCopied(false), 1500);
+                    }}
+                    className="w-8 h-8 flex items-center justify-center rounded-md text-ld-steel hover:text-ld-violet hover:bg-white cursor-pointer border-none bg-transparent transition-colors shrink-0"
+                    aria-label="Salin link portfolio"
+                  >
+                    {urlCopied ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()
+      )}
+    </DashboardCard>
   );
 
   const bookingStatusCard = (
-    <div className={ADMIN_CARD}>
-      <div className={`${ADMIN_CARD_HEADER} justify-between`}>
-        <h2 className="text-sm font-semibold text-ld-onyx m-0">Booking Saya</h2>
-        <button
-          onClick={() => setBookingFormOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium cursor-pointer border-none transition-colors"
-        >
-          <Plus size={14} /> Buat Booking
-        </button>
-      </div>
-      <div className={ADMIN_CARD_BODY}>
-        {bookingActionError && (
-          <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{bookingActionError}</p>
+    <DashboardCard
+        icon={<MentoringIcon size={44} />}
+        eyebrow="Sesi mentoring kamu"
+        title="Booking Saya"
+        actions={(
+          <button
+            type="button"
+            onClick={() => setBookingFormOpen(true)}
+            disabled={!bookingRules}
+            className={`${CARD_ACTION_PRIMARY} disabled:opacity-60 disabled:cursor-not-allowed`}
+          >
+            <Plus size={16} /> Buat Booking
+          </button>
         )}
-        {bookingsLoading ? (
-          <LoadingState label="Memuat booking…" />
-        ) : bookingsLoadError ? (
-          <p className="text-sm text-red-500 m-0">{bookingsLoadError}</p>
-        ) : myBookings.length === 0 ? (
-          <p className="text-sm text-ld-fog m-0">Belum ada booking. Jadwalkan sesi mentoring pertamamu.</p>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {myBookings.map((booking) => (
-              <div key={booking.id} className="rounded-xl border border-ld-frost overflow-hidden">
-                <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-ld-cloud/60 border-b border-ld-frost">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <CalendarCheck size={14} className="text-ld-violet shrink-0" />
-                    <span className="text-xs font-medium text-ld-graphite truncate uppercase">{booking.id}</span>
-                    <span className="text-xs text-ld-ash shrink-0">|</span>
-                    <StatusBadge tone={BOOKING_STATUS_TONE[booking.status]} className="shrink-0">
-                      {BOOKING_STATUS_LABEL[booking.status]}
-                    </StatusBadge>
-                  </div>
-                  <span className="text-xs font-semibold text-ld-onyx shrink-0">
-                    {formatDateLabel(parseDateId(booking.date))} · {booking.time} WIB
-                  </span>
+    >
+      {!bookingRules && !configLoading && (
+        <p className="mb-4 px-4 py-3 rounded-lg bg-amber-50 border border-amber-200 text-sm text-amber-700">Gagal memuat aturan booking. Muat ulang halaman untuk membuat booking baru.</p>
+      )}
+      {bookingActionError && (
+        <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{bookingActionError}</p>
+      )}
+      {bookingsLoading ? (
+        <LoadingState label="Memuat booking…" />
+      ) : bookingsLoadError ? (
+        <p className="text-sm text-red-500 m-0">{bookingsLoadError}</p>
+      ) : myBookings.length === 0 ? (
+        <EmptyState
+          illustration={<EmptyCalendarIllustration />}
+          title="Belum ada booking"
+          description="Jadwalkan sesi 1:1 pertamamu dan dapatkan arahan langsung dari mentor QA."
+        />
+      ) : (
+        <div className="flex flex-col gap-3">
+          {myBookings.map((booking) => (
+            <div key={booking.id} className="rounded-xl border border-ld-frost overflow-hidden">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3.5 py-2.5 bg-ld-cloud/60 border-b border-ld-frost">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CalendarCheck size={14} className="text-ld-violet shrink-0" />
+                  <span className="text-xs font-medium text-ld-graphite truncate uppercase">{booking.id}</span>
+                  <span className="text-xs text-ld-ash shrink-0">|</span>
+                  <StatusBadge tone={BOOKING_STATUS_TONE[booking.status]} className="shrink-0">
+                    {BOOKING_STATUS_LABEL[booking.status]}
+                  </StatusBadge>
                 </div>
-                <div className="p-3.5">
-                  <p className="m-0 text-base font-semibold text-ld-onyx mb-3">{topicLabels(booking.topics)}</p>
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <img
-                        src={mentorAvatar(booking.mentorId) || DEFAULT_MENTOR_AVATAR}
-                        alt={mentorName(booking.mentorId)}
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 rounded-md object-cover shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <p className="m-0 text-xs text-ld-fog leading-tight">Mentor:</p>
-                        <p className="m-0 text-sm font-medium text-ld-onyx truncate leading-tight">{mentorName(booking.mentorId)}</p>
-                      </div>
+                <span className="text-xs font-semibold text-ld-onyx shrink-0">
+                  {formatDateLabel(parseDateId(booking.date))} · {booking.time} WIB
+                </span>
+              </div>
+              <div className="p-3.5">
+                <p className="m-0 font-ld-display text-base font-semibold tracking-[-0.01em] text-ld-onyx mb-3">{topicLabels(booking.topics)}</p>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <img
+                      src={mentorAvatar(booking.mentorId) || DEFAULT_MENTOR_AVATAR}
+                      alt={mentorName(booking.mentorId)}
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-md object-cover shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="m-0 text-xs text-ld-fog leading-tight">Mentor:</p>
+                      <p className="m-0 text-sm font-medium text-ld-onyx truncate leading-tight">{mentorName(booking.mentorId)}</p>
                     </div>
-                    <button
-                      onClick={() => setBookingDetailId(booking.id)}
-                      className="px-3.5 py-2 rounded-lg text-sm font-medium text-ld-graphite hover:bg-ld-cloud cursor-pointer border border-ld-frost bg-transparent transition-colors shrink-0"
-                    >
-                      Lihat Detail
-                    </button>
                   </div>
+                  <button
+                    onClick={() => setBookingDetailId(booking.id)}
+                    className={LIST_ACTION_NEUTRAL}
+                  >
+                    Lihat Detail
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </DashboardCard>
   );
 
   const bookingDetailCard = bookingDetail && (() => {
     const mentor = bookableMentors.find((m) => m.id === bookingDetail.mentorId);
     return (
       <div className={ADMIN_CARD}>
-        <div className={`${ADMIN_CARD_HEADER} justify-between`}>
-          <div className="flex items-center gap-2">
+        <DashboardCardHeader
+          onBack={() => setBookingDetailId(null)}
+          stickyActionsOnMobile
+          eyebrow="Detail booking"
+          title={topicLabels(bookingDetail.topics) || 'Sesi mentoring'}
+          badge={<StatusBadge tone={BOOKING_STATUS_TONE[bookingDetail.status]}>{BOOKING_STATUS_LABEL[bookingDetail.status]}</StatusBadge>}
+          actions={(bookingDetail.status === 'booked' || bookingDetail.status === 'confirmed') && (
             <button
-              onClick={() => setBookingDetailId(null)}
-              className="p-1.5 -ml-1.5 rounded-lg text-ld-fog hover:bg-ld-cloud hover:text-ld-graphite cursor-pointer border-none bg-transparent transition-colors"
-              aria-label="Kembali"
-            >
-              <ArrowLeft size={16} />
-            </button>
-            <h2 className="text-sm font-semibold text-ld-onyx m-0">Detail Booking</h2>
-          </div>
-          {(bookingDetail.status === 'booked' || bookingDetail.status === 'confirmed') && (
-            <button
+              type="button"
               onClick={() => handleCancelBooking(bookingDetail)}
               disabled={cancelingBookingId === bookingDetail.id}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 cursor-pointer border border-red-200 bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className={CARD_ACTION_DANGER}
             >
               Batalkan Booking
             </button>
           )}
-        </div>
-        <div className={ADMIN_CARD_BODY}>
+        />
+        <div className={`${ADMIN_CARD_BODY} max-md:pb-24`}>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <div className="lg:col-span-3 space-y-5">
               <div>
                 <p className="m-0 text-xs text-ld-fog mb-1">Booking ID</p>
                 <code className="text-sm font-medium text-ld-graphite uppercase">{bookingDetail.id}</code>
-              </div>
-              <div>
-                <p className="m-0 text-xs text-ld-fog mb-1">Status</p>
-                <StatusBadge tone={BOOKING_STATUS_TONE[bookingDetail.status]}>
-                  {BOOKING_STATUS_LABEL[bookingDetail.status]}
-                </StatusBadge>
               </div>
               <div>
                 <p className="m-0 text-xs text-ld-fog mb-1">Tanggal</p>
@@ -704,7 +715,7 @@ const MemberDashboard: React.FC = () => {
               <div>
                 <p className="m-0 text-xs text-ld-fog mb-1">Catatan</p>
                 <p className="m-0 text-sm text-ld-slate leading-relaxed whitespace-pre-line">
-                  {bookingDetail.notes || <span className="italic text-ld-fog">Tidak ada catatan.</span>}
+                  {bookingDetail.notes || <span className="text-ld-fog">Tidak ada catatan.</span>}
                 </p>
               </div>
               <div>
@@ -726,7 +737,7 @@ const MemberDashboard: React.FC = () => {
                   className="w-14 h-14 rounded-xl object-cover shrink-0"
                 />
                 <div className="min-w-0">
-                  <p className="m-0 text-sm font-semibold text-ld-onyx truncate">{mentorName(bookingDetail.mentorId)}</p>
+                  <p className="m-0 font-ld-display text-base font-semibold tracking-[-0.01em] text-ld-onyx truncate">{mentorName(bookingDetail.mentorId)}</p>
                   {mentor?.whatsapp && <p className="m-0 text-xs text-ld-fog mt-0.5">{mentor.whatsapp}</p>}
                   {mentor?.bio && <p className="m-0 text-sm text-ld-slate leading-relaxed mt-2">{mentor.bio}</p>}
                   {mentor && (
@@ -734,7 +745,7 @@ const MemberDashboard: React.FC = () => {
                       href={`/mentor/${mentor.id}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-lg border border-ld-frost bg-white text-xs font-medium text-ld-graphite no-underline hover:bg-ld-cloud transition-colors"
+                      className={`${LIST_ACTION_NEUTRAL} mt-3`}
                     >
                       <ExternalLink size={13} /> Lihat Profile
                     </a>
@@ -750,48 +761,46 @@ const MemberDashboard: React.FC = () => {
 
   const assignedBookingDetailCard = assignedBookingDetail && (
     <div className={ADMIN_CARD}>
-      <div className={`${ADMIN_CARD_HEADER} justify-between`}>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setAssignedBookingDetailId(null)}
-            className="p-1.5 -ml-1.5 rounded-lg text-ld-fog hover:bg-ld-cloud hover:text-ld-graphite cursor-pointer border-none bg-transparent transition-colors"
-            aria-label="Kembali"
-          >
-            <ArrowLeft size={16} />
-          </button>
-          <h2 className="text-sm font-semibold text-ld-onyx m-0">Detail Booking Masuk</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          {assignedBookingDetail.status === 'booked' && (
+      <DashboardCardHeader
+        onBack={() => setAssignedBookingDetailId(null)}
+        stickyActionsOnMobile
+        eyebrow="Detail booking masuk"
+        title={assignedBookingDetail.menteeName}
+        badge={<StatusBadge tone={BOOKING_STATUS_TONE[assignedBookingDetail.status]}>{BOOKING_STATUS_LABEL[assignedBookingDetail.status]}</StatusBadge>}
+        actions={(assignedBookingDetail.status === 'booked' || assignedBookingDetail.status === 'confirmed') && (
+          <>
+            {assignedBookingDetail.status === 'booked' && (
+              <button
+                type="button"
+                onClick={() => handleAssignedTransition(assignedBookingDetail, 'confirmed')}
+                disabled={assignedTransitioningId === assignedBookingDetail.id}
+                className={CARD_ACTION_SUCCESS}
+              >
+                Confirm
+              </button>
+            )}
+            {assignedBookingDetail.status === 'confirmed' && (
+              <button
+                type="button"
+                onClick={() => handleAssignedTransition(assignedBookingDetail, 'completed')}
+                disabled={assignedTransitioningId === assignedBookingDetail.id}
+                className={CARD_ACTION_SECONDARY}
+              >
+                Complete
+              </button>
+            )}
             <button
-              onClick={() => handleAssignedTransition(assignedBookingDetail, 'confirmed')}
-              disabled={assignedTransitioningId === assignedBookingDetail.id}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-emerald-600 hover:bg-emerald-50 cursor-pointer border border-emerald-200 bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Confirm
-            </button>
-          )}
-          {assignedBookingDetail.status === 'confirmed' && (
-            <button
-              onClick={() => handleAssignedTransition(assignedBookingDetail, 'completed')}
-              disabled={assignedTransitioningId === assignedBookingDetail.id}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-ld-slate hover:bg-ld-cloud cursor-pointer border border-ld-frost bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Complete
-            </button>
-          )}
-          {(assignedBookingDetail.status === 'booked' || assignedBookingDetail.status === 'confirmed') && (
-            <button
+              type="button"
               onClick={() => handleAssignedTransition(assignedBookingDetail, 'canceled')}
               disabled={assignedTransitioningId === assignedBookingDetail.id}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 cursor-pointer border border-red-200 bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className={CARD_ACTION_DANGER}
             >
               Cancel
             </button>
-          )}
-        </div>
-      </div>
-      <div className={ADMIN_CARD_BODY}>
+          </>
+        )}
+      />
+      <div className={`${ADMIN_CARD_BODY} max-md:pb-24`}>
         {assignedActionError && (
           <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{assignedActionError}</p>
         )}
@@ -800,12 +809,6 @@ const MemberDashboard: React.FC = () => {
             <div>
               <p className="m-0 text-xs text-ld-fog mb-1">Booking ID</p>
               <code className="text-sm font-medium text-ld-graphite uppercase">{assignedBookingDetail.id}</code>
-            </div>
-            <div>
-              <p className="m-0 text-xs text-ld-fog mb-1">Status</p>
-              <StatusBadge tone={BOOKING_STATUS_TONE[assignedBookingDetail.status]}>
-                {BOOKING_STATUS_LABEL[assignedBookingDetail.status]}
-              </StatusBadge>
             </div>
             <div>
               <p className="m-0 text-xs text-ld-fog mb-1">Tanggal</p>
@@ -826,7 +829,7 @@ const MemberDashboard: React.FC = () => {
             <div>
               <p className="m-0 text-xs text-ld-fog mb-1">Catatan</p>
               <p className="m-0 text-sm text-ld-slate leading-relaxed whitespace-pre-line">
-                {assignedBookingDetail.notes || <span className="italic text-ld-fog">Tidak ada catatan.</span>}
+                {assignedBookingDetail.notes || <span className="text-ld-fog">Tidak ada catatan.</span>}
               </p>
             </div>
             <div>
@@ -844,7 +847,7 @@ const MemberDashboard: React.FC = () => {
                 {assignedBookingDetail.menteeName.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
-                <p className="m-0 text-sm font-semibold text-ld-onyx truncate">{assignedBookingDetail.menteeName}</p>
+                <p className="m-0 font-ld-display text-base font-semibold tracking-[-0.01em] text-ld-onyx truncate">{assignedBookingDetail.menteeName}</p>
                 <p className="m-0 text-xs text-ld-fog mt-0.5 truncate">{assignedBookingDetail.menteeEmail}</p>
                 <p className="m-0 text-xs text-ld-fog mt-0.5">{assignedBookingDetail.menteeWhatsapp}</p>
                 {menteePortfolio && menteePortfolio.forId === assignedBookingDetailId && (
@@ -854,7 +857,7 @@ const MemberDashboard: React.FC = () => {
                         href={menteePortfolio.cvUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-ld-frost bg-white text-xs font-medium text-ld-graphite no-underline hover:bg-ld-cloud transition-colors"
+                        className={LIST_ACTION_NEUTRAL}
                       >
                         <ExternalLink size={13} /> Lihat CV
                       </a>
@@ -864,7 +867,7 @@ const MemberDashboard: React.FC = () => {
                         href={`/portfolio/${menteePortfolio.slug}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-ld-frost bg-white text-xs font-medium text-ld-graphite no-underline hover:bg-ld-cloud transition-colors"
+                        className={LIST_ACTION_NEUTRAL}
                       >
                         <ExternalLink size={13} /> Lihat Portfolio
                       </a>
@@ -880,113 +883,124 @@ const MemberDashboard: React.FC = () => {
   );
 
   const assignedBookingsCard = (
-    <div className={ADMIN_CARD}>
-      <div className={ADMIN_CARD_HEADER}>
-        <h2 className="text-sm font-semibold text-ld-onyx m-0">Booking Masuk</h2>
-      </div>
-      <div className={ADMIN_CARD_BODY}>
-        {assignedActionError && (
-          <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{assignedActionError}</p>
-        )}
-        {assignedLoading ? (
-          <LoadingState label="Memuat booking…" />
-        ) : assignedLoadError ? (
-          <p className="text-sm text-red-500 m-0">{assignedLoadError}</p>
-        ) : assignedBookings.length === 0 ? (
-          <p className="text-sm text-ld-fog m-0">Belum ada booking yang masuk.</p>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {assignedBookings.map((booking) => (
-              <div key={booking.id} className="rounded-xl border border-ld-frost overflow-hidden">
-                <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-ld-cloud/60 border-b border-ld-frost">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <CalendarCheck size={14} className="text-ld-violet shrink-0" />
-                    <span className="text-xs font-medium text-ld-graphite truncate uppercase">{booking.id}</span>
-                    <span className="text-xs text-ld-ash shrink-0">|</span>
-                    <StatusBadge tone={BOOKING_STATUS_TONE[booking.status]} className="shrink-0">
-                      {BOOKING_STATUS_LABEL[booking.status]}
-                    </StatusBadge>
-                  </div>
-                  <span className="text-xs font-semibold text-ld-onyx shrink-0">
-                    {formatDateLabel(parseDateId(booking.date))} · {booking.time} WIB
-                  </span>
+    <DashboardCard
+        icon={<MentoringIcon size={44} />}
+        eyebrow="Sebagai mentor"
+        title="Booking Masuk"
+    >
+      {assignedActionError && (
+        <p className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{assignedActionError}</p>
+      )}
+      {assignedLoading ? (
+        <LoadingState label="Memuat booking…" />
+      ) : assignedLoadError ? (
+        <p className="text-sm text-red-500 m-0">{assignedLoadError}</p>
+      ) : assignedBookings.length === 0 ? (
+        <EmptyState
+          illustration={<EmptyInboxIllustration />}
+          title="Belum ada booking masuk"
+          description="Booking dari mentee akan muncul di sini. Pastikan jadwal ketersediaan di profil mentor kamu sudah terisi."
+        />
+      ) : (
+        <div className="flex flex-col gap-3">
+          {assignedBookings.map((booking) => (
+            <div key={booking.id} className="rounded-xl border border-ld-frost overflow-hidden">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3.5 py-2.5 bg-ld-cloud/60 border-b border-ld-frost">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CalendarCheck size={14} className="text-ld-violet shrink-0" />
+                  <span className="text-xs font-medium text-ld-graphite truncate uppercase">{booking.id}</span>
+                  <span className="text-xs text-ld-ash shrink-0">|</span>
+                  <StatusBadge tone={BOOKING_STATUS_TONE[booking.status]} className="shrink-0">
+                    {BOOKING_STATUS_LABEL[booking.status]}
+                  </StatusBadge>
                 </div>
-                <div className="p-3.5">
-                  <p className="m-0 text-base font-semibold text-ld-onyx mb-3">{topicLabels(booking.topics)}</p>
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-md bg-ld-lilac text-ld-violet flex items-center justify-center text-sm font-semibold shrink-0">
-                        {booking.menteeName.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="m-0 text-xs text-ld-fog leading-tight">Mentee:</p>
-                        <p className="m-0 text-sm font-medium text-ld-onyx truncate leading-tight">{booking.menteeName}</p>
-                      </div>
+                <span className="text-xs font-semibold text-ld-onyx shrink-0">
+                  {formatDateLabel(parseDateId(booking.date))} · {booking.time} WIB
+                </span>
+              </div>
+              <div className="p-3.5">
+                <p className="m-0 font-ld-display text-base font-semibold tracking-[-0.01em] text-ld-onyx mb-3">{topicLabels(booking.topics)}</p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-md bg-ld-lilac text-ld-violet flex items-center justify-center text-sm font-semibold shrink-0">
+                      {booking.menteeName.charAt(0).toUpperCase()}
                     </div>
-                    <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+                    <div className="min-w-0">
+                      <p className="m-0 text-xs text-ld-fog leading-tight">Mentee:</p>
+                      <p className="m-0 text-sm font-medium text-ld-onyx truncate leading-tight">{booking.menteeName}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap sm:shrink-0 max-sm:[&>*]:flex-1">
+                    <button
+                      onClick={() => setAssignedBookingDetailId(booking.id)}
+                      className={LIST_ACTION_NEUTRAL}
+                    >
+                      Lihat Detail
+                    </button>
+                    {booking.status === 'booked' && (
                       <button
-                        onClick={() => setAssignedBookingDetailId(booking.id)}
-                        className="px-3.5 py-2 rounded-lg text-sm font-medium text-ld-graphite hover:bg-ld-cloud cursor-pointer border border-ld-frost bg-transparent transition-colors"
+                        onClick={() => handleAssignedTransition(booking, 'confirmed')}
+                        disabled={assignedTransitioningId === booking.id}
+                        className={LIST_ACTION_SUCCESS}
                       >
-                        Lihat Detail
+                        Confirm
                       </button>
-                      {booking.status === 'booked' && (
-                        <button
-                          onClick={() => handleAssignedTransition(booking, 'confirmed')}
-                          disabled={assignedTransitioningId === booking.id}
-                          className="px-3.5 py-2 rounded-lg text-sm font-medium text-emerald-600 hover:bg-emerald-50 cursor-pointer border border-emerald-200 bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          Confirm
-                        </button>
-                      )}
-                      {booking.status === 'confirmed' && (
-                        <button
-                          onClick={() => handleAssignedTransition(booking, 'completed')}
-                          disabled={assignedTransitioningId === booking.id}
-                          className="px-3.5 py-2 rounded-lg text-sm font-medium text-ld-slate hover:bg-ld-cloud cursor-pointer border border-ld-frost bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          Complete
-                        </button>
-                      )}
-                      {(booking.status === 'booked' || booking.status === 'confirmed') && (
-                        <button
-                          onClick={() => handleAssignedTransition(booking, 'canceled')}
-                          disabled={assignedTransitioningId === booking.id}
-                          className="px-3.5 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 cursor-pointer border border-red-200 bg-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </div>
+                    )}
+                    {booking.status === 'confirmed' && (
+                      <button
+                        onClick={() => handleAssignedTransition(booking, 'completed')}
+                        disabled={assignedTransitioningId === booking.id}
+                        className={LIST_ACTION_NEUTRAL}
+                      >
+                        Complete
+                      </button>
+                    )}
+                    {(booking.status === 'booked' || booking.status === 'confirmed') && (
+                      <button
+                        onClick={() => handleAssignedTransition(booking, 'canceled')}
+                        disabled={assignedTransitioningId === booking.id}
+                        className={LIST_ACTION_DANGER}
+                      >
+                        Cancel
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </DashboardCard>
   );
 
   return (
     <div className="min-h-screen flex bg-ld-cloud font-ld-sans">
       {/* Sidebar — desktop */}
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-white border-r border-ld-frost/70 sticky top-0 h-screen">
-        {sidebarContent}
+      <aside className="hidden lg:flex w-56 shrink-0 flex-col bg-white border-r border-ld-frost/70 sticky top-0 h-screen">
+        {renderSidebar(false)}
       </aside>
 
       {/* Sidebar — mobile drawer */}
-      <div className={`fixed inset-0 z-40 lg:hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+      <div
+        className={`fixed inset-0 z-40 lg:hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        inert={!sidebarOpen}
+      >
         <div className="absolute inset-0 bg-ld-midnight/40" onClick={() => setSidebarOpen(false)} />
-        <aside className={`absolute inset-y-0 left-0 w-64 flex flex-col bg-white border-r border-ld-frost/70 shadow-[rgba(39,40,53,0.1)_0px_0px_0px_1px,rgba(39,40,53,0.08)_0px_24px_24px_-12px] transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu navigasi"
+          className={`absolute inset-y-0 left-0 w-[85vw] max-w-[320px] flex flex-col bg-white border-r border-ld-frost/70 pb-[env(safe-area-inset-bottom)] shadow-[rgba(39,40,53,0.1)_0px_0px_0px_1px,rgba(39,40,53,0.08)_0px_24px_24px_-12px] transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        >
           <button
             onClick={() => setSidebarOpen(false)}
-            className="absolute top-4 right-3 p-1.5 rounded-lg text-ld-fog hover:text-ld-graphite bg-transparent border-none cursor-pointer"
+            className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-lg text-ld-steel hover:text-ld-graphite hover:bg-ld-cloud bg-transparent border-none cursor-pointer transition-colors"
             aria-label="Tutup menu"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
-          {sidebarContent}
+          {renderSidebar(true)}
         </aside>
       </div>
 
@@ -996,149 +1010,109 @@ const MemberDashboard: React.FC = () => {
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 -ml-1 rounded-lg text-ld-graphite hover:bg-ld-cloud bg-transparent border-none cursor-pointer"
+              className="lg:hidden w-10 h-10 -ml-2 flex items-center justify-center rounded-lg text-ld-graphite hover:bg-ld-cloud bg-transparent border-none cursor-pointer"
               aria-label="Buka menu"
             >
-              <Menu size={18} />
+              <Menu size={20} />
             </button>
             <div className="min-w-0">
               <h1 className="m-0 text-base font-semibold text-ld-onyx leading-tight truncate">{activeItem.label}</h1>
-              <p className="m-0 text-[11px] text-ld-fog leading-tight truncate">{activeItem.description}</p>
             </div>
           </div>
 
           {user && (
             <ProfileMenu
               user={user}
-              roleLabel={userRole}
+              roleLabel={userRole === 'Mentee' ? null : userRole}
               onLogout={() => { logout(); showSnackbar('Kamu telah berhasil keluar.', 'info'); }}
             />
           )}
         </header>
 
-        <main className="flex-1 p-2 md:p-6 w-full">
+        <main className="flex-1 p-4 md:p-6 w-full">
           {activeNav === 'home' && (
             <div className="space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5 mb-4 md:mb-5">
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => { navigate(navPath('portfolios')); if (!portfolio) setPortfolioFormOpen(true); }}
-                  onKeyDown={(e) => {
-                    if (e.key !== 'Enter' && e.key !== ' ') return;
-                    e.preventDefault();
-                    navigate(navPath('portfolios'));
-                    if (!portfolio) setPortfolioFormOpen(true);
-                  }}
-                  className={`group relative overflow-hidden rounded-xl border border-ld-frost/60 bg-white p-5 cursor-pointer text-left shadow-[0_4px_18px_rgba(30,27,75,0.035)] transition-all duration-300 hover:shadow-md hover:border-ld-violet hover:-translate-y-0.5 ${showMentorNudge ? 'pb-14' : ''}`}
+              <OnboardingRecommendationCard />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <DashboardShortcutCard
+                  icon={<QaPortfolioIcon size={44} />}
+                  eyebrow="Portfolio QA"
+                  title={portfolio ? (portfolio.data.profile.name || 'Portfolio tanpa nama') : 'Belum ada portfolio'}
+                  badge={portfolio && <StatusBadge tone={PORTFOLIO_STATUS_TONE[portfolio.status]} className="shrink-0">{portfolio.status}</StatusBadge>}
+                  ctaLabel={portfolio ? 'Kelola Portfolio' : 'Buat Portfolio'}
+                  onOpen={() => { navigate(navPath('portfolios')); if (!portfolio) setPortfolioFormOpen(true); }}
                 >
-                  <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-ld-lilac/5 group-hover:bg-ld-lilac/10 transition-colors" />
-                  <div className="flex items-start gap-4 relative z-10">
-                    {portfolio && portfolioPercent !== null ? (
-                      <div className="relative w-11 h-11 shrink-0">
-                        <svg viewBox="0 0 44 44" className="w-11 h-11 -rotate-90">
-                          <circle cx="22" cy="22" r="18" fill="none" strokeWidth="4" className="stroke-ld-frost" />
-                          <circle
-                            cx="22" cy="22" r="18" fill="none" strokeWidth="4" strokeLinecap="round"
-                            className="stroke-ld-violet transition-all duration-500"
-                            strokeDasharray={2 * Math.PI * 18}
-                            strokeDashoffset={2 * Math.PI * 18 * (1 - portfolioPercent / 100)}
-                          />
-                        </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-ld-violet">
-                          {portfolioPercent}%
+                  {portfolio ? (
+                    <>
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <span className="text-xs text-ld-slate">
+                          {portfolioDone >= PORTFOLIO_SECTION_COUNT ? 'Portfolio kamu sudah lengkap.' : `Berikutnya: ${nextPortfolioSection}`}
                         </span>
+                        <span className={`font-ld-mono text-xs font-semibold tabular-nums ${portfolioDone >= PORTFOLIO_SECTION_COUNT ? 'text-emerald-600' : 'text-ld-violet'}`}>{portfolioPercent ?? 0}%</span>
                       </div>
-                    ) : (
-                      <div className="flex items-center justify-center w-11 h-11 shrink-0">
-                        <img src="/admin/img/portfolio.png" alt="" className="w-11 h-11 object-contain" />
+                      <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${PORTFOLIO_SECTION_COUNT}, minmax(0, 1fr))` }} aria-hidden="true">
+                        {portfolioChecks.map((c) => (
+                          <span key={c.label} className={`h-2 rounded-[2px] ${c.done ? (portfolioDone >= PORTFOLIO_SECTION_COUNT ? 'bg-emerald-500' : 'bg-ld-violet') : 'bg-ld-frost'}`} />
+                        ))}
                       </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="m-0 text-sm font-bold text-ld-onyx tracking-wide group-hover:text-ld-violet transition-colors">Portfolio QA</p>
-                      <p className="m-0 mt-1 text-xs text-ld-fog leading-relaxed">
-                        {!portfolio
-                          ? 'Buat portfolio QA kamu.'
-                          : portfolioPercent === 100
-                            ? 'Portfolio kamu udah lengkap.'
-                            : `${portfolioPercent}% lengkap — yuk tambahin detailnya.`}
-                      </p>
-                      <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-ld-violet">
-                        {portfolio ? 'Kelola Portfolio' : 'Buat Sekarang'} <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
-                      </span>
-                    </div>
-                  </div>
-
-                  {showMentorNudge && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); navigate('/mentoring/booking'); }}
-                      className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between gap-2 px-4 py-2.5 bg-gradient-to-r from-ld-violet to-[#1f87e6] text-white border-none cursor-pointer rounded-b-lg hover:brightness-110 transition-[filter]"
-                    >
-                      <span className="text-[11px] font-medium leading-tight text-left">Biar makin siap, minta mentor review portfoliomu</span>
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold shrink-0">
-                        Minta Review <ArrowRight size={12} />
-                      </span>
-                    </button>
+                      {showMentorNudge && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); navigate('/mentoring/booking'); }}
+                          className="mt-3 inline-flex items-center gap-1 p-0 text-xs font-medium text-ld-slate bg-transparent border-none cursor-pointer hover:text-ld-violet transition-colors"
+                        >
+                          Biar makin siap, <span className="font-semibold text-ld-violet">minta mentor review</span>
+                          <ArrowRight size={12} className="text-ld-violet" />
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <p className="m-0 text-sm text-ld-slate">Showcase pengalaman, proyek, dan sertifikasi QA kamu dalam satu halaman publik.</p>
                   )}
-                </div>
+                </DashboardShortcutCard>
 
-                <button
-                  onClick={() => {
+                <DashboardShortcutCard
+                  icon={<MentoringIcon size={44} />}
+                  eyebrow="Mentoring"
+                  title={activeBooking ? topicLabels(activeBooking.topics) || 'Sesi mentoring' : 'Belum ada booking'}
+                  badge={activeBooking && (
+                    <StatusBadge tone={BOOKING_STATUS_TONE[activeBooking.status]} className="shrink-0">
+                      {BOOKING_STATUS_LABEL[activeBooking.status]}
+                    </StatusBadge>
+                  )}
+                  ctaLabel={activeBooking ? 'Lihat Detail' : 'Buat Booking'}
+                  onOpen={() => {
                     navigate(navPath('booking'));
                     if (activeBooking) setBookingDetailId(activeBooking.id);
                     else setBookingFormOpen(true);
                   }}
-                  className="group relative overflow-hidden rounded-xl border border-ld-frost/60 bg-white p-5 cursor-pointer text-left shadow-[0_4px_18px_rgba(30,27,75,0.035)] transition-all duration-300 hover:shadow-md hover:border-ld-violet hover:-translate-y-0.5"
                 >
-                  <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-ld-lilac/5 group-hover:bg-ld-lilac/10 transition-colors" />
-                  <div className="flex items-start gap-4 relative z-10">
-                    {activeBooking ? (
+                  {activeBooking ? (
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <img
                         src={mentorAvatar(activeBooking.mentorId) || DEFAULT_MENTOR_AVATAR}
                         alt={mentorName(activeBooking.mentorId)}
-                        width={44}
-                        height={44}
-                        className="w-11 h-11 rounded-lg object-cover shrink-0"
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover shrink-0"
                       />
-                    ) : (
-                      <div className="flex items-center justify-center w-11 h-11 shrink-0">
-                        <img src="/admin/img/booking.png" alt="" className="w-11 h-11 object-contain" />
+                      <div className="min-w-0">
+                        <p className="m-0 text-sm font-medium text-ld-onyx truncate">{mentorName(activeBooking.mentorId)}</p>
+                        <p className="m-0 text-xs text-ld-slate truncate">
+                          <CalendarCheck size={11} className="inline -mt-0.5" /> {formatDateLabel(parseDateId(activeBooking.date))} · {activeBooking.time} WIB
+                        </p>
                       </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      {activeBooking ? (
-                        <>
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="m-0 text-sm font-bold text-ld-onyx tracking-wide truncate group-hover:text-ld-violet transition-colors">Booking Mentoring</p>
-                            <StatusBadge tone={BOOKING_STATUS_TONE[activeBooking.status]} className="shrink-0">
-                              {BOOKING_STATUS_LABEL[activeBooking.status]}
-                            </StatusBadge>
-                          </div>
-                          <p className="m-0 text-xs text-ld-fog leading-relaxed truncate">
-                            {mentorName(activeBooking.mentorId)} · {formatDateLabel(parseDateId(activeBooking.date))} · {activeBooking.time} WIB
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="m-0 text-sm font-bold text-ld-onyx tracking-wide group-hover:text-ld-violet transition-colors">Booking Mentoring</p>
-                          <p className="m-0 mt-1 text-xs text-ld-fog leading-relaxed">Jadwalkan sesi 1:1 dengan mentor.</p>
-                        </>
-                      )}
-                      <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-ld-violet">
-                        {activeBooking ? 'Lihat Detail' : 'Mulai Booking'} <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
-                      </span>
                     </div>
-                  </div>
-                </button>
+                  ) : (
+                    <p className="m-0 text-sm text-ld-slate">Jadwalkan sesi 1:1 dengan mentor QA untuk review portfolio atau diskusi karier.</p>
+                  )}
+                </DashboardShortcutCard>
               </div>
-
-              {mentorStatusCard}
             </div>
           )}
 
-          {activeNav === 'booking' && bookingRules && (
-            bookingFormOpen ? (
+          {activeNav === 'booking' && (
+            bookingFormOpen && bookingRules ? (
               <MemberBookingForm
                 onClose={() => setBookingFormOpen(false)}
                 onSubmit={async (payload) => {
@@ -1163,8 +1137,9 @@ const MemberDashboard: React.FC = () => {
               />
             ) : bookingDetailCard ? bookingDetailCard : assignedBookingDetailCard ? assignedBookingDetailCard : (
               <div className="space-y-5">
-                {bookingStatusCard}
+                {mentorStatusCard}
                 {isVerifiedMentor && assignedBookingsCard}
+                {bookingStatusCard}
               </div>
             )
           )}
@@ -1172,7 +1147,10 @@ const MemberDashboard: React.FC = () => {
           {activeNav === 'mentor' && (
             formOpen ? (
               <MentorForm
-                onClose={() => setFormOpen(false)}
+                onClose={() => {
+                  setFormOpen(false);
+                  if (!mentor) navigate(navPath('booking'));
+                }}
                 onSubmit={async (payload) => {
                   const result = isEdit ? await update(payload) : await apply(payload);
                   if (result.ok) setFormOpen(false);
@@ -1197,6 +1175,7 @@ const MemberDashboard: React.FC = () => {
           {activeNav === 'portfolios' && (
             portfolioFormOpen ? (
               <PortfolioForm
+                variant="member"
                 onClose={() => setPortfolioFormOpen(false)}
                 onSubmit={async (payload) => {
                   const result = portfolio ? await updatePortfolio(payload) : await createPortfolio(payload);

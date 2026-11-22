@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { apiLogin, type AdminUser } from '../lib/adminApi';
+import type { OnboardingStatus } from '../types/onboarding';
 
 const STORAGE_KEY = 'mentoring-admin-session';
 
@@ -32,9 +33,12 @@ interface AdminAuthState {
   loggingIn: boolean;
   login: (credential: string) => Promise<void>;
   logout: () => void;
+  /** Keeps the stored session in sync after onboarding is completed/skipped,
+   *  so OnboardingGate stops redirecting without a re-login. */
+  setOnboardingStatus: (status: OnboardingStatus) => void;
 }
 
-export const useAdminAuthStore = create<AdminAuthState>((set) => {
+export const useAdminAuthStore = create<AdminAuthState>((set, get) => {
   const stored = readStoredSession();
   return {
     token: stored?.token ?? null,
@@ -56,6 +60,14 @@ export const useAdminAuthStore = create<AdminAuthState>((set) => {
     logout: () => {
       localStorage.removeItem(STORAGE_KEY);
       set({ token: null, expiresAt: null, user: null });
+    },
+
+    setOnboardingStatus: (status) => {
+      const { token, expiresAt, user } = get();
+      if (!token || !expiresAt || !user) return;
+      const nextUser = { ...user, onboardingStatus: status };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ token, expiresAt, user: nextUser }));
+      set({ user: nextUser });
     },
   };
 });

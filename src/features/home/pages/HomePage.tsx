@@ -4,6 +4,8 @@ import HomeHero from '../components/HomeHero';
 import HomeProducts from '../components/HomeProducts';
 import HomeJourney from '../components/HomeJourney';
 import HomeLibrary from '../components/HomeLibrary';
+import HomeSimulatorProjects from '../components/HomeSimulatorProjects';
+import HomePricing from '../components/HomePricing';
 import HomeFaq from '../components/HomeFaq';
 import HomeFinalCta from '../components/HomeFinalCta';
 
@@ -13,19 +15,24 @@ import HomeFinalCta from '../components/HomeFinalCta';
 const HomePage: React.FC = () => {
   const { hash } = useLocation();
 
-  // App's ScrollToTop skips hashed URLs, so in-page anchors (/#produk) scroll here.
+  // App's ScrollToTop skips hashed URLs, so in-page anchors (/#program) scroll here.
+  // The old "#produk" anchor (before the Produk → Program rename) still resolves.
   useEffect(() => {
     if (!hash) return;
-    const t = window.setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' }), 100);
+    const id = hash.slice(1) === 'produk' ? 'program' : hash.slice(1);
+    const t = window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 100);
     return () => window.clearTimeout(t);
   }, [hash]);
 
   return (
     <div className="w-full bg-ld-canvas">
       <HomeHero />
-      <HomeProducts />
+      {/* overview of the 4-step path first, then each product in depth */}
       <HomeJourney />
+      <HomeProducts />
+      <HomeSimulatorProjects />
       <HomeLibrary />
+      <HomePricing />
       <HomeFaq />
       <HomeFinalCta />
     </div>

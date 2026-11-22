@@ -1,0 +1,829 @@
+{
+  "id": "ecommerce",
+  "title": "TokoKita: Checkout & Voucher Promo",
+  "product": "TokoKita",
+  "domain": "E-commerce / Marketplace",
+  "difficulty": "advanced",
+  "estimatedHours": 5,
+  "summary": "Kamu QA di tim Checkout TokoKita menjelang kampanye 11.11. Review PRD checkout & voucher, lalu bandingkan file desain dengan build staging: temukan deviasi visual, state yang hilang, dan masalah aksesibilitas sebelum rilis.",
+  "context": "**TokoKita** adalah marketplace fiktif dengan ±8 juta pembeli aktif bulanan. Kampanye **11.11** adalah hari dengan transaksi terbesar dalam setahun, dengan traffic diperkirakan 6× hari biasa.\n\nSaat 10.10 lalu, banyak user meninggalkan halaman checkout karena total harga membingungkan dan voucher gagal dipakai tanpa alasan yang jelas. Tim **Checkout** merombak halaman ini menjadi **Checkout v2**.\n\nKamu bergabung sebagai QA bersama 1 PM, 1 product designer, dan 1 frontend lead. Tim ini punya kebiasaan **design review** sebelum regression: QA membandingkan build dengan file desain agar tidak ada perbedaan yang lolos ke production.\n\nSemua nama, produk, dan data di project ini fiktif. File desain dan aplikasi yang kamu uji adalah simulasi di dalam browser.",
+  "team": [
+    {
+      "id": "pm",
+      "name": "Bima Santoso",
+      "avatar": "/qa-simulator/team/bima-santoso.webp",
+      "role": "Product Manager",
+      "initials": "BS",
+      "color": "bg-orange-400"
+    },
+    {
+      "id": "designer",
+      "name": "Laras Ayuningtyas",
+      "avatar": "/qa-simulator/team/laras-ayuningtyas.webp",
+      "role": "Product Designer",
+      "initials": "LA",
+      "color": "bg-fuchsia-400"
+    },
+    {
+      "id": "lead",
+      "name": "Reza Firmansyah",
+      "avatar": "/qa-simulator/team/reza-firmansyah.webp",
+      "role": "Frontend Lead",
+      "initials": "RF",
+      "color": "bg-sky-500"
+    },
+    {
+      "id": "qa-lead",
+      "name": "Sari Wulandari",
+      "avatar": "/qa-simulator/team/sari-wulandari.webp",
+      "role": "QA Lead (mentor kamu)",
+      "initials": "SW",
+      "color": "bg-emerald-500"
+    }
+  ],
+  "prd": {
+    "title": "PRD — Checkout v2 & Voucher Promo 11.11",
+    "version": "v1.0",
+    "markdown": "| Info | Detail |\n|---|---|\n| **Produk** | TokoKita (aplikasi Android, iOS, mobile web) |\n| **Fitur** | Checkout v2 & Voucher Promo 11.11 |\n| **PM** | Bima Santoso |\n| **Desain** | Laras Ayuningtyas · file \"Checkout v2 — Kampanye 11.11\" (Ready for dev) |\n| **Status** | Ready for QA Review |\n| **Target rilis** | 7 November, 4 hari sebelum kampanye 11.11 |\n\n## 1. Latar Belakang\n\nSaat kampanye 10.10, **31%** user yang sudah masuk halaman checkout tidak menyelesaikan pembayaran. Dari survei exit (n = 2.100), alasan terbanyak adalah **\"total harga tidak jelas\"** (38%) dan **\"voucher tidak bisa dipakai tanpa tahu alasannya\"** (27%).\n\nCheckout v2 merapikan ringkasan harga dan alur voucher. Rilisnya harus aman sebelum traffic puncak 11.11, yang diperkirakan **6× traffic** hari biasa.\n\n## 2. Tujuan & Success Metrics\n\n| Metric | 10.10 | Target 11.11 |\n|---|---|---|\n| Checkout → bayar (conversion) | 69% | ≥ 78% |\n| Ticket CS \"voucher tidak bisa dipakai\" | 1.840 | ≤ 600 |\n| Error checkout saat puncak traffic | 3,4% | ≤ 0,5% |\n\n## 3. Scope\n\n**In scope:** halaman checkout (alamat, produk, pengiriman, voucher, metode pembayaran, ringkasan), ubah jumlah barang, pilih voucher dari daftar, masukkan kode voucher, tombol Bayar.\n\n**Out of scope:** checkout multi-toko, cicilan/paylater, poin loyalti, ubah alamat (memakai halaman alamat yang sudah ada).\n\n## 4. User Stories & Acceptance Criteria\n\n### US-01 — Ringkasan checkout\n\n> Sebagai pembeli, saya ingin melihat rincian dan total yang harus dibayar dengan jelas sebelum membayar.\n\n- **AC1** Halaman menampilkan alamat pengiriman, daftar produk, opsi pengiriman, voucher, metode pembayaran, dan ringkasan pembayaran.\n- **AC2** Total tagihan = subtotal produk + ongkos kirim + biaya layanan − diskon voucher.\n- **AC3** Biaya layanan **Rp 1.000** per transaksi.\n- **AC4** Produk yang sedang diskon menampilkan harga coret dan persentase diskonnya.\n- **AC5** Diskon ditampilkan sebagai **pengurang** di ringkasan.\n\n### US-02 — Ubah jumlah barang\n\n> Sebagai pembeli, saya ingin mengubah jumlah barang tanpa kembali ke keranjang.\n\n- **AC1** Jumlah bisa diubah dengan tombol − dan +.\n- **AC2** Jumlah minimal 1.\n- **AC3** Total dan kelayakan voucher dihitung ulang setiap jumlah berubah.\n\n### US-03 — Pilih voucher\n\n> Sebagai pembeli, saya ingin memakai voucher agar belanja lebih hemat.\n\n- **AC1** User membuka daftar voucher dari halaman checkout.\n- **AC2** Jenis voucher: **diskon nominal**, **diskon persen dengan batas maksimal**, dan **gratis ongkir dengan batas maksimal**.\n- **AC3** Setiap voucher punya minimal belanja dan masa berlaku.\n- **AC4** User bisa memakai voucher promo.\n- **AC5** Voucher yang tidak bisa dipakai harus jelas alasannya.\n\n### US-04 — Kode voucher\n\n> Sebagai pembeli, saya ingin memasukkan kode voucher yang saya dapat dari media sosial.\n\n- **AC1** User bisa mengetik kode voucher lalu menekan **Pakai**.\n- **AC2** Kode tidak valid → tampilkan pesan error.\n\n### US-05 — Bayar\n\n> Sebagai pembeli, saya ingin menyelesaikan pesanan dengan satu tombol.\n\n- **AC1** Tombol **Bayar** membuat pesanan dan menampilkan instruksi pembayaran.\n- **AC2** Stok produk berkurang setelah pembayaran berhasil.\n- **AC3** Pesanan yang tidak dibayar dalam **24 jam** dibatalkan otomatis.\n\n## 5. Non-functional\n\n- Halaman checkout harus **cepat** saat traffic 11.11.\n- Tampilan mengikuti file desain yang berstatus *Ready for dev*.\n- Mendukung Android 9+, iOS 15+, dan mobile web (lebar layar mulai 360px).\n\n## 6. Analytics\n\n`checkout_viewed`, `voucher_sheet_opened`, `voucher_applied`, `voucher_failed`, `pay_clicked`, `order_created`."
+  },
+  "phases": [
+    {
+      "id": "requirement-analysis",
+      "title": "Requirement Analysis",
+      "shortTitle": "Requirement",
+      "summary": "Review PRD checkout & voucher menjelang 11.11: temukan aturan harga yang ambigu, kasus berebut stok/kuota, dan kebutuhan performa yang belum terukur.",
+      "requiresLogin": false,
+      "learn": {
+        "objectives": [
+          "Membaca PRD checkout dengan kacamata uang: setiap angka harus punya basis perhitungan, pembulatan, dan batas.",
+          "Menemukan aturan kombinasi (voucher × ongkir × diskon produk) yang belum didefinisikan.",
+          "Memetakan risiko rilis saat traffic puncak: kuota, stok, dan performa."
+        ],
+        "keyPoints": [
+          {
+            "title": "Checkout = kalkulator uang",
+            "body": "Untuk setiap komponen harga, tanya: **dihitung dari apa, dibulatkan ke mana, dan boleh negatif atau tidak**. \"Min. belanja Rp 500.000\" saja belum cukup: sebelum atau sesudah diskon produk? Termasuk ongkir?"
+          },
+          {
+            "title": "Aturan kombinasi sering terlupa",
+            "body": "PRD biasanya menjelaskan tiap voucher sendiri-sendiri. Bug paling mahal justru muncul saat **digabung**: dua voucher sekaligus, voucher ongkir yang lebih besar dari ongkirnya, atau diskon yang lebih besar dari subtotal."
+          },
+          {
+            "title": "Kampanye = race condition",
+            "body": "Saat 11.11, ribuan user berebut **kuota voucher dan stok yang sama**. Tanyakan kapan stok di-reserve, kapan kuota voucher dipotong, dan apa yang terjadi kalau voucher kedaluwarsa di tengah checkout."
+          },
+          {
+            "title": "\"Harus cepat\" bukan requirement",
+            "body": "Non-functional requirement butuh **angka yang bisa diuji**: berapa detik, di persentil berapa, pada beban berapa. Tanpa angka, tidak ada yang bisa bilang lulus atau gagal."
+          }
+        ],
+        "resources": [
+          {
+            "label": "QA Library — artikel manual testing",
+            "url": "/qa-library"
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "qa-lead",
+        "message": "Halo, selamat datang di tim Checkout TokoKita! 👋\n\nKita tinggal beberapa minggu menuju **11.11**. PRD **Checkout v2 & Voucher** dari Bima sudah *Ready for QA Review*, dan desainnya dari Laras juga sudah *Ready for dev*.\n\nSebelum refinement, aku butuh:\n1. **Daftar gap & pertanyaan klarifikasi** untuk Bima. Minimal 8.\n2. **Peta risiko rilis 11.11**: area mana yang paling berbahaya dan bagaimana kita mengujinya.\n\nFokus ke aturan harga dan voucher. Satu salah hitung di 11.11 dikali jutaan transaksi itu mahal sekali."
+      },
+      "assignments": [
+        {
+          "id": "rq-gaps",
+          "title": "Temukan gap & tulis pertanyaan klarifikasi",
+          "instructions": "Review PRD v1.0 di panel kanan. Untuk setiap gap, catat **lokasinya**, **jenis gap**, **pertanyaan** untuk Bima, dan **risikonya** kalau tidak dijawab.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Gap",
+            "minItems": 8,
+            "fields": [
+              {
+                "id": "section",
+                "label": "Lokasi di PRD",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "US-01 Ringkasan",
+                  "US-02 Jumlah barang",
+                  "US-03 Pilih voucher",
+                  "US-04 Kode voucher",
+                  "US-05 Bayar",
+                  "Non-functional",
+                  "Analytics",
+                  "Lainnya"
+                ]
+              },
+              {
+                "id": "type",
+                "label": "Jenis",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Ambiguitas",
+                  "Missing requirement",
+                  "Edge case",
+                  "Konkurensi / race condition",
+                  "Non-functional"
+                ]
+              },
+              {
+                "id": "question",
+                "label": "Pertanyaan untuk PM",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: US-03 AC3 — minimal belanja dihitung dari subtotal sebelum atau sesudah diskon produk? Ongkir ikut dihitung?"
+              },
+              {
+                "id": "impact",
+                "label": "Risiko jika tidak dijawab",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: FE dan BE menghitung berbeda, sehingga voucher terlihat bisa dipakai tapi ditolak saat Bayar."
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 8 gap yang tersebar di beberapa user story.",
+            "Mencakup aturan kombinasi voucher (boleh digabung atau tidak).",
+            "Mencakup basis perhitungan: minimal belanja, pembulatan diskon persen, batas gratis ongkir.",
+            "Mencakup kasus konkurensi: kuota voucher habis, voucher kedaluwarsa, stok berebut.",
+            "Minimal 1 gap non-fungsional dengan usulan angka yang terukur."
+          ],
+          "rubric": [
+            {
+              "id": "count",
+              "label": "Menemukan ≥ 8 gap yang valid",
+              "weight": 2
+            },
+            {
+              "id": "stacking",
+              "label": "Ada gap soal kombinasi voucher (1 voucher atau bisa digabung)",
+              "weight": 2
+            },
+            {
+              "id": "basis",
+              "label": "Ada gap soal basis hitung (min. belanja, pembulatan persen, batas ongkir)",
+              "weight": 2
+            },
+            {
+              "id": "race",
+              "label": "Ada gap konkurensi (kuota, kedaluwarsa, stok di-reserve kapan)",
+              "weight": 2
+            },
+            {
+              "id": "nfr",
+              "label": "Ada gap non-fungsional dengan usulan angka terukur",
+              "weight": 1
+            },
+            {
+              "id": "specific",
+              "label": "Pertanyaan spesifik: menyebut lokasi + skenario + risiko",
+              "weight": 2
+            }
+          ],
+          "answerKey": {
+            "intro": "Ini gap yang sengaja ditanam di PRD v1.0. Temuan lain di luar daftar ini juga bisa valid.",
+            "items": [
+              {
+                "tag": "US-03",
+                "title": "Boleh pakai lebih dari 1 voucher?",
+                "detail": "AC4 hanya bilang \"bisa memakai voucher promo\". Apakah voucher diskon dan voucher ongkir bisa digabung? Kalau tidak, apa yang terjadi saat user memilih voucher kedua?"
+              },
+              {
+                "tag": "US-03",
+                "title": "Basis minimal belanja",
+                "detail": "Dihitung dari harga sebelum atau sesudah diskon produk? Ongkir dan biaya layanan ikut dihitung?"
+              },
+              {
+                "tag": "US-03",
+                "title": "Pembulatan diskon persen",
+                "detail": "Diskon 11% dari Rp 588.000 = Rp 64.680. Dibulatkan ke atas, ke bawah, atau ke ratusan terdekat?"
+              },
+              {
+                "tag": "US-03",
+                "title": "Gratis ongkir melebihi ongkir",
+                "detail": "Voucher s.d. Rp 20.000 untuk ongkir Rp 18.000: potongannya Rp 18.000 atau Rp 20.000? Sisanya hangus?"
+              },
+              {
+                "tag": "US-01",
+                "title": "Total bisa negatif / nol?",
+                "detail": "Kalau diskon lebih besar dari subtotal, apakah total dibatasi? Apakah diskon boleh memotong ongkir dan biaya layanan?"
+              },
+              {
+                "tag": "US-03",
+                "title": "\"Jelas alasannya\" belum operasional",
+                "detail": "AC5 tidak menyebut bentuknya: voucher tidak memenuhi syarat disembunyikan, ditampilkan nonaktif, atau ditolak saat dipilih? Pesannya apa?"
+              },
+              {
+                "tag": "US-02",
+                "title": "Jumlah maksimal per produk",
+                "detail": "Hanya ada minimal 1. Berapa maksimal? Apakah dibatasi stok, batas promo per user, atau angka tetap?"
+              },
+              {
+                "tag": "US-02/03",
+                "title": "Voucher jadi tidak layak setelah jumlah dikurangi",
+                "detail": "AC3 bilang kelayakan dihitung ulang, tapi apa yang terjadi pada voucher yang sudah terpasang? Dilepas otomatis dengan pemberitahuan?"
+              },
+              {
+                "tag": "US-04",
+                "title": "Jenis error kode voucher",
+                "detail": "\"Tidak valid\" mencakup kode salah ketik, kedaluwarsa, kuota habis, dan belum memenuhi syarat. Pesannya dibedakan? Ditampilkan inline atau toast?"
+              },
+              {
+                "tag": "US-05",
+                "title": "Kuota & masa berlaku saat Bayar",
+                "detail": "Voucher yang kuotanya habis atau berakhir 23:59 saat user masih di halaman checkout: dicek ulang saat Bayar? Pesanan ditolak atau harga berubah?"
+              },
+              {
+                "tag": "US-05",
+                "title": "Stok berkurang setelah bayar = oversell",
+                "detail": "Kalau stok baru berkurang setelah bayar, 100 orang bisa membuat pesanan untuk 10 stok terakhir. Kapan stok di-reserve dan kapan dilepas?"
+              },
+              {
+                "tag": "US-05",
+                "title": "Bayar ditekan berkali-kali",
+                "detail": "Tidak ada aturan pencegahan pesanan dobel (idempotency) saat tombol Bayar ditekan dua kali atau jaringan retry."
+              },
+              {
+                "tag": "Non-functional",
+                "title": "\"Harus cepat\" tidak terukur",
+                "detail": "Perlu target angka: misalnya halaman tampil < 2 detik p95 di 4G dan API checkout < 800 ms p95 pada 6× traffic."
+              },
+              {
+                "tag": "Non-functional",
+                "title": "\"Mengikuti desain\" tanpa state",
+                "detail": "Desain jadi acuan, tapi PRD tidak menyebut state loading, error jaringan, dan kosong. Siapa yang memutuskan kalau desain tidak mencakupnya?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "rq-risk",
+          "title": "Buat peta risiko rilis 11.11",
+          "instructions": "Pilih **minimal 5 area berisiko** dari fitur ini. Untuk setiap area, nilai **kemungkinan** dan **dampaknya**, lalu tulis **ide pengujian** yang paling efektif untuk menurunkan risikonya sebelum 11.11.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Risiko",
+            "minItems": 5,
+            "fields": [
+              {
+                "id": "area",
+                "label": "Area",
+                "type": "text",
+                "required": true,
+                "placeholder": "Contoh: Kuota voucher 1111HEMAT"
+              },
+              {
+                "id": "risk",
+                "label": "Apa yang bisa salah",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Kuota habis saat ribuan user menekan Bayar bersamaan, voucher terpakai melebihi kuota."
+              },
+              {
+                "id": "likelihood",
+                "label": "Kemungkinan",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Tinggi",
+                  "Sedang",
+                  "Rendah"
+                ]
+              },
+              {
+                "id": "impact",
+                "label": "Dampak",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Tinggi",
+                  "Sedang",
+                  "Rendah"
+                ]
+              },
+              {
+                "id": "test",
+                "label": "Ide pengujian",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Load test 500 request paralel ke endpoint pakai voucher dengan kuota 100, pastikan tepat 100 berhasil."
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 5 area, bukan 5 variasi dari area yang sama.",
+            "Kemungkinan dan dampak dinilai dengan alasan yang masuk akal untuk konteks 11.11.",
+            "Ide pengujian spesifik dan sesuai risikonya (load test untuk kuota, boundary untuk perhitungan, design review untuk tampilan)."
+          ],
+          "rubric": [
+            {
+              "id": "spread",
+              "label": "≥ 5 area berbeda (harga, voucher, stok, performa, tampilan)",
+              "weight": 2
+            },
+            {
+              "id": "rating",
+              "label": "Penilaian kemungkinan × dampak masuk akal",
+              "weight": 1
+            },
+            {
+              "id": "fit",
+              "label": "Ide pengujian cocok dengan jenis risikonya",
+              "weight": 2
+            },
+            {
+              "id": "ui",
+              "label": "Menyebut risiko tampilan/UX (mis. total tidak jelas, alasan voucher tidak terlihat)",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Contoh peta risiko yang baik. Urutan dan penilaianmu boleh berbeda selama alasannya kuat.",
+            "items": [
+              {
+                "tag": "Tinggi × Tinggi",
+                "title": "Perhitungan total & diskon",
+                "detail": "Salah hitung terjadi di setiap transaksi. Uji dengan tabel keputusan + boundary: min. belanja tepat di batas, persen dengan pembulatan, ongkir di bawah/di atas batas voucher."
+              },
+              {
+                "tag": "Tinggi × Tinggi",
+                "title": "Kuota voucher saat puncak",
+                "detail": "Race condition saat 11.11 00:00. Uji konkurensi di API: N request paralel untuk kuota K harus menghasilkan tepat K sukses."
+              },
+              {
+                "tag": "Sedang × Tinggi",
+                "title": "Oversell stok",
+                "detail": "Uji dua sesi membeli stok terakhir bersamaan, serta pesanan batal yang harus mengembalikan stok."
+              },
+              {
+                "tag": "Tinggi × Sedang",
+                "title": "Performa checkout",
+                "detail": "Load test 6× traffic dengan target p95 yang disepakati. Pantau error rate, bukan hanya rata-rata waktu respons."
+              },
+              {
+                "tag": "Sedang × Sedang",
+                "title": "Tampilan tidak sesuai desain",
+                "detail": "Masalah utama 10.10 adalah \"total tidak jelas\" dan \"alasan voucher tidak terlihat\". Lakukan design review build vs desain sebelum rilis, terutama info harga dan state voucher."
+              },
+              {
+                "tag": "Sedang × Tinggi",
+                "title": "Pesanan dobel",
+                "detail": "Tekan Bayar berkali-kali, matikan jaringan setelah tekan Bayar lalu retry. Pastikan hanya 1 pesanan yang dibuat."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "design-review",
+      "title": "Design Review: Desain vs Implementasi",
+      "shortTitle": "Design Review",
+      "summary": "Bandingkan build staging dengan file desain yang sudah Ready for dev. Temukan deviasi visual, state yang hilang, dan masalah aksesibilitas, lalu pisahkan bug implementasi dari gap desain.",
+      "requiresLogin": true,
+      "learn": {
+        "objectives": [
+          "Membandingkan implementasi dengan file desain secara sistematis, per frame dan per section.",
+          "Memakai alat ukur (inspect desain dan DevTools browser) untuk spacing, ukuran, warna, dan tipografi.",
+          "Membedakan bug implementasi, gap desain, dan hal yang perlu dikonfirmasi ke desainer.",
+          "Menentukan severity temuan visual berdasarkan dampaknya ke user, bukan besarnya selisih piksel."
+        ],
+        "keyPoints": [
+          {
+            "title": "Design review bukan sekadar mencari selisih piksel",
+            "body": "Urutkan perhatianmu dari yang paling berdampak: **informasi uang dan data** (harga, diskon, total) → **state & perilaku** (error, disabled, sticky, truncation) → **aksesibilitas** (kontras, tap target) → baru **konsistensi visual** (spacing, ukuran font, radius)."
+          },
+          {
+            "title": "Bandingkan dengan checklist, bukan feeling",
+            "body": "Untuk setiap frame, cek dari atas ke bawah:\n\n1. **Layout & spacing**: jarak antar section, padding, ukuran komponen\n2. **Tipografi**: ukuran, weight, line height\n3. **Warna**: fill, teks, border sesuai token\n4. **Copy**: teks dan label sama persis\n5. **Konten**: harga coret, badge, tanda minus, ikon\n6. **State**: default, selected, disabled, error\n7. **Perilaku**: sticky, scroll, truncation, catatan desainer"
+          },
+          {
+            "title": "Ukur, jangan menebak",
+            "body": "Di file desain, klik elemen untuk melihat spec-nya, lalu pilih satu elemen dan arahkan kursor ke elemen lain untuk mengukur jarak. Di build staging, klik kanan elemen → **Inspect** → tab **Computed** untuk melihat nilai sebenarnya. Pakai **Device toolbar** di DevTools dengan lebar **375px** agar sama dengan frame desain."
+          },
+          {
+            "title": "Bug implementasi vs gap desain",
+            "body": "**Bug implementasi**: desain sudah jelas, build berbeda. Laporkan ke engineer.\n\n**Gap desain**: desain tidak mendefinisikan sesuatu (misalnya state loading), lalu engineer mengarang sendiri. Ini bukan bug. Tanyakan ke desainer dan minta keputusan.\n\n**Perlu konfirmasi**: desain dan PRD saling bertentangan, atau desainnya sendiri terlihat bermasalah."
+          },
+          {
+            "title": "Severity untuk temuan visual",
+            "body": "**High**: informasi menyesatkan (harga/diskon), state penting hilang sampai user bingung atau gagal, gagal standar aksesibilitas (kontras teks < 4.5:1).\n\n**Medium**: perilaku berbeda dari desain (tidak sticky, tidak terpotong), tap target terlalu kecil.\n\n**Low**: selisih spacing, ukuran font, radius, atau copy yang tidak mengubah makna."
+          }
+        ],
+        "resources": [
+          {
+            "label": "WebAIM Contrast Checker",
+            "url": "https://webaim.org/resources/contrastchecker/"
+          },
+          {
+            "label": "QA Library — artikel manual testing",
+            "url": "/qa-library"
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "designer",
+        "message": "Hai! Aku Laras, product designer di tim Checkout 👋\n\nReza bilang build **v5.2.0-rc1** sudah di staging dan \"sudah sesuai desain\". Tapi waktu aku buka sekilas di HP, rasanya ada yang beda 😅\n\nBisa tolong bantu **design review** sebelum masuk regression?\n1. Bandingkan build staging dengan file desain **Checkout v2**. Catat setiap perbedaan, lengkap dengan nilai di desain vs di build.\n2. Kalau ada hal yang **belum aku desain** tapi muncul di build, catat juga sebagai pertanyaan buat aku.\n3. Tulis **ringkasan design QA** untuk aku dan Reza: mana yang wajib di-fix sebelum 11.11.\n\nJangan lupa baca **catatan desainer** (sticky note kuning) di samping frame ya. Itu bagian dari spec."
+      },
+      "prdAddendum": {
+        "version": "v1.1",
+        "markdown": "_Jawaban PM dan desainer atas pertanyaan klarifikasi dari QA. Bagian ini **menggantikan** isi v1.0 jika ada yang bertentangan._\n\n### Voucher (US-03, US-04)\n- **1 voucher per transaksi.** Voucher toko dan voucher ongkir **tidak bisa digabung** untuk 11.11.\n- Minimal belanja dihitung dari **subtotal produk** (harga setelah diskon produk), **sebelum** ongkir dan biaya layanan.\n- Diskon persen dibulatkan **ke bawah** ke rupiah terdekat. Diskon tidak pernah membuat total < biaya layanan + ongkir.\n- Gratis ongkir: potongan = ongkir sebenarnya, maksimal sesuai batas voucher. Sisa batas tidak bisa dipakai untuk hal lain.\n- Voucher yang belum memenuhi syarat **tetap ditampilkan tapi tidak bisa dipilih**, disertai kekurangan belanjanya.\n- Kode tidak ditemukan → error **inline** di bawah field: *\"Kode voucher tidak ditemukan. Cek lagi penulisannya.\"*\n- Kelayakan dan kuota voucher **dicek ulang saat Bayar**. Kalau sudah tidak berlaku, pesanan tidak dibuat dan user diminta memilih ulang.\n\n### Jumlah barang (US-02)\n- Maksimal **10 per produk** per pesanan. Tombol − nonaktif di jumlah 1, tombol + nonaktif di jumlah 10.\n\n### Bayar & stok (US-05)\n- Stok **di-reserve saat pesanan dibuat** (bukan saat bayar) dan dilepas kembali kalau pesanan batal.\n- Tombol Bayar tidak boleh membuat pesanan dobel saat ditekan berkali-kali.\n\n### Non-functional\n- Target performa: halaman checkout tampil < **2 detik** (p95) pada 4G, API checkout < **800 ms** (p95) pada 6× traffic normal.\n\n### Desain\n- File desain **Checkout v2** adalah acuan visual. Perilaku yang tertulis di **catatan desainer** pada file desain wajib diikuti."
+      },
+      "design": {
+        "label": "Buka file desain",
+        "path": "/qa-simulator/sandbox/tokokita-design",
+        "description": "File desain Checkout v2 berstatus Ready for dev. Klik elemen untuk melihat spec, ukur jarak antar elemen, dan baca catatan desainer."
+      },
+      "sandbox": {
+        "label": "Buka TokoKita Staging",
+        "path": "/qa-simulator/sandbox/tokokita",
+        "description": "Build checkout v5.2.0-rc1. Buka di HP atau pakai Device toolbar DevTools dengan lebar 375px, lalu coba juga alur voucher dan tombol Bayar."
+      },
+      "assignments": [
+        {
+          "id": "dr-findings",
+          "title": "Catat deviasi desain vs implementasi",
+          "instructions": "Bandingkan setiap frame di file desain dengan build staging. Untuk setiap perbedaan, tulis **nilai di desain** dan **nilai di build** sespesifik mungkin (angka, warna hex, teks persis), lalu tentukan kategori dan severity-nya.\n\nCoba juga alur yang tidak terlihat di layar pertama: buka daftar voucher, pilih voucher yang belum memenuhi syarat, masukkan kode yang salah, dan scroll halaman.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Temuan",
+            "minItems": 8,
+            "fields": [
+              {
+                "id": "frame",
+                "label": "Frame desain",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "01 Checkout — Default",
+                  "02 Voucher — Pilih voucher",
+                  "03 Voucher — Kode tidak valid",
+                  "04 Komponen & state"
+                ]
+              },
+              {
+                "id": "element",
+                "label": "Elemen",
+                "type": "text",
+                "required": true,
+                "placeholder": "Contoh: Tombol Bayar di bottom bar"
+              },
+              {
+                "id": "category",
+                "label": "Kategori",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Spacing & ukuran",
+                  "Tipografi",
+                  "Warna",
+                  "Copy / teks",
+                  "Konten & data",
+                  "State & interaksi",
+                  "Layout & perilaku",
+                  "Aksesibilitas"
+                ]
+              },
+              {
+                "id": "expected",
+                "label": "Di desain",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: tinggi 48, radius 12"
+              },
+              {
+                "id": "actual",
+                "label": "Di build",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: tinggi 44, radius 8"
+              },
+              {
+                "id": "severity",
+                "label": "Severity",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "High",
+                  "Medium",
+                  "Low"
+                ]
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 8 deviasi yang valid dari beberapa frame, bukan hanya frame 01.",
+            "Nilai desain vs build ditulis spesifik (angka px, hex, teks persis), bukan \"agak beda\".",
+            "Menemukan deviasi informasi uang: tanda minus diskon dan harga coret.",
+            "Menemukan deviasi state & perilaku: bottom bar tidak sticky, voucher tidak memenuhi syarat bisa dipilih, error kode berupa toast.",
+            "Menemukan minimal 1 masalah aksesibilitas: kontras tombol atau ukuran tap target stepper.",
+            "Severity mengikuti dampak ke user, bukan besar selisihnya."
+          ],
+          "rubric": [
+            {
+              "id": "count",
+              "label": "Menemukan ≥ 8 deviasi yang valid",
+              "weight": 2
+            },
+            {
+              "id": "money",
+              "label": "Menemukan deviasi info uang (tanda minus diskon / harga coret hilang)",
+              "weight": 2
+            },
+            {
+              "id": "states",
+              "label": "Menemukan ≥ 2 deviasi state/perilaku (sticky, voucher tidak layak, error kode)",
+              "weight": 2
+            },
+            {
+              "id": "a11y",
+              "label": "Menemukan masalah aksesibilitas (kontras tombol / tap target)",
+              "weight": 2
+            },
+            {
+              "id": "precise",
+              "label": "Nilai desain vs build ditulis spesifik dan terukur",
+              "weight": 2
+            },
+            {
+              "id": "severity",
+              "label": "Severity masuk akal (info uang & state > selisih spacing)",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Ini 13 deviasi yang sengaja ditanam di build v5.2.0-rc1. Penamaan dan pengelompokanmu boleh berbeda. Misalnya tinggi dan radius tombol boleh ditulis sebagai satu temuan.",
+            "items": [
+              {
+                "tag": "High · Konten",
+                "title": "DR-06 Diskon tanpa tanda minus",
+                "detail": "Desain: \"−Rp 50.000\" (hijau). Build: \"Rp 50.000\". Diskon terbaca seperti biaya tambahan, padahal \"total tidak jelas\" adalah masalah utama 10.10. PRD US-01 AC5 juga mewajibkan diskon tampil sebagai pengurang."
+              },
+              {
+                "tag": "High · State",
+                "title": "DR-12 Voucher tidak memenuhi syarat bisa dipilih",
+                "detail": "Desain (frame 02 + catatan): SUPER11 tampil abu-abu, tidak bisa dipilih, dan ada teks \"Belanja Rp 412.000 lagi…\". Build: tampil normal, bisa dipilih, lalu gagal dengan toast \"Voucher tidak dapat digunakan.\" tanpa alasan."
+              },
+              {
+                "tag": "High · State",
+                "title": "DR-13 Error kode voucher berupa toast generik",
+                "detail": "Desain (frame 03 + catatan): error inline \"Kode voucher tidak ditemukan. Cek lagi penulisannya.\" + border field merah #DC2626. Build: toast \"Terjadi kesalahan.\" dan field tidak berubah."
+              },
+              {
+                "tag": "High · Aksesibilitas",
+                "title": "DR-01 Warna tombol utama",
+                "detail": "Desain: Primary / Action #C2410C (kontras teks putih 5.2:1). Build: #F97316 (Brand / Orange, kontras 2.8:1, gagal WCAG AA). Berlaku untuk tombol Bayar, Pakai Voucher, dan tombol Pakai."
+              },
+              {
+                "tag": "Medium · Perilaku",
+                "title": "DR-09 Bottom bar tidak sticky",
+                "detail": "Desain (catatan frame 01): bottom bar selalu menempel di bawah layar. Build: ikut ter-scroll, sehingga total dan tombol Bayar hilang dari layar sampai user scroll ke paling bawah."
+              },
+              {
+                "tag": "Medium · Konten",
+                "title": "DR-08 Harga coret & badge diskon hilang",
+                "detail": "Desain: Sepatu Lari menampilkan \"Rp 599.000\" dicoret + badge \"-23%\". Build: hanya \"Rp 459.000\". Melanggar PRD US-01 AC4."
+              },
+              {
+                "tag": "Medium · Aksesibilitas",
+                "title": "DR-10 Tap target stepper terlalu kecil",
+                "detail": "Desain: tombol − dan + berukuran 32×32 (catatan: minimum 32×32). Build: 24×24."
+              },
+              {
+                "tag": "Medium · Perilaku",
+                "title": "DR-07 Alamat tidak dipotong 2 baris",
+                "detail": "Desain (catatan frame 01): detail alamat maksimal 2 baris dengan ellipsis. Build: seluruh alamat tampil hingga 4–5 baris dan mendorong konten ke bawah."
+              },
+              {
+                "tag": "Low · Copy",
+                "title": "DR-05 Label entry voucher",
+                "detail": "Desain: \"Pilih Voucher\" (sama dengan judul sheet). Build: \"Gunakan Promo\"."
+              },
+              {
+                "tag": "Low · Tipografi",
+                "title": "DR-03 Total di bottom bar",
+                "detail": "Desain: 18px / weight 700 (token Price / Total). Build: 16px / weight 600."
+              },
+              {
+                "tag": "Low · Spacing",
+                "title": "DR-02 Ukuran tombol utama",
+                "detail": "Desain: tinggi 48, radius 12. Build: tinggi 44, radius 8."
+              },
+              {
+                "tag": "Low · Spacing",
+                "title": "DR-04 Spacing section",
+                "detail": "Desain: jarak antar section 12, padding section 16. Build: jarak 8, padding 12."
+              },
+              {
+                "tag": "Low · Layout",
+                "title": "DR-11 Urutan baris ringkasan",
+                "detail": "Desain: Subtotal → Ongkos kirim → Biaya layanan → Diskon voucher. Build: Subtotal → Diskon voucher → Ongkos kirim → Biaya layanan."
+              }
+            ]
+          }
+        },
+        {
+          "id": "dr-gaps",
+          "title": "Tulis pertanyaan untuk desainer (gap desain)",
+          "instructions": "Catat hal yang **tidak didefinisikan di file desain**: state yang tidak ada, kondisi data ekstrem, atau perilaku yang dikarang sendiri oleh engineer di build. Ini **bukan bug**, tapi keputusan yang harus diambil desainer sebelum rilis.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Pertanyaan",
+            "minItems": 4,
+            "fields": [
+              {
+                "id": "area",
+                "label": "Area",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Checkout",
+                  "Bottom bar & Bayar",
+                  "Daftar voucher",
+                  "Kode voucher",
+                  "Komponen",
+                  "Lainnya"
+                ]
+              },
+              {
+                "id": "kind",
+                "label": "Jenis gap",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "State tidak ada (loading/empty/error)",
+                  "Data ekstrem",
+                  "Perilaku dikarang engineer",
+                  "Desain vs PRD bertentangan",
+                  "Lainnya"
+                ]
+              },
+              {
+                "id": "question",
+                "label": "Pertanyaan untuk desainer",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: Bagaimana tampilan tombol Bayar saat pesanan sedang diproses? Di build muncul spinner + \"Memproses…\", tapi tidak ada di desain."
+              },
+              {
+                "id": "why",
+                "label": "Kenapa penting",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: Tanpa state loading yang jelas, user bisa menekan Bayar berkali-kali."
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 4 gap desain yang valid.",
+            "Menyadari bahwa state loading tombol Bayar ada di build tapi tidak ada di desain, lalu menuliskannya sebagai pertanyaan, bukan bug.",
+            "Mencakup kondisi data ekstrem, misalnya nama produk panjang atau total dengan banyak digit.",
+            "Mencakup state error/empty yang tidak didesain, misalnya gagal jaringan atau tidak ada voucher."
+          ],
+          "rubric": [
+            {
+              "id": "count",
+              "label": "Menemukan ≥ 4 gap desain yang valid",
+              "weight": 2
+            },
+            {
+              "id": "loading",
+              "label": "Mengangkat state loading Bayar sebagai gap, bukan bug",
+              "weight": 2
+            },
+            {
+              "id": "extreme",
+              "label": "Ada pertanyaan soal data ekstrem",
+              "weight": 1
+            },
+            {
+              "id": "error",
+              "label": "Ada pertanyaan soal state error/empty",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Contoh gap desain di Checkout v2. Pertanyaan lain yang relevan juga valid.",
+            "items": [
+              {
+                "tag": "Perilaku dikarang",
+                "title": "Loading tombol Bayar",
+                "detail": "Build menampilkan spinner + \"Memproses…\" dan tombol nonaktif. Desain tidak punya state ini. Ini keputusan bagus, tapi harus disahkan desainer (copy, warna, durasi)."
+              },
+              {
+                "tag": "State",
+                "title": "Gagal jaringan / gagal Bayar",
+                "detail": "Tidak ada desain untuk error saat membuat pesanan atau memuat voucher. Pesan dan tombol coba lagi seperti apa?"
+              },
+              {
+                "tag": "State",
+                "title": "Tidak ada voucher tersedia",
+                "detail": "Empty state daftar voucher belum didesain."
+              },
+              {
+                "tag": "State",
+                "title": "Voucher dilepas otomatis",
+                "detail": "PRD v1.1: kalau jumlah dikurangi dan voucher jadi tidak layak, apa yang dilihat user? Toast, banner, atau perubahan di entry voucher?"
+              },
+              {
+                "tag": "Data ekstrem",
+                "title": "Nama produk & total panjang",
+                "detail": "Nama produk 3 baris lebih, atau total Rp 12.345.678 di bottom bar dengan tombol lebar 156: apakah teks terpotong atau tombol mengecil?"
+              },
+              {
+                "tag": "Data ekstrem",
+                "title": "Layar 360px & ukuran font besar",
+                "detail": "Frame didesain di 375px, sementara PRD mendukung mulai 360px. Bagaimana layout saat font sistem diperbesar?"
+              },
+              {
+                "tag": "Komponen",
+                "title": "Stepper di jumlah maksimal",
+                "detail": "PRD v1.1 menetapkan maksimal 10 dan tombol + nonaktif, tapi frame komponen hanya menunjukkan state minimal."
+              },
+              {
+                "tag": "Desain vs PRD",
+                "title": "Voucher kedaluwarsa di tengah checkout",
+                "detail": "PRD v1.1 mewajibkan cek ulang saat Bayar. Desain belum punya tampilan untuk \"voucher sudah tidak berlaku, pilih ulang\"."
+              }
+            ]
+          }
+        },
+        {
+          "id": "dr-report",
+          "title": "Tulis ringkasan design QA",
+          "instructions": "Tulis ringkasan untuk Laras (desainer) dan Reza (frontend lead) yang bisa dibaca dalam 1 menit: **jumlah temuan per severity**, **temuan yang wajib di-fix sebelum 11.11** beserta alasannya, **yang bisa jadi follow-up**, dan **keputusan apa yang ditunggu dari desainer**.",
+          "input": {
+            "type": "textarea",
+            "minLength": 250,
+            "placeholder": "Hasil design review build v5.2.0-rc1 vs Checkout v2: … temuan (… High, … Medium, … Low). Wajib fix sebelum 11.11: … karena … Follow-up: … Menunggu keputusan desain: …"
+          },
+          "expectedOutput": [
+            "Ringkasan jumlah temuan per severity.",
+            "Daftar blocker 11.11 yang berhubungan dengan masalah 10.10 (info harga dan alasan voucher) dan aksesibilitas.",
+            "Memisahkan temuan visual minor sebagai follow-up, bukan blocker.",
+            "Menyebut gap desain yang butuh keputusan Laras, terutama state loading Bayar."
+          ],
+          "rubric": [
+            {
+              "id": "summary",
+              "label": "Ada ringkasan jumlah temuan per severity",
+              "weight": 1
+            },
+            {
+              "id": "blockers",
+              "label": "Blocker dipilih berdasarkan dampak ke user & tujuan 11.11",
+              "weight": 2
+            },
+            {
+              "id": "followup",
+              "label": "Temuan minor dipisah sebagai follow-up",
+              "weight": 1
+            },
+            {
+              "id": "decisions",
+              "label": "Menyebut keputusan yang ditunggu dari desainer",
+              "weight": 1
+            },
+            {
+              "id": "concise",
+              "label": "Ringkas dan bisa ditindaklanjuti",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Contoh ringkasan yang baik. Kalimatmu tidak harus sama, yang penting isinya mencakup poin-poin ini.",
+            "items": [
+              {
+                "tag": "Ringkasan",
+                "title": "13 deviasi: 4 High, 4 Medium, 5 Low",
+                "detail": "Build v5.2.0-rc1 belum sesuai desain Checkout v2. Ada juga 4+ gap desain yang perlu keputusan."
+              },
+              {
+                "tag": "Wajib fix",
+                "title": "Info harga & voucher (DR-06, DR-08, DR-12, DR-13)",
+                "detail": "Langsung berhubungan dengan alasan drop-off 10.10: \"total tidak jelas\" dan \"voucher tidak bisa dipakai tanpa alasan\". Target ticket CS voucher tidak akan tercapai kalau ini dirilis."
+              },
+              {
+                "tag": "Wajib fix",
+                "title": "Aksesibilitas & bottom bar (DR-01, DR-09)",
+                "detail": "Tombol Bayar gagal kontras AA, dan total + tombol Bayar tidak terlihat sampai user scroll. Keduanya menyentuh CTA utama yang diukur di conversion."
+              },
+              {
+                "tag": "Follow-up",
+                "title": "Spacing, tipografi, copy (DR-02/03/04/05/07/10/11)",
+                "detail": "Bisa di-fix di sprint yang sama kalau sempat, tapi tidak memblokir rilis. Tap target (DR-10) sebaiknya ikut di-fix karena perubahannya kecil."
+              },
+              {
+                "tag": "Keputusan desain",
+                "title": "Loading Bayar & state error",
+                "detail": "Laras perlu mengesahkan state loading Bayar yang sudah ada di build, dan mendesain error jaringan serta voucher kedaluwarsa saat Bayar."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

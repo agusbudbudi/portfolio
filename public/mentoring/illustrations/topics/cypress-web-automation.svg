@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" fill="#e3f2ff"/>
+  <circle cx="200" cy="200" r="140" fill="#c9e4ff" opacity=".55"/>
+  <ellipse cx="200" cy="340" rx="124" ry="10" fill="#36394a" opacity=".08"/>
+  <!-- browser -->
+  <rect x="64" y="90" width="272" height="216" rx="16" fill="#fff"/>
+  <path d="M64 106a16 16 0 0 1 16-16h240a16 16 0 0 1 16 16v14H64z" fill="#36394a"/>
+  <circle cx="82" cy="105" r="4.5" fill="#ef4444"/>
+  <circle cx="96" cy="105" r="4.5" fill="#f59e0b"/>
+  <circle cx="110" cy="105" r="4.5" fill="#22c55e"/>
+  <rect x="128" y="99" width="150" height="12" rx="6" fill="#4a4d63"/>
+  <!-- runner sidebar -->
+  <rect x="64" y="120" width="120" height="186" fill="#f6f8fa"/>
+  <path d="M64 290v0a16 16 0 0 0 16 16h104V290z" fill="#f6f8fa"/>
+  <rect x="78" y="134" width="60" height="7" rx="3.5" fill="#36394a"/>
+  <g>
+    <circle cx="84" cy="162" r="7" fill="#22c55e"/>
+    <path d="M80.5 162l2.5 2.5 4.5-5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="98" y="159" width="70" height="6" rx="3" fill="#cdd2d9"/>
+  </g>
+  <g>
+    <circle cx="84" cy="186" r="7" fill="#22c55e"/>
+    <path d="M80.5 186l2.5 2.5 4.5-5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="98" y="183" width="58" height="6" rx="3" fill="#cdd2d9"/>
+  </g>
+  <g>
+    <circle cx="84" cy="210" r="7" fill="#22c55e"/>
+    <path d="M80.5 210l2.5 2.5 4.5-5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="98" y="207" width="66" height="6" rx="3" fill="#cdd2d9"/>
+  </g>
+  <g>
+    <circle cx="84" cy="234" r="7" fill="#3b9eff"/>
+    <circle cx="84" cy="234" r="2.5" fill="#fff"/>
+    <rect x="98" y="231" width="52" height="6" rx="3" fill="#cdd2d9"/>
+  </g>
+  <rect x="78" y="260" width="92" height="28" rx="8" fill="#e3f2ff"/>
+  <text x="124" y="279" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#3b9eff">3 / 4 pass</text>
+  <!-- app preview with form -->
+  <rect x="200" y="138" width="120" height="10" rx="5" fill="#36394a"/>
+  <rect x="200" y="162" width="120" height="24" rx="7" fill="#fff" stroke="#cdd2d9" stroke-width="2"/>
+  <rect x="210" y="171" width="50" height="6" rx="3" fill="#cdd2d9"/>
+  <rect x="200" y="196" width="120" height="24" rx="7" fill="#fff" stroke="#3b9eff" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <rect x="210" y="205" width="36" height="6" rx="3" fill="#818898"/>
+  <rect x="200" y="234" width="120" height="28" rx="8" fill="#3b9eff"/>
+  <rect x="238" y="245" width="44" height="6" rx="3" fill="#fff"/>
+  <!-- cursor -->
+  <path d="M290 248l0 34 9-8 7 15 7-3-7-15 12-1z" fill="#36394a" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- play badge -->
+  <circle cx="330" cy="98" r="26" fill="#3b9eff" stroke="#fff" stroke-width="5"/>
+  <path d="M323 86l18 12-18 12z" fill="#fff"/>
+  <path d="M52 246l3.5 9 9 3.5-9 3.5-3.5 9-3.5-9-9-3.5 9-3.5z" fill="#3b9eff"/>
+</svg>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, CheckCircle2, Mail, MessageCircle, Phone, User } from 'lucide-react';
+import { CheckCircle2, Mail, MessageCircle, Phone, User } from 'lucide-react';
 import type { BookingConfig, MentorConfig, TopicConfig } from '../../../../types/mentoring';
 import { getAvailableDates } from '../../../../lib/dates';
 import { generateWhatsAppLink } from '../../../../lib/whatsapp';
@@ -9,7 +9,9 @@ import TimeField from '../../../mentoring/components/booking/TimeField';
 import IntroField from '../../../mentoring/components/booking/IntroField';
 import TopicsSelect from '../superadmin/TopicsSelect';
 import MentorSelect from '../mentor/MentorSelect';
-import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
+import { ADMIN_CARD, ADMIN_CARD_BODY } from '../shared/adminCard';
+import DashboardCardHeader, { CARD_ACTION_PRIMARY, CARD_ACTION_SECONDARY, FORM_FOOTER_STICKY_MOBILE } from '../shared/DashboardCardHeader';
+import { MentoringIcon } from '../../../../components/illustration/ProductIcons';
 
 // Self-serve counterpart to AdminBookingForm — same field components, but
 // (a) respects the real public booking window (daysInAdvanceMin/Max +
@@ -176,18 +178,14 @@ const MemberBookingForm: React.FC<MemberBookingFormProps> = ({
 
   return (
     <div className={ADMIN_CARD}>
-      <div className={ADMIN_CARD_HEADER}>
-        <button
-          onClick={onClose}
-          className="p-1.5 -ml-1 rounded-lg text-ld-fog hover:text-ld-graphite hover:bg-ld-cloud cursor-pointer border-none bg-transparent transition-colors"
-          aria-label="Kembali"
-        >
-          <ArrowLeft size={17} />
-        </button>
-        <h2 className="text-sm font-semibold text-ld-onyx m-0">Booking Mentoring</h2>
-      </div>
+      <DashboardCardHeader
+        onBack={onClose}
+        icon={<MentoringIcon size={44} />}
+        eyebrow="Sesi mentoring"
+        title="Booking Mentoring"
+      />
 
-      <form onSubmit={handleSubmit} noValidate className={`${ADMIN_CARD_BODY} w-full`}>
+      <form onSubmit={handleSubmit} noValidate className={`${ADMIN_CARD_BODY} w-full max-md:pb-24`}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <div className="flex flex-col">
             <div className="px-5 py-2.5 bg-ld-cloud border border-b-0 border-ld-frost rounded-t-xl">
@@ -285,18 +283,18 @@ const MemberBookingForm: React.FC<MemberBookingFormProps> = ({
 
         {submitError && <p className="text-sm text-red-500 mt-6 mb-0">{submitError}</p>}
 
-        <div className="flex justify-end gap-2 mt-6 pt-5 border-t border-ld-frost/60">
+        <div className={`mt-6 ${FORM_FOOTER_STICKY_MOBILE}`}>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-ld-frost bg-white text-sm text-ld-graphite cursor-pointer"
+            className={CARD_ACTION_SECONDARY}
           >
             Batal
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-medium cursor-pointer border-none disabled:opacity-60 disabled:cursor-not-allowed"
+            className={CARD_ACTION_PRIMARY}
           >
             {saving ? 'Menyimpan…' : 'Booking Sekarang'}
           </button>

@@ -110,7 +110,7 @@ const BookingRulesTab: React.FC = () => {
           </div>
 
           {availableDays.length === 0 && (
-            <p className="mt-4 text-sm text-red-500 m-0">Minimal satu hari harus aktif — config tidak akan bisa disimpan.</p>
+            <p className="mt-4 text-sm text-red-500 m-0">Minimal satu hari harus aktif. Kalau tidak, config tidak bisa disimpan.</p>
           )}
 
           {orphanedDays.length > 0 && (

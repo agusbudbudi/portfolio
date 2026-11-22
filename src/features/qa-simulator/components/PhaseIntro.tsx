@@ -8,7 +8,7 @@ import Collapse from './Collapse';
 import NumberedTable from './NumberedTable';
 import PixelMosaic from '../../../components/illustration/PixelMosaic';
 import SandboxIllustration from './SandboxIllustration';
-import TeamAvatar from './TeamAvatar';
+import SquareAvatar from './SquareAvatar';
 import { splitBriefBubbles } from '../lib/phaseIntro';
 
 interface BriefCardProps {
@@ -35,11 +35,11 @@ export const BriefCard: React.FC<BriefCardProps> = ({ phase, team, onReplay }) =
           aria-expanded={open}
           className="flex-1 min-w-0 flex items-center gap-3 bg-transparent border-none cursor-pointer text-left p-0"
         >
-          {from && <TeamAvatar member={from} />}
+          {from && <SquareAvatar initials={from.initials} color={from.color} src={from.avatar} title={`${from.name} · ${from.role}`} />}
           <span className="min-w-0 flex-1">
-            <span className="flex items-center gap-2 text-sm">
-              <span className="font-semibold text-ld-onyx truncate">{from?.name}</span>
-              <span className="text-xs text-ld-fog truncate hidden sm:inline">{from?.role}</span>
+            <span className="flex items-center gap-1.5 text-sm">
+              <span className="text-[15px] font-bold text-ld-onyx truncate">{from?.name}</span>
+              <span className="px-1 rounded bg-ld-frost text-[10px] font-medium text-ld-slate truncate hidden sm:inline">{from?.role}</span>
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-ld-lilac text-ld-violet text-[10px] font-semibold shrink-0">
                 <MessageSquare size={10} /> {bubbles.length} pesan
               </span>
@@ -52,16 +52,16 @@ export const BriefCard: React.FC<BriefCardProps> = ({ phase, team, onReplay }) =
         </button>
       </div>
 
-      <Collapse open={open} className="px-4 md:px-5 pb-4 pt-3 border-t border-ld-frost/60 bg-ld-cloud/60">
-          <div className="pl-12 space-y-1.5">
+      <Collapse open={open} className="pb-4 pt-2 border-t border-ld-frost/60">
+          <div>
             {bubbles.map((b, i) => (
-              <div key={i} className="w-fit max-w-full rounded-2xl rounded-tl-sm bg-white border border-ld-frost px-3.5 py-2.5">
-                <Markdown className="text-sm">{b}</Markdown>
+              <div key={i} className="pl-16 md:pl-17 pr-4 md:pr-5 py-1 hover:bg-ld-cloud transition-colors">
+                <Markdown className="text-[15px] text-ld-graphite">{b}</Markdown>
               </div>
             ))}
           </div>
           {onReplay && (
-            <div className="pl-12 mt-3">
+            <div className="pl-16 md:pl-17 pr-4 mt-2">
               <button
                 type="button"
                 onClick={onReplay}
@@ -127,19 +127,35 @@ export const LearnCard: React.FC<{ phase: SimulatorPhase; defaultOpen: boolean }
 // Dark "tool" banner linking to the buggy staging app for the phase. Midnight
 // surface + white mosaic + animated bug-hunt art (docs/DESIGN.md → Mentor.QA
 // Adaptations). Illustration hides below md so the copy keeps its room.
-export const SandboxCard: React.FC<{ sandbox: NonNullable<SimulatorPhase['sandbox']> }> = ({ sandbox }) => (
+export const SandboxCard: React.FC<{
+  sandbox: NonNullable<SimulatorPhase['sandbox']>;
+  design?: SimulatorPhase['design'];
+}> = ({ sandbox, design }) => (
   <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-ld-midnight to-[#1f3a5f] text-white">
     <PixelMosaic variant="white" className="absolute -top-2 right-4 opacity-60" style={{ width: 'min(40%, 220px)' }} />
     <div className="relative grid grid-cols-1 md:grid-cols-[1fr_auto] items-center gap-4 p-5 md:p-6">
       <div className="min-w-0">
-        <p className="m-0 text-base md:text-lg font-semibold leading-snug">Environment staging</p>
+        <p className="m-0 text-base md:text-lg font-semibold leading-snug">{design ? 'File desain & environment staging' : 'Environment staging'}</p>
+        {design && <p className="m-0 mt-1 text-sm text-white/75 leading-relaxed max-w-xl">{design.description}</p>}
         <p className="m-0 mt-1 text-sm text-white/75 leading-relaxed max-w-xl">{sandbox.description}</p>
-        <div className="mt-4">
+        <div className="mt-4 flex flex-wrap gap-2">
+          {design && (
+            <a
+              href={design.path}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-white text-ld-onyx text-sm font-semibold no-underline hover:bg-ld-lilac transition-colors"
+            >
+              {design.label} <ExternalLink size={14} />
+            </a>
+          )}
           <a
             href={sandbox.path}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-white text-ld-onyx text-sm font-semibold no-underline hover:bg-ld-lilac transition-colors"
+            className={design
+              ? 'inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-white/60 text-white text-sm font-semibold no-underline hover:bg-white/10 transition-colors'
+              : 'inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-white text-ld-onyx text-sm font-semibold no-underline hover:bg-ld-lilac transition-colors'}
           >
             {sandbox.label} <ExternalLink size={14} />
           </a>

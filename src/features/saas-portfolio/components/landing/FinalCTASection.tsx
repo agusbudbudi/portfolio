@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import HeroBadge from '../../../../components/common/HeroBadge';
 
 const FinalCTASection: React.FC = () => {
   return (
@@ -8,10 +9,7 @@ const FinalCTASection: React.FC = () => {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-2xl bg-ld-midnight px-8 py-10 text-center">
           <div className="relative z-10 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-white text-xs font-medium mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-ld-lilac" />
-              Gratis Selamanya
-            </div>
+            <HeroBadge tone="onBlue">Gratis Selamanya</HeroBadge>
 
             <h2 className="font-ld-display font-semibold text-2xl sm:text-4xl lg:text-5xl text-white tracking-[-0.025em] leading-[1.02] mb-4">
               Siap Mendapatkan Interview QA Berikutnya?

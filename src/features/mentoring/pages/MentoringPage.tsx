@@ -31,9 +31,9 @@ const MentoringPage: React.FC = () => {
     <div className="w-full bg-ld-canvas">
       <HeroSection />
       <StatsStrip />
+      <TopicsSection />
       <WhyDifferentSection />
       <BenefitsSection />
-      <TopicsSection />
       <ToolsSection />
       <HowItWorksSection />
       <MentorProfileSection />
