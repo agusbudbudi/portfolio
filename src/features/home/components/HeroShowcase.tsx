@@ -2,7 +2,6 @@ import React from 'react';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import TrophyIllustration from '../../qa-simulator/components/TrophyIllustration';
 import { MentoringIcon, QaLibraryIcon, QaPortfolioIcon, QaSimulatorIcon } from '../../../components/illustration/ProductIcons';
-import PixelMosaic from '../../../components/illustration/PixelMosaic';
 import CartoonAvatar from '../../../components/illustration/CartoonAvatar';
 import { useConfig } from '../../../hooks/useConfig';
 
@@ -58,8 +57,6 @@ const HeroShowcase: React.FC = () => {
       initial={reduce ? 'show' : 'hidden'}
       animate="show"
     >
-      <PixelMosaic variant="blue" className="absolute -top-8 -right-10" style={{ width: 'min(60%, 300px)' }} />
-
       {/* achievement — left */}
       <motion.div variants={pop(1.9)} className={`relative w-fit origin-bottom-left flex items-center gap-2.5 rounded-xl bg-white border border-ld-frost pl-2.5 pr-4 py-2 ${SHADOW}`}>
         <TrophyIllustration className="w-12 h-10 shrink-0" />
