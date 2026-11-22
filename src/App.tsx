@@ -35,6 +35,8 @@ const TokoKitaAppSandboxPage = lazy(() => import('./features/qa-simulator/pages/
 const TokoKitaDesignPage = lazy(() => import('./features/qa-simulator/pages/TokoKitaDesignPage'));
 const AdminPage = lazy(() => import('./features/admin/pages/AdminPage'));
 const LoginScreen = lazy(() => import('./features/admin/components/shared/LoginScreen'));
+const OnboardingPage = lazy(() => import('./features/onboarding/pages/OnboardingPage'));
+import OnboardingGate from './features/onboarding/components/OnboardingGate';
 const Snackbar = lazy(() => import('./features/admin/components/shared/Snackbar').then((m) => ({ default: m.Snackbar })));
 const NotFound = lazy(() => import('./components/NotFound'));
 
@@ -183,6 +185,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <OnboardingGate />
       <Routes>
         <Route
           path="/"
@@ -412,15 +415,25 @@ function App() {
           }
         />
         <Route
-          path="/dashboard/*"
+          path="/onboarding"
           element={
             <Suspense fallback={<LoadingState className="min-h-screen" />}>
               <Seo
-                path="/dashboard"
-                title="Admin Dashboard | Mentor.QA"
-                description="Dashboard admin mentoring QA."
+                path="/onboarding"
+                title="Temukan Program yang Cocok | Mentor.QA"
+                description="Jawab 4 pertanyaan singkat dan dapatkan rekomendasi program QA yang paling cocok untukmu."
                 noindex
               />
+              <OnboardingPage />
+              <Snackbar />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/dashboard/*"
+          element={
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
+              {/* Seo lives in AdminPage: title depends on the user's role. */}
               <AdminPage />
             </Suspense>
           }

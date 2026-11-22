@@ -4,6 +4,7 @@
 // (not a UUID) since it's user-facing here (admin Users list).
 import type { Client, Row } from '@libsql/client';
 import { getClient, migrate } from './turso.js';
+import type { OnboardingStatus } from '../../src/types/onboarding.js';
 
 export interface UserRecord {
   id: string;
@@ -12,8 +13,15 @@ export interface UserRecord {
   name: string;
   avatarUrl: string | null;
   roles: string[];
+  onboardingStatus: OnboardingStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+// NULL = account created before onboarding shipped → treated as done, so
+// existing users never get the onboarding flow (PRD FR-2).
+export function toOnboardingStatus(value: unknown): OnboardingStatus {
+  return value === 'pending' || value === 'skipped' ? value : 'completed';
 }
 
 function rowToUser(row: Row): UserRecord {
@@ -24,6 +32,7 @@ function rowToUser(row: Row): UserRecord {
     name: row.name as string,
     avatarUrl: (row.avatar_url as string | null) ?? null,
     roles: JSON.parse(row.roles as string) as string[],
+    onboardingStatus: toOnboardingStatus(row.onboarding_status),
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
   };
@@ -64,8 +73,8 @@ export async function upsertUserByGoogleSub(input: UpsertUserInput): Promise<Use
   const now = new Date().toISOString();
   const id = await generateUniqueUserId(db);
   const result = await db.execute({
-    sql: `INSERT INTO users (id, google_sub, email, name, avatar_url, roles, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, '["mentee"]', ?, ?)
+    sql: `INSERT INTO users (id, google_sub, email, name, avatar_url, roles, onboarding_status, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, '["mentee"]', 'pending', ?, ?)
           ON CONFLICT(google_sub) DO UPDATE SET
             email = excluded.email,
             name = excluded.name,

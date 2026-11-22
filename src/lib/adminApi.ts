@@ -2,6 +2,7 @@
 import type { BookingConfig, BookingRulesDocument, MentorConfig, TopicsDocument } from '../types/mentoring';
 import type { PortfolioData, PortfolioRecord, PortfolioStatus, PortfolioSummary, SkillsDocument, ToolsDocument } from '../types/portfolio';
 import type { QaLibraryArticle, QaLibraryArticleData, QaLibraryArticleSummary, QaLibraryCategoriesDocument } from '../types/qaLibrary';
+import type { OnboardingAnswers, OnboardingConfig, OnboardingMeResponse, OnboardingResultRecord, OnboardingStatus } from '../types/onboarding';
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -36,6 +37,8 @@ export interface AdminUser {
   name: string;
   avatarUrl: string | null;
   roles: string[];
+  /** Absent on sessions stored before onboarding shipped → treat as done. */
+  onboardingStatus?: OnboardingStatus;
 }
 
 export interface AdminUserRecord extends AdminUser {
@@ -415,4 +418,22 @@ export function apiUpdateQaLibraryArticle(
 
 export function apiDeleteQaLibraryArticle(slug: string, token: string): Promise<void> {
   return apiDeleteAuth(`/api/qa-library/${encodeURIComponent(slug)}`, token);
+}
+
+// ---- Onboarding (new-user questionnaire + program recommendation) ----
+
+export function apiGetOnboardingConfig(): Promise<OnboardingConfig> {
+  return apiGet<OnboardingConfig>('/api/onboarding/config');
+}
+
+export function apiGetOnboardingMe(token: string): Promise<OnboardingMeResponse> {
+  return apiGetAuth<OnboardingMeResponse>('/api/onboarding/me', token);
+}
+
+export function apiSubmitOnboarding(answers: OnboardingAnswers, token: string): Promise<{ status: OnboardingStatus; result: OnboardingResultRecord }> {
+  return apiPostAuth('/api/onboarding', { answers }, token);
+}
+
+export function apiSkipOnboarding(token: string): Promise<{ status: OnboardingStatus }> {
+  return apiPostAuth('/api/onboarding/skip', {}, token);
 }
