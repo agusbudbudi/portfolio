@@ -94,6 +94,9 @@ export function validateQaLibraryArticleData(data: unknown, validCategoryIds: Se
   if (typeof data.status !== 'string' || !ARTICLE_STATUSES.includes(data.status as QaLibraryArticleStatus)) {
     errors.push(`status: wajib salah satu dari ${ARTICLE_STATUSES.join(', ')}.`);
   }
+  if (data.visibility !== undefined && data.visibility !== 'library' && data.visibility !== 'course-only') {
+    errors.push('visibility: wajib salah satu dari library, course-only.');
+  }
   if (data.seoMetaTitle !== undefined && typeof data.seoMetaTitle !== 'string') errors.push('seoMetaTitle: harus string.');
   if (data.seoMetaDescription !== undefined && typeof data.seoMetaDescription !== 'string') errors.push('seoMetaDescription: harus string.');
   if (data.seoOgImage !== undefined && typeof data.seoOgImage !== 'string') errors.push('seoOgImage: harus string.');

@@ -4,6 +4,8 @@ import type { QaLibraryArticle, QaLibraryArticleData, QaLibraryArticleStatus, Qa
 import { slugify, isValidSlug } from '../../../../lib/portfolioValidation';
 import { computeReadingTimeMinutes } from '../../../../lib/qaLibraryValidation';
 import { useAdminUsersStore } from '../../../../store/useAdminUsersStore';
+import type { QaCourseMembership } from '../../../../types/qaCourse';
+import { fetchCoursesForArticle } from '../../../qa-course/lib/courseApi';
 import ImageUploadField from './ImageUploadField';
 import QaLibraryDocumentUploadField from './QaLibraryDocumentUploadField';
 import QaLibraryAuthorSelect from './QaLibraryAuthorSelect';
@@ -56,8 +58,16 @@ const QaLibraryArticleForm: React.FC<QaLibraryArticleFormProps> = ({ onClose, on
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const { users, load: loadUsers } = useAdminUsersStore();
+  // Published courses using this article: unpublishing it would break a lesson.
+  const [usedBy, setUsedBy] = useState<QaCourseMembership[]>([]);
 
   useEffect(() => { loadUsers(); }, [loadUsers]);
+  useEffect(() => {
+    if (!article) return;
+    let cancelled = false;
+    fetchCoursesForArticle(article.id).then((m) => { if (!cancelled) setUsedBy(m); });
+    return () => { cancelled = true; };
+  }, [article]);
 
   const handleAuthorChange = (user: { id: string; name: string; avatarUrl: string | null }) => {
     setData((d) => ({ ...d, authorUserId: user.id, authorName: user.name, authorAvatarUrl: user.avatarUrl ?? undefined }));
@@ -210,6 +220,29 @@ const QaLibraryArticleForm: React.FC<QaLibraryArticleFormProps> = ({ onClose, on
                     className={`px-3.5 py-2 rounded-lg text-sm font-medium cursor-pointer border transition-colors capitalize ${data.status === s ? 'bg-ld-violet text-white border-ld-violet' : 'bg-white text-ld-graphite border-ld-frost hover:border-ld-violet'}`}
                   >
                     {s}
+                  </button>
+                ))}
+              </div>
+              {data.status === 'draft' && usedBy.length > 0 && (
+                <p className="m-0 mt-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800 leading-relaxed">
+                  Artikel ini dipakai di course {usedBy.map((m) => m.title).join(', ')}. Kalau disimpan sebagai draft, lesson ini tidak bisa dibuka peserta dan dilewati dari hitungan lulus.
+                </p>
+              )}
+            </FormField>
+
+            <FormField
+              label="Tampil di"
+              hint={<span className="block text-[11px] text-ld-fog mt-1">Course-only: tidak muncul di daftar QA Library, tapi tetap bisa dibuka dari course.</span>}
+            >
+              <div className="flex items-center gap-2">
+                {([['library', 'QA Library'], ['course-only', 'Course saja']] as const).map(([v, label]) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setData({ ...data, visibility: v })}
+                    className={`px-3.5 py-2 rounded-lg text-sm font-medium cursor-pointer border transition-colors ${(data.visibility ?? 'library') === v ? 'bg-ld-violet text-white border-ld-violet' : 'bg-white text-ld-graphite border-ld-frost hover:border-ld-violet'}`}
+                  >
+                    {label}
                   </button>
                 ))}
               </div>

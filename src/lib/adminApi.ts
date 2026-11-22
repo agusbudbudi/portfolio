@@ -2,6 +2,7 @@
 import type { BookingConfig, BookingRulesDocument, MentorConfig, TopicsDocument } from '../types/mentoring';
 import type { PortfolioData, PortfolioRecord, PortfolioStatus, PortfolioSummary, SkillsDocument, ToolsDocument } from '../types/portfolio';
 import type { QaLibraryArticle, QaLibraryArticleData, QaLibraryArticleSummary, QaLibraryCategoriesDocument } from '../types/qaLibrary';
+import type { QaCourse, QaCourseData, QaCourseDetail, QaCourseLearner, QaCourseSummary } from '../types/qaCourse';
 import type { OnboardingAnswers, OnboardingConfig, OnboardingMeResponse, OnboardingResultRecord, OnboardingStatus } from '../types/onboarding';
 
 export class UnauthorizedError extends Error {
@@ -418,6 +419,39 @@ export function apiUpdateQaLibraryArticle(
 
 export function apiDeleteQaLibraryArticle(slug: string, token: string): Promise<void> {
   return apiDeleteAuth(`/api/qa-library/${encodeURIComponent(slug)}`, token);
+}
+
+// ---- QA Course (admin) ----
+
+export type QaCourseWritePayload = QaCourseData & { slug: string };
+
+export function apiListQaCoursesAdmin(token: string): Promise<{ courses: QaCourseSummary[] }> {
+  return apiGetAuth<{ courses: QaCourseSummary[] }>('/api/qa-courses/admin', token);
+}
+
+export function apiGetQaCourseAdmin(slug: string, token: string): Promise<QaCourseDetail> {
+  return apiGetAuth<QaCourseDetail>(`/api/qa-courses/${encodeURIComponent(slug)}`, token);
+}
+
+export function apiCreateQaCourse(payload: QaCourseWritePayload, token: string): Promise<QaCourse> {
+  return apiPostAuth<QaCourse>('/api/qa-courses', payload, token);
+}
+
+export function apiUpdateQaCourse(
+  currentSlug: string,
+  payload: QaCourseWritePayload,
+  updatedAt: string | undefined,
+  token: string
+): Promise<QaCourse> {
+  return apiPut<QaCourse>(`/api/qa-courses/${encodeURIComponent(currentSlug)}`, payload, updatedAt, 'x-qa-course-updated-at', token);
+}
+
+export function apiGetQaCourseLearners(slug: string, token: string): Promise<{ learners: QaCourseLearner[] }> {
+  return apiGetAuth<{ learners: QaCourseLearner[] }>(`/api/qa-courses/admin/learners/${encodeURIComponent(slug)}`, token);
+}
+
+export function apiDeleteQaCourse(slug: string, token: string): Promise<void> {
+  return apiDeleteAuth(`/api/qa-courses/${encodeURIComponent(slug)}`, token);
 }
 
 // ---- Onboarding (new-user questionnaire + program recommendation) ----

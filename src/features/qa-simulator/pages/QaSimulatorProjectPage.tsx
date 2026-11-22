@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { SIM_CARD } from '../lib/ui';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   AlertCircle, ArrowRight, FileUser, ChevronDown, ChevronRight, Clock, Cloud, CloudOff, FileText, HardDrive, History, Loader2, X,
 } from 'lucide-react';
@@ -10,6 +10,7 @@ import Seo from '../../../components/common/Seo';
 import { useSimulatorProject } from '../hooks/useSimulatorData';
 import { useSimulatorProgress, type SyncStatus } from '../hooks/useSimulatorProgress';
 import { useLeaveGuard } from '../hooks/useLeaveGuard';
+import { useCourse } from '../../qa-course/hooks/useCourse';
 import { phaseScore, phaseState, projectCompletion, type PhaseState } from '../lib/progress';
 import AssignmentCard from '../components/AssignmentCard';
 import PhaseStepper from '../components/PhaseStepper';
@@ -66,8 +67,16 @@ const QaSimulatorProjectPage: React.FC = () => {
 };
 
 const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) => {
-  const { progress, status, error, updateAssignment, loggedIn } = useSimulatorProgress(project.id);
+  const { progress, status, error, updateAssignment, loggedIn, flush } = useSimulatorProgress(project.id);
   const [searchParams, setSearchParams] = useSearchParams();
+  // Opened from a QA Course (?course=slug): keep that param on every phase
+  // switch so the "back to course" banner survives navigation.
+  const courseSlug = searchParams.get('course');
+  const phaseParams = (phase: string): Record<string, string> => (courseSlug ? { phase, course: courseSlug } : { phase });
+  const navigate = useNavigate();
+  // In course mode the "next step" after a finished phase is the course's
+  // next lesson (e.g. the next module's first article), not the next phase.
+  const { course, lessons } = useCourse(courseSlug);
 
   const states = project.phases.map((_, i) => phaseState(project, i, progress, loggedIn));
   const requested = project.phases.findIndex((p) => p.id === searchParams.get('phase'));
@@ -93,17 +102,34 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
   const completion = projectCompletion(project, progress);
   const allDone = states.every((s) => s === 'completed');
   const nextIndex = activeIndex + 1 < project.phases.length ? activeIndex + 1 : null;
+  const missionLesson = lessons.find(
+    (l) => l.item.kind === 'mission' && l.item.projectId === project.id && l.item.phaseId === phase.id
+  );
+  // Only when this phase really is a mission of that course; otherwise the
+  // page behaves exactly as when opened straight from QA Simulator.
+  const courseNext = course && missionLesson
+    ? { lesson: lessons.slice(missionLesson.index + 1).find((l) => l.available), courseSlug: course.slug }
+    : null;
+  const [leavingToCourse, setLeavingToCourse] = useState(false);
+  const continueCourse = async () => {
+    if (!courseNext) return;
+    setLeavingToCourse(true);
+    // Progress saves on a ~1s debounce; write it now so the next lesson
+    // (unlocked by finishing this mission) isn't read as still locked.
+    await flush();
+    navigate(courseNext.lesson ? courseNext.lesson.href : `/courses/${courseNext.courseSlug}/selesai`);
+  };
 
   const selectPhase = (i: number) => {
     if (states[i] === 'login-required') { setLoginPrompt(i); return; }
-    setSearchParams({ phase: project.phases[i].id }, { replace: false });
+    setSearchParams(phaseParams(project.phases[i].id), { replace: false });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const closeLoginPrompt = () => {
     setLoginPrompt(null);
     setLinkPromptDismissed(true);
-    if (linkGated) setSearchParams({ phase: project.phases[activeIndex].id }, { replace: true });
+    if (linkGated) setSearchParams(phaseParams(project.phases[activeIndex].id), { replace: true });
   };
   const showSnackbar = useSnackbarStore((s) => s.show);
   // Signed in from the modal: jump straight to the phase they were trying to open.
@@ -111,7 +137,7 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
   const handleLoggedIn = (target: number) => {
     setLoginPrompt(null);
     setLinkPromptDismissed(true);
-    setSearchParams({ phase: project.phases[target].id }, { replace: false });
+    setSearchParams(phaseParams(project.phases[target].id), { replace: false });
     window.scrollTo({ top: 0, behavior: 'smooth' });
     showSnackbar('Login berhasil! Progress kamu sekarang tersimpan di akun.', 'success');
   };
@@ -205,6 +231,17 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
           />
         )}
       </AnimatePresence>
+
+      {courseSlug && (
+        <div className="print:hidden bg-emerald-50 border-b border-emerald-100">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-3 text-sm">
+            <span className="text-emerald-800">Misi praktik dari QA Course. Selesaikan tugas di phase ini, lalu kembali ke course.</span>
+            <Link to={`/courses/${encodeURIComponent(courseSlug)}`} className="inline-flex items-center gap-1 font-medium text-emerald-800 no-underline shrink-0 hover:underline">
+              Kembali ke course <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* ── Project bar: where am I + overall progress + phase navigation ── */}
       {/* Resume bar: one line, full width, glued right under the 56px Labs
@@ -352,7 +389,7 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
                         // Pin the phase in the URL on first interaction — otherwise
                         // submitting the last task re-derives the default phase and
                         // jumps away before the learner sees their self-assessment.
-                        if (!searchParams.get('phase')) setSearchParams({ phase: phase.id }, { replace: true });
+                        if (!searchParams.get('phase')) setSearchParams(phaseParams(phase.id), { replace: true });
                         updateAssignment(assignment.id, updater);
                       }}
                     />
@@ -404,10 +441,24 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
                   {unassessed > 0
                     ? <>{unassessed} tugas belum di-self-assess.</>
                     : <>Skor self-assessment phase ini: <strong>{score ?? 0}%</strong>.</>}
-                  {allDone ? ' Bawa hasil kerjamu ke sesi mentoring untuk di-review mentor.' : ' Lanjutkan ke phase berikutnya.'}
+                  {courseNext
+                    ? (courseNext.lesson ? ' Lanjutkan ke lesson berikutnya di course.' : ' Ini misi terakhir di course.')
+                    : allDone ? ' Bawa hasil kerjamu ke sesi mentoring untuk di-review mentor.' : ' Lanjutkan ke phase berikutnya.'}
                 </p>
               </div>
-              {nextIndex !== null ? (
+              {courseNext ? (
+                <button
+                  type="button"
+                  onClick={continueCourse}
+                  disabled={leavingToCourse}
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium border-none cursor-pointer transition-colors shrink-0 max-w-full disabled:opacity-60 disabled:cursor-wait"
+                >
+                  {courseNext.lesson ? (
+                    <><span className="hidden sm:inline shrink-0">Lanjut:</span> <span className="truncate max-w-[220px]">{courseNext.lesson.title}</span></>
+                  ) : 'Selesaikan course'}
+                  <ArrowRight size={14} className="shrink-0" />
+                </button>
+              ) : nextIndex !== null ? (
                 <button
                   type="button"
                   onClick={() => selectPhase(nextIndex)}

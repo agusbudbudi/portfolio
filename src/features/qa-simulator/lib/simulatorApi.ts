@@ -1,5 +1,7 @@
 import { ApiError, UnauthorizedError } from '../../../lib/adminApi';
-import type { ProjectProgress, ProjectProgressRecord, SimulatorIndex, SimulatorProject } from '../../../types/qaSimulator';
+import type {
+  ProjectProgress, ProjectProgressRecord, PublicSimulatorPortfolio, SimulatorIndex, SimulatorProject,
+} from '../../../types/qaSimulator';
 
 const CONFIG_BASE = '/qa-simulator/config';
 
@@ -54,3 +56,27 @@ export async function apiPutSimulatorProgress(projectId: string, data: ProjectPr
   }
   return res.json();
 }
+
+/** Turn the public share link on (mints a token if none) or off (revokes it). */
+export async function apiSetSimulatorShare(projectId: string, enabled: boolean, token: string): Promise<ProjectProgressRecord> {
+  const res = await fetch(`/api/simulator/progress/${encodeURIComponent(projectId)}/share`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
+    body: JSON.stringify({ enabled }),
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (res.status === 404) throw new ApiError(404, 'Progress belum tersimpan di akunmu. Coba muat ulang halaman.');
+  if (!res.ok) throw new ApiError(res.status, `Gagal mengubah pengaturan share (HTTP ${res.status}).`);
+  return res.json();
+}
+
+/** Public, no auth. null = link revoked or never existed. */
+export async function apiGetPublicSimulatorPortfolio(shareId: string): Promise<PublicSimulatorPortfolio | null> {
+  const res = await fetch(`/api/simulator/public/${encodeURIComponent(shareId)}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new ApiError(res.status, `Gagal memuat portfolio (HTTP ${res.status}).`);
+  return res.json();
+}
+
+export const simulatorShareUrl = (projectId: string, shareId: string) =>
+  `${window.location.origin}/qa-simulator/${projectId}/portfolio/${shareId}`;

@@ -3,6 +3,8 @@
 // only — no public reader page yet, but `slug`/`status` are already shaped
 // for the eventual /mentoring/portfolio/[slug] route.
 
+import type { PublicSimulatorPortfolio } from './qaSimulator';
+
 export interface ToolConfig {
   id: string;
   name: string;
@@ -226,7 +228,7 @@ export type PortfolioStatus = 'draft' | 'published';
 // sequence. Profile/hero, bio+tools, socials and CTA are not in this list —
 // they're structurally fixed (always header-first / footer-last).
 export type PortfolioSectionId =
-  | 'experience' | 'education' | 'skills' | 'projects' | 'qaDeliverables'
+  | 'experience' | 'education' | 'skills' | 'projects' | 'qaDeliverables' | 'qaSimulator'
   | 'endorsements' | 'certifications' | 'articles' | 'githubActivity' | 'githubRepos';
 
 export const PORTFOLIO_SECTION_LABELS: Record<PortfolioSectionId, string> = {
@@ -235,6 +237,7 @@ export const PORTFOLIO_SECTION_LABELS: Record<PortfolioSectionId, string> = {
   skills: 'Skills',
   projects: 'Project Showcase',
   qaDeliverables: 'QA Documentation & Deliverables',
+  qaSimulator: 'QA Simulator',
   endorsements: 'Endorsement',
   certifications: 'Certification',
   articles: 'Article',
@@ -243,9 +246,16 @@ export const PORTFOLIO_SECTION_LABELS: Record<PortfolioSectionId, string> = {
 };
 
 export const DEFAULT_SECTION_ORDER: PortfolioSectionId[] = [
-  'experience', 'education', 'skills', 'projects', 'qaDeliverables',
+  'experience', 'education', 'skills', 'projects', 'qaDeliverables', 'qaSimulator',
   'endorsements', 'certifications', 'articles', 'githubActivity', 'githubRepos',
 ];
+
+// Which finished QA Simulator projects the owner chose to show as cards.
+// Display choice only, not a permission: a card renders only while that
+// project's public share link is on (qa_simulator_progress.share_id).
+export interface QaSimulatorPortfolioConfig {
+  projectIds: string[];
+}
 
 export interface PortfolioData {
   profile: PortfolioProfile;
@@ -262,6 +272,8 @@ export interface PortfolioData {
   cta: PortfolioCta;
   githubActivity: GithubActivityConfig;
   githubRepos: GithubRepoEntry[];
+  /** Optional: portfolios saved before this section shipped have no value. */
+  qaSimulator?: QaSimulatorPortfolioConfig;
   sectionOrder: PortfolioSectionId[];
 }
 
@@ -274,6 +286,12 @@ export interface PortfolioRecord {
   createdAt: string;
   updatedAt: string;
   ownerId: string | null;
+  /**
+   * Only on GET /api/portfolios/:slug — the owner's shared QA Simulator
+   * portfolios for data.qaSimulator.projectIds, joined server-side. Never
+   * part of a write payload.
+   */
+  simulatorShares?: PublicSimulatorPortfolio[];
 }
 
 // Lightweight row for the admin list view — no nested data blob.

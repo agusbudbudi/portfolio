@@ -23,6 +23,7 @@ const LINK_GROUPS: { title: string; links: { label: string; to: string; external
   {
     title: 'Program',
     links: [
+      { label: 'QA Course', to: '/courses' },
       { label: 'QA Simulator', to: '/qa-simulator' },
       { label: 'QA Library', to: '/qa-library' },
       { label: 'Portfolio QA', to: '/portfolio' },

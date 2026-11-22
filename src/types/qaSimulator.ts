@@ -4,6 +4,8 @@
 // admin CMS would write. Keep this file free of browser-only imports — the
 // API validates progress documents against ProjectProgress.
 
+import type { QaCourseWithProgress } from './qaCourse';
+
 export type SimulatorFieldType = 'text' | 'textarea' | 'select' | 'url';
 
 export interface SimulatorField {
@@ -153,4 +155,21 @@ export interface ProjectProgressRecord {
   projectId: string;
   data: ProjectProgress;
   updatedAt: string;
+  /** Public share token; null/absent = private. See PublicSimulatorPortfolio. */
+  shareId?: string | null;
+}
+
+/**
+ * What a public share link serves (GET /api/simulator/public/:shareId) and
+ * what the SaaS portfolio embeds as cards. Only submitted assignments are
+ * included — drafts never leave the owner's account.
+ */
+export interface PublicSimulatorPortfolio {
+  projectId: string;
+  shareId: string;
+  data: ProjectProgress;
+  updatedAt: string;
+  owner: { name: string; avatarUrl?: string };
+  /** Published courses using this project, with the owner's article progress. */
+  courses?: QaCourseWithProgress[];
 }

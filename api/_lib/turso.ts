@@ -120,6 +120,33 @@ async function runMigrate(): Promise<void> {
         updated_at TEXT NOT NULL
       )`,
       `CREATE INDEX IF NOT EXISTS qa_library_articles_status_category ON qa_library_articles(status, category_id)`,
+      // QA Course: modules + items live as one JSON document per course
+      // (always saved whole by the admin, compare-and-swap on updated_at).
+      `CREATE TABLE IF NOT EXISTS qa_courses (
+        id TEXT PRIMARY KEY,
+        slug TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        level TEXT NOT NULL,
+        estimated_hours REAL NOT NULL,
+        thumbnail_url TEXT,
+        status TEXT NOT NULL DEFAULT 'draft',
+        modules TEXT NOT NULL DEFAULT '[]',
+        seo_meta_title TEXT,
+        seo_meta_description TEXT,
+        seo_og_image TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
+      // Articles a user marked done inside a course. Mission completion is
+      // not stored here: it is read from qa_simulator_progress.
+      `CREATE TABLE IF NOT EXISTS qa_course_progress (
+        user_id TEXT NOT NULL,
+        course_id TEXT NOT NULL,
+        article_id TEXT NOT NULL,
+        completed_at TEXT NOT NULL,
+        PRIMARY KEY (user_id, course_id, article_id)
+      )`,
       `CREATE TABLE IF NOT EXISTS qa_simulator_progress (
         user_id TEXT NOT NULL,
         project_id TEXT NOT NULL,
@@ -150,11 +177,20 @@ async function runMigrate(): Promise<void> {
   await ensureColumn(db, 'qa_library_articles', 'author_user_id', 'TEXT');
   await ensureColumn(db, 'qa_library_articles', 'author_avatar_url', 'TEXT');
   await ensureColumn(db, 'qa_library_articles', 'view_count', 'INTEGER NOT NULL DEFAULT 0');
+  await ensureColumn(db, 'qa_library_articles', 'visibility', "TEXT NOT NULL DEFAULT 'library'");
   // Deliberately no DEFAULT: rows that existed before onboarding shipped stay
   // NULL and are read as 'completed' (they never see onboarding); new users
   // are inserted with 'pending' explicitly in userStore.
   await ensureColumn(db, 'users', 'onboarding_status', 'TEXT');
   await ensureColumn(db, 'users', 'onboarding_completed_at', 'TEXT');
+  // Public share link for a finished QA Simulator portfolio. NULL = private
+  // (the default); a random token = anyone with the link can view it. Turning
+  // sharing off clears it, turning it back on mints a new token, so a leaked
+  // old link stays dead.
+  await ensureColumn(db, 'qa_simulator_progress', 'share_id', 'TEXT');
+  await db.execute(
+    'CREATE UNIQUE INDEX IF NOT EXISTS qa_simulator_progress_share_id ON qa_simulator_progress(share_id) WHERE share_id IS NOT NULL'
+  );
 
   await carryOverLegacyMentors(db);
 }

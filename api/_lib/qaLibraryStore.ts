@@ -3,7 +3,9 @@
 // discrete, independently-edited records expected to grow over time, unlike
 // the small whole-doc categories resource (see configStore.ts).
 import type { Row } from '@libsql/client';
-import type { QaLibraryArticle, QaLibraryArticleData, QaLibraryArticleSummary } from '../../src/types/qaLibrary';
+import type {
+  QaLibraryArticle, QaLibraryArticleData, QaLibraryArticleSummary, QaLibraryArticleVisibility,
+} from '../../src/types/qaLibrary';
 import { getClient, migrate } from './turso.js';
 
 export type QaLibraryWriteResult =
@@ -30,6 +32,7 @@ function rowToArticle(row: Row): QaLibraryArticle {
     readingTimeMinutes: row.reading_time_minutes as number,
     viewCount: row.view_count as number,
     status: row.status as QaLibraryArticle['status'],
+    visibility: ((row.visibility as string | null) ?? 'library') as QaLibraryArticleVisibility,
     seoMetaTitle: (row.seo_meta_title as string | null) ?? undefined,
     seoMetaDescription: (row.seo_meta_description as string | null) ?? undefined,
     seoOgImage: (row.seo_og_image as string | null) ?? undefined,
@@ -48,6 +51,7 @@ function rowToSummary(row: Row): QaLibraryArticleSummary {
     thumbnailUrl: (row.thumbnail_url as string | null) ?? undefined,
     tags: JSON.parse(row.tags as string) as string[],
     status: row.status as QaLibraryArticleSummary['status'],
+    visibility: ((row.visibility as string | null) ?? 'library') as QaLibraryArticleVisibility,
     readingTimeMinutes: row.reading_time_minutes as number,
     authorName: row.author_name as string,
     authorAvatarUrl: (row.author_avatar_url as string | null) ?? undefined,
@@ -55,17 +59,20 @@ function rowToSummary(row: Row): QaLibraryArticleSummary {
   };
 }
 
-export async function listQaLibraryArticles(opts?: { publishedOnly?: boolean; categoryId?: string }): Promise<QaLibraryArticleSummary[]> {
+export async function listQaLibraryArticles(
+  opts?: { publishedOnly?: boolean; categoryId?: string; libraryOnly?: boolean }
+): Promise<QaLibraryArticleSummary[]> {
   await migrate();
   const db = getClient();
   const conditions: string[] = [];
   const args: string[] = [];
   if (opts?.publishedOnly) conditions.push(`status = 'published'`);
+  if (opts?.libraryOnly) conditions.push(`visibility != 'course-only'`);
   if (opts?.categoryId) { conditions.push('category_id = ?'); args.push(opts.categoryId); }
   const where = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : '';
   const result = await db.execute({
     sql: `SELECT id, slug, title, category_id, excerpt, thumbnail_url, tags, status, reading_time_minutes,
-                 author_name, author_avatar_url, updated_at
+                 author_name, author_avatar_url, updated_at, visibility
           FROM qa_library_articles${where} ORDER BY updated_at DESC`,
     args,
   });
@@ -117,14 +124,14 @@ export async function createQaLibraryArticle(
   await db.execute({
     sql: `INSERT INTO qa_library_articles
             (id, slug, title, category_id, excerpt, body, thumbnail_url, doc_url, doc_filename, doc_size_bytes,
-             tags, author_name, author_user_id, author_avatar_url, reading_time_minutes, status,
+             tags, author_name, author_user_id, author_avatar_url, reading_time_minutes, status, visibility,
              seo_meta_title, seo_meta_description, seo_og_image, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       id, slug, data.title, data.categoryId, data.excerpt, data.body,
       data.thumbnailUrl ?? null, data.docUrl ?? null, data.docFilename ?? null, data.docSizeBytes ?? null,
       JSON.stringify(data.tags), data.authorName, data.authorUserId ?? null, data.authorAvatarUrl ?? null,
-      readingTimeMinutes, data.status,
+      readingTimeMinutes, data.status, data.visibility ?? 'library',
       data.seoMetaTitle ?? null, data.seoMetaDescription ?? null, data.seoOgImage ?? null,
       now, now,
     ],
@@ -147,7 +154,7 @@ export async function updateQaLibraryArticle(
     sql: `UPDATE qa_library_articles SET
             slug = ?, title = ?, category_id = ?, excerpt = ?, body = ?, thumbnail_url = ?, doc_url = ?,
             doc_filename = ?, doc_size_bytes = ?, tags = ?, author_name = ?, author_user_id = ?, author_avatar_url = ?,
-            reading_time_minutes = ?, status = ?, seo_meta_title = ?, seo_meta_description = ?, seo_og_image = ?,
+            reading_time_minutes = ?, status = ?, visibility = ?, seo_meta_title = ?, seo_meta_description = ?, seo_og_image = ?,
             updated_at = ?
           WHERE id = ? AND updated_at IS ?
           RETURNING created_at, view_count`,
@@ -155,7 +162,7 @@ export async function updateQaLibraryArticle(
       slug, data.title, data.categoryId, data.excerpt, data.body, data.thumbnailUrl ?? null, data.docUrl ?? null,
       data.docFilename ?? null, data.docSizeBytes ?? null, JSON.stringify(data.tags), data.authorName,
       data.authorUserId ?? null, data.authorAvatarUrl ?? null,
-      readingTimeMinutes, data.status, data.seoMetaTitle ?? null, data.seoMetaDescription ?? null,
+      readingTimeMinutes, data.status, data.visibility ?? 'library', data.seoMetaTitle ?? null, data.seoMetaDescription ?? null,
       data.seoOgImage ?? null, updatedAt,
       id, expectedUpdatedAt,
     ],

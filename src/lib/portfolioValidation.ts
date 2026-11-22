@@ -257,6 +257,27 @@ function validateSkillEntries(entries: unknown, validSkillIds: Set<string>, erro
   });
 }
 
+const SIMULATOR_PROJECT_ID_RE = /^[a-z0-9-]+$/;
+
+// Optional: absent on portfolios saved before the QA Simulator section shipped.
+function validateQaSimulator(qaSimulator: unknown, errors: string[]): void {
+  if (qaSimulator === undefined) return;
+  if (!isRecord(qaSimulator)) { errors.push('qaSimulator: harus objek.'); return; }
+  const ids = qaSimulator.projectIds;
+  if (!Array.isArray(ids)) { errors.push('qaSimulator.projectIds: wajib array.'); return; }
+  if (ids.length > 20) errors.push('qaSimulator.projectIds: maksimal 20 project.');
+  const seen = new Set<string>();
+  ids.forEach((id, i) => {
+    if (typeof id !== 'string' || !SIMULATOR_PROJECT_ID_RE.test(id)) {
+      errors.push(`qaSimulator.projectIds[${i}]: id project tidak valid.`);
+    } else if (seen.has(id)) {
+      errors.push(`qaSimulator.projectIds[${i}]: duplikat "${id}".`);
+    } else {
+      seen.add(id);
+    }
+  });
+}
+
 function validateSectionOrder(sectionOrder: unknown, errors: string[]): void {
   if (!Array.isArray(sectionOrder)) { errors.push('sectionOrder: wajib array.'); return; }
   if (sectionOrder.length !== DEFAULT_SECTION_ORDER.length) {
@@ -478,6 +499,7 @@ export function validatePortfolioData(
   validateProjects(data.projects, validToolIds, errors);
   validateSkillEntries(data.skillEntries, validSkillIds, errors);
   validateQaDeliverables(data.qaDeliverables, errors);
+  validateQaSimulator(data.qaSimulator, errors);
   validateSectionOrder(data.sectionOrder, errors);
   validateEndorsements(data.endorsements, errors);
   validateCertifications(data.certifications, errors);

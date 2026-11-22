@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   RefreshCw,
   Users, BookOpen, SlidersHorizontal, CalendarCheck, Menu, X,
-  UserSquare2, Wrench, LayoutDashboard, UserCog, Sparkles, Newspaper, Tag, FlaskConical,
+  UserSquare2, Wrench, LayoutDashboard, UserCog, Sparkles, Newspaper, Tag, FlaskConical, GraduationCap,
   type LucideIcon,
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
@@ -25,12 +25,14 @@ import SkillsTab from '../superadmin/SkillsTab';
 import UsersTab from '../superadmin/UsersTab';
 import QaLibraryTab from '../superadmin/QaLibraryTab';
 import QaLibraryCategoriesTab from '../superadmin/QaLibraryCategoriesTab';
+import QaCoursesTab from '../superadmin/QaCoursesTab';
+import CourseDashboardTab from '../../../qa-course/components/CourseDashboardTab';
 import ProfileMenu from './ProfileMenu';
 import SimulatorDashboardTab from '../../../qa-simulator/components/SimulatorDashboardTab';
 
 type NavId =
   | 'home' | 'bookings' | 'mentors' | 'users' | 'topics' | 'rules' | 'portfolios' | 'tools' | 'skills'
-  | 'qa-library' | 'qa-library-categories' | 'simulator';
+  | 'qa-library' | 'qa-library-categories' | 'qa-courses' | 'courses' | 'simulator';
 
 interface NavItem {
   id: NavId;
@@ -81,6 +83,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'qa-library', label: 'Articles', description: 'Artikel & materi QA library', icon: Newspaper },
       { id: 'qa-library-categories', label: 'Article Categories', description: 'Kategori artikel QA library', icon: Tag },
+      { id: 'qa-courses', label: 'Courses', description: 'Jalur belajar: artikel + misi simulator', icon: GraduationCap },
+      { id: 'courses', label: 'QA Course', description: 'Progress belajar (tampilan peserta)', icon: BookOpen },
       { id: 'simulator', label: 'QA Simulator', description: 'Simulasi kerja QA (konten masih JSON statis)', icon: FlaskConical },
     ],
   },
@@ -116,7 +120,7 @@ const AdminDashboard: React.FC = () => {
     const seg = location.pathname.replace(/^\/dashboard\/?/, '').split('/')[0];
     const validIds: NavId[] = [
       'bookings', 'mentors', 'users', 'topics', 'rules', 'portfolios', 'tools', 'skills',
-      'qa-library', 'qa-library-categories', 'simulator',
+      'qa-library', 'qa-library-categories', 'qa-courses', 'courses', 'simulator',
     ];
     return (validIds as string[]).includes(seg) ? (seg as NavId) : 'home';
   })();
@@ -269,6 +273,8 @@ const AdminDashboard: React.FC = () => {
           {activeNav === 'skills' && <SkillsTab />}
           {activeNav === 'qa-library' && <QaLibraryTab />}
           {activeNav === 'qa-library-categories' && <QaLibraryCategoriesTab />}
+          {activeNav === 'qa-courses' && <QaCoursesTab />}
+          {activeNav === 'courses' && <CourseDashboardTab />}
           {activeNav === 'simulator' && <SimulatorDashboardTab />}
         </main>
       </div>

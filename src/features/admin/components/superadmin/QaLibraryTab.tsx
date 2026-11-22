@@ -133,7 +133,10 @@ const QaLibraryTab: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <StatusBadge tone={STATUS_TONE[article.status]}>{article.status}</StatusBadge>
+                        <div className="flex items-center gap-1.5">
+                          <StatusBadge tone={STATUS_TONE[article.status]}>{article.status}</StatusBadge>
+                          {article.visibility === 'course-only' && <StatusBadge tone="violet">course only</StatusBadge>}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-xs text-ld-slate whitespace-nowrap">
                         {new Date(article.updatedAt).toLocaleDateString('id-ID')}{' '}

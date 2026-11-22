@@ -13,6 +13,7 @@ import adminConfigHandler from './_endpoints/admin-config.js';
 import qaLibraryHandler from './_endpoints/qa-library.js';
 import blobUploadHandler from './_endpoints/blob-upload.js';
 import simulatorHandler from './_endpoints/simulator.js';
+import qaCoursesHandler from './_endpoints/qa-courses.js';
 import onboardingHandler from './_endpoints/onboarding.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -46,6 +47,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return blobUploadHandler(req, res);
     case 'simulator':
       return simulatorHandler(req, res);
+    case 'qa-courses':
+      return qaCoursesHandler(req, res);
     case 'onboarding':
       return onboardingHandler(req, res);
     case 'admin-config': {

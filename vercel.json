@@ -21,6 +21,16 @@
       ],
       "destination": "/api/qa-library-og?slug=:slug"
     },
+    {
+      "source": "/courses/:slug",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|Slackbot|LinkedInBot|TelegramBot|Discordbot|Pinterest|redditbot|SkypeUriPreview|vkShare|Applebot|Googlebot|bingbot|DuckDuckBot|YandexBot|Baiduspider).*" }],
+      "destination": "/api/qa-library-og?type=course&slug=:slug"
+    },
+    {
+      "source": "/qa-simulator/:projectId/portfolio/:shareId",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|Slackbot|LinkedInBot|TelegramBot|Discordbot|Pinterest|redditbot|SkypeUriPreview|vkShare|Applebot|Googlebot|bingbot|DuckDuckBot|YandexBot|Baiduspider).*" }],
+      "destination": "/api/qa-library-og?type=share&shareId=:shareId"
+    },
     { "source": "/((?!api/|@|.*\\..*).*)", "destination": "/index.html" }
   ],
   "headers": [

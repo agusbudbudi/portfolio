@@ -12,10 +12,12 @@ const navLinks = [
 const portfolioLink = { label: 'Portfolio QA', to: '/portfolio' };
 const qaLibraryLink = { label: 'QA Library', to: '/qa-library' };
 const qaSimulatorLink = { label: 'QA Simulator', to: '/qa-simulator' };
+const qaCourseLink = { label: 'QA Course', to: '/courses' };
 
 // Desktop menu, in order. NavLink matches by prefix, so /mentoring/booking
 // highlights "Mentoring" and /qa-library/:slug highlights "QA Library".
 const DESKTOP_LINKS: { label: string; to: string; badge?: string }[] = [
+  { ...qaCourseLink, badge: 'New' },
   { ...qaSimulatorLink, badge: 'New' },
   portfolioLink,
   qaLibraryLink,
