@@ -12,6 +12,7 @@
     {
       "id": "pm",
       "name": "Rani Prameswari",
+      "avatar": "/qa-simulator/team/rani-prameswari.webp",
       "role": "Product Manager",
       "initials": "RP",
       "color": "bg-rose-400"
@@ -19,6 +20,7 @@
     {
       "id": "lead",
       "name": "Dimas Arya",
+      "avatar": "/qa-simulator/team/dimas-arya.webp",
       "role": "Engineering Lead",
       "initials": "DA",
       "color": "bg-amber-400"
@@ -26,6 +28,7 @@
     {
       "id": "qa-lead",
       "name": "Sari Wulandari",
+      "avatar": "/qa-simulator/team/sari-wulandari.webp",
       "role": "QA Lead (mentor kamu)",
       "initials": "SW",
       "color": "bg-emerald-500"

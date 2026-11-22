@@ -31,6 +31,8 @@ import { HOME_FAQ } from './features/home/data/homeFaq';
 const SplitBillSandboxPage = lazy(() => import('./features/qa-simulator/pages/SplitBillSandboxPage'));
 const DompetKuApiSandboxPage = lazy(() => import('./features/qa-simulator/pages/DompetKuApiSandboxPage'));
 const DompetKuAppSandboxPage = lazy(() => import('./features/qa-simulator/pages/DompetKuAppSandboxPage'));
+const TokoKitaAppSandboxPage = lazy(() => import('./features/qa-simulator/pages/TokoKitaAppSandboxPage'));
+const TokoKitaDesignPage = lazy(() => import('./features/qa-simulator/pages/TokoKitaDesignPage'));
 const AdminPage = lazy(() => import('./features/admin/pages/AdminPage'));
 const LoginScreen = lazy(() => import('./features/admin/components/shared/LoginScreen'));
 const Snackbar = lazy(() => import('./features/admin/components/shared/Snackbar').then((m) => ({ default: m.Snackbar })));
@@ -337,6 +339,22 @@ function App() {
           element={
             <Suspense fallback={<LoadingState className="min-h-screen" />}>
               <DompetKuAppSandboxPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/qa-simulator/sandbox/tokokita"
+          element={
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
+              <TokoKitaAppSandboxPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/qa-simulator/sandbox/tokokita-design"
+          element={
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
+              <TokoKitaDesignPage />
             </Suspense>
           }
         />

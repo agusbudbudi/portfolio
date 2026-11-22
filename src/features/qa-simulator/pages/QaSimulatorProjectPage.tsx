@@ -330,8 +330,8 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
               </WorkSection>
 
               {phase.sandbox && (
-                <WorkSection no={nextNo()} title="Environment testing" hint="Aplikasi staging yang kamu uji di phase ini.">
-                  <SandboxCard sandbox={phase.sandbox} />
+                <WorkSection no={nextNo()} title="Environment testing" hint={phase.design ? 'File desain acuan dan aplikasi staging yang kamu bandingkan.' : 'Aplikasi staging yang kamu uji di phase ini.'}>
+                  <SandboxCard sandbox={phase.sandbox} design={phase.design} />
                 </WorkSection>
               )}
 
