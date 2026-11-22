@@ -10,6 +10,7 @@
     "typecheck:api": "tsc -p api/tsconfig.json",
     "lint": "eslint .",
     "test": "vitest run",
+    "og:build": "tsx scripts/og/build.tsx",
     "preview": "vite preview"
   },
   "dependencies": {

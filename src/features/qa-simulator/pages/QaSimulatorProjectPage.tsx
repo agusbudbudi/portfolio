@@ -6,6 +6,7 @@ import {
   AlertCircle, ArrowRight, FileUser, ChevronDown, ChevronRight, Clock, Cloud, CloudOff, FileText, HardDrive, History, Loader2, X,
 } from 'lucide-react';
 import LoadingState from '../../../components/common/LoadingState';
+import { ogImageUrl } from '../../../lib/pageSeo';
 import Seo from '../../../components/common/Seo';
 import { useSimulatorProject } from '../hooks/useSimulatorData';
 import { useSimulatorProgress, type SyncStatus } from '../hooks/useSimulatorProgress';
@@ -202,8 +203,10 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
     <div className="font-ld-sans pb-16">
       <Seo
         path={`/qa-simulator/${project.id}`}
-        title={`${project.title} | QA Simulator — Mentor.QA`}
+        title={`${project.title} | QA Simulator`}
         description={project.summary}
+        shareTitle={`Simulasi QA: ${project.title}`}
+        image={ogImageUrl('qa-simulator')}
       />
 
       <AnimatePresence>

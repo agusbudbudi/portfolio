@@ -7,12 +7,10 @@ import CourseHeroSection from '../components/landing/CourseHeroSection';
 import {
   CourseCompareSection, CourseFaqSection, CourseFinalCtaSection, CourseHowItWorksSection, CourseListSection,
 } from '../components/landing/CourseSections';
-import { COURSE_PATH, FAQ_ITEMS } from '../components/landing/content';
+import { FAQ_ITEMS } from '../components/landing/content';
+import { pageSeo, SITE_URL } from '../../../lib/pageSeo';
 
-const SITE_URL = 'https://www.mentorqa.com';
-const SEO_TITLE = 'QA Course: Belajar QA dari Nol, Lulus Bawa Portfolio | Mentor.QA';
-const SEO_DESCRIPTION =
-  'Jalur belajar QA Engineer gratis untuk pemula: materi singkat, misi praktik di QA Simulator, dan portfolio studi kasus berisi test case dan bug report buatanmu sendiri.';
+const SEO = pageSeo('/courses');
 
 type ListState = { courses: QaCourseSummary[] | null; error: string | null };
 
@@ -70,7 +68,7 @@ const CoursesIndexPage: React.FC = () => {
 
   return (
     <div className="w-full bg-ld-canvas font-ld-sans">
-      <Seo path={COURSE_PATH} title={SEO_TITLE} description={SEO_DESCRIPTION} jsonLd={jsonLd} />
+      <Seo {...SEO} jsonLd={jsonLd} />
       <CourseHeroSection courses={list.courses} />
       <CourseListSection courses={list.courses} error={list.error} />
       <CourseHowItWorksSection />

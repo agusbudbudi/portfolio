@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, BadgeCheck, Building2, Award, Calendar, Clock } from 'lucide-react';
 import { thesvgIconUrl } from '../../../lib/thesvgRegistry';
 import { useConfig } from '../../../hooks/useConfig';
+import { ogImageUrl } from '../../../lib/pageSeo';
 import Seo from '../../../components/common/Seo';
 import LoadingState from '../../../components/common/LoadingState';
 import NotFoundState from '../../../components/common/NotFoundState';
@@ -78,6 +79,8 @@ const MentorDetailPage: React.FC = () => {
         path={`/mentor/${mentor.id}`}
         title={`${mentor.name} - Mentor QA | Mentor.QA`}
         description={mentor.bio}
+        shareTitle={`Mentoring QA 1-on-1 bareng ${mentor.name}`}
+        image={ogImageUrl('mentoring')}
       />
 
       {/* Profile Header — full-width band flush under the fixed navbar */}

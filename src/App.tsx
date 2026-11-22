@@ -8,6 +8,7 @@ import LightdashFooter from './features/admin/components/shared/LightdashFooter'
 import PublicPortfolioNavbar from './features/saas-portfolio/components/PublicPortfolioNavbar';
 import PublicPortfolioScrollBanner from './features/saas-portfolio/components/PublicPortfolioScrollBanner';
 import PublicPortfolioFooter from './features/saas-portfolio/components/PublicPortfolioFooter';
+import { pageSeo } from './lib/pageSeo';
 import Seo from './components/common/Seo';
 import LoadingState from './components/common/LoadingState';
 import { loadedHomePage, preloadHomePage } from './features/home/homePageLoader';
@@ -114,7 +115,7 @@ const homeJsonLd = {
   name: 'Mentor.QA',
   url: 'https://www.mentorqa.com/',
   description:
-    'Platform karier QA Engineer: simulasi kerja QA, QA Library, portfolio QA online, dan mentoring 1-on-1.',
+    'Platform karier QA Engineer: QA Course, simulasi kerja QA, QA Library, portfolio QA online, dan mentoring 1-on-1.',
   publisher: { '@type': 'Organization', name: 'Mentor.QA', sameAs: SAME_AS },
 };
 
@@ -214,9 +215,7 @@ function App() {
           element={
             <LightdashLayout>
               <Seo
-                path="/"
-                title="Mentor.QA: Belajar, Praktik & Berkarier sebagai QA Engineer"
-                description="Platform karier QA Engineer: simulasi kerja QA gratis, QA Library, portfolio QA online, dan mentoring 1-on-1 bareng praktisi. Mulai gratis sekarang."
+                {...pageSeo('/')}
                 jsonLd={[homeJsonLd, homeFaqJsonLd]}
               />
               <HomePage />
@@ -228,9 +227,7 @@ function App() {
           element={
             <LightdashLayout>
               <Seo
-                path="/mentoring"
-                title="Mentoring QA & Kursus QA Online 1-on-1 | Mentor.QA"
-                description="Mentoring QA Engineer 1-on-1 bareng praktisi 6+ tahun pengalaman. Kursus manual testing, automation testing, API testing. Booking sesi mentor sekarang."
+                {...pageSeo('/mentoring')}
                 jsonLd={mentoringServiceJsonLd}
               />
               <MentoringPage />
@@ -242,9 +239,7 @@ function App() {
           element={
             <PortfolioLayout>
               <Seo
-                path="/personal-portfolio"
-                title="Agus Budiman | Portfolio QA Engineer & Automation Testing"
-                description="Portfolio QA Engineer Agus Budiman: 6+ tahun pengalaman automation testing, manual testing, dan API testing. Lihat proyek, skill, dan pengalaman kerja."
+                {...pageSeo('/personal-portfolio')}
                 jsonLd={personJsonLd}
               />
               <PortfolioHome />
@@ -256,9 +251,7 @@ function App() {
           element={
             <PortfolioLayout>
               <Seo
-                path="/personal-portfolio/about"
-                title="Tentang Agus Budiman | Portfolio QA Engineer"
-                description="Kenali perjalanan karier, pengalaman kerja, dan latar belakang pendidikan Agus Budiman sebagai QA Engineer dengan 6+ tahun pengalaman testing."
+                {...pageSeo('/personal-portfolio/about')}
                 jsonLd={personJsonLd}
               />
               <PortfolioAbout />
@@ -270,9 +263,7 @@ function App() {
           element={
             <PortfolioLayout>
               <Seo
-                path="/personal-portfolio/projects"
-                title="Proyek QA Engineer | Portfolio Agus Budiman"
-                description="Kumpulan proyek automation testing, manual testing, dan tooling QA yang dikerjakan Agus Budiman, QA Engineer berpengalaman 6+ tahun."
+                {...pageSeo('/personal-portfolio/projects')}
               />
               <PortfolioProjects />
             </PortfolioLayout>
@@ -283,9 +274,7 @@ function App() {
           element={
             <PortfolioLayout>
               <Seo
-                path="/personal-portfolio/certifications"
-                title="Sertifikasi QA Engineer | Agus Budiman"
-                description="Daftar sertifikasi profesional Agus Budiman di bidang Quality Assurance, software testing, dan automation testing."
+                {...pageSeo('/personal-portfolio/certifications')}
               />
               <PortfolioCertifications />
             </PortfolioLayout>
@@ -296,9 +285,7 @@ function App() {
           element={
             <LightdashLayout>
               <Seo
-                path="/mentoring/booking"
-                title="Booking Mentoring QA - Pilih Mentor & Jadwal | Mentor.QA"
-                description="Booking sesi mentoring QA 1-on-1. Pilih topik, mentor QA berpengalaman, dan jadwal yang sesuai untuk kelas atau kursus QA kamu."
+                {...pageSeo('/mentoring/booking')}
                 jsonLd={mentoringServiceJsonLd}
               />
               <PortfolioBookingPage />
@@ -318,9 +305,7 @@ function App() {
           element={
             <LightdashLayout>
               <Seo
-                path="/qa-library"
-                title="QA Library - Artikel & Materi QA Engineer | Mentor.QA"
-                description="Kumpulan artikel dan materi seputar manual testing, automation testing, dan API testing untuk QA Engineer."
+                {...pageSeo('/qa-library')}
               />
               <QaLibraryIndexPage />
             </LightdashLayout>
@@ -437,9 +422,7 @@ function App() {
           element={
             <LightdashLayout>
               <Seo
-                path="/portfolio"
-                title="Buat Portfolio QA Engineer Gratis | Mentor.QA"
-                description="Buat portfolio QA Engineer gratis di Mentor.QA: showcase proyek, sertifikasi, dan pengalaman kerja pakai link sendiri. Cocok fresh graduate sampai QA senior."
+                {...pageSeo('/portfolio')}
                 jsonLd={portfolioPlatformJsonLd}
               />
               <PortfolioLandingPage />
