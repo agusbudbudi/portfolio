@@ -4,7 +4,7 @@
 
 export type OnboardingStatus = 'pending' | 'completed' | 'skipped';
 
-export type ProgramId = 'simulator' | 'portfolio' | 'mentoring' | 'library';
+export type ProgramId = 'course' | 'simulator' | 'portfolio' | 'mentoring' | 'library';
 
 export type PricingModel = 'free' | 'paid' | 'freemium';
 

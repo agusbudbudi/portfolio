@@ -30,6 +30,9 @@ export async function readOnboardingConfig(): Promise<OnboardingConfig> {
   try {
     const data: unknown = JSON.parse(row.data as string);
     if (!isOnboardingConfig(data)) return DEFAULT_ONBOARDING_CONFIG;
+    // A saved config older than the bundled matrix (e.g. a v2 row without
+    // QA Course) is stale: serve the new default until an admin saves again.
+    if (data.version < DEFAULT_ONBOARDING_CONFIG.version) return DEFAULT_ONBOARDING_CONFIG;
     return { ...data, updatedAt: (row.updated_at as string | null) ?? undefined };
   } catch {
     return DEFAULT_ONBOARDING_CONFIG;

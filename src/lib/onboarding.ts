@@ -3,7 +3,8 @@
 // available, e.g. plain `npm run dev`). Keep free of browser-only imports.
 //
 // Spec: docs PRD "User Onboarding & Rekomendasi Program" — Section 3B
-// (catalog), 5 (matrix v2 + boost), 6 (ranking rules).
+// (catalog), 5 (matrix + boost), 6 (ranking rules). Matrix is now v3:
+// QA Course added as a 5th program (see DEFAULT_ONBOARDING_CONFIG).
 import type {
   OnboardingAnswers,
   OnboardingConfig,
@@ -14,32 +15,44 @@ import type {
   RankedProgram,
 } from '../types/onboarding';
 
-export const PROGRAM_IDS: ProgramId[] = ['simulator', 'portfolio', 'mentoring', 'library'];
+export const PROGRAM_IDS: ProgramId[] = ['course', 'simulator', 'portfolio', 'mentoring', 'library'];
 export const QUESTION_IDS: OnboardingQuestion['id'][] = ['q1', 'q2', 'q3', 'q4'];
 export const ONBOARDING_CONFIG_KEY = 'onboarding';
 
+// Matrix v3 (QA Course added as a 5th program). Course = guided path for
+// beginners ("dari nol", "bingung mulai", structured learners); Library =
+// reference for self-directed readers and experienced QA leveling up.
+// Course weights go negative for working QA (1C/1D) on purpose: the live
+// course is beginner-level, so it should only win for them when every other
+// answer says "dari nol". Distribution over all 960 answer combos: primary
+// Simulator 29%, Portfolio 25%, Mentoring 18%, Course 17%, Library 11%.
 export const DEFAULT_ONBOARDING_CONFIG: OnboardingConfig = {
-  version: 2,
+  version: 3,
   secondaryThreshold: 0.4,
   catalog: [
     {
+      id: 'course', name: 'QA Course', headline: 'Belajar QA dari nol, terarah sampai lulus',
+      priority: 1, boost: 0, pricing: { model: 'free', label: 'Gratis' },
+      landingPath: '/courses', cta: 'Mulai course', isActive: true,
+    },
+    {
       id: 'simulator', name: 'QA Simulator', headline: 'Rasakan jadi QA di tim produk sungguhan',
-      priority: 1, boost: 1, pricing: { model: 'free', label: 'Gratis' },
+      priority: 2, boost: 1, pricing: { model: 'free', label: 'Gratis' },
       landingPath: '/qa-simulator', cta: 'Mulai project pertama', isActive: true,
     },
     {
       id: 'portfolio', name: 'QA Portfolio', headline: 'Tunjukkan skill-mu, bukan cuma CV',
-      priority: 2, boost: 1, pricing: { model: 'free', label: 'Gratis' },
+      priority: 3, boost: 1, pricing: { model: 'free', label: 'Gratis' },
       landingPath: '/portfolio', cta: 'Buat portfolio', isActive: true,
     },
     {
       id: 'mentoring', name: 'Mentoring', headline: 'Dibimbing langsung oleh praktisi QA',
-      priority: 3, boost: 0, pricing: { model: 'paid', label: 'Berbayar' },
+      priority: 4, boost: 0, pricing: { model: 'paid', label: 'Berbayar' },
       landingPath: '/mentoring', cta: 'Booking sesi', isActive: true,
     },
     {
       id: 'library', name: 'QA Library', headline: 'Materi QA yang langsung kepakai',
-      priority: 4, boost: 0, pricing: { model: 'free', label: 'Gratis' },
+      priority: 5, boost: 0, pricing: { model: 'free', label: 'Gratis' },
       landingPath: '/qa-library', cta: 'Mulai belajar', isActive: true,
     },
   ],
@@ -47,34 +60,36 @@ export const DEFAULT_ONBOARDING_CONFIG: OnboardingConfig = {
     {
       id: 'q1', title: 'Posisi kamu sekarang?', maxSelect: 1,
       options: [
-        { id: '1A', label: 'Mau pindah karier ke QA', reason: 'baru mau pindah karier ke QA', weights: { simulator: 2, mentoring: 1, library: 2 } },
-        { id: '1B', label: 'Fresh graduate / sedang belajar QA', reason: 'sedang belajar QA', weights: { simulator: 2, portfolio: 2, library: 1 } },
-        { id: '1C', label: 'Sudah jadi QA, kurang dari 2 tahun', reason: 'sudah jadi QA kurang dari 2 tahun', weights: { simulator: 1, portfolio: 2, mentoring: 2 } },
-        { id: '1D', label: 'QA berpengalaman, 2+ tahun', reason: 'sudah berpengalaman 2+ tahun', weights: { portfolio: 1, mentoring: 3, library: 1 } },
+        { id: '1A', label: 'Mau pindah karier ke QA', reason: 'baru mau pindah karier ke QA', weights: { course: 3, simulator: 1, mentoring: 1 } },
+        { id: '1B', label: 'Fresh graduate / sedang belajar QA', reason: 'sedang belajar QA', weights: { course: 2, simulator: 2, portfolio: 2 } },
+        { id: '1C', label: 'Sudah jadi QA, kurang dari 2 tahun', reason: 'sudah jadi QA kurang dari 2 tahun', weights: { course: -1, simulator: 1, portfolio: 2, mentoring: 2, library: 1 } },
+        { id: '1D', label: 'QA berpengalaman, 2+ tahun', reason: 'sudah berpengalaman 2+ tahun', weights: { course: -3, portfolio: 1, mentoring: 3, library: 2 } },
       ],
     },
     {
       id: 'q2', title: 'Apa yang paling ingin kamu capai dalam 3 bulan?', maxSelect: 1,
       options: [
-        { id: '2A', label: 'Paham dasar QA dari nol', reason: 'ingin paham dasar QA dari nol', owner: 'library', weights: { simulator: 2, library: 3 } },
+        { id: '2A', label: 'Paham dasar QA dari nol', reason: 'ingin paham dasar QA dari nol', owner: 'course', weights: { course: 4, library: 1 } },
         { id: '2B', label: 'Pengalaman praktik seperti kerja nyata', reason: 'ingin pengalaman praktik seperti kerja nyata', owner: 'simulator', weights: { simulator: 4, portfolio: 1 } },
         { id: '2C', label: 'Lolos interview dan dapat kerja QA', reason: 'ingin lolos interview dan dapat kerja QA', owner: 'portfolio', weights: { simulator: 1, portfolio: 4, mentoring: 1 } },
-        { id: '2D', label: 'Naik level: automation, karier, atau lead', reason: 'ingin naik level', owner: 'mentoring', weights: { mentoring: 4, library: 1 } },
+        { id: '2D', label: 'Naik level: automation, karier, atau lead', reason: 'ingin naik level', owner: 'mentoring', weights: { mentoring: 3, library: 3 } },
       ],
     },
     {
       id: 'q3', title: 'Apa yang paling menghambat kamu?', maxSelect: 2,
       options: [
-        { id: '3A', label: 'Bingung mulai belajar dari mana', reason: 'bingung mulai belajar dari mana', owner: 'library', weights: { library: 3 } },
+        { id: '3A', label: 'Bingung mulai belajar dari mana', reason: 'bingung mulai belajar dari mana', owner: 'course', weights: { course: 3 } },
         { id: '3B', label: 'Belum punya pengalaman project nyata', reason: 'belum punya pengalaman project nyata', owner: 'simulator', weights: { simulator: 3 } },
         { id: '3C', label: 'CV atau portfolio kurang menonjol', reason: 'merasa CV/portfolio kurang menonjol', owner: 'portfolio', weights: { portfolio: 3 } },
         { id: '3D', label: 'Butuh arahan dari praktisi', reason: 'butuh arahan dari praktisi', owner: 'mentoring', weights: { mentoring: 3 } },
+        { id: '3E', label: 'Susah cari materi QA yang relevan', reason: 'susah cari materi QA yang relevan', owner: 'library', weights: { library: 3 } },
       ],
     },
     {
       id: 'q4', title: 'Cara belajar yang paling cocok?', maxSelect: 1,
       options: [
-        { id: '4A', label: 'Baca materi sendiri', reason: 'suka belajar mandiri', weights: { portfolio: 1, library: 2 } },
+        { id: '4A', label: 'Baca materi sendiri, sesuai kebutuhan', reason: 'suka belajar mandiri', weights: { library: 3 } },
+        { id: '4D', label: 'Ikuti kurikulum step by step', reason: 'suka belajar terstruktur step by step', weights: { course: 2, simulator: 1 } },
         { id: '4B', label: 'Langsung praktik', reason: 'lebih suka langsung praktik', weights: { simulator: 2, portfolio: 1 } },
         { id: '4C', label: 'Diskusi 1:1 dengan mentor', reason: 'nyaman diskusi 1:1', weights: { mentoring: 2 } },
       ],
@@ -207,6 +222,7 @@ export function safeInternalPath(value: string | null | undefined): string | nul
  *  page (QA Library), and admins (whose /dashboard is the admin console, not
  *  the member pages), fall back to the public `landingPath`. */
 const PROGRAM_APP_PATH: Partial<Record<ProgramId, string>> = {
+  course: '/dashboard/courses',
   simulator: '/dashboard/simulator',
   portfolio: '/dashboard/portfolios',
   mentoring: '/dashboard/booking',
