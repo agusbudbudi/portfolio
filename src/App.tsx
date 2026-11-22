@@ -23,17 +23,17 @@ const PortfolioLandingPage = lazy(() => import('./features/saas-portfolio/pages/
 const PublicPortfolioPage = lazy(() => import('./features/saas-portfolio/pages/PublicPortfolioPage'));
 const QaLibraryIndexPage = lazy(() => import('./features/qa-library/pages/QaLibraryIndexPage'));
 const QaLibraryArticleDetailPage = lazy(() => import('./features/qa-library/pages/QaLibraryArticleDetailPage'));
-const QaSimulatorIndexPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorIndexPage'));
-const QaSimulatorProjectPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorProjectPage'));
 const CoursesIndexPage = lazy(() => import('./features/qa-course/pages/CoursesIndexPage'));
 const CourseDetailPage = lazy(() => import('./features/qa-course/pages/CourseDetailPage'));
 const CourseCompletePage = lazy(() => import('./features/qa-course/pages/CourseCompletePage'));
+const QaSimulatorIndexPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorIndexPage'));
+const QaSimulatorProjectPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorProjectPage'));
 const QaSimulatorPortfolioPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorPortfolioPage'));
-import SimulatorLayout from './features/qa-simulator/components/SimulatorLayout';
-import { HOME_FAQ } from './features/home/data/homeFaq';
 const QaSimulatorSharedPortfolioPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorSharedPortfolioPage'));
-const SplitBillSandboxPage = lazy(() => import('./features/qa-simulator/pages/SplitBillSandboxPage'));
+import SimulatorLayout from './features/qa-simulator/components/SimulatorLayout';
 import CourseLayout from './features/qa-course/components/CourseLayout';
+import { HOME_FAQ } from './features/home/data/homeFaq';
+const SplitBillSandboxPage = lazy(() => import('./features/qa-simulator/pages/SplitBillSandboxPage'));
 const DompetKuApiSandboxPage = lazy(() => import('./features/qa-simulator/pages/DompetKuApiSandboxPage'));
 const DompetKuAppSandboxPage = lazy(() => import('./features/qa-simulator/pages/DompetKuAppSandboxPage'));
 const TokoKitaAppSandboxPage = lazy(() => import('./features/qa-simulator/pages/TokoKitaAppSandboxPage'));
@@ -168,8 +168,6 @@ const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
-// Dedicated mentee-facing layout: same navbar, but a lighter, general
-// footer (no booking-flow links) since this page stands on its own outside
 // /qa-library/:slug opened as a course lesson (?course=slug) is a focused
 // reading view in the QA Course shell (dark "Labs"-style header like QA
 // Simulator, no site footer); a plain library article keeps the site layout.
@@ -179,6 +177,8 @@ const QaLibraryArticleLayout: React.FC<LayoutProps> = ({ children }) => {
   return inCourse ? <CourseLayout>{children}</CourseLayout> : <LightdashLayout>{children}</LightdashLayout>;
 };
 
+// Dedicated mentee-facing layout: same navbar, but a lighter, general
+// footer (no booking-flow links) since this page stands on its own outside
 // the mentoring booking funnel.
 const PublicPortfolioLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
@@ -323,8 +323,6 @@ function App() {
           element={
             <QaLibraryArticleLayout>
               <QaLibraryArticleDetailPage />
-            </LightdashLayout>
-          }
             </QaLibraryArticleLayout>
           }
         />
@@ -342,9 +340,9 @@ function App() {
           element={
             <LightdashLayout>
               <CourseDetailPage />
+            </LightdashLayout>
+          }
         />
-        <Route
-          path="/qa-simulator"
         <Route
           path="/courses/:slug/selesai"
           element={
@@ -353,6 +351,8 @@ function App() {
             </CourseLayout>
           }
         />
+        <Route
+          path="/qa-simulator"
           element={
             <LightdashLayout>
               {/* Seo + JSON-LD (Course, FAQPage) rendered inside the page */}
@@ -409,8 +409,6 @@ function App() {
           }
         />
         <Route
-          path="/qa-simulator/:projectId"
-        <Route
           path="/qa-simulator/:projectId/portfolio/:shareId"
           element={
             <SimulatorLayout>
@@ -418,6 +416,8 @@ function App() {
             </SimulatorLayout>
           }
         />
+        <Route
+          path="/qa-simulator/:projectId"
           element={
             <SimulatorLayout>
               <QaSimulatorProjectPage />
