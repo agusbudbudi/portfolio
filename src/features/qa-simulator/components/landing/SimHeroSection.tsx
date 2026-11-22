@@ -1,11 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Clock, FileText, Gift, Unlock } from 'lucide-react';
 import SimulatorShowcase from '../../../home/components/SimulatorShowcase';
 import { FEATURED_PROJECT_PATH } from './content';
 import HeroBadge from '../../../../components/common/HeroBadge';
+import HeroTrustChips, { type HeroTrustChip } from '../../../../components/common/HeroTrustChips';
 
-const TRUST_TAGS = ['Gratis', 'Phase 1 tanpa login', '±4 jam', 'Dapat portfolio studi kasus'];
+const TRUST_CHIPS: HeroTrustChip[] = [
+  { label: 'Gratis', icon: Gift },
+  { label: 'Phase 1 tanpa login', icon: Unlock },
+  { label: '±4 jam', icon: Clock },
+  { label: 'Dapat portfolio studi kasus', icon: FileText },
+];
 
 const SimHeroSection: React.FC = () => (
   <section className="relative overflow-hidden bg-ld-canvas min-h-svh flex flex-col justify-center pt-28 pb-16 lg:pt-28 lg:pb-16">
@@ -43,14 +49,7 @@ const SimHeroSection: React.FC = () => (
           </a>
         </div>
 
-        <ul className="m-0 p-0 list-none flex flex-wrap gap-2">
-          {TRUST_TAGS.map((tag) => (
-            <li key={tag} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-ld-cloud text-ld-slate text-xs font-medium">
-              <CheckCircle2 size={12} className="text-emerald-500" />
-              {tag}
-            </li>
-          ))}
-        </ul>
+        <HeroTrustChips items={TRUST_CHIPS} />
       </div>
 
       <div className="lg:col-span-5 relative pt-6 lg:pt-0">

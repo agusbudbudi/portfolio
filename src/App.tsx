@@ -8,11 +8,20 @@ import LightdashFooter from './features/admin/components/shared/LightdashFooter'
 import PublicPortfolioNavbar from './features/saas-portfolio/components/PublicPortfolioNavbar';
 import PublicPortfolioScrollBanner from './features/saas-portfolio/components/PublicPortfolioScrollBanner';
 import PublicPortfolioFooter from './features/saas-portfolio/components/PublicPortfolioFooter';
+import { pageSeo } from './lib/pageSeo';
 import Seo from './components/common/Seo';
 import LoadingState from './components/common/LoadingState';
+import { loadedHomePage, preloadHomePage } from './features/home/homePageLoader';
+
+// Code-split, but preloaded by main.tsx on "/" so the first render uses the
+// loaded module directly (no Suspense fallback, no layout shift). See homePageLoader.
+const LazyHomePage = lazy(preloadHomePage);
+const HomePage: React.FC = () => {
+  const mod = loadedHomePage();
+  return mod ? <mod.default /> : <LazyHomePage />;
+};
 
 const MentoringPage = lazy(() => import('./features/mentoring/pages/MentoringPage'));
-const HomePage = lazy(() => import('./features/home/pages/HomePage'));
 const PortfolioHome = lazy(() => import('./features/personal-portfolio/pages/Home'));
 const PortfolioAbout = lazy(() => import('./features/personal-portfolio/pages/About'));
 const PortfolioProjects = lazy(() => import('./features/personal-portfolio/pages/Projects'));
@@ -23,10 +32,15 @@ const PortfolioLandingPage = lazy(() => import('./features/saas-portfolio/pages/
 const PublicPortfolioPage = lazy(() => import('./features/saas-portfolio/pages/PublicPortfolioPage'));
 const QaLibraryIndexPage = lazy(() => import('./features/qa-library/pages/QaLibraryIndexPage'));
 const QaLibraryArticleDetailPage = lazy(() => import('./features/qa-library/pages/QaLibraryArticleDetailPage'));
+const CoursesIndexPage = lazy(() => import('./features/qa-course/pages/CoursesIndexPage'));
+const CourseDetailPage = lazy(() => import('./features/qa-course/pages/CourseDetailPage'));
+const CourseCompletePage = lazy(() => import('./features/qa-course/pages/CourseCompletePage'));
 const QaSimulatorIndexPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorIndexPage'));
 const QaSimulatorProjectPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorProjectPage'));
 const QaSimulatorPortfolioPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorPortfolioPage'));
+const QaSimulatorSharedPortfolioPage = lazy(() => import('./features/qa-simulator/pages/QaSimulatorSharedPortfolioPage'));
 import SimulatorLayout from './features/qa-simulator/components/SimulatorLayout';
+import CourseLayout from './features/qa-course/components/CourseLayout';
 import { HOME_FAQ } from './features/home/data/homeFaq';
 const SplitBillSandboxPage = lazy(() => import('./features/qa-simulator/pages/SplitBillSandboxPage'));
 const DompetKuApiSandboxPage = lazy(() => import('./features/qa-simulator/pages/DompetKuApiSandboxPage'));
@@ -101,7 +115,7 @@ const homeJsonLd = {
   name: 'Mentor.QA',
   url: 'https://www.mentorqa.com/',
   description:
-    'Platform karier QA Engineer: simulasi kerja QA, QA Library, portfolio QA online, dan mentoring 1-on-1.',
+    'Platform karier QA Engineer: QA Course, simulasi kerja QA, QA Library, portfolio QA online, dan mentoring 1-on-1.',
   publisher: { '@type': 'Organization', name: 'Mentor.QA', sameAs: SAME_AS },
 };
 
@@ -163,6 +177,15 @@ const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
+// /qa-library/:slug opened as a course lesson (?course=slug) is a focused
+// reading view in the QA Course shell (dark "Labs"-style header like QA
+// Simulator, no site footer); a plain library article keeps the site layout.
+const QaLibraryArticleLayout: React.FC<LayoutProps> = ({ children }) => {
+  const { search } = useLocation();
+  const inCourse = new URLSearchParams(search).has('course');
+  return inCourse ? <CourseLayout>{children}</CourseLayout> : <LightdashLayout>{children}</LightdashLayout>;
+};
+
 // Dedicated mentee-facing layout: same navbar, but a lighter, general
 // footer (no booking-flow links) since this page stands on its own outside
 // the mentoring booking funnel.
@@ -192,9 +215,7 @@ function App() {
           element={
             <LightdashLayout>
               <Seo
-                path="/"
-                title="Mentor.QA: Belajar, Praktik & Berkarier sebagai QA Engineer"
-                description="Platform karier QA Engineer: simulasi kerja QA gratis, QA Library, portfolio QA online, dan mentoring 1-on-1 bareng praktisi. Mulai gratis sekarang."
+                {...pageSeo('/')}
                 jsonLd={[homeJsonLd, homeFaqJsonLd]}
               />
               <HomePage />
@@ -206,9 +227,7 @@ function App() {
           element={
             <LightdashLayout>
               <Seo
-                path="/mentoring"
-                title="Mentoring QA & Kursus QA Online 1-on-1 | Mentor.QA"
-                description="Mentoring QA Engineer 1-on-1 bareng praktisi 6+ tahun pengalaman. Kursus manual testing, automation testing, API testing. Booking sesi mentor sekarang."
+                {...pageSeo('/mentoring')}
                 jsonLd={mentoringServiceJsonLd}
               />
               <MentoringPage />
@@ -220,9 +239,7 @@ function App() {
           element={
             <PortfolioLayout>
               <Seo
-                path="/personal-portfolio"
-                title="Agus Budiman | Portfolio QA Engineer & Automation Testing"
-                description="Portfolio QA Engineer Agus Budiman: 6+ tahun pengalaman automation testing, manual testing, dan API testing. Lihat proyek, skill, dan pengalaman kerja."
+                {...pageSeo('/personal-portfolio')}
                 jsonLd={personJsonLd}
               />
               <PortfolioHome />
@@ -234,9 +251,7 @@ function App() {
           element={
             <PortfolioLayout>
               <Seo
-                path="/personal-portfolio/about"
-                title="Tentang Agus Budiman | Portfolio QA Engineer"
-                description="Kenali perjalanan karier, pengalaman kerja, dan latar belakang pendidikan Agus Budiman sebagai QA Engineer dengan 6+ tahun pengalaman testing."
+                {...pageSeo('/personal-portfolio/about')}
                 jsonLd={personJsonLd}
               />
               <PortfolioAbout />
@@ -248,9 +263,7 @@ function App() {
           element={
             <PortfolioLayout>
               <Seo
-                path="/personal-portfolio/projects"
-                title="Proyek QA Engineer | Portfolio Agus Budiman"
-                description="Kumpulan proyek automation testing, manual testing, dan tooling QA yang dikerjakan Agus Budiman, QA Engineer berpengalaman 6+ tahun."
+                {...pageSeo('/personal-portfolio/projects')}
               />
               <PortfolioProjects />
             </PortfolioLayout>
@@ -261,9 +274,7 @@ function App() {
           element={
             <PortfolioLayout>
               <Seo
-                path="/personal-portfolio/certifications"
-                title="Sertifikasi QA Engineer | Agus Budiman"
-                description="Daftar sertifikasi profesional Agus Budiman di bidang Quality Assurance, software testing, dan automation testing."
+                {...pageSeo('/personal-portfolio/certifications')}
               />
               <PortfolioCertifications />
             </PortfolioLayout>
@@ -274,9 +285,7 @@ function App() {
           element={
             <LightdashLayout>
               <Seo
-                path="/mentoring/booking"
-                title="Booking Mentoring QA - Pilih Mentor & Jadwal | Mentor.QA"
-                description="Booking sesi mentoring QA 1-on-1. Pilih topik, mentor QA berpengalaman, dan jadwal yang sesuai untuk kelas atau kursus QA kamu."
+                {...pageSeo('/mentoring/booking')}
                 jsonLd={mentoringServiceJsonLd}
               />
               <PortfolioBookingPage />
@@ -296,9 +305,7 @@ function App() {
           element={
             <LightdashLayout>
               <Seo
-                path="/qa-library"
-                title="QA Library - Artikel & Materi QA Engineer | Mentor.QA"
-                description="Kumpulan artikel dan materi seputar manual testing, automation testing, dan API testing untuk QA Engineer."
+                {...pageSeo('/qa-library')}
               />
               <QaLibraryIndexPage />
             </LightdashLayout>
@@ -307,9 +314,34 @@ function App() {
         <Route
           path="/qa-library/:slug"
           element={
-            <LightdashLayout>
+            <QaLibraryArticleLayout>
               <QaLibraryArticleDetailPage />
+            </QaLibraryArticleLayout>
+          }
+        />
+        <Route
+          path="/courses"
+          element={
+            <LightdashLayout>
+              {/* Seo + JSON-LD (ItemList, FAQPage) rendered inside the page */}
+              <CoursesIndexPage />
             </LightdashLayout>
+          }
+        />
+        <Route
+          path="/courses/:slug"
+          element={
+            <LightdashLayout>
+              <CourseDetailPage />
+            </LightdashLayout>
+          }
+        />
+        <Route
+          path="/courses/:slug/selesai"
+          element={
+            <CourseLayout>
+              <CourseCompletePage />
+            </CourseLayout>
           }
         />
         <Route
@@ -370,6 +402,14 @@ function App() {
           }
         />
         <Route
+          path="/qa-simulator/:projectId/portfolio/:shareId"
+          element={
+            <SimulatorLayout>
+              <QaSimulatorSharedPortfolioPage />
+            </SimulatorLayout>
+          }
+        />
+        <Route
           path="/qa-simulator/:projectId"
           element={
             <SimulatorLayout>
@@ -382,9 +422,7 @@ function App() {
           element={
             <LightdashLayout>
               <Seo
-                path="/portfolio"
-                title="Buat Portfolio QA Engineer Gratis | Mentor.QA"
-                description="Buat portfolio QA Engineer gratis di Mentor.QA: showcase proyek, sertifikasi, dan pengalaman kerja pakai link sendiri. Cocok fresh graduate sampai QA senior."
+                {...pageSeo('/portfolio')}
                 jsonLd={portfolioPlatformJsonLd}
               />
               <PortfolioLandingPage />

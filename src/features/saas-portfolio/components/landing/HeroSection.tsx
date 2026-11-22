@@ -1,7 +1,14 @@
 import React from 'react';
-import { ArrowRight, Briefcase, FolderKanban, Award } from 'lucide-react';
+import { ArrowRight, Briefcase, FolderKanban, Award, Gift, CodeXml, Timer } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import HeroBadge from '../../../../components/common/HeroBadge';
+import HeroTrustChips, { type HeroTrustChip } from '../../../../components/common/HeroTrustChips';
+
+const TRUST_CHIPS: HeroTrustChip[] = [
+  { label: 'Gratis Selamanya', icon: Gift },
+  { label: 'Gak Perlu Coding', icon: CodeXml },
+  { label: 'Siap dalam 10 Menit', icon: Timer },
+];
 
 const HeroSection: React.FC = () => {
   return (
@@ -36,16 +43,7 @@ const HeroSection: React.FC = () => {
               </Link>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {['Gratis Selamanya', 'Gak Perlu Coding', 'Siap dalam 10 Menit'].map(tag => (
-                <span
-                  key={tag}
-                  className="px-2.5 py-1 rounded-full bg-ld-cloud text-ld-slate text-xs font-medium"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+            <HeroTrustChips items={TRUST_CHIPS} />
           </div>
 
           {/* Right two-fifths: mock portfolio preview card + storytelling floating card */}

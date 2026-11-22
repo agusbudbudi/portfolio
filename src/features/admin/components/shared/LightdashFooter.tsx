@@ -23,6 +23,7 @@ const LINK_GROUPS: { title: string; links: { label: string; to: string; external
   {
     title: 'Program',
     links: [
+      { label: 'QA Course', to: '/courses' },
       { label: 'QA Simulator', to: '/qa-simulator' },
       { label: 'QA Library', to: '/qa-library' },
       { label: 'Portfolio QA', to: '/portfolio' },
@@ -58,7 +59,7 @@ const LightdashFooter: React.FC = () => {
           <div className="col-span-2 md:col-span-5 flex flex-col gap-4 max-w-sm">
             <Link to="/" className="flex items-center gap-2 text-lg font-medium text-ld-graphite tracking-tight no-underline">
               <img
-                src="/shared/img/mentor-logo.webp"
+                src="/shared/img/mentor-logo-96.webp"
                 alt="Mentor.QA"
                 width={28}
                 height={28}
@@ -69,7 +70,7 @@ const LightdashFooter: React.FC = () => {
               <span>Mentor<span className="text-ld-violet">.QA</span></span>
             </Link>
             <p className="m-0 text-sm text-ld-slate leading-relaxed">
-              Platform karier QA Engineer: belajar di QA Library, praktik lewat simulasi kerja QA, bangun portfolio, dan dibimbing mentor 1-on-1.
+              Platform karier QA Engineer: belajar terarah di QA Course, praktik lewat simulasi kerja QA, bangun portfolio, dan dibimbing mentor 1-on-1.
             </p>
             <div className="flex items-center gap-2">
               {SOCIAL_LINKS.map(({ name, icon: Icon, url }) => (

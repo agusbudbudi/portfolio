@@ -6,6 +6,7 @@ import { readSkills, readTools } from '../_lib/configStore.js';
 import {
   createPortfolio, deletePortfolio, isSlugTaken, readPortfolioByOwnerId, readPortfolioBySlug, updatePortfolio,
 } from '../_lib/portfolioStore.js';
+import { listPublicForOwner } from '../_lib/simulatorStore.js';
 import { isValidSlug, validatePortfolioData, validatePortfolioStatus } from '../../src/lib/portfolioValidation.js';
 
 // Public, no auth — the admin form live-checks slug availability as the
@@ -135,8 +136,14 @@ async function handleSlugGet(req: VercelRequest, res: VercelResponse, slug: stri
   const canSeeDraft = Boolean(session && (session.roles.includes('admin') || isResourceOwner(session, record.ownerId)));
 
   if (record.status === 'published' || canSeeDraft) {
+    // Join the owner's QA Simulator cards: only projects they picked AND whose
+    // share link is still on, so turning sharing off hides the card too.
+    const projectIds = record.data.qaSimulator?.projectIds ?? [];
+    const simulatorShares = record.ownerId && projectIds.length > 0
+      ? await listPublicForOwner(record.ownerId, projectIds)
+      : [];
     res.setHeader('Cache-Control', canSeeDraft ? 'no-store' : 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
-    return res.status(200).json(record);
+    return res.status(200).json({ ...record, simulatorShares });
   }
 
   return res.status(404).json({ error: 'not_found' });

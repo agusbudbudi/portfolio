@@ -84,10 +84,16 @@ const HomeSimulatorProjects: React.FC = () => {
             Lihat QA Simulator <ArrowRight size={15} />
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Below md: horizontal snap slider bleeding to the screen edges, the
+            next card peeking in as a swipe hint. md+: regular grid. */}
+        <div className="-mx-4 px-4 sm:-mx-6 sm:px-6 flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory scroll-px-4 sm:scroll-px-6 pb-2 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible lg:grid-cols-3">
           {loading || !index
-            ? [0, 1, 2].map((i) => <div key={i} className="h-[480px] rounded-2xl bg-white/15 animate-pulse" />)
-            : index.projects.map((p) => <CatalogCard key={p.id} project={p} />)}
+            ? [0, 1, 2].map((i) => <div key={i} className="shrink-0 w-[82%] sm:w-[60%] snap-start h-[480px] rounded-2xl bg-white/15 animate-pulse md:w-auto" />)
+            : index.projects.map((p) => (
+                <div key={p.id} className="shrink-0 w-[82%] sm:w-[60%] snap-start md:w-auto">
+                  <CatalogCard project={p} />
+                </div>
+              ))}
         </div>
       </div>
     </section>

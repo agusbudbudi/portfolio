@@ -53,6 +53,18 @@ export const QaLibraryIcon: React.FC<IconProps> = (p) => (
   </Frame>
 );
 
+/** QA Course — graduation cap over a stack of lessons, blue tassel. */
+export const QaCourseIcon: React.FC<IconProps> = (p) => (
+  <Frame {...p}>
+    <rect x="13" y="27" width="22" height="11" rx="2.5" fill={C.white} stroke={C.graphite} strokeWidth="2" />
+    <rect x="17" y="31" width="9" height="2" rx="1" fill={C.ash} />
+    <path d="M24 10L8 17.5 24 25l16-7.5z" fill={C.white} stroke={C.graphite} strokeWidth="2" strokeLinejoin="round" />
+    <path d="M16 21.3v4.2c0 1.9 3.6 3.5 8 3.5s8-1.6 8-3.5v-4.2L24 25z" fill={C.blue} />
+    <path d="M38 18.5v7" stroke={C.graphite} strokeWidth="2" strokeLinecap="round" />
+    <circle cx="38" cy="27.5" r="2.2" fill={C.blue} />
+  </Frame>
+);
+
 /** Mentoring — mentee's white bubble answered by the mentor's blue one. */
 export const MentoringIcon: React.FC<IconProps> = (p) => (
   <Frame {...p}>

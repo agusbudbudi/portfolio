@@ -6,7 +6,7 @@ import PixelMosaic from '../../../components/illustration/PixelMosaic';
 import HeroBadge from '../../../components/common/HeroBadge';
 
 // Home hero: one promise ("dari belajar sampai kerja") + a QA-journey
-// dashboard that ties the four products together (HeroShowcase).
+// dashboard that ties the products together (HeroShowcase).
 
 const HomeHero: React.FC = () => (
   <section className="relative overflow-hidden bg-ld-canvas min-h-svh flex flex-col justify-center pt-24 pb-16 lg:pt-28 font-ld-sans">
@@ -31,8 +31,8 @@ const HomeHero: React.FC = () => (
           Belajar, praktik, dan siap kerja sebagai <span className="text-ld-violet">QA Engineer</span>
         </h1>
         <p className="m-0 mt-5 text-base sm:text-lg text-ld-slate leading-relaxed max-w-xl">
-          Satu tempat untuk seluruh perjalananmu: materi di QA Library, simulasi kerja QA dengan project nyata, portfolio yang
-          bisa dikirim ke recruiter, dan mentoring 1-on-1 bareng praktisi.
+          Satu tempat untuk seluruh perjalananmu: jalur belajar terarah di QA Course, simulasi kerja QA dengan project nyata,
+          portfolio yang bisa dikirim ke recruiter, dan mentoring 1-on-1 bareng praktisi.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-3">
           <Link

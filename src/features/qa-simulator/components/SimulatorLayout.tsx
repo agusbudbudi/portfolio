@@ -28,7 +28,7 @@ const SimulatorHeader: React.FC = () => {
             className="inline-flex items-center gap-1.5 text-xs font-medium text-white/60 hover:text-white no-underline transition-colors shrink-0"
             aria-label="Mentor.QA — halaman utama"
           >
-            <img src="/shared/img/mentor-logo.webp" alt="" width={20} height={20} className="w-5 h-5 object-contain" />
+            <img src="/shared/img/mentor-logo-96.webp" alt="" width={20} height={20} className="w-5 h-5 object-contain" />
             <span className="hidden sm:inline">Mentor.QA</span>
           </Link>
 
@@ -92,6 +92,7 @@ const SimulatorFooter: React.FC = () => (
       </p>
       <div className="flex items-center gap-4">
         <Link to="/" className="text-ld-slate hover:text-ld-violet no-underline">Mentor.QA</Link>
+        <Link to="/courses" className="text-ld-slate hover:text-ld-violet no-underline">QA Course</Link>
         <Link to="/qa-library" className="text-ld-slate hover:text-ld-violet no-underline">QA Library</Link>
         <Link to="/mentoring/booking" className="text-ld-slate hover:text-ld-violet no-underline">Booking mentor</Link>
       </div>

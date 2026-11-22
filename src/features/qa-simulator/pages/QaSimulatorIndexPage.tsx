@@ -12,14 +12,14 @@ import SimPortfolioSection from '../components/landing/SimPortfolioSection';
 import SimSkillsSection from '../components/landing/SimSkillsSection';
 import SimFaqSection from '../components/landing/SimFaqSection';
 import SimFinalCtaSection from '../components/landing/SimFinalCtaSection';
+import CoursePromoStrip from '../../qa-course/components/CoursePromoStrip';
 import { FAQ_ITEMS, SIM_PATH } from '../components/landing/content';
 import { PROJECT_MOCKUPS } from '../components/landing/projectMockupMap';
 import { DIFFICULTY_LABEL } from '../lib/ui';
+import { pageSeo, SITE_URL } from '../../../lib/pageSeo';
 
-const SITE_URL = 'https://www.mentorqa.com';
-const SEO_TITLE = 'QA Simulator: Simulasi Kerja QA Engineer Gratis | Mentor.QA';
-const SEO_DESCRIPTION =
-  'Simulasi kerja QA Engineer gratis: review PRD, tulis test case, cari bug di staging, beri rekomendasi Go / No-Go, lalu dapatkan portfolio studi kasus QA siap PDF.';
+const SEO = pageSeo('/qa-simulator');
+const SEO_DESCRIPTION = SEO.description;
 
 const JSON_LD = [
   {
@@ -162,7 +162,7 @@ const ProjectSlider: React.FC<{ projects: SimulatorProjectSummary[] }> = ({ proj
     el.scrollBy({ left: dir * (slide.offsetWidth + 20), behavior: 'smooth' });
   };
 
-  const btn = 'w-10 h-10 flex items-center justify-center rounded-full border border-white/40 bg-white/10 text-white cursor-pointer transition-colors hover:bg-white hover:text-ld-violet disabled:opacity-35 disabled:cursor-default disabled:hover:bg-white/10 disabled:hover:text-white';
+  const btn = 'w-10 h-10 flex items-center justify-center rounded-full border border-white/40 bg-white/10 text-white cursor-pointer transition-colors hover:bg-white hover:text-ld-violet active:bg-white active:text-ld-violet disabled:opacity-35 disabled:cursor-default disabled:hover:bg-white/10 disabled:hover:text-white disabled:active:bg-white/10 disabled:active:text-white';
 
   return (
     <div>
@@ -245,9 +245,21 @@ const QaSimulatorIndexPage: React.FC = () => {
 
   return (
     <div className="w-full bg-ld-canvas font-ld-sans">
-      <Seo path={SIM_PATH} title={SEO_TITLE} description={SEO_DESCRIPTION} jsonLd={JSON_LD} />
+      <Seo {...SEO} jsonLd={JSON_LD} />
       <SimHeroSection />
       <ProjectsSection />
+      {/* Beginners without the theory yet: point them to the guided course. */}
+      {/* Same bg as SimProblemSection below so the two read as one block.
+          Spacing lives on the strip, so nothing is left behind when it hides;
+          flow-root keeps its top margin inside the grey band (no collapse). */}
+      <div className="flow-root bg-ld-cloud">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <CoursePromoStrip
+            className="mt-10 md:mt-14"
+            body="Belum paham dasar QA? Ikuti QA Course dulu: materi singkat berurutan, lalu misi di simulator ini, dan lulus bawa portfolio."
+          />
+        </div>
+      </div>
       <SimProblemSection />
       <SimHowItWorksSection />
       <SimPortfolioSection />

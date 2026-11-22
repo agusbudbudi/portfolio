@@ -9,8 +9,8 @@ import HomePricing from '../components/HomePricing';
 import HomeFaq from '../components/HomeFaq';
 import HomeFinalCta from '../components/HomeFinalCta';
 
-// General Mentor.QA landing ("/"): introduces every product — QA Simulator,
-// QA Library, Portfolio QA, Mentoring — and routes visitors into each one.
+// General Mentor.QA landing ("/"): introduces every product — QA Course,
+// QA Simulator, QA Library, Portfolio QA, Mentoring — and routes visitors into each one.
 // The mentoring sales page lives at /mentoring.
 const HomePage: React.FC = () => {
   const { hash } = useLocation();
@@ -31,8 +31,8 @@ const HomePage: React.FC = () => {
       <HomeJourney />
       <HomeProducts />
       <HomeSimulatorProjects />
-      <HomeLibrary />
       <HomePricing />
+      <HomeLibrary />
       <HomeFaq />
       <HomeFinalCta />
     </div>

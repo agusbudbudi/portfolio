@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import TrophyIllustration from '../../qa-simulator/components/TrophyIllustration';
-import { MentoringIcon, QaLibraryIcon, QaPortfolioIcon, QaSimulatorIcon } from '../../../components/illustration/ProductIcons';
+import { MentoringIcon, QaCourseIcon, QaPortfolioIcon, QaSimulatorIcon } from '../../../components/illustration/ProductIcons';
 import CartoonAvatar from '../../../components/illustration/CartoonAvatar';
 import { useConfig } from '../../../hooks/useConfig';
 
-// Home hero art: one "QA journey" dashboard that ties the four products
-// together (Library → Simulator → Portfolio → Mentoring), framed by an
+// Home hero art: one "QA journey" dashboard that ties the products
+// together (Course → Simulator → Portfolio → Mentoring), framed by an
 // achievement chip (top-left) and a mentor message (bottom-right) — the same
 // stacked, non-overlapping grammar as the product-row showcases, over the
 // blue pixel mosaic. Sample numbers; mentor photo/name from the live config.
@@ -37,7 +37,7 @@ interface Row {
 }
 
 const ROWS: Row[] = [
-  { icon: QaLibraryIcon, title: 'QA Library', meta: '12 artikel dibaca', progress: { to: '80%', bar: 'bg-emerald-500' } },
+  { icon: QaCourseIcon, title: 'QA Course · Junior QA Ready', meta: '9 / 12 lesson selesai', progress: { to: '75%', bar: 'bg-emerald-500' } },
   { icon: QaSimulatorIcon, title: 'QA Simulator · Split Bill v2', meta: 'Phase 3 / 3 · Bug Hunting', progress: { to: '92%', bar: 'bg-ld-violet' } },
   { icon: QaPortfolioIcon, title: 'Portfolio QA', meta: 'Dilihat 24× minggu ini', badge: { text: '+6', cls: 'bg-emerald-50 text-emerald-700' } },
   { icon: MentoringIcon, title: 'Mentoring 1-on-1', meta: 'Sabtu, 10.00 WIB', badge: { text: 'Terjadwal', cls: 'bg-ld-lilac text-ld-violet' } },

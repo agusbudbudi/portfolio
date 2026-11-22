@@ -7,6 +7,7 @@ import LoadingState from '../../../components/common/LoadingState';
 import { usePagination } from '../../../hooks/usePagination';
 import Pagination from '../../admin/components/shared/Pagination';
 import QaLibraryHeroArt from '../components/QaLibraryHeroArt';
+import CoursePromoStrip from '../../qa-course/components/CoursePromoStrip';
 
 const PAGE_SIZE = 12;
 
@@ -46,6 +47,8 @@ const QaLibraryIndexPage: React.FC = () => {
       </div>
 
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+        <CoursePromoStrip />
+
         {visibleCategories.length > 0 && (
           <div className="mb-8">
             <QaLibraryCategoryFilter categories={visibleCategories} activeCategoryId={activeCategoryId} onChange={setActiveCategoryId} />

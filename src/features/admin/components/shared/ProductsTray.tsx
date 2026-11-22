@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { MentoringIcon, QaLibraryIcon, QaPortfolioIcon, QaSimulatorIcon } from '../../../../components/illustration/ProductIcons';
+import { MentoringIcon, QaCourseIcon, QaLibraryIcon, QaPortfolioIcon, QaSimulatorIcon } from '../../../../components/illustration/ProductIcons';
 import PremiumBadge from '../../../../components/common/PremiumBadge';
 
 // Shared program catalogue for the header "Program" menu (desktop tray +
@@ -20,6 +20,7 @@ interface ProductEntry {
 }
 
 const PRODUCTS: ProductEntry[] = [
+  { icon: QaCourseIcon, name: 'QA Course', desc: 'Belajar QA dari nol: materi singkat, praktik, lalu lulus bawa portfolio.', to: '/courses', badge: 'New' },
   { icon: QaSimulatorIcon, name: 'QA Simulator', desc: 'Simulasi kerja QA dengan PRD, tim, dan aplikasi staging berisi bug.', to: '/qa-simulator', badge: 'New' },
   { icon: QaLibraryIcon, name: 'QA Library', desc: 'Artikel praktis dari fundamental testing sampai automation.', to: '/qa-library' },
   { icon: QaPortfolioIcon, name: 'Portfolio QA', desc: 'Portfolio online gratis dengan link sendiri untuk recruiter.', to: '/portfolio' },
@@ -30,10 +31,10 @@ const Badge: React.FC<{ text: string }> = ({ text }) => (
   <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm bg-ld-violet text-white text-[10px] font-semibold leading-none tracking-wide">{text}</span>
 );
 
-/** Desktop tray: 4 product cards under the header, plus a footer strip. */
+/** Desktop tray: 5 product cards under the header, plus a footer strip. */
 export const ProductsTrayPanel: React.FC<{ onNavigate: () => void; id: string }> = ({ onNavigate, id }) => (
   <div id={id} role="region" aria-label="Program Mentor.QA" className="max-w-[1200px] mx-auto px-4 sm:px-6 py-6">
-    <ul className="m-0 p-0 list-none grid grid-cols-4 gap-3">
+    <ul className="m-0 p-0 list-none grid grid-cols-5 gap-3">
       {PRODUCTS.map(({ icon: Icon, name, desc, to, badge, paid }) => (
         <li key={to}>
           <Link

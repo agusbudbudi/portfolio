@@ -1,10 +1,62 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&display=swap');
+/* Fonts are self-hosted (public/fonts, latin subset) instead of a Google Fonts
+   @import: the @import chain (HTML -> CSS -> fonts.googleapis -> fonts.gstatic)
+   blocked first render. Inter is preloaded in index.html. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin-var.3100e775.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+/* Arial resized to Inter's metrics, so the swap to Inter barely moves layout (CLS). */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+  size-adjust: 107.06%;
+  ascent-override: 90.49%;
+  descent-override: 22.56%;
+  line-gap-override: 0%;
+}
+/* Same idea for DM Sans (body text). Metrics measured from the self-hosted
+   woff2: upm 1000, ascent 992, descent 310, avg width scaled vs Arial. */
+@font-face {
+  font-family: 'DM Sans Fallback';
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+  size-adjust: 106.55%;
+  ascent-override: 93.10%;
+  descent-override: 29.09%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+  src: url('/fonts/dm-sans-latin-var.ca72d2bc.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: italic;
+  font-weight: 100 1000;
+  font-display: swap;
+  src: url('/fonts/dm-sans-latin-var-italic.d5c53a50.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/ibm-plex-mono-latin-400.08949f72.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
 @import "tailwindcss";
 
 /* Custom theme tokens matching the old tailwind.config.js */
 @theme {
-  --font-family-sans: 'DM Sans', sans-serif;
+  --font-family-sans: 'DM Sans', 'DM Sans Fallback', sans-serif;
 
   /* Custom durations not in Tailwind defaults */
   --transition-duration-400: 400ms;
@@ -36,8 +88,8 @@
 
   /* Titles use Inter site-wide (owner decision, 2026-11-21) — the display
      token stays so `font-ld-display` keeps marking "title" text. */
-  --font-ld-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-ld-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-ld-display: 'Inter', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-ld-sans: 'Inter', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
   --font-ld-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 
   --text-ld-caption: 12px;
@@ -125,8 +177,14 @@
   }
 }
 
+/* Mobile browsers paint a rectangular grey box on tap, ignoring border-radius
+   (looks wrong on round buttons). Components give their own hover/active feedback. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'DM Sans', 'DM Sans Fallback', sans-serif;
   line-height: 1.6;
   color: #36394a;
   background: #ffffff;

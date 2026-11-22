@@ -22,8 +22,9 @@ import PortfolioForm from '../superadmin/PortfolioForm';
 import MemberBookingForm from '../mentee/MemberBookingForm';
 import ProfileMenu from './ProfileMenu';
 import SimulatorDashboardTab from '../../../qa-simulator/components/SimulatorDashboardTab';
+import CourseDashboardTab from '../../../qa-course/components/CourseDashboardTab';
 import OnboardingRecommendationCard from '../../../onboarding/components/OnboardingRecommendationCard';
-import { DashboardIcon, MentorIcon, MentoringIcon, QaPortfolioIcon, QaSimulatorIcon, type IconProps } from '../../../../components/illustration/ProductIcons';
+import { DashboardIcon, MentorIcon, MentoringIcon, QaCourseIcon, QaPortfolioIcon, QaSimulatorIcon, type IconProps } from '../../../../components/illustration/ProductIcons';
 import EmptyCalendarIllustration from '../../../../components/illustration/EmptyCalendarIllustration';
 import EmptyPortfolioIllustration from '../../../../components/illustration/EmptyPortfolioIllustration';
 import EmptyInboxIllustration from '../../../../components/illustration/EmptyInboxIllustration';
@@ -111,7 +112,7 @@ function formatMonth(value?: string): string {
   return date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
 }
 
-type NavId = 'home' | 'booking' | 'mentor' | 'portfolios' | 'simulator';
+type NavId = 'home' | 'booking' | 'mentor' | 'portfolios' | 'simulator' | 'courses';
 
 interface NavItem {
   id: NavId;
@@ -160,7 +161,7 @@ const MemberDashboard: React.FC = () => {
   const navigate = useNavigate();
   const activeNav: NavId = (() => {
     const seg = location.pathname.replace(/^\/dashboard\/?/, '').split('/')[0];
-    return seg === 'portfolios' || seg === 'booking' || seg === 'mentor' || seg === 'simulator' ? seg : 'home';
+    return seg === 'portfolios' || seg === 'booking' || seg === 'mentor' || seg === 'simulator' || seg === 'courses' ? seg : 'home';
   })();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -254,6 +255,7 @@ const MemberDashboard: React.FC = () => {
 
   const NAV_ITEMS: NavItem[] = [
     { id: 'home', label: 'Dashboard', icon: DashboardIcon },
+    { id: 'courses', label: 'QA Course', icon: QaCourseIcon, badge: 'New' },
     { id: 'simulator', label: 'QA Simulator', icon: QaSimulatorIcon, badge: 'New' },
     { id: 'portfolios', label: 'Portfolio', icon: QaPortfolioIcon },
     { id: 'booking', label: 'Mentoring', icon: MentoringIcon },
@@ -272,7 +274,7 @@ const MemberDashboard: React.FC = () => {
   const renderSidebar = (mobile: boolean) => (
     <>
       <div className={`flex items-center gap-2.5 h-16 border-b border-ld-frost/60 ${mobile ? 'pl-5 pr-14' : 'px-4'}`}>
-        <img src="/shared/img/mentor-logo.webp" alt="Mentor.QA" width={36} height={36} className={`${mobile ? 'w-9 h-9' : 'w-8 h-8'} rounded-lg object-contain shrink-0`} />
+        <img src="/shared/img/mentor-logo-96.webp" alt="Mentor.QA" width={36} height={36} className={`${mobile ? 'w-9 h-9' : 'w-8 h-8'} rounded-lg object-contain shrink-0`} />
         <div className="min-w-0">
           <p className={`m-0 font-semibold text-ld-onyx leading-tight truncate ${mobile ? 'text-base' : 'text-sm'}`}>Mentor.QA</p>
           <p className={`m-0 text-ld-fog leading-tight truncate ${mobile ? 'text-xs' : 'text-[11px]'}`}>Dashboard</p>
@@ -1170,6 +1172,7 @@ const MemberDashboard: React.FC = () => {
             )
           )}
 
+          {activeNav === 'courses' && <CourseDashboardTab />}
           {activeNav === 'simulator' && <SimulatorDashboardTab />}
 
           {activeNav === 'portfolios' && (

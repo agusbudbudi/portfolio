@@ -72,8 +72,16 @@
         ],
         "resources": [
           {
-            "label": "QA Library — artikel manual testing",
-            "url": "/qa-library"
+            "label": "Cara Membaca PRD sebagai QA",
+            "url": "/qa-library/cara-membaca-prd-sebagai-qa"
+          },
+          {
+            "label": "Menulis Pertanyaan Klarifikasi yang Langsung Dijawab PM",
+            "url": "/qa-library/menulis-pertanyaan-klarifikasi-untuk-pm"
+          },
+          {
+            "label": "Acceptance Criteria yang Bisa Dites",
+            "url": "/qa-library/acceptance-criteria-yang-bisa-dites"
           }
         ]
       },
@@ -342,8 +350,16 @@
         ],
         "resources": [
           {
-            "label": "QA Library",
-            "url": "/qa-library"
+            "label": "Test Scenario vs Test Case",
+            "url": "/qa-library/test-scenario-vs-test-case"
+          },
+          {
+            "label": "Equivalence Partitioning dan Boundary Value Analysis",
+            "url": "/qa-library/equivalence-partitioning-dan-boundary-value-analysis"
+          },
+          {
+            "label": "Menulis Test Case yang Jelas",
+            "url": "/qa-library/menulis-test-case-yang-jelas"
           }
         ]
       },
@@ -611,6 +627,20 @@
           {
             "title": "Rekomendasi rilis (Go / No-Go)",
             "body": "Dasarnya data: berapa test case pass/fail, bug apa yang masih open, dan risikonya. Bug Critical di kalkulasi uang biasanya = **No-Go**."
+          }
+        ],
+        "resources": [
+          {
+            "label": "Exploratory Testing dengan Charter",
+            "url": "/qa-library/exploratory-testing-dengan-charter"
+          },
+          {
+            "label": "Anatomi Bug Report yang Baik",
+            "url": "/qa-library/anatomi-bug-report-yang-baik"
+          },
+          {
+            "label": "Severity vs Priority, dan Rekomendasi Go / No-Go",
+            "url": "/qa-library/severity-vs-priority"
           }
         ]
       },

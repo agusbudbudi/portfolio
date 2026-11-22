@@ -5,6 +5,7 @@ import {
   createQaLibraryArticle, deleteQaLibraryArticle, incrementQaLibraryArticleViewCount, isSlugTaken,
   listQaLibraryArticles, readQaLibraryArticleBySlug, updateQaLibraryArticle,
 } from '../_lib/qaLibraryStore.js';
+import { coursesUsingArticle } from '../_lib/qaCourseStore.js';
 import { computeReadingTimeMinutes, validateQaLibraryArticleData } from '../../src/lib/qaLibraryValidation.js';
 import { isValidSlug, slugify } from '../../src/lib/portfolioValidation.js';
 
@@ -29,7 +30,7 @@ async function handleAdminList(req: VercelRequest, res: VercelResponse) {
 async function handleRootGet(req: VercelRequest, res: VercelResponse) {
   const { category } = req.query;
   const categoryId = typeof category === 'string' && category ? category : undefined;
-  const articles = await listQaLibraryArticles({ publishedOnly: true, categoryId });
+  const articles = await listQaLibraryArticles({ publishedOnly: true, libraryOnly: true, categoryId });
   res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
   return res.status(200).json({ articles });
 }
@@ -138,6 +139,13 @@ async function handleSlugDelete(req: VercelRequest, res: VercelResponse, slug: s
 
   const existing = await readQaLibraryArticleBySlug(slug);
   if (!existing) return res.status(404).json({ error: 'not_found' });
+
+  // A course lesson pointing at a deleted article would 404 for learners.
+  const usedBy = await coursesUsingArticle(existing.id);
+  if (usedBy.length > 0) {
+    const message = `Artikel ini dipakai di course: ${usedBy.join(', ')}. Keluarkan dari course dulu sebelum menghapus.`;
+    return res.status(409).json({ error: 'article_in_use', message, errors: [message] });
+  }
 
   await deleteQaLibraryArticle(existing.id);
   res.setHeader('Cache-Control', 'no-store');

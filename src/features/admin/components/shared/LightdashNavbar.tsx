@@ -12,10 +12,12 @@ const navLinks = [
 const portfolioLink = { label: 'Portfolio QA', to: '/portfolio' };
 const qaLibraryLink = { label: 'QA Library', to: '/qa-library' };
 const qaSimulatorLink = { label: 'QA Simulator', to: '/qa-simulator' };
+const qaCourseLink = { label: 'QA Course', to: '/courses' };
 
 // Desktop menu, in order. NavLink matches by prefix, so /mentoring/booking
 // highlights "Mentoring" and /qa-library/:slug highlights "QA Library".
 const DESKTOP_LINKS: { label: string; to: string; badge?: string }[] = [
+  { ...qaCourseLink, badge: 'New' },
   { ...qaSimulatorLink, badge: 'New' },
   portfolioLink,
   qaLibraryLink,
@@ -116,7 +118,7 @@ const LightdashNavbar: React.FC = () => {
         <nav className="max-w-[1200px] mx-auto px-4 sm:px-6 h-full flex justify-between items-center">
           <Link to="/" className={`flex items-center gap-2 text-lg font-medium tracking-tight no-underline font-ld-display transition-colors ${onBlue ? 'text-white' : 'text-ld-graphite'}`} onClick={closeMenu}>
             <img
-              src="/shared/img/mentor-logo.webp"
+              src="/shared/img/mentor-logo-96.webp"
               alt="Mentor.QA"
               width={28}
               height={28}

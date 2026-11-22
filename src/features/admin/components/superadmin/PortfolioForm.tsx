@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Select from '../../../../components/common/Select';
 import {
   ArrowLeft, BadgeCheck, CheckCircle2, ExternalLink, Loader2, XCircle,
-  UserCircle2, Briefcase, GraduationCap, Award, FolderKanban, Sparkles, FileCheck2, Quote, Newspaper, Share2, MousePointerClick, Github, FolderGit2, ListOrdered, CalendarClock,
+  UserCircle2, Briefcase, GraduationCap, Award, FolderKanban, Sparkles, FileCheck2, Quote, Newspaper, Share2, MousePointerClick, Github, FolderGit2, ListOrdered, CalendarClock, FlaskConical,
 } from 'lucide-react';
 import type {
   PortfolioData, PortfolioRecord, PortfolioStatus, SkillConfig, ToolConfig,
@@ -19,6 +19,7 @@ import EducationListEditor from '../mentee/EducationListEditor';
 import ProjectListEditor from '../mentee/ProjectListEditor';
 import PortfolioSkillsField from '../mentee/PortfolioSkillsField';
 import QaDeliverablesEditor from '../mentee/QaDeliverablesEditor';
+import QaSimulatorPortfolioField from '../mentee/QaSimulatorPortfolioField';
 import GithubRepoListEditor from '../mentee/GithubRepoListEditor';
 import SectionOrderEditor from '../mentee/SectionOrderEditor';
 import EndorsementListEditor from '../mentee/EndorsementListEditor';
@@ -453,6 +454,14 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
             value={data.qaDeliverables}
             onChange={(qaDeliverables) => setData({ ...data, qaDeliverables })}
             submitted={submitted}
+          />
+        </AccordionSection>
+
+        <AccordionSection title="QA Simulator" icon={FlaskConical} badge={data.qaSimulator?.projectIds.length ?? 0}>
+          <QaSimulatorPortfolioField
+            value={data.qaSimulator ?? { projectIds: [] }}
+            onChange={(qaSimulator) => setData({ ...data, qaSimulator })}
+            ownerId={record?.ownerId ?? null}
           />
         </AccordionSection>
 

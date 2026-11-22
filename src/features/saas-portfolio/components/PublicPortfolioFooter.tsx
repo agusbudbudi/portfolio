@@ -48,7 +48,7 @@ const PublicPortfolioFooter: React.FC = () => {
           <div className="flex flex-col items-start sm:items-end">
             <Link to="/" className="flex items-center gap-2 no-underline">
               <img
-                src="/shared/img/mentor-logo.webp"
+                src="/shared/img/mentor-logo-96.webp"
                 alt="Mentor.QA"
                 width={28}
                 height={28}

@@ -12,6 +12,7 @@ import EducationSection from '../components/public-profile/EducationSection';
 import ProjectsSection from '../components/public-profile/ProjectsSection';
 import SkillsSection from '../components/public-profile/SkillsSection';
 import QaDeliverablesSection from '../components/public-profile/QaDeliverablesSection';
+import QaSimulatorSection from '../components/public-profile/QaSimulatorSection';
 import EndorsementsSection from '../components/public-profile/EndorsementsSection';
 import CertificationsSection from '../components/public-profile/CertificationsSection';
 import ArticlesSection from '../components/public-profile/ArticlesSection';
@@ -98,12 +99,14 @@ const PortfolioContent: React.FC<{ slug: string | undefined }> = ({ slug }) => {
   const hasGithubActivity = Boolean(githubUsername);
   const githubRepos = portfolio.data.githubRepos ?? [];
   const hasGithubRepos = githubRepos.length > 0;
+  const simulatorShares = portfolio.simulatorShares ?? [];
   const sectionVisible: Record<PortfolioSectionId, boolean> = {
     experience: hasExperience,
     education: hasEducation,
     skills: hasSkills,
     projects: hasProjects,
     qaDeliverables: hasQaDeliverables,
+    qaSimulator: simulatorShares.length > 0,
     endorsements: hasEndorsements,
     certifications: hasCertifications,
     articles: hasArticles,
@@ -121,6 +124,7 @@ const PortfolioContent: React.FC<{ slug: string | undefined }> = ({ slug }) => {
     skills: (flushBottom) => <SkillsSection key="skills" skills={portfolioSkills} flushBottom={flushBottom} />,
     projects: (flushBottom) => <ProjectsSection key="projects" projects={projects} toolById={toolById} flushBottom={flushBottom} />,
     qaDeliverables: () => qaDeliverables && <QaDeliverablesSection key="qaDeliverables" qaDeliverables={qaDeliverables} />,
+    qaSimulator: () => <QaSimulatorSection key="qaSimulator" shares={simulatorShares} />,
     endorsements: () => <EndorsementsSection key="endorsements" endorsements={endorsements} />,
     certifications: () => <CertificationsSection key="certifications" certifications={certifications} />,
     articles: () => <ArticlesSection key="articles" articles={articles} />,

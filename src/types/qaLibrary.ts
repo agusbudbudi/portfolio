@@ -16,6 +16,10 @@ export interface QaLibraryCategoriesDocument {
 
 export type QaLibraryArticleStatus = 'draft' | 'published';
 
+// 'course-only' articles are hidden from the public library grid/list but
+// stay readable at /qa-library/:slug, so a QA Course can use them as lessons.
+export type QaLibraryArticleVisibility = 'library' | 'course-only';
+
 export interface QaLibraryArticleData {
   title: string;
   categoryId: string;
@@ -35,6 +39,8 @@ export interface QaLibraryArticleData {
   authorUserId?: string;
   authorAvatarUrl?: string;
   status: QaLibraryArticleStatus;
+  /** Absent on articles saved before courses shipped = 'library'. */
+  visibility?: QaLibraryArticleVisibility;
   seoMetaTitle?: string;
   seoMetaDescription?: string;
   seoOgImage?: string;
@@ -53,5 +59,5 @@ export interface QaLibraryArticle extends QaLibraryArticleData {
 export type QaLibraryArticleSummary = Pick<
   QaLibraryArticle,
   | 'id' | 'slug' | 'title' | 'categoryId' | 'excerpt' | 'thumbnailUrl' | 'tags' | 'status' | 'readingTimeMinutes'
-  | 'authorName' | 'authorAvatarUrl' | 'updatedAt'
+  | 'authorName' | 'authorAvatarUrl' | 'updatedAt' | 'visibility'
 >;
