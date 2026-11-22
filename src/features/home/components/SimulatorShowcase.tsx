@@ -2,6 +2,8 @@ import React from 'react';
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { Check, FileText, Hash } from 'lucide-react';
 import PixelMosaic from '../../../components/illustration/PixelMosaic';
+import TeamAvatar from '../../qa-simulator/components/TeamAvatar';
+import { SPLITBILL_TEAM } from '../../qa-simulator/data/splitbillTeam';
 
 // Home "QA Simulator" row art: tells what the simulator *is* in one picture —
 // a Labs workspace walking through the phases (PRD → test case → bug hunting
@@ -41,7 +43,7 @@ const SimulatorShowcase: React.FC = () => {
 
       {/* squad ping — chat bubble, left-aligned */}
       <motion.div variants={pop(0.05)} className="relative z-[1] flex items-end gap-2 w-fit max-w-[80%] origin-bottom-left">
-        <span className="w-7 h-7 rounded-full bg-rose-400 text-white flex items-center justify-center text-[9px] font-bold shrink-0">RP</span>
+        <TeamAvatar member={SPLITBILL_TEAM.pm} size="sm" />
         <span>
           <span className="flex items-center gap-1 mb-1 text-[9px] text-ld-slate">
             <span className="font-semibold text-ld-onyx">Rani</span> · PM <Hash size={9} className="ml-1 text-ld-fog" /> squad-splitbill

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Lock, Unlock } from 'lucide-react';
 import PhaseIllustration, { type PhaseIllustrationName } from './PhaseIllustration';
+import TeamAvatar from '../TeamAvatar';
+import { SPLITBILL_TEAM, firstName } from '../../data/splitbillTeam';
 
 const PHASES: {
   art: PhaseIllustrationName;
@@ -32,10 +34,11 @@ const PHASES: {
   },
 ];
 
+// Avatars/colours come from the shared squad data; short labels are landing copy.
 const TEAM = [
-  { initials: 'RP', name: 'Rani', role: 'Product Manager', color: 'bg-rose-400' },
-  { initials: 'DA', name: 'Dimas', role: 'Engineering Lead', color: 'bg-amber-400' },
-  { initials: 'SW', name: 'Sari', role: 'QA Lead (mentor)', color: 'bg-emerald-500' },
+  { member: SPLITBILL_TEAM.pm, role: 'Product Manager' },
+  { member: SPLITBILL_TEAM.lead, role: 'Engineering Lead' },
+  { member: SPLITBILL_TEAM.qaLead, role: 'QA Lead (mentor)' },
 ];
 
 const SimHowItWorksSection: React.FC = () => (
@@ -76,15 +79,18 @@ const SimHowItWorksSection: React.FC = () => (
         ))}
       </ol>
 
-      <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 rounded-2xl bg-ld-cloud px-6 py-5">
-        <p className="m-0 text-sm text-ld-slate text-center sm:text-left">Kamu bekerja bersama tim fiktif yang merespons pekerjaanmu:</p>
-        <ul className="m-0 p-0 list-none flex flex-wrap justify-center gap-4">
-          {TEAM.map((t) => (
-            <li key={t.initials} className="flex items-center gap-2">
-              <span className={`w-8 h-8 rounded-full ${t.color} text-white text-xs font-semibold flex items-center justify-center`}>{t.initials}</span>
-              <span className="text-xs leading-tight">
-                <span className="block font-semibold text-ld-graphite">{t.name}</span>
-                <span className="text-ld-slate">{t.role}</span>
+      <div className="mt-10 flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3 sm:gap-6 rounded-2xl bg-ld-cloud p-4 sm:px-6 sm:py-5">
+        <p className="m-0 px-1 sm:px-0 text-sm text-ld-slate leading-snug">Kamu bekerja bersama tim fiktif yang merespons pekerjaanmu:</p>
+        <ul className="m-0 p-0 list-none grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-4">
+          {TEAM.map(({ member, role }) => (
+            <li
+              key={member.id}
+              className="flex items-center gap-3 sm:gap-2 rounded-xl bg-white sm:bg-transparent px-3 py-2.5 sm:p-0 border border-ld-frost/70 sm:border-0"
+            >
+              <TeamAvatar member={member} />
+              <span className="text-sm sm:text-xs leading-tight min-w-0">
+                <span className="block font-semibold text-ld-graphite">{firstName(member)}</span>
+                <span className="block text-ld-slate">{role}</span>
               </span>
             </li>
           ))}

@@ -31,8 +31,8 @@ const HomePage: React.FC = () => {
       <HomeJourney />
       <HomeProducts />
       <HomeSimulatorProjects />
-      <HomeLibrary />
       <HomePricing />
+      <HomeLibrary />
       <HomeFaq />
       <HomeFinalCta />
     </div>

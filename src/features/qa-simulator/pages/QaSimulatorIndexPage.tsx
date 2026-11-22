@@ -162,7 +162,7 @@ const ProjectSlider: React.FC<{ projects: SimulatorProjectSummary[] }> = ({ proj
     el.scrollBy({ left: dir * (slide.offsetWidth + 20), behavior: 'smooth' });
   };
 
-  const btn = 'w-10 h-10 flex items-center justify-center rounded-full border border-white/40 bg-white/10 text-white cursor-pointer transition-colors hover:bg-white hover:text-ld-violet disabled:opacity-35 disabled:cursor-default disabled:hover:bg-white/10 disabled:hover:text-white';
+  const btn = 'w-10 h-10 flex items-center justify-center rounded-full border border-white/40 bg-white/10 text-white cursor-pointer transition-colors hover:bg-white hover:text-ld-violet active:bg-white active:text-ld-violet disabled:opacity-35 disabled:cursor-default disabled:hover:bg-white/10 disabled:hover:text-white disabled:active:bg-white/10 disabled:active:text-white';
 
   return (
     <div>
