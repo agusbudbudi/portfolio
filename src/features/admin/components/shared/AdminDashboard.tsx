@@ -157,26 +157,33 @@ const AdminDashboard: React.FC = () => {
 
   const activeItem = NAV_ITEMS.find((item) => item.id === activeNav) ?? NAV_ITEMS[0];
 
+  // Admin-only shell: the sidebar is brand blue (members get the white one in
+  // MemberDashboard) so it's obvious at a glance you're in the admin view.
   const sidebarContent = (
     <>
-      <div className="flex items-center gap-2.5 px-4 h-16 border-b border-ld-frost/60">
-        <img
-          src="/shared/img/mentor-logo.webp"
-          alt="Mentor.QA"
-          width={32}
-          height={32}
-          className="w-8 h-8 rounded-lg object-contain shrink-0"
-        />
-        <div className="min-w-0">
-          <p className="m-0 text-sm font-semibold text-ld-onyx leading-tight truncate">Mentoring Ops</p>
-          <p className="m-0 text-[11px] text-ld-fog leading-tight truncate">Operational Dashboard</p>
+      <div className="flex items-center gap-2.5 px-4 h-16 border-b border-white/15">
+        <span className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0">
+          <img
+            src="/shared/img/mentor-logo.webp"
+            alt="Mentor.QA"
+            width={24}
+            height={24}
+            className="w-6 h-6 object-contain"
+          />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="m-0 flex items-center gap-1.5 text-sm font-semibold text-white leading-tight">
+            <span className="truncate">Mentoring Ops</span>
+            <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-white/15 border border-white/25 text-[9px] font-semibold uppercase tracking-widest text-white">Admin</span>
+          </p>
+          <p className="m-0 text-[11px] text-white/70 leading-tight truncate">Operational Dashboard</p>
         </div>
       </div>
 
       <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
         {NAV_GROUPS.map((group) => (
           <div key={group.id}>
-            <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-ld-fog">{group.label}</p>
+            <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-white/60">{group.label}</p>
             <div className="space-y-1">
               {group.items.map((item) => {
                 const Icon = item.icon;
@@ -186,8 +193,8 @@ const AdminDashboard: React.FC = () => {
                     key={item.id}
                     onClick={() => { navigate(navPath(item.id)); setSidebarOpen(false); }}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left cursor-pointer border-none transition-colors ${active
-                      ? 'bg-ld-lilac/60 text-ld-violet'
-                      : 'bg-transparent text-ld-slate hover:bg-ld-cloud hover:text-ld-graphite'
+                      ? 'bg-white text-ld-violet shadow-[0_4px_12px_-4px_rgba(16,60,120,0.35)]'
+                      : 'bg-transparent text-white/80 hover:bg-white/10 hover:text-white'
                       }`}
                   >
                     <Icon size={17} className="shrink-0" />
@@ -205,17 +212,17 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-ld-cloud">
       {/* Sidebar — desktop */}
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-white border-r border-ld-frost/70 sticky top-0 h-screen">
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-gradient-to-b from-ld-violet to-[#1f87e6] sticky top-0 h-screen">
         {sidebarContent}
       </aside>
 
       {/* Sidebar — mobile drawer */}
       <div className={`fixed inset-0 z-40 lg:hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute inset-0 bg-ld-midnight/40" onClick={() => setSidebarOpen(false)} />
-        <aside className={`absolute inset-y-0 left-0 w-64 flex flex-col bg-white border-r border-ld-frost/70 shadow-[rgba(39,40,53,0.1)_0px_0px_0px_1px,rgba(39,40,53,0.08)_0px_24px_24px_-12px] transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside className={`absolute inset-y-0 left-0 w-64 flex flex-col bg-gradient-to-b from-ld-violet to-[#1f87e6] shadow-[rgba(39,40,53,0.1)_0px_0px_0px_1px,rgba(39,40,53,0.08)_0px_24px_24px_-12px] transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="absolute top-4 right-3 p-1.5 rounded-lg text-ld-fog hover:text-ld-graphite bg-transparent border-none cursor-pointer"
+            className="absolute top-4 right-3 z-10 p-1.5 rounded-lg text-white/70 hover:text-white bg-transparent border-none cursor-pointer"
             aria-label="Tutup menu"
           >
             <X size={18} />
