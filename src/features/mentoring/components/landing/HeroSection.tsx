@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useConfig } from '../../../../hooks/useConfig';
 import MentoringShowcase from '../../../home/components/MentoringShowcase';
 import PixelMosaic from '../../../../components/illustration/PixelMosaic';
+import HeroBadge from '../../../../components/common/HeroBadge';
 
 const DEFAULT_TOPICS_COUNT = 7;
 
@@ -32,13 +33,7 @@ const HeroSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-14 lg:gap-8 items-center">
           {/* Left two-thirds: headline + sub + CTAs */}
           <div className="lg:col-span-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-ld-lilac bg-white/80 backdrop-blur text-ld-violet text-xs font-medium mb-6">
-              <span className="relative flex w-1.5 h-1.5">
-                <span className="absolute inset-0 rounded-full bg-emerald-400 motion-safe:animate-ping opacity-75" />
-                <span className="relative w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              </span>
-              Sesi Tersedia · {topicsCount} Topik QA
-            </div>
+            <HeroBadge dot="live">Sesi Tersedia · {topicsCount} Topik QA</HeroBadge>
 
             <h1 className="font-semibold text-[42px] sm:text-[56px] lg:text-[64px] leading-[0.98] tracking-[-0.025em] text-ld-graphite mb-5">
               Jadi QA Engineer, Dibimbing Praktisi Langsung

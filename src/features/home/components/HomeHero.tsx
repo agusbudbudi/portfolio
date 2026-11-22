@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import HeroShowcase from './HeroShowcase';
 import PixelMosaic from '../../../components/illustration/PixelMosaic';
+import HeroBadge from '../../../components/common/HeroBadge';
 
 // Home hero: one promise ("dari belajar sampai kerja") + a QA-journey
 // dashboard that ties the four products together (HeroShowcase).
@@ -25,10 +26,7 @@ const HomeHero: React.FC = () => (
     />
     <div className="relative w-full max-w-[1200px] mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
       <div className="lg:col-span-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-ld-lilac text-ld-violet text-xs font-medium mb-6">
-          <span className="w-1.5 h-1.5 rounded-full bg-ld-violet" />
-          Platform karier QA Engineer
-        </div>
+        <HeroBadge>Platform karier QA Engineer</HeroBadge>
         <h1 className="m-0 font-semibold text-[40px] sm:text-[54px] lg:text-[60px] leading-[1.02] tracking-[-0.025em] text-ld-graphite">
           Belajar, praktik, dan siap kerja sebagai <span className="text-ld-violet">QA Engineer</span>
         </h1>
