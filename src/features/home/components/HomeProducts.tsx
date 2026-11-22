@@ -2,12 +2,13 @@ import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useInView } from 'framer-motion';
 import { ArrowRight, Check } from 'lucide-react';
-import { MentoringIcon, QaLibraryIcon, QaPortfolioIcon, QaSimulatorIcon } from '../../../components/illustration/ProductIcons';
+import { MentoringIcon, QaCourseIcon, QaLibraryIcon, QaPortfolioIcon, QaSimulatorIcon } from '../../../components/illustration/ProductIcons';
 import PremiumBadge from '../../../components/common/PremiumBadge';
 import SimulatorShowcase from './SimulatorShowcase';
 import LibraryShowcase from './LibraryShowcase';
 import PortfolioShowcase from './PortfolioShowcase';
 import MentoringShowcase from './MentoringShowcase';
+import CourseShowcase from './CourseShowcase';
 import { useConfig } from '../../../hooks/useConfig';
 import { MENTORING_PLANS } from '../../mentoring/data/pricingPlans';
 
@@ -15,8 +16,8 @@ import { MENTORING_PLANS } from '../../mentoring/data/pricingPlans';
 const LOWEST_PRICE = MENTORING_PLANS.reduce((min, p) =>
   Number(p.price.replace(/\D/g, '')) < Number(min.replace(/\D/g, '')) ? p.price : min, MENTORING_PLANS[0].price);
 
-// The four products as full-width rows with the illustration zig-zagging
-// (right, left, right, left on desktop; always below the copy on mobile).
+// The five products as full-width rows with the illustration zig-zagging
+// (alternating right/left on desktop; always below the copy on mobile).
 // Each showcase plays an intro animation on mount, so it's mounted only once
 // scrolled into view.
 
@@ -43,11 +44,13 @@ interface Product {
   visual: React.ReactNode;
   /** Paid product — shows the gold "Berbayar" label. */
   paid?: boolean;
+  /** Recently launched — shows a small "New" pill. */
+  isNew?: boolean;
   /** Secondary in-page link, e.g. "Mulai dari Rp99.000" → #harga. */
   secondary?: { label: string; targetId: string };
 }
 
-const ProductRow: React.FC<{ p: Product; flip: boolean }> = ({ p, flip }) => {
+const ProductRow: React.FC<{ p: Product; flip: boolean; total: number }> = ({ p, flip, total }) => {
   const Icon = p.icon;
   return (
     <article className="grid grid-cols-1 lg:grid-cols-2 rounded-2xl border border-ld-frost bg-white overflow-hidden">
@@ -58,8 +61,11 @@ const ProductRow: React.FC<{ p: Product; flip: boolean }> = ({ p, flip }) => {
             <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-ld-graphite">
               {p.label}
               {p.paid && <PremiumBadge className="normal-case tracking-normal" />}
+              {p.isNew && (
+                <span className="px-1.5 py-[3px] rounded-full bg-ld-violet text-white text-[10px] font-semibold leading-none normal-case tracking-normal">New</span>
+              )}
             </span>
-            <span className="block mt-0.5 font-ld-mono text-[11px] text-ld-fog">{p.n} / 04</span>
+            <span className="block mt-0.5 font-ld-mono text-[11px] text-ld-fog">{p.n} / {String(total).padStart(2, '0')}</span>
           </span>
         </div>
         <h3 className="m-0 mt-5 text-2xl sm:text-3xl font-semibold text-ld-onyx tracking-[-0.02em] leading-tight">{p.title}</h3>
@@ -108,7 +114,16 @@ const HomeProducts: React.FC = () => {
 
   const products: Product[] = [
     {
-      key: 'simulator', n: '01', icon: QaSimulatorIcon, label: 'QA Simulator',
+      key: 'course', n: '01', isNew: true, icon: QaCourseIcon, label: 'QA Course',
+      panel: 'bg-gradient-to-br from-ld-lilac/60 via-white to-emerald-50/70',
+      title: 'Belajar QA dari nol, terarah sampai lulus',
+      body: 'Jalur belajar berurutan yang menggabungkan materi QA Library dan misi QA Simulator. Baca dulu, langsung praktik, lalu lulus bawa portfolio studi kasus. Gratis.',
+      bullets: ['Lesson singkat, terbuka satu per satu', 'Misi praktik di aplikasi staging sungguhan', 'Lulus dengan portfolio yang bisa dibagikan'],
+      to: '/courses', cta: 'Mulai QA Course',
+      visual: <InView className="w-full"><CourseShowcase /></InView>,
+    },
+    {
+      key: 'simulator', n: '02', icon: QaSimulatorIcon, label: 'QA Simulator',
       panel: 'bg-gradient-to-br from-ld-lilac/70 via-white to-ld-cloud',
       title: 'Rasakan jadi QA di tim produk sungguhan',
       body: 'Project simulasi lengkap dengan PRD, tim squad, dan aplikasi staging yang sengaja berisi bug. Gratis, dan Phase 1 bisa dicoba tanpa login.',
@@ -117,7 +132,7 @@ const HomeProducts: React.FC = () => {
       visual: <InView className="w-full"><SimulatorShowcase /></InView>,
     },
     {
-      key: 'library', n: '02', icon: QaLibraryIcon, label: 'QA Library',
+      key: 'library', n: '03', icon: QaLibraryIcon, label: 'QA Library',
       panel: 'bg-gradient-to-br from-emerald-50 via-white to-ld-cloud',
       title: 'Materi QA yang langsung kepakai',
       body: 'Artikel praktis dari fundamental testing sampai automation dan AI di QA, ditulis oleh praktisi berdasarkan pengalaman nyata.',
@@ -126,7 +141,7 @@ const HomeProducts: React.FC = () => {
       visual: <InView className="w-full"><LibraryShowcase /></InView>,
     },
     {
-      key: 'portfolio', n: '03', icon: QaPortfolioIcon, label: 'Portfolio QA',
+      key: 'portfolio', n: '04', icon: QaPortfolioIcon, label: 'Portfolio QA',
       panel: 'bg-gradient-to-br from-amber-50 via-white to-ld-cloud',
       title: 'Tunjukkan skill-mu, bukan cuma CV',
       body: 'Portfolio online gratis dengan link sendiri. Tampilkan project, test case, sertifikasi, dan studi kasus dari QA Simulator dalam satu halaman.',
@@ -135,7 +150,7 @@ const HomeProducts: React.FC = () => {
       visual: <InView className="w-full"><PortfolioShowcase /></InView>,
     },
     {
-      key: 'mentoring', n: '04', paid: true, icon: MentoringIcon, label: 'Mentoring 1-on-1',
+      key: 'mentoring', n: '05', paid: true, icon: MentoringIcon, label: 'Mentoring 1-on-1',
       panel: 'bg-gradient-to-br from-ld-cloud via-white to-ld-lilac/60',
       title: 'Dibimbing langsung oleh praktisi QA',
       body: 'Sesi personal untuk review CV dan portfolio, latihan interview, sampai belajar automation. Pilih jadwal sendiri, lanjut ngobrol lewat WhatsApp.',
@@ -152,12 +167,12 @@ const HomeProducts: React.FC = () => {
         <div className="max-w-2xl mb-10 md:mb-14">
           <p className="m-0 mb-3 text-xs font-semibold uppercase tracking-widest text-ld-violet">Semua di Mentor.QA</p>
           <h2 className="m-0 font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite leading-tight">
-            Empat cara untuk naik level sebagai QA
+            Lima cara untuk naik level sebagai QA
           </h2>
-          <p className="m-0 mt-3 text-ld-slate leading-relaxed">Pakai salah satu, atau semuanya. Semuanya saling terhubung dalam satu akun.</p>
+          <p className="m-0 mt-3 text-ld-slate leading-relaxed">Mulai dari QA Course kalau belum tahu harus mulai dari mana, atau pakai yang kamu butuhkan. Semuanya terhubung dalam satu akun.</p>
         </div>
         <div className="space-y-6">
-          {products.map((p, i) => <ProductRow key={p.key} p={p} flip={i % 2 === 1} />)}
+          {products.map((p, i) => <ProductRow key={p.key} p={p} flip={i % 2 === 1} total={products.length} />)}
         </div>
       </div>
     </section>
