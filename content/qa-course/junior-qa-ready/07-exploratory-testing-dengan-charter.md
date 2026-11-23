@@ -2,6 +2,8 @@
 title: Exploratory Testing dengan Charter
 slug: exploratory-testing-dengan-charter
 excerpt: Test case menemukan bug yang sudah kamu bayangkan. Exploratory testing menemukan yang belum. Pelajari cara melakukannya secara terarah dengan charter, timebox, dan heuristik yang terbukti efektif.
+seo_title: Exploratory Testing dengan Charter dan Timebox
+seo_description: Cara melakukan exploratory testing yang terarah memakai charter, timebox, dan heuristik, untuk menemukan bug yang tidak terpikir di test case.
 category: Manual Testing (pilih di admin)
 tags: exploratory testing, bug hunting, heuristik, manual testing
 visibility: library

@@ -11,7 +11,11 @@
     "lint": "eslint .",
     "test": "vitest run",
     "og:build": "tsx scripts/og/build.tsx",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed:course": "tsx --env-file=.env.local scripts/seed-qa-course.ts",
+    "course:thumbs": "tsx scripts/og/course-thumbs.tsx",
+    "publish:course": "tsx --env-file=.env.local scripts/publish-qa-course.ts",
+    "sync:article-meta": "tsx --env-file=.env.local scripts/sync-qa-article-meta.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",

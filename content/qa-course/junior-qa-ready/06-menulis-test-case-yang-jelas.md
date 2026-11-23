@@ -2,6 +2,8 @@
 title: Menulis Test Case yang Jelas
 slug: menulis-test-case-yang-jelas
 excerpt: Test case yang baik bisa dijalankan orang lain tanpa bertanya, dan hasilnya tidak bisa diperdebatkan. Pelajari anatomi test case, cara menulis expected result yang spesifik, dan cara memberi prioritas.
+seo_title: Cara Menulis Test Case yang Jelas dan Bisa Diulang
+seo_description: Anatomi test case yang baik: precondition, langkah, expected result yang spesifik, dan prioritas. Test case yang bisa dijalankan siapa saja tanpa bertanya.
 category: Manual Testing (pilih di admin)
 tags: test case, test design, dokumentasi, manual testing
 visibility: library

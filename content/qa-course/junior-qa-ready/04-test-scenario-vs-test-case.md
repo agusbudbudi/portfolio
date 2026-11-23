@@ -2,6 +2,8 @@
 title: Test Scenario vs Test Case
 slug: test-scenario-vs-test-case
 excerpt: Test scenario menjawab "apa yang diuji", test case menjawab "bagaimana mengujinya". Pelajari bedanya, kapan memakai masing-masing, dan cara menyusun daftar scenario yang seimbang antara positive dan negative.
+seo_title: Test Scenario vs Test Case: Beda dan Contohnya
+seo_description: Beda test scenario dan test case, kapan memakai masing-masing, dan cara menyusun daftar scenario yang seimbang antara positive dan negative test.
 category: Manual Testing (pilih di admin)
 tags: test scenario, test case, test design, manual testing
 visibility: library

@@ -2,6 +2,8 @@
 title: Equivalence Partitioning dan Boundary Value Analysis
 slug: equivalence-partitioning-dan-boundary-value-analysis
 excerpt: Kamu tidak mungkin menguji semua input. Dua teknik ini membantu memilih sedikit nilai uji yang mewakili banyak kasus, plus decision table untuk aturan dengan banyak kondisi.
+seo_title: Equivalence Partitioning & Boundary Value Analysis
+seo_description: Belajar teknik test design EP dan BVA dengan contoh, plus decision table untuk aturan bisnis dengan banyak kondisi. Uji lebih sedikit, temukan lebih banyak.
 category: Manual Testing (pilih di admin)
 tags: test design, boundary value analysis, equivalence partitioning, decision table
 visibility: library
