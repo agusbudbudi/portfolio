@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ExternalLink, Rocket, X } from 'lucide-react';
 import type { ProjectEntry, ProjectPlatform, ToolConfig } from '../../../../types/portfolio';
+import { DIALOG_BODY } from '../../../../lib/dialogLayout';
 
 interface ProjectDetailModalProps {
   project: ProjectEntry;
@@ -36,22 +37,17 @@ const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({ project, tools,
     >
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full sm:max-w-2xl sm:mx-4 bg-ld-canvas rounded-t-2xl sm:rounded-xl border border-ld-ash shadow-[var(--shadow-ld-lg)] overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh]">
-        {/* Mobile bottom-sheet grab handle */}
-        <div className="sm:hidden flex justify-center pt-2.5 pb-1 shrink-0">
-          <span className="w-10 h-1 rounded-full bg-ld-ash" />
-        </div>
-
+      <div className="relative w-full sm:max-w-2xl sm:mx-4 bg-ld-canvas sm:rounded-xl sm:border border-ld-ash shadow-[var(--shadow-ld-lg)] overflow-hidden flex flex-col h-dvh sm:h-auto sm:max-h-[85vh] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] sm:pt-0 sm:pb-0">
         <button
           type="button"
           onClick={onClose}
           aria-label="Tutup detail project"
-          className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-white/90 text-ld-fog hover:text-ld-graphite border border-ld-ash cursor-pointer transition-colors"
+          className="absolute top-[calc(env(safe-area-inset-top)+0.75rem)] sm:top-3 right-3 z-10 p-1.5 rounded-full bg-white/90 text-ld-fog hover:text-ld-graphite border border-ld-ash cursor-pointer transition-colors"
         >
           <X size={16} />
         </button>
 
-        <div className="overflow-y-auto grow">
+        <div className={DIALOG_BODY}>
           <div className="w-full aspect-video overflow-hidden bg-ld-cloud border-b border-ld-ash flex items-center justify-center shrink-0">
             {project.thumbnail ? (
               <img src={project.thumbnail} alt={project.name} className="w-full h-full object-cover" />

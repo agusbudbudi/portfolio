@@ -2,6 +2,8 @@
 title: Severity vs Priority, dan Rekomendasi Go / No-Go
 slug: severity-vs-priority
 excerpt: Severity mengukur dampak, priority mengukur urgensi. Pelajari bedanya, cara menentukan keduanya dengan alasan yang jelas, dan cara menyusun test summary serta rekomendasi rilis berbasis risiko.
+seo_title: Severity vs Priority dan Rekomendasi Go / No-Go
+seo_description: Beda severity dan priority bug, cara menentukannya dengan alasan yang jelas, serta cara menyusun test summary dan rekomendasi rilis berbasis risiko.
 category: Manual Testing (pilih di admin)
 tags: severity, priority, bug report, test summary, release
 visibility: library

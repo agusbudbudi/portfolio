@@ -1,0 +1,69 @@
+{
+  "slug": "fintech-qa-ready",
+  "title": "Fintech QA Ready",
+  "description": "Lanjutan dari Junior QA Ready. Kuasai pengujian fitur yang menyentuh uang: membaca PRD dengan kacamata risiko, menyusun test plan berbasis risiko, menguji API langsung, menjalankan regression, sampai memberi rekomendasi rilis. Praktik di project DompetKu.",
+  "level": "intermediate",
+  "estimatedHours": 12,
+  "seoTitle": "Fintech QA Ready: Kursus QA Fitur Pembayaran",
+  "seoDescription": "Kursus QA tingkat menengah untuk fitur uang: review PRD berbasis risiko, test plan, API testing, regression, dan sign-off rilis. Praktik langsung di DompetKu.",
+  "categories": [
+    {
+      "label": "API Testing",
+      "description": "Menguji API secara langsung: request, response, status code, validasi, autentikasi, dan idempotency."
+    }
+  ],
+  "modules": [
+    {
+      "title": "Requirement",
+      "intro": "Fitur yang menyentuh uang punya standar lebih tinggi. Di modul ini kamu belajar membaca PRD dengan kacamata risiko: batas angka, kasus gagal, keamanan, transaksi dobel, dan regulasi. Di akhir modul, kamu mereview PRD Top Up & Transfer DompetKu.",
+      "articles": [
+        "membaca-prd-fitur-uang-dengan-kacamata-risiko",
+        "kasus-gagal-yang-sering-hilang-dari-prd",
+        "menulis-ringkasan-pemahaman-fitur"
+      ],
+      "mission": {
+        "projectId": "ewallet",
+        "phaseId": "requirement-analysis"
+      }
+    },
+    {
+      "title": "Test Plan",
+      "intro": "Waktu uji selalu terbatas, jadi kamu harus memilih. Di modul ini kamu belajar menulis test plan satu halaman, menilai risiko dengan likelihood × impact, dan menentukan level pengujian untuk tiap area. Di akhir modul, kamu menyusun test plan DompetKu.",
+      "articles": [
+        "test-plan-satu-halaman",
+        "risk-based-testing-likelihood-impact",
+        "entry-exit-criteria-dan-level-pengujian"
+      ],
+      "mission": {
+        "projectId": "ewallet",
+        "phaseId": "test-plan"
+      }
+    },
+    {
+      "title": "API Testing",
+      "intro": "Banyak bug fitur uang lebih cepat ketahuan di level API. Di modul ini kamu belajar membaca kontrak API, menyusun API test case, mengecek side effect dan idempotency, lalu menulis bug report API yang bisa direproduksi. Di akhir modul, kamu menguji API DompetKu langsung di API Console.",
+      "articles": [
+        "dasar-http-untuk-qa",
+        "menyusun-api-test-case",
+        "idempotency-side-effect-dan-bug-report-api"
+      ],
+      "mission": {
+        "projectId": "ewallet",
+        "phaseId": "api-testing"
+      }
+    },
+    {
+      "title": "Regression",
+      "intro": "Bug sudah di-fix, fitur baru ikut masuk. Di modul ini kamu belajar membedakan retest dan regression, memilih regression suite berdasarkan perubahan, lalu memberi sign-off rilis yang tegas. Di akhir modul, kamu menguji build rc2 DompetKu dan memutuskan Go / No-Go.",
+      "articles": [
+        "retest-vs-regression-dan-membaca-release-notes",
+        "memilih-regression-suite",
+        "release-sign-off-go-no-go"
+      ],
+      "mission": {
+        "projectId": "ewallet",
+        "phaseId": "regression"
+      }
+    }
+  ]
+}

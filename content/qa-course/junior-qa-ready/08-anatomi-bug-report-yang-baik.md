@@ -2,6 +2,8 @@
 title: Anatomi Bug Report yang Baik
 slug: anatomi-bug-report-yang-baik
 excerpt: Bug yang tidak bisa direproduksi tidak akan diperbaiki. Pelajari bagian-bagian bug report yang baik, cara menulis judul dan langkah reproduksi, serta bukti apa yang perlu dilampirkan.
+seo_title: Anatomi Bug Report yang Baik + Contoh
+seo_description: Bagian-bagian bug report yang baik: judul, langkah reproduksi, expected vs actual, dan bukti. Tulis bug report yang langsung bisa direproduksi developer.
 category: Manual Testing (pilih di admin)
 tags: bug report, bug hunting, jira, manual testing
 visibility: library

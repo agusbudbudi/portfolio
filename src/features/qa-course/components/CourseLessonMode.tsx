@@ -8,6 +8,7 @@ import type { Lesson } from '../lib/courseOutline';
 import CourseOutline from './CourseOutline';
 import CourseLoginModal from './CourseLoginModal';
 import LoadingState from '../../../components/common/LoadingState';
+import { DialogBody, DialogHeader } from '../../../components/common/DialogLayout';
 
 interface CourseLessonModeProps {
   courseSlug: string;
@@ -56,19 +57,19 @@ const OutlineDrawer: React.FC<{ onClose: () => void; children: React.ReactNode; 
         role="dialog"
         aria-modal="true"
         aria-label={`Outline ${title}`}
-        className="w-full max-w-sm h-full bg-white overflow-y-auto px-4 py-5 font-ld-sans shadow-[-12px_0_32px_-12px_rgba(39,40,53,0.25)]"
+        className="w-full sm:max-w-sm h-full flex flex-col bg-white font-ld-sans shadow-[-12px_0_32px_-12px_rgba(39,40,53,0.25)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
         initial={reduce ? false : { x: '100%' }}
         animate={{ x: 0 }}
         exit={reduce ? { opacity: 0 } : { x: '100%' }}
         transition={{ duration: reduce ? 0 : 0.32, ease: DRAWER_EASE }}
       >
-        <div className="flex items-center justify-between gap-3 mb-5">
-          <p className="m-0 text-sm font-semibold text-ld-onyx">{title}</p>
-          <button type="button" onClick={onClose} aria-label="Tutup outline" className="w-9 h-9 flex items-center justify-center rounded-lg border-none bg-transparent hover:bg-ld-cloud cursor-pointer">
+        <DialogHeader className="flex items-center justify-between gap-3 px-4 h-14 border-b border-ld-frost">
+          <p className="m-0 text-sm font-semibold text-ld-onyx truncate">{title}</p>
+          <button type="button" onClick={onClose} aria-label="Tutup outline" className="w-9 h-9 shrink-0 flex items-center justify-center rounded-lg border-none bg-transparent hover:bg-ld-cloud cursor-pointer">
             <X size={18} />
           </button>
-        </div>
-        {children}
+        </DialogHeader>
+        <DialogBody className="px-4 py-5">{children}</DialogBody>
       </motion.div>
     </motion.div>
   );

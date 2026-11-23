@@ -2,6 +2,8 @@
 title: Cara Membaca PRD sebagai QA
 slug: cara-membaca-prd-sebagai-qa
 excerpt: QA yang baik mulai bekerja sebelum ada kode. Pelajari cara membaca PRD dua kali, membedah tiap acceptance criteria, dan menemukan bagian yang belum bisa dites.
+seo_title: Cara Membaca PRD sebagai QA: Teknik Baca Dua Kali
+seo_description: Panduan QA membaca PRD: pahami cerita fitur, bedah tiap acceptance criteria, dan temukan bagian yang belum bisa dites sebelum developer mulai coding.
 category: Manual Testing (pilih di admin)
 tags: requirement, prd, manual testing, qa fundamental
 visibility: library

@@ -41,3 +41,15 @@ Saatnya mengeksekusi. Di modul ini kamu belajar exploratory testing yang
 terarah, menulis bug report yang bisa langsung direproduksi, menentukan
 severity dan priority, lalu memberi rekomendasi Go / No-Go. Di akhir modul,
 kamu berburu bug di SplitBill staging dan menulis test summary untuk PM.
+
+## Thumbnail & SEO course (script)
+
+`course.json` mencerminkan course yang sudah ada di DB (dipakai untuk gambar dan
+SEO, bukan untuk seed ulang). Thumbnail course ada di `thumbnails/course.png`
+(dibuat dengan `npm run course:thumbs -- content/qa-course/junior-qa-ready --course`).
+
+Pasang thumbnail + SEO course tanpa mengubah visibility artikel (tetap tampil di library):
+
+```bash
+npm run publish:course -- content/qa-course/junior-qa-ready --visibility keep --apply
+```

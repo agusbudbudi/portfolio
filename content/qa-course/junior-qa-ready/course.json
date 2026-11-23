@@ -1,0 +1,41 @@
+{
+  "slug": "junior-qa-ready",
+  "title": "Junior QA Ready",
+  "description": "Belajar QA dari nol sampai siap kerja: membaca PRD, menulis pertanyaan klarifikasi, menyusun test scenario dan test case, berburu bug, sampai memberi rekomendasi rilis. Praktik di project SplitBill.",
+  "level": "beginner",
+  "estimatedHours": 5,
+  "seoTitle": "Junior QA Ready: Kursus QA Gratis dari Nol",
+  "seoDescription": "Kursus QA untuk pemula: baca PRD, tulis test case dengan EP dan BVA, exploratory testing, dan bug report. Praktik langsung di QA Simulator SplitBill.",
+  "modules": [
+    {
+      "title": "Requirement",
+      "intro": "Sebelum ada kode, QA sudah bisa mencegah bug. Di modul ini kamu belajar membaca PRD, menemukan bagian yang belum jelas, dan menulis pertanyaan yang langsung bisa dijawab PM. Di akhir modul, kamu praktik mereview PRD fitur baru SplitBill.",
+      "articles": [
+        "cara-membaca-prd-sebagai-qa",
+        "menulis-pertanyaan-klarifikasi-untuk-pm",
+        "acceptance-criteria-yang-bisa-dites"
+      ],
+      "mission": { "projectId": "splitbill", "phaseId": "requirement-analysis" }
+    },
+    {
+      "title": "Test Design",
+      "intro": "Requirement yang sudah jelas siap diubah jadi rencana pengujian. Di modul ini kamu belajar membedakan scenario dan test case, memilih data uji dengan teknik EP, BVA, dan decision table, lalu menulis test case yang bisa dijalankan siapa saja. Di akhir modul, kamu menyusun scenario dan test case untuk SplitBill.",
+      "articles": [
+        "test-scenario-vs-test-case",
+        "equivalence-partitioning-dan-boundary-value-analysis",
+        "menulis-test-case-yang-jelas"
+      ],
+      "mission": { "projectId": "splitbill", "phaseId": "test-design" }
+    },
+    {
+      "title": "Bug Hunting",
+      "intro": "Saatnya mengeksekusi. Di modul ini kamu belajar exploratory testing yang terarah, menulis bug report yang bisa langsung direproduksi, menentukan severity dan priority, lalu memberi rekomendasi Go / No-Go. Di akhir modul, kamu berburu bug di SplitBill staging dan menulis test summary untuk PM.",
+      "articles": [
+        "exploratory-testing-dengan-charter",
+        "anatomi-bug-report-yang-baik",
+        "severity-vs-priority"
+      ],
+      "mission": { "projectId": "splitbill", "phaseId": "bug-hunting" }
+    }
+  ]
+}

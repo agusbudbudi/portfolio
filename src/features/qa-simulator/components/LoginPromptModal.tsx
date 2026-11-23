@@ -43,7 +43,7 @@ const LoginPromptModal: React.FC<LoginPromptModalProps> = ({ phase, phaseNumber,
         role="dialog"
         aria-modal="true"
         aria-labelledby="login-prompt-title"
-        className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-lg overflow-hidden"
+        className="relative w-full sm:max-w-md h-dvh sm:h-auto flex flex-col justify-center sm:block overflow-y-auto sm:overflow-hidden bg-white sm:rounded-lg pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] sm:pt-0 sm:pb-0"
         initial={{ y: 32, opacity: 0, scale: 0.98 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: 20, opacity: 0 }}
@@ -53,7 +53,7 @@ const LoginPromptModal: React.FC<LoginPromptModalProps> = ({ phase, phaseNumber,
           type="button"
           onClick={onClose}
           aria-label="Tutup"
-          className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-lg bg-transparent hover:bg-ld-cloud text-ld-slate hover:text-ld-onyx border-none cursor-pointer transition-colors"
+          className="absolute top-[calc(env(safe-area-inset-top)+0.75rem)] sm:top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-lg bg-transparent hover:bg-ld-cloud text-ld-slate hover:text-ld-onyx border-none cursor-pointer transition-colors"
         >
           <X size={18} />
         </button>

@@ -2,6 +2,8 @@
 title: Acceptance Criteria yang Bisa Dites
 slug: acceptance-criteria-yang-bisa-dites
 excerpt: Acceptance criteria adalah kontrak antara PM, developer, dan QA. Pelajari ciri AC yang bisa dites, format Given-When-Then, dan cara menulis ulang AC yang kabur menjadi skenario yang jelas.
+seo_title: Acceptance Criteria yang Bisa Dites + Given-When-Then
+seo_description: Ciri acceptance criteria yang bisa dites, contoh format Given-When-Then, dan cara QA menulis ulang AC yang kabur menjadi skenario yang jelas.
 category: Manual Testing (pilih di admin)
 tags: acceptance criteria, requirement, gherkin, manual testing
 visibility: library

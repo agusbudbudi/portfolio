@@ -4,6 +4,7 @@ import { ArrowLeft, Check, ClipboardCheck, KeyRound, Sparkles, X } from 'lucide-
 import type { SimulatorAssignment } from '../../../types/qaSimulator';
 import { rubricScore } from '../lib/progress';
 import SubmittedIllustration from './SubmittedIllustration';
+import { DIALOG_BODY, DIALOG_FOOTER, DIALOG_HEADER } from '../../../lib/dialogLayout';
 
 export type AssessmentStep = { kind: 'intro' } | { kind: 'rubric'; i: number } | { kind: 'result' } | { kind: 'key' };
 
@@ -300,13 +301,13 @@ const SelfAssessmentModal: React.FC<SelfAssessmentModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-label={headerTitle}
-        className="w-full sm:max-w-lg max-h-[92vh] flex flex-col bg-white rounded-t-2xl sm:rounded-lg overflow-hidden shadow-2xl"
+        className="w-full sm:max-w-lg h-dvh sm:h-auto sm:max-h-[92vh] flex flex-col bg-white sm:rounded-lg pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] sm:pt-0 sm:pb-0 overflow-hidden shadow-2xl"
         initial={{ y: 32, opacity: 0, scale: 0.98 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: 20, opacity: 0 }}
         transition={{ type: 'spring', damping: 28, stiffness: 320 }}
       >
-        <div className="flex items-center gap-3 px-5 py-3.5 border-b border-ld-frost">
+        <div className={`${DIALOG_HEADER} flex items-center gap-3 px-5 py-3.5 border-b border-ld-frost`}>
           <ClipboardCheck size={17} className="text-ld-violet shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="m-0 text-sm font-semibold text-ld-onyx truncate">{headerTitle}</p>
@@ -323,7 +324,7 @@ const SelfAssessmentModal: React.FC<SelfAssessmentModalProps> = ({
         </div>
 
         {step.kind === 'rubric' && (
-          <div className="flex gap-1 px-5 pt-3" aria-hidden="true">
+          <div className={`${DIALOG_HEADER} flex gap-1 px-5 pt-3`} aria-hidden="true">
             {rubric.map((r, i) => (
               <span
                 key={r.id}
@@ -335,7 +336,7 @@ const SelfAssessmentModal: React.FC<SelfAssessmentModalProps> = ({
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className={`${DIALOG_BODY} overflow-x-hidden`}>
           <AnimatePresence mode="wait" initial={false} custom={dir}>
             <motion.div
               key={stepKey(step)}
@@ -350,7 +351,7 @@ const SelfAssessmentModal: React.FC<SelfAssessmentModalProps> = ({
           </AnimatePresence>
         </div>
 
-        <div className="px-5 py-3.5 border-t border-ld-frost bg-ld-cloud/50 flex items-center justify-between gap-3">{footer}</div>
+        <div className={`${DIALOG_FOOTER} px-5 py-3.5 border-t border-ld-frost bg-ld-cloud/50 flex items-center justify-between gap-3`}>{footer}</div>
       </motion.div>
     </motion.div>
   );

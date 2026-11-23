@@ -2,6 +2,8 @@
 title: Menulis Pertanyaan Klarifikasi yang Langsung Dijawab PM
 slug: menulis-pertanyaan-klarifikasi-untuk-pm
 excerpt: Menemukan gap di PRD baru setengah pekerjaan. Pelajari checklist mencari gap dan cara menulis pertanyaan klarifikasi yang spesifik, punya skenario, dan bisa dijawab dalam satu kali baca.
+seo_title: Menulis Pertanyaan Klarifikasi QA untuk PM
+seo_description: Cara QA menulis pertanyaan klarifikasi requirement yang spesifik, menyebut lokasi dan skenario, serta bisa dijawab PM dalam satu kali baca.
 category: Manual Testing (pilih di admin)
 tags: requirement, prd, komunikasi, manual testing
 visibility: library

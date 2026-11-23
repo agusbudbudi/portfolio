@@ -12,6 +12,7 @@ import LoadingState from '../../../components/common/LoadingState';
 import NotFoundState from '../../../components/common/NotFoundState';
 import CourseLessonMode from '../../qa-course/components/CourseLessonMode';
 import CourseMembershipBanner from '../../qa-course/components/CourseMembershipBanner';
+import { MARKDOWN_COMPONENTS } from '../../../lib/markdownComponents';
 
 function formatBytes(bytes: number | undefined): string {
   if (!bytes) return '';
@@ -104,8 +105,8 @@ const QaLibraryArticleDetailPage: React.FC = () => {
   );
 
   const body = (
-    <div className="text-ld-onyx text-sm sm:text-base leading-relaxed markdown-body prose max-w-none">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.body}</ReactMarkdown>
+    <div className="text-ld-onyx text-[17px] md:text-lg leading-[1.75] markdown-body prose max-w-none">
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>{article.body}</ReactMarkdown>
     </div>
   );
 
