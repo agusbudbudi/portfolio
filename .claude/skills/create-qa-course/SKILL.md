@@ -148,6 +148,10 @@ Chrome + Playwright. Claude can run this one itself.
   single words are auto-shrunk, but check nothing touches the right card.
 - `--course` renders only `course.png` (for a course whose articles already
   have thumbnails).
+- For a course that already exists in the DB, take `level`, `estimatedHours`,
+  and module titles from the live public API (`curl -sL
+  https://www.mentorqa.com/api/qa-courses`), never from fallbacks in the code.
+  The image bakes those numbers in (a wrong "±8 jam" shipped once).
 - The course card shows the image full width; the courses drawer crops to the
   top-left (about 108px wide), so brand + title must stay top-left.
 
