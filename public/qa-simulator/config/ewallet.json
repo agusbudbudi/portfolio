@@ -79,8 +79,16 @@
         ],
         "resources": [
           {
-            "label": "QA Library — artikel manual testing",
-            "url": "/qa-library"
+            "label": "Membaca PRD Fitur Uang dengan Kacamata Risiko",
+            "url": "/qa-library/membaca-prd-fitur-uang-dengan-kacamata-risiko"
+          },
+          {
+            "label": "Kasus Gagal yang Sering Hilang dari PRD",
+            "url": "/qa-library/kasus-gagal-yang-sering-hilang-dari-prd"
+          },
+          {
+            "label": "Menulis Ringkasan Pemahaman Fitur",
+            "url": "/qa-library/menulis-ringkasan-pemahaman-fitur"
           }
         ]
       },
@@ -362,8 +370,16 @@
         ],
         "resources": [
           {
-            "label": "QA Library",
-            "url": "/qa-library"
+            "label": "Test Plan Satu Halaman",
+            "url": "/qa-library/test-plan-satu-halaman"
+          },
+          {
+            "label": "Risk-Based Testing: Likelihood × Impact",
+            "url": "/qa-library/risk-based-testing-likelihood-impact"
+          },
+          {
+            "label": "Entry/Exit Criteria dan Memilih Level Pengujian",
+            "url": "/qa-library/entry-exit-criteria-dan-level-pengujian"
           }
         ]
       },
@@ -628,8 +644,16 @@
         ],
         "resources": [
           {
-            "label": "QA Library",
-            "url": "/qa-library"
+            "label": "Dasar HTTP untuk QA: Method, Status Code, Header, Body",
+            "url": "/qa-library/dasar-http-untuk-qa"
+          },
+          {
+            "label": "Menyusun API Test Case",
+            "url": "/qa-library/menyusun-api-test-case"
+          },
+          {
+            "label": "Idempotency, Side Effect, dan Bug Report API",
+            "url": "/qa-library/idempotency-side-effect-dan-bug-report-api"
           }
         ]
       },
@@ -1012,8 +1036,16 @@
         ],
         "resources": [
           {
-            "label": "QA Library",
-            "url": "/qa-library"
+            "label": "Retest vs Regression, dan Membaca Release Notes",
+            "url": "/qa-library/retest-vs-regression-dan-membaca-release-notes"
+          },
+          {
+            "label": "Memilih Regression Suite Berdasarkan Perubahan dan Risiko",
+            "url": "/qa-library/memilih-regression-suite"
+          },
+          {
+            "label": "Release Sign-off yang Bisa Dipertanggungjawabkan",
+            "url": "/qa-library/release-sign-off-go-no-go"
           }
         ]
       },

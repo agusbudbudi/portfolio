@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, Check, Clock, FlaskConical, Layers, X } from 'lucide-react';
+import { ArrowRight, BookOpen, Check, ChevronLeft, ChevronRight, Clock, FlaskConical, Layers, X } from 'lucide-react';
 import FaqAccordion from '../../../../components/common/FaqAccordion';
 import PixelMosaic from '../../../../components/illustration/PixelMosaic';
 import { QaCourseIcon } from '../../../../components/illustration/ProductIcons';
@@ -77,11 +77,53 @@ const ComingSoonCard: React.FC<(typeof COMING_SOON)[number]> = ({ level, title, 
   </div>
 );
 
-// Mobile: horizontal snap slider bleeding to the screen edges, the next card
-// peeking in as a swipe hint (same pattern as the home sliders). md+: grid.
-// pb-2 keeps the cards' shadow from being clipped by the scroll container.
-const LIST = '-mx-4 px-4 pb-2 flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory scroll-px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-5 md:overflow-visible';
-const SLIDE = 'shrink-0 w-[82%] sm:w-[60%] snap-start md:w-auto';
+// Horizontal, scroll-snapping slider at every breakpoint (same pattern as the
+// QA Simulator projects band): native scroll so swipe/trackpad/keyboard work,
+// prev/next buttons that disable at the ends and hide when everything fits.
+// The track is full-bleed while the first card lines up with the content
+// column: --bleed = viewport edge to that column (1200px max + px-4/sm:px-6).
+// py-4 -my-4 keeps the cards' shadow from being clipped by the scroll box.
+const TRACK = 'flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-[var(--bleed)] px-[var(--bleed)] scroll-px-[var(--bleed)] [--bleed:calc(max(0px,(100vw-1200px)/2)+1rem)] sm:[--bleed:calc(max(0px,(100vw-1200px)/2)+1.5rem)] py-4 -my-4';
+const SLIDE = 'shrink-0 snap-start w-[82%] sm:w-[340px] lg:w-[372px]';
+const NAV_BTN = 'w-10 h-10 flex items-center justify-center rounded-full border border-white/40 bg-white/10 text-white cursor-pointer transition-colors hover:bg-white hover:text-ld-violet active:bg-white active:text-ld-violet disabled:opacity-35 disabled:cursor-default disabled:hover:bg-white/10 disabled:hover:text-white disabled:active:bg-white/10 disabled:active:text-white';
+
+const CourseSlider: React.FC<{ children: React.ReactNode; count: number; label: string }> = ({ children, count, label }) => {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [edge, setEdge] = useState({ start: true, end: false });
+
+  const update = useCallback(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    setEdge({ start: el.scrollLeft <= 4, end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 4 });
+  }, []);
+
+  useEffect(() => {
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [update, count]);
+
+  const scrollBy = (dir: 1 | -1) => {
+    const el = trackRef.current;
+    const slide = el?.firstElementChild as HTMLElement | null;
+    if (!el || !slide) return;
+    el.scrollBy({ left: dir * (slide.offsetWidth + 20), behavior: 'smooth' });
+  };
+
+  return (
+    <div>
+      <div ref={trackRef} onScroll={update} className={TRACK} aria-label={label}>
+        {children}
+      </div>
+      {!(edge.start && edge.end) && (
+        <div className="flex justify-end gap-2 mt-6">
+          <button type="button" onClick={() => scrollBy(-1)} disabled={edge.start} aria-label="Course sebelumnya" className={NAV_BTN}><ChevronLeft size={18} /></button>
+          <button type="button" onClick={() => scrollBy(1)} disabled={edge.end} aria-label="Course berikutnya" className={NAV_BTN}><ChevronRight size={18} /></button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const CourseListSection: React.FC<{
   courses: QaCourseSummary[] | null;
@@ -100,7 +142,7 @@ export const CourseListSection: React.FC<{
       </div>
 
       {courses === null && !error && (
-        <div className={LIST} role="status" aria-label="Memuat course…">
+        <div className={TRACK} role="status" aria-label="Memuat course…">
           {[0, 1, 2].map((i) => <div key={i} className={`${SLIDE} h-[360px] rounded-2xl bg-white/15 animate-pulse`} />)}
         </div>
       )}
@@ -114,12 +156,12 @@ export const CourseListSection: React.FC<{
         </div>
       )}
       {courses && courses.length > 0 && (
-        <div className={LIST}>
+        <CourseSlider count={courses.length} label="Daftar course">
           {courses.map((c) => <div key={c.id} className={SLIDE}><CourseCard course={c} /></div>)}
           {COMING_SOON.filter((p) => !courses.some((c) => c.slug === p.slug)).map((p) => (
             <div key={p.slug} className={SLIDE}><ComingSoonCard {...p} /></div>
           ))}
-        </div>
+        </CourseSlider>
       )}
     </div>
   </section>

@@ -79,8 +79,16 @@
         ],
         "resources": [
           {
-            "label": "QA Library — artikel manual testing",
-            "url": "/qa-library"
+            "label": "Cara Membaca PRD sebagai QA",
+            "url": "/qa-library/cara-membaca-prd-sebagai-qa"
+          },
+          {
+            "label": "Membaca PRD Fitur Uang dengan Kacamata Risiko",
+            "url": "/qa-library/membaca-prd-fitur-uang-dengan-kacamata-risiko"
+          },
+          {
+            "label": "Kasus Gagal yang Sering Hilang dari PRD",
+            "url": "/qa-library/kasus-gagal-yang-sering-hilang-dari-prd"
           }
         ]
       },
@@ -418,7 +426,7 @@
             "url": "https://webaim.org/resources/contrastchecker/"
           },
           {
-            "label": "QA Library — artikel manual testing",
+            "label": "QA Library: artikel manual testing",
             "url": "/qa-library"
           }
         ]
