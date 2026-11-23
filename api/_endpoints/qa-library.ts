@@ -28,9 +28,16 @@ async function handleAdminList(req: VercelRequest, res: VercelResponse) {
 // dead-code gap — see turso.ts/mentors.ts comments), this explicitly
 // implements GET/POST at the root so /api/qa-library actually works.
 async function handleRootGet(req: VercelRequest, res: VercelResponse) {
-  const { category } = req.query;
+  const { category, slugs: slugsParam } = req.query;
   const categoryId = typeof category === 'string' && category ? category : undefined;
-  const articles = await listQaLibraryArticles({ publishedOnly: true, libraryOnly: true, categoryId });
+  // ?slugs=a,b — fetch specific articles (e.g. a simulator phase's reading
+  // list) by slug. Includes course-only articles: they're public by URL, just
+  // hidden from the library grid. Avoids per-slug detail reads, which would
+  // bump view counts.
+  const slugs = typeof slugsParam === 'string' && slugsParam
+    ? slugsParam.split(',').map((s) => s.trim()).filter((s) => isValidSlug(s)).slice(0, 20)
+    : undefined;
+  const articles = await listQaLibraryArticles({ publishedOnly: true, libraryOnly: !slugs, categoryId, slugs });
   res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
   return res.status(200).json({ articles });
 }

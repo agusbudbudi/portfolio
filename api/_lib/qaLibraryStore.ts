@@ -60,7 +60,7 @@ function rowToSummary(row: Row): QaLibraryArticleSummary {
 }
 
 export async function listQaLibraryArticles(
-  opts?: { publishedOnly?: boolean; categoryId?: string; libraryOnly?: boolean }
+  opts?: { publishedOnly?: boolean; categoryId?: string; libraryOnly?: boolean; slugs?: string[] }
 ): Promise<QaLibraryArticleSummary[]> {
   await migrate();
   const db = getClient();
@@ -69,6 +69,11 @@ export async function listQaLibraryArticles(
   if (opts?.publishedOnly) conditions.push(`status = 'published'`);
   if (opts?.libraryOnly) conditions.push(`visibility != 'course-only'`);
   if (opts?.categoryId) { conditions.push('category_id = ?'); args.push(opts.categoryId); }
+  if (opts?.slugs) {
+    if (opts.slugs.length === 0) return [];
+    conditions.push(`slug IN (${opts.slugs.map(() => '?').join(', ')})`);
+    args.push(...opts.slugs);
+  }
   const where = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : '';
   const result = await db.execute({
     sql: `SELECT id, slug, title, category_id, excerpt, thumbnail_url, tags, status, reading_time_minutes,
