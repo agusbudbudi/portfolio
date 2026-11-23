@@ -91,7 +91,15 @@ const CourseOutline: React.FC<CourseOutlineProps> = ({ course, lessons, activeIn
               <span className="min-w-0">
                 <span className={`flex items-center gap-2 font-medium uppercase tracking-[0.06em] text-ld-steel ${compact ? 'text-[10px]' : 'text-xs'}`}>
                   Modul {mi + 1}
-                  <span className="normal-case tracking-normal tabular-nums">· {doneCount}/{moduleLessons.length}</span>
+                  {/* Progress only for signed-in learners: "0/4" reads as failure
+                      to a first-time visitor. The dot is its own flex item so the
+                      gap is equal on both sides. */}
+                  {loggedInView && (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <span className="normal-case tracking-normal tabular-nums">{doneCount}/{moduleLessons.length}</span>
+                    </>
+                  )}
                 </span>
                 <span className={`block font-semibold tracking-[-0.01em] text-ld-graphite ${compact ? 'mt-0.5 text-[13px]' : 'mt-1 text-xl'}`}>{mod.title}</span>
                 {!compact && (

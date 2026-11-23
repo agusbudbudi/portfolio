@@ -11,7 +11,6 @@ import { useCourse } from '../hooks/useCourse';
 import { nextLesson, type Lesson } from '../lib/courseOutline';
 import CourseOutline from '../components/CourseOutline';
 import CourseLoginModal from '../components/CourseLoginModal';
-import CourseJourneyIllustration from '../components/CourseJourneyIllustration';
 
 // Each step maps to the product it uses, so it shows that product's brand
 // icon (same set as the header "Program" menu).
@@ -46,11 +45,56 @@ const CourseDetailPage: React.FC = () => {
 
   const target = nextLesson(lessons);
   const started = completion.done > 0;
-  const ctaLabel = completion.allDone ? 'Lihat hasil kelulusan' : started ? 'Lanjutkan belajar' : 'Mulai belajar';
+  const ctaLabel = completion.allDone ? 'Lihat hasil kelulusan' : started ? 'Lanjutkan belajar' : 'Mulai Belajar Gratis';
   const ctaHref = completion.allDone ? `/courses/${course.slug}/selesai` : target?.href;
   // "Langsung praktik" opens the simulator project this course practices on.
   const firstMission = course.modules.flatMap((m) => m.items).find((i) => i.kind === 'mission');
   const simulatorHref = firstMission?.kind === 'mission' ? `/qa-simulator/${firstMission.projectId}` : '/qa-simulator';
+
+  // Hero copy (left column). Kept as a variable so the archived hero
+  // (components/archive/CourseDetailHeroLegacy) can be restored around it.
+  const heroCopy = (
+    <>
+      <nav aria-label="Breadcrumb" className="mb-4">
+        <ol className="m-0 p-0 list-none flex flex-wrap items-center gap-1.5 text-[13px] text-ld-steel">
+          <li><Link to="/courses" className="text-ld-slate hover:text-ld-violet no-underline">QA Course</Link></li>
+          <li aria-hidden="true"><ChevronRight size={14} className="text-ld-mist" /></li>
+          <li aria-current="page" className="text-ld-graphite font-medium truncate max-w-[60vw]">{course.title}</li>
+        </ol>
+      </nav>
+      <p className="m-0 text-[11px] font-semibold uppercase tracking-widest text-ld-violet">QA Course · {QA_COURSE_LEVEL_LABEL[course.level]}</p>
+      <h1 className="m-0 mt-3 font-ld-display font-semibold text-[40px] sm:text-[52px] text-ld-onyx tracking-[-0.025em] leading-[1.05]">{course.title}</h1>
+      <p className="m-0 mt-4 text-ld-slate text-sm sm:text-base leading-relaxed max-w-2xl whitespace-pre-line">{course.description}</p>
+      <ul className="m-0 mt-5 p-0 list-none flex flex-wrap gap-x-5 gap-y-2 text-sm text-ld-graphite">
+        <li className="inline-flex items-center gap-1.5"><Layers size={15} className="text-ld-violet" /> {course.modules.length} modul</li>
+        <li className="inline-flex items-center gap-1.5"><BookOpen size={15} className="text-ld-violet" /> {lessons.filter((l) => l.kind === 'article').length} artikel</li>
+        <li className="inline-flex items-center gap-1.5"><FlaskConical size={15} className="text-ld-violet" /> {lessons.filter((l) => l.kind === 'mission').length} misi praktik</li>
+        <li className="inline-flex items-center gap-1.5"><Clock size={15} className="text-ld-violet" /> ±{course.estimatedHours} jam</li>
+      </ul>
+
+      <div className="mt-7 flex flex-col sm:flex-row sm:items-center gap-4">
+        {ctaHref && (
+          <Link
+            to={ctaHref}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-semibold no-underline transition-colors"
+          >
+            {completion.allDone ? <Award size={16} /> : null}{ctaLabel} <ArrowRight size={16} />
+          </Link>
+        )}
+        {loggedIn && progressLoaded && (
+          <div className="flex-1 max-w-xs">
+            <div className="flex justify-between text-xs text-ld-slate mb-1.5">
+              <span>Progress</span><span className="tabular-nums">{completion.done}/{completion.total} selesai</span>
+            </div>
+            <div className="h-2 rounded-full bg-white border border-ld-frost overflow-hidden" role="progressbar" aria-valuenow={completion.percent} aria-valuemin={0} aria-valuemax={100}>
+              <div className="h-full bg-ld-violet transition-all" style={{ width: `${completion.percent}%` }} />
+            </div>
+          </div>
+        )}
+        {!loggedIn && <p className="m-0 text-xs text-ld-slate">Lesson pertama bisa dibaca tanpa login.</p>}
+      </div>
+    </>
+  );
 
   return (
     <div className="font-ld-sans pb-16">
@@ -61,59 +105,39 @@ const CourseDetailPage: React.FC = () => {
         image={course.seoOgImage || course.thumbnailUrl}
       />
 
-      <div className="relative overflow-hidden bg-gradient-to-br from-ld-lilac via-ld-cloud to-white">
-        <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 pt-20 md:pt-24 pb-8 md:pb-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-          <div className="lg:col-span-7 min-w-0">
-            <nav aria-label="Breadcrumb" className="mb-4">
-              <ol className="m-0 p-0 list-none flex flex-wrap items-center gap-1.5 text-[13px] text-ld-steel">
-                <li><Link to="/courses" className="text-ld-slate hover:text-ld-violet no-underline">QA Course</Link></li>
-                <li aria-hidden="true"><ChevronRight size={14} className="text-ld-mist" /></li>
-                <li aria-current="page" className="text-ld-graphite font-medium truncate max-w-[60vw]">{course.title}</li>
-              </ol>
-            </nav>
-            <p className="m-0 text-[11px] font-semibold uppercase tracking-widest text-ld-violet">QA Course · {QA_COURSE_LEVEL_LABEL[course.level]}</p>
-            <h1 className="m-0 mt-3 font-ld-display font-semibold text-[40px] sm:text-[52px] text-ld-onyx tracking-[-0.025em] leading-[1.05]">{course.title}</h1>
-            <p className="m-0 mt-4 text-ld-slate text-sm sm:text-base leading-relaxed max-w-2xl whitespace-pre-line">{course.description}</p>
-            <ul className="m-0 mt-5 p-0 list-none flex flex-wrap gap-x-5 gap-y-2 text-sm text-ld-graphite">
-              <li className="inline-flex items-center gap-1.5"><Layers size={15} className="text-ld-violet" /> {course.modules.length} modul</li>
-              <li className="inline-flex items-center gap-1.5"><BookOpen size={15} className="text-ld-violet" /> {lessons.filter((l) => l.kind === 'article').length} artikel</li>
-              <li className="inline-flex items-center gap-1.5"><FlaskConical size={15} className="text-ld-violet" /> {lessons.filter((l) => l.kind === 'mission').length} misi praktik</li>
-              <li className="inline-flex items-center gap-1.5"><Clock size={15} className="text-ld-violet" /> ±{course.estimatedHours} jam</li>
-            </ul>
-
-            <div className="mt-7 flex flex-col sm:flex-row sm:items-center gap-4">
-              {ctaHref && (
-                <Link
-                  to={ctaHref}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-sm font-semibold no-underline transition-colors"
-                >
-                  {completion.allDone ? <Award size={16} /> : null}{ctaLabel} <ArrowRight size={16} />
-                </Link>
-              )}
-              {loggedIn && progressLoaded && (
-                <div className="flex-1 max-w-xs">
-                  <div className="flex justify-between text-xs text-ld-slate mb-1.5">
-                    <span>Progress</span><span className="tabular-nums">{completion.done}/{completion.total} selesai</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-white border border-ld-frost overflow-hidden" role="progressbar" aria-valuenow={completion.percent} aria-valuemin={0} aria-valuemax={100}>
-                    <div className="h-full bg-ld-violet transition-all" style={{ width: `${completion.percent}%` }} />
-                  </div>
-                </div>
-              )}
-              {!loggedIn && <p className="m-0 text-xs text-ld-slate">Lesson pertama bisa dibaca tanpa login.</p>}
-            </div>
+      <div className="relative overflow-hidden bg-ld-canvas">
+        {/* Lilac glow top-right, as on the home hero. The text side stays
+            clean: the pixel mosaics only hug the photo (see below). */}
+        <div aria-hidden="true" className="pointer-events-none absolute -top-40 right-[-10%] w-[620px] h-[620px] rounded-full bg-ld-lilac/60 blur-3xl" />
+        <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 pt-20 md:pt-24 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-end">
+          <div className="lg:col-span-7 min-w-0 self-center lg:pb-16">
+            {heroCopy}
           </div>
-          {/* Mosaic anchored behind the illustration's top-right corner, the
-              same composition as the QA Simulator / Mentoring hero art. */}
-          <div className="lg:col-span-5 relative pt-6 lg:pt-4">
+          {/* The cut-out photo sits on the hero's bottom edge (he is cropped at
+              the waist); a soft blue glow sits behind him. */}
+          <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
+            <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[85%] aspect-square rounded-full bg-ld-violet/15 blur-3xl" />
+            {/* Hugs the photo's top-right corner (dense tiles point into it). */}
             <PixelMosaic
               variant="blue"
-              className="!hidden sm:!grid absolute -top-2 -right-2 lg:-right-8"
-              style={{ width: 'min(62%, 280px)' }}
+              className="absolute top-4 -right-2 lg:-right-8 opacity-70 w-[45%] sm:w-[62%] max-w-[280px]"
             />
-            <div className="relative">
-              <CourseJourneyIllustration />
-            </div>
+            {/* Second mosaic at the photo's bottom-left, flipped on both axes so
+                its dense tiles point into that corner. */}
+            <PixelMosaic
+              variant="blue"
+              className="absolute bottom-4 -left-2 sm:-left-4 lg:-left-6 opacity-70 w-[55%] sm:w-[80%] max-w-[380px]"
+              style={{ transform: 'scale(-1, -1)' }}
+            />
+            <img
+              src="/qa-course/hero-junior-qa.webp"
+              alt=""
+              width={1000}
+              height={1000}
+              decoding="async"
+              fetchPriority="high"
+              className="relative block w-full max-w-[340px] sm:max-w-[420px] lg:max-w-[500px] h-auto"
+            />
           </div>
         </div>
       </div>
@@ -123,7 +147,8 @@ const CourseDetailPage: React.FC = () => {
           <h2 className="m-0 mb-5 font-ld-display text-xl font-semibold text-ld-onyx">Kurikulum</h2>
           <CourseOutline course={course} lessons={lessons} onLocked={setLockedLesson} />
         </section>
-        <aside>
+        {/* Sticky beside the (long) curriculum from lg up; top clears the fixed navbar. */}
+        <aside className="lg:sticky lg:top-24 lg:self-start">
           <h2 className="m-0 mb-5 font-ld-display text-xl font-semibold text-ld-onyx">Cara belajarnya</h2>
           <ol className="m-0 p-0 list-none flex flex-col gap-3">
             {OUTCOMES.map(({ icon: Icon, title, body }, i) => (

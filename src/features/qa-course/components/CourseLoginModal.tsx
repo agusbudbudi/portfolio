@@ -34,12 +34,12 @@ const CourseLoginModal: React.FC<CourseLoginModalProps> = ({ courseTitle, lesson
       className="fixed inset-0 z-[1100] flex items-end sm:items-center justify-center bg-ld-onyx/50 backdrop-blur-sm sm:p-4 font-ld-sans"
       onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div role="dialog" aria-modal="true" aria-labelledby="course-login-title" className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-lg overflow-hidden">
+      <div role="dialog" aria-modal="true" aria-labelledby="course-login-title" className="relative w-full sm:max-w-md h-dvh sm:h-auto flex flex-col justify-center sm:block overflow-y-auto sm:overflow-hidden bg-white sm:rounded-lg pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] sm:pt-0 sm:pb-0">
         <button
           type="button"
           onClick={onClose}
           aria-label="Tutup"
-          className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-lg bg-transparent hover:bg-ld-cloud text-ld-slate hover:text-ld-onyx border-none cursor-pointer transition-colors"
+          className="absolute top-[calc(env(safe-area-inset-top)+0.75rem)] sm:top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-lg bg-transparent hover:bg-ld-cloud text-ld-slate hover:text-ld-onyx border-none cursor-pointer transition-colors"
         >
           <X size={18} />
         </button>

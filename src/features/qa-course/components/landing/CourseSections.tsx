@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Check, Clock, FlaskConical, Layers, X } from 'lucide-react';
 import FaqAccordion from '../../../../components/common/FaqAccordion';
 import PixelMosaic from '../../../../components/illustration/PixelMosaic';
-import { QaCourseIcon, QaLibraryIcon, QaPortfolioIcon, QaSimulatorIcon } from '../../../../components/illustration/ProductIcons';
+import { QaCourseIcon } from '../../../../components/illustration/ProductIcons';
 import type { QaCourseSummary } from '../../../../types/qaCourse';
 import { QA_COURSE_LEVEL_LABEL } from '../../../../types/qaCourse';
 import { COMING_SOON, FAQ_ITEMS } from './content';
@@ -127,12 +127,12 @@ export const CourseListSection: React.FC<{
 
 // ── How it works ────────────────────────────────────────────────────────────
 
-// Each step uses the brand icon of the product behind it (same set as the
-// header "Program" menu and the course detail page).
+// Each step leads with a 3:2 photo (public/qa-course/step-*.webp). The photos
+// are decorative: the title and body below carry the meaning, so alt is empty.
 const STEPS = [
-  { icon: QaLibraryIcon, title: 'Belajar', body: 'Materi singkat 5 sampai 10 menit per topik, ditulis praktisi dengan contoh dari aplikasi sehari-hari.' },
-  { icon: QaSimulatorIcon, title: 'Praktik', body: 'Setiap modul diakhiri misi di QA Simulator: PRD, tim, dan aplikasi staging yang benar-benar bisa kamu tes.' },
-  { icon: QaPortfolioIcon, title: 'Bukti', body: 'Hasil misi tersusun jadi portfolio studi kasus. Bagikan lewat link publik atau unduh sebagai PDF.' },
+  { image: '/qa-course/step-belajar.webp', title: 'Belajar', body: 'Materi singkat 5 sampai 10 menit per topik, ditulis praktisi dengan contoh dari aplikasi sehari-hari.' },
+  { image: '/qa-course/step-praktik.webp', title: 'Praktik', body: 'Setiap modul diakhiri misi di QA Simulator: PRD, tim, dan aplikasi staging yang benar-benar bisa kamu tes.' },
+  { image: '/qa-course/step-bukti.webp', title: 'Bukti', body: 'Hasil misi tersusun jadi portfolio studi kasus. Bagikan lewat link publik atau unduh sebagai PDF.' },
 ];
 
 export const CourseHowItWorksSection: React.FC = () => (
@@ -145,16 +145,22 @@ export const CourseHowItWorksSection: React.FC = () => (
       </div>
       {/* Mobile: one card per row. md+: 3 columns. */}
       <ol className="m-0 p-0 list-none grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
-        {STEPS.map(({ icon: Icon, title, body }, i) => (
-          <li key={title} className="rounded-2xl border border-ld-frost bg-white p-5 md:p-6">
-            <div className="flex items-center gap-3">
-              <Icon size={44} className="shrink-0" />
-              <div className="min-w-0">
-                <p className="m-0 text-xs font-semibold text-ld-fog tabular-nums">Langkah {i + 1}</p>
-                <h3 className="m-0 mt-0.5 text-base md:text-lg font-semibold text-ld-graphite">{title}</h3>
-              </div>
+        {STEPS.map(({ image, title, body }, i) => (
+          <li key={title} className="flex flex-col rounded-2xl border border-ld-frost bg-white p-3">
+            <img
+              src={image}
+              alt=""
+              width={1200}
+              height={800}
+              loading="lazy"
+              decoding="async"
+              className="block w-full aspect-[3/2] object-cover rounded-xl bg-ld-cloud"
+            />
+            <div className="px-2 pt-4 pb-2 md:px-3 md:pt-5 md:pb-3">
+              <p className="m-0 text-sm font-semibold text-ld-violet tabular-nums">Langkah {i + 1}</p>
+              <h3 className="m-0 mt-1 text-xl md:text-2xl font-semibold tracking-[-0.01em] text-ld-graphite">{title}</h3>
+              <p className="m-0 mt-2 md:mt-3 text-[15px] md:text-base text-ld-slate leading-relaxed">{body}</p>
             </div>
-            <p className="m-0 mt-3 md:mt-4 text-sm text-ld-slate leading-relaxed">{body}</p>
           </li>
         ))}
       </ol>

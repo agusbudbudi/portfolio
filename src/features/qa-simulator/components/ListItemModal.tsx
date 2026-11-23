@@ -6,6 +6,7 @@ import { isItemFilled } from '../lib/progress';
 import FieldControl from './FieldControl';
 import JiraBugModal from './JiraBugModal';
 import { useLeaveGuard } from '../hooks/useLeaveGuard';
+import { DIALOG_BODY, DIALOG_FOOTER, DIALOG_HEADER } from '../../../lib/dialogLayout';
 
 type ListSpec = Extract<SimulatorInputSpec, { type: 'list' }>;
 
@@ -90,14 +91,14 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ spec, index, displayNumbe
         role="dialog"
         aria-modal="true"
         aria-labelledby="list-item-modal-title"
-        className="w-full sm:max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-t-2xl sm:rounded-lg overflow-hidden shadow-2xl"
+        className="w-full sm:max-w-2xl h-dvh sm:h-auto sm:max-h-[92vh] flex flex-col bg-white sm:rounded-lg pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] sm:pt-0 sm:pb-0 overflow-hidden shadow-2xl"
         initial={{ y: 32, opacity: 0, scale: 0.98 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: 20, opacity: 0 }}
         transition={{ type: 'spring', damping: 28, stiffness: 320 }}
         onSubmit={(e) => { e.preventDefault(); if (!readOnly) save(false); }}
       >
-        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-ld-frost">
+        <div className={`${DIALOG_HEADER} flex items-center justify-between gap-3 px-5 py-4 border-b border-ld-frost`}>
           <div className="min-w-0">
             <h3 id="list-item-modal-title" className="m-0 text-base font-semibold text-ld-onyx truncate">{title}</h3>
             {!readOnly && <p className="m-0 mt-0.5 text-xs text-ld-fog">Field bertanda <span className="text-red-500">*</span> wajib diisi.</p>}
@@ -112,7 +113,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ spec, index, displayNumbe
           </button>
         </div>
 
-        <div ref={firstFieldRef} className="flex-1 overflow-y-auto px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div ref={firstFieldRef} className={`${DIALOG_BODY} px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-4`}>
           {spec.fields.map((field) => {
             const inputId = `modal-${spec.itemLabel}-${field.id}`;
             const invalid = showErrors && !!field.required && !(draft[field.id] ?? '').trim();
@@ -135,7 +136,7 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ spec, index, displayNumbe
           })}
         </div>
 
-        <div className="px-5 py-4 border-t border-ld-frost bg-ld-cloud/50 flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3">
+        <div className={`${DIALOG_FOOTER} px-5 py-4 border-t border-ld-frost bg-ld-cloud/50 flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3`}>
           {readOnly ? (
             <>
               <span className="text-xs text-ld-fog">Tugas sudah disubmit — klik "Edit jawaban" di kartu tugas untuk mengubah.</span>

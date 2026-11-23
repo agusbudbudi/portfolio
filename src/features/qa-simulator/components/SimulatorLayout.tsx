@@ -48,9 +48,9 @@ const SimulatorHeader: React.FC = () => {
             onClick={() => setDrawerOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={drawerOpen}
-            className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-sm border-none cursor-pointer transition-colors ${drawerOpen ? 'bg-white/10 text-white' : 'bg-transparent text-white/60 hover:text-white'}`}
+            className={`inline-flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg text-sm border-none cursor-pointer transition-colors ${drawerOpen ? 'bg-white/10 text-white' : 'bg-transparent text-white/60 hover:text-white'}`}
           >
-            <FolderKanban size={15} className="sm:hidden" aria-hidden="true" />
+            <FolderKanban size={16} className="w-5 h-5 sm:w-4 sm:h-4 shrink-0" aria-hidden="true" />
             <span className="sr-only sm:not-sr-only">Projects</span>
           </button>
           {user ? (

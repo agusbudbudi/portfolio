@@ -260,9 +260,9 @@ const LightdashNavbar: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-              className="fixed top-16 left-0 w-full bg-ld-canvas border-b border-ld-ash z-[1002] md:hidden"
+              className="fixed top-16 left-0 w-full max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain bg-ld-canvas border-b border-ld-ash z-[1002] md:hidden"
             >
-              <div className="border-b border-ld-ash py-2 max-h-[45vh] overflow-y-auto">
+              <div className="border-b border-ld-ash py-2">
                 <p className="m-0 px-6 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-widest text-ld-fog">Program</p>
                 <ProductsMobileList onNavigate={closeMenu} />
               </div>

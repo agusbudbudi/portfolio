@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { MARKDOWN_COMPONENTS } from '../../../../lib/markdownComponents';
 
 interface QaLibraryMarkdownEditorProps {
   value: string;
@@ -44,7 +45,7 @@ const QaLibraryMarkdownEditor: React.FC<QaLibraryMarkdownEditorProps> = ({ value
         />
       ) : (
         <div className="w-full h-80 overflow-y-auto px-3.5 py-2.5 rounded-lg border border-ld-frost bg-ld-cloud/40 text-sm text-ld-onyx markdown-body prose max-w-none">
-          {value.trim() ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown> : <p className="text-ld-fog italic">Belum ada konten.</p>}
+          {value.trim() ? <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>{value}</ReactMarkdown> : <p className="text-ld-fog italic">Belum ada konten.</p>}
         </div>
       )}
 
