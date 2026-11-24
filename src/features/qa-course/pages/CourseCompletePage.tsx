@@ -6,12 +6,15 @@ import TrophyIllustration from '../../qa-simulator/components/TrophyIllustration
 import Seo from '../../../components/common/Seo';
 import LoadingState from '../../../components/common/LoadingState';
 import { useCourse } from '../hooks/useCourse';
+import { useCheckpointPopup } from '../hooks/useCheckpointPopup';
 
 // Graduation page: points the learner at their simulator portfolio(s), where
 // they turn on the public share link and post it.
 const CourseCompletePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { state, course, lessons, completion, loggedIn, progressLoaded } = useCourse(slug);
+  const { state, course, lessons, completion, loggedIn, progressLoaded, checkpoints, submitFeedback } = useCourse(slug);
+  // A checkpoint after the last lesson (course rating + review) asks here.
+  const { popup: feedbackPopup } = useCheckpointPopup({ course, lessons, checkpoints, loggedIn, progressLoaded, submitFeedback });
 
   if (state.status === 'loading' || (loggedIn && !progressLoaded)) return <LoadingState className="min-h-[60vh]" />;
   if (!course) return <p className="pt-12 md:pt-16 px-4 text-center text-sm text-ld-slate">Course tidak ditemukan.</p>;
@@ -82,6 +85,7 @@ const CourseCompletePage: React.FC = () => {
       <div className="mt-6 text-center">
         <Link to="/courses" className="text-sm text-ld-violet no-underline">Lihat course lain</Link>
       </div>
+      {feedbackPopup}
     </div>
   );
 };

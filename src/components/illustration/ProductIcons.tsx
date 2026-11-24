@@ -1,16 +1,19 @@
 import React from 'react';
 import { C } from './illustrationKit';
 
-// Brand icon set for the four Mentor.QA products. Flat vector on a rounded
+// Brand icon set for the Mentor.QA products and features. Flat vector on a rounded
 // Whisper tile (docs/DESIGN.md: brand tokens only, one Sky Blue focal element
 // per icon, Graphite outlines). 48×48 viewBox; size via the `size` prop.
 // Decorative (aria-hidden) — pair with a visible text label.
 
 export interface IconProps { size?: number; className?: string; tile?: boolean }
 
-export const Frame: React.FC<IconProps & { children: React.ReactNode }> = ({ size = 40, className, tile = true, children }) => (
+/** Tile colours: Sky for products, Honey for feedback & rating. */
+const TILE = { sky: { fill: C.whisper, stroke: C.wash }, honey: { fill: C.cream, stroke: C.butter } } as const;
+
+export const Frame: React.FC<IconProps & { tone?: keyof typeof TILE; children: React.ReactNode }> = ({ size = 40, className, tile = true, tone = 'sky', children }) => (
   <svg width={size} height={size} viewBox="0 0 48 48" className={className} aria-hidden="true">
-    {tile && <rect x="0.5" y="0.5" width="47" height="47" rx="12" fill={C.whisper} stroke={C.wash} />}
+    {tile && <rect x="0.5" y="0.5" width="47" height="47" rx="12" fill={TILE[tone].fill} stroke={TILE[tone].stroke} />}
     {children}
   </svg>
 );
@@ -101,5 +104,25 @@ export const MentorIcon: React.FC<IconProps> = (p) => (
     <path d="M31 33.5l-1.6 6.3 2.6-1.2 1.6 2.2 1.2-6.6zM37 33.5l1.6 6.3-2.6-1.2-1.6 2.2-1.2-6.6z" fill={C.wash} stroke={C.graphite} strokeWidth="1.4" strokeLinejoin="round" />
     <circle cx="34" cy="29.5" r="6.2" fill={C.blue} stroke={C.graphite} strokeWidth="2" />
     <path d="M34.0 26.3L34.8 28.4L37.0 28.5L35.3 29.9L35.9 32.1L34.0 30.9L32.1 32.1L32.7 29.9L31.0 28.5L33.2 28.4z" fill={C.white} />
+  </Frame>
+);
+
+/** 5-point star path centred on (cx, cy). */
+const starPath = (cx: number, cy: number, r: number) => {
+  const pts = Array.from({ length: 10 }, (_, i) => {
+    const a = (Math.PI / 5) * i - Math.PI / 2;
+    const rr = i % 2 ? r * 0.45 : r;
+    return `${(cx + rr * Math.cos(a)).toFixed(2)} ${(cy + rr * Math.sin(a)).toFixed(2)}`;
+  });
+  return `M${pts.join('L')}z`;
+};
+
+/** Feedback — speech bubble holding a star rating on a Honey tile; two of three stars filled. */
+export const FeedbackIcon: React.FC<IconProps> = (p) => (
+  <Frame tone="honey" {...p}>
+    <path d="M13 11h22a5 5 0 0 1 5 5v11a5 5 0 0 1-5 5H22l-7.5 6v-6H13a5 5 0 0 1-5-5V16a5 5 0 0 1 5-5z" fill={C.white} stroke={C.graphite} strokeWidth="2" strokeLinejoin="round" />
+    <path d={starPath(15.5, 22, 4.3)} fill={C.honey} />
+    <path d={starPath(24, 22, 4.3)} fill={C.honey} />
+    <path d={starPath(32.5, 22, 4.3)} fill={C.ash} />
   </Frame>
 );

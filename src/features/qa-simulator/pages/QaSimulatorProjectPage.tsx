@@ -12,6 +12,7 @@ import { useSimulatorProject } from '../hooks/useSimulatorData';
 import { useSimulatorProgress, type SyncStatus } from '../hooks/useSimulatorProgress';
 import { useLeaveGuard } from '../hooks/useLeaveGuard';
 import { useCourse } from '../../qa-course/hooks/useCourse';
+import { useCheckpointPopup } from '../../qa-course/hooks/useCheckpointPopup';
 import { phaseScore, phaseState, projectCompletion, type PhaseState } from '../lib/progress';
 import AssignmentCard from '../components/AssignmentCard';
 import PhaseStepper from '../components/PhaseStepper';
@@ -77,7 +78,9 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
   const navigate = useNavigate();
   // In course mode the "next step" after a finished phase is the course's
   // next lesson (e.g. the next module's first article), not the next phase.
-  const { course, lessons } = useCourse(courseSlug);
+  const { course, lessons, checkpoints, loggedIn: courseLoggedIn, progressLoaded, submitFeedback } = useCourse(courseSlug);
+  // Feedback checkpoint the learner passed on the way to this mission.
+  const { popup: feedbackPopup } = useCheckpointPopup({ course, lessons, checkpoints, loggedIn: courseLoggedIn, progressLoaded, submitFeedback });
 
   const states = project.phases.map((_, i) => phaseState(project, i, progress, loggedIn));
   const requested = project.phases.findIndex((p) => p.id === searchParams.get('phase'));
@@ -490,6 +493,7 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
           </motion.div>
         )}
       </AnimatePresence>
+      {missionLesson && feedbackPopup}
     </div>
   );
 };

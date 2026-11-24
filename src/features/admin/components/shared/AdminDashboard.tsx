@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   RefreshCw,
   Users, BookOpen, SlidersHorizontal, CalendarCheck, Menu, X,
-  UserSquare2, Wrench, LayoutDashboard, UserCog, Sparkles, Newspaper, Tag, GraduationCap,
+  UserSquare2, Wrench, LayoutDashboard, UserCog, Sparkles, Newspaper, Tag, GraduationCap, MessageSquareText,
   type LucideIcon,
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
@@ -26,11 +26,12 @@ import UsersTab from '../superadmin/UsersTab';
 import QaLibraryTab from '../superadmin/QaLibraryTab';
 import QaLibraryCategoriesTab from '../superadmin/QaLibraryCategoriesTab';
 import QaCoursesTab from '../superadmin/QaCoursesTab';
+import FeedbackTab from '../superadmin/feedback/FeedbackTab';
 import ProfileMenu from './ProfileMenu';
 
 type NavId =
   | 'home' | 'bookings' | 'mentors' | 'users' | 'topics' | 'rules' | 'portfolios' | 'tools' | 'skills'
-  | 'qa-library' | 'qa-library-categories' | 'qa-courses';
+  | 'qa-library' | 'qa-library-categories' | 'qa-courses' | 'feedback';
 
 interface NavItem {
   id: NavId;
@@ -82,6 +83,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'qa-library', label: 'Articles', description: 'Artikel & materi QA library', icon: Newspaper },
       { id: 'qa-library-categories', label: 'Article Categories', description: 'Kategori artikel QA library', icon: Tag },
       { id: 'qa-courses', label: 'Courses', description: 'Jalur belajar: artikel + misi simulator', icon: GraduationCap },
+      { id: 'feedback', label: 'Feedback', description: 'Bank pertanyaan dan flow untuk checkpoint QA Course', icon: MessageSquareText },
     ],
   },
   {
@@ -116,7 +118,7 @@ const AdminDashboard: React.FC = () => {
     const seg = location.pathname.replace(/^\/dashboard\/?/, '').split('/')[0];
     const validIds: NavId[] = [
       'bookings', 'mentors', 'users', 'topics', 'rules', 'portfolios', 'tools', 'skills',
-      'qa-library', 'qa-library-categories', 'qa-courses',
+      'qa-library', 'qa-library-categories', 'qa-courses', 'feedback',
     ];
     return (validIds as string[]).includes(seg) ? (seg as NavId) : 'home';
   })();
@@ -272,6 +274,7 @@ const AdminDashboard: React.FC = () => {
           {activeNav === 'qa-library' && <QaLibraryTab />}
           {activeNav === 'qa-library-categories' && <QaLibraryCategoriesTab />}
           {activeNav === 'qa-courses' && <QaCoursesTab />}
+          {activeNav === 'feedback' && <FeedbackTab />}
         </main>
       </div>
     </div>

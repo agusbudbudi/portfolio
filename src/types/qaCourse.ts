@@ -2,6 +2,7 @@
 // articles (Belajar) and QA Simulator phases (Praktik) into modules.
 // Shared by the public /courses pages, the admin Courses tab and the /api
 // functions — keep free of browser-only imports.
+import type { FeedbackCheckpointState, FeedbackFlowPublic } from './feedback.js';
 
 export type QaCourseStatus = 'draft' | 'published';
 export type QaCourseLevel = 'beginner' | 'intermediate' | 'advanced';
@@ -27,7 +28,22 @@ export interface QaCourseMissionItem {
   phaseId: string;
 }
 
-export type QaCourseItem = QaCourseArticleItem | QaCourseMissionItem;
+/**
+ * A feedback checkpoint: not a lesson. It never counts toward progress or
+ * graduation and never locks the next lesson; it only marks where the
+ * learner is asked for feedback (a flow from the question bank).
+ */
+export interface QaCourseFeedbackItem {
+  id: string;
+  kind: 'feedback';
+  flowId: string;
+}
+
+export type QaCourseItem = QaCourseArticleItem | QaCourseMissionItem | QaCourseFeedbackItem;
+export type QaCourseLessonItem = QaCourseArticleItem | QaCourseMissionItem;
+
+/** Articles and missions are lessons; feedback checkpoints are not. */
+export const isLessonItem = (item: QaCourseItem): item is QaCourseLessonItem => item.kind !== 'feedback';
 
 export interface QaCourseModule {
   id: string;
@@ -69,6 +85,12 @@ export interface QaCourseSummary {
   moduleCount: number;
   articleCount: number;
   missionCount: number;
+  /** Admin list only: Peserta, accounts with a lesson marked done (same rule as the Peserta panel). */
+  learnerCount?: number;
+  /** Admin list only: someone has progress or feedback here, so the course can't be deleted. */
+  deleteLocked?: boolean;
+  /** Admin list only: submitted feedback responses across the course's checkpoints. */
+  feedbackCount?: number;
   updatedAt: string;
 }
 
@@ -89,6 +111,8 @@ export interface QaCourseArticleRef {
 /** GET /api/qa-courses/:slug — the course plus its resolved articles. */
 export interface QaCourseDetail extends QaCourse {
   articles: Record<string, QaCourseArticleRef>;
+  /** Active flows used by the course's checkpoints (draft/missing flows absent). */
+  feedbackFlows: Record<string, FeedbackFlowPublic>;
 }
 
 /** GET /api/qa-courses?article=<id> — published courses that use an article. */
@@ -133,4 +157,6 @@ export interface QaCourseLearner {
 export interface QaCourseProgress {
   courseId: string;
   completedArticleIds: string[];
+  /** The learner's saved state per checkpoint (course item id). */
+  feedback: Record<string, FeedbackCheckpointState>;
 }

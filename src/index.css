@@ -85,6 +85,11 @@
   --color-ld-violet: #3b9eff;
   --color-ld-lavender: #c9e4ff;
   --color-ld-lilac: #e3f2ff;
+  /* Honey: secondary accent reserved for feedback & rating (docs/DESIGN.md). */
+  --color-ld-honey: #f5b301;
+  --color-ld-honey-deep: #b77f00;
+  --color-ld-butter: #ffe3a1;
+  --color-ld-cream: #fff6dc;
 
   /* Titles use Inter site-wide (owner decision, 2026-11-21) — the display
      token stays so `font-ld-display` keeps marking "title" text. */

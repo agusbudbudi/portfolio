@@ -3,6 +3,10 @@ import type { BookingConfig, BookingRulesDocument, MentorConfig, TopicsDocument 
 import type { PortfolioData, PortfolioRecord, PortfolioStatus, PortfolioSummary, SkillsDocument, ToolsDocument } from '../types/portfolio';
 import type { QaLibraryArticle, QaLibraryArticleData, QaLibraryArticleSummary, QaLibraryCategoriesDocument } from '../types/qaLibrary';
 import type { QaCourse, QaCourseData, QaCourseDetail, QaCourseLearner, QaCourseSummary } from '../types/qaCourse';
+import type {
+  FeedbackFlow, FeedbackFlowData, FeedbackFlowPublic, FeedbackFlowSummary, FeedbackQuestion, FeedbackQuestionData,
+  FeedbackQuestionSummary, FeedbackResponseRow,
+} from '../types/feedback';
 import type { OnboardingAnswers, OnboardingConfig, OnboardingMeResponse, OnboardingResultRecord, OnboardingStatus } from '../types/onboarding';
 
 export class UnauthorizedError extends Error {
@@ -470,4 +474,60 @@ export function apiSubmitOnboarding(answers: OnboardingAnswers, token: string): 
 
 export function apiSkipOnboarding(token: string): Promise<{ status: OnboardingStatus }> {
   return apiPostAuth('/api/onboarding/skip', {}, token);
+}
+
+// ---- Feedback Checkpoint (admin) ----
+
+const FEEDBACK_VERSION_HEADER = 'x-feedback-updated-at';
+
+export function apiListFeedbackQuestions(token: string): Promise<{ questions: FeedbackQuestionSummary[] }> {
+  return apiGetAuth<{ questions: FeedbackQuestionSummary[] }>('/api/feedback/questions', token);
+}
+
+export function apiCreateFeedbackQuestion(data: FeedbackQuestionData, token: string): Promise<FeedbackQuestion> {
+  return apiPostAuth<FeedbackQuestion>('/api/feedback/questions', data, token);
+}
+
+export function apiUpdateFeedbackQuestion(id: string, data: FeedbackQuestionData, updatedAt: string, token: string): Promise<FeedbackQuestion> {
+  return apiPut<FeedbackQuestion>(`/api/feedback/questions/${encodeURIComponent(id)}`, data, updatedAt, FEEDBACK_VERSION_HEADER, token);
+}
+
+export function apiDuplicateFeedbackQuestion(id: string, token: string): Promise<FeedbackQuestion> {
+  return apiPostAuth<FeedbackQuestion>(`/api/feedback/questions/${encodeURIComponent(id)}/duplicate`, {}, token);
+}
+
+export function apiDeleteFeedbackQuestion(id: string, token: string): Promise<void> {
+  return apiDeleteAuth(`/api/feedback/questions/${encodeURIComponent(id)}`, token);
+}
+
+export function apiListFeedbackFlows(token: string): Promise<{ flows: FeedbackFlowSummary[] }> {
+  return apiGetAuth<{ flows: FeedbackFlowSummary[] }>('/api/feedback/flows', token);
+}
+
+export function apiCreateFeedbackFlow(data: FeedbackFlowData, token: string): Promise<FeedbackFlow> {
+  return apiPostAuth<FeedbackFlow>('/api/feedback/flows', data, token);
+}
+
+export function apiUpdateFeedbackFlow(id: string, data: FeedbackFlowData, updatedAt: string, token: string): Promise<FeedbackFlow> {
+  return apiPut<FeedbackFlow>(`/api/feedback/flows/${encodeURIComponent(id)}`, data, updatedAt, FEEDBACK_VERSION_HEADER, token);
+}
+
+export function apiDeleteFeedbackFlow(id: string, token: string): Promise<void> {
+  return apiDeleteAuth(`/api/feedback/flows/${encodeURIComponent(id)}`, token);
+}
+
+export interface FeedbackResults {
+  flows: Record<string, FeedbackFlowPublic>;
+  responses: FeedbackResponseRow[];
+  consentQuestionId: string;
+}
+
+export async function apiGetFeedbackResults(courseSlug: string, token: string): Promise<FeedbackResults> {
+  const res = await fetch(`/api/feedback/results?course=${encodeURIComponent(courseSlug)}&t=${Date.now()}`, {
+    cache: 'no-store',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new ApiError(res.status, `Gagal memuat feedback (HTTP ${res.status}).`);
+  return res.json();
 }

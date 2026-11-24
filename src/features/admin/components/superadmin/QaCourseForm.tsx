@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowDown, ArrowLeft, ArrowUp, BookOpen, FlaskConical, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowUp, BookOpen, FlaskConical, MessageSquareText, Plus, Trash2 } from 'lucide-react';
 import type {
   QaCourseData, QaCourseDetail, QaCourseItem, QaCourseLevel, QaCourseModule, QaCourseStatus,
 } from '../../../../types/qaCourse';
@@ -7,8 +7,10 @@ import { QA_COURSE_LEVEL_LABEL } from '../../../../types/qaCourse';
 import type { QaLibraryArticleSummary } from '../../../../types/qaLibrary';
 import type { SimulatorProject } from '../../../../types/qaSimulator';
 import { slugify, isValidSlug } from '../../../../lib/portfolioValidation';
-import { validateQaCourseData } from '../../../../lib/qaCourseValidation';
+import { courseCheckpointWarnings, validateQaCourseData } from '../../../../lib/qaCourseValidation';
 import { useAdminQaLibraryStore } from '../../../../store/useAdminQaLibraryStore';
+import { useAdminFeedbackStore } from '../../../../store/useAdminFeedbackStore';
+import type { FeedbackFlowSummary } from '../../../../types/feedback';
 import { fetchSimulatorIndex, fetchSimulatorProject } from '../../../qa-simulator/lib/simulatorApi';
 import ImageUploadField from './ImageUploadField';
 import FormField from '../shared/FormField';
@@ -16,9 +18,13 @@ import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY, ADD_ITEM_BUTTON } from 
 import StatusBadge, { type StatusBadgeTone } from '../shared/StatusBadge';
 import Select from '../../../../components/common/Select';
 import Combobox from '../../../../components/common/Combobox';
+import { confirmAction } from '../../../../store/useConfirmStore';
 
 interface QaCourseFormProps {
-  onClose: () => void;
+  /** Back arrow + Batal. Omit when the form is the Detail tab of the course page. */
+  onClose?: () => void;
+  /** After a successful save, with the saved slug. Defaults to onClose. */
+  onSaved?: (slug: string) => void;
   onSubmit: (payload: QaCourseData & { slug: string }) => Promise<{ ok: boolean; reason?: string }>;
   course: QaCourseDetail | null; // null = create
 }
@@ -77,20 +83,43 @@ const ItemRow: React.FC<{
   count: number;
   articles: QaLibraryArticleSummary[];
   projects: SimulatorProject[];
+  flows: FeedbackFlowSummary[];
+  /** Non-blocking checkpoint warning (courseCheckpointWarnings). */
+  warning?: string;
   onChange: (item: QaCourseItem) => void;
   onMove: (delta: number) => void;
   onRemove: () => void;
-}> = ({ item, index, count, articles, projects, onChange, onMove, onRemove }) => {
+}> = ({ item, index, count, articles, projects, flows, warning, onChange, onMove, onRemove }) => {
   const project = item.kind === 'mission' ? projects.find((p) => p.id === item.projectId) : undefined;
   const article = item.kind === 'article' ? articles.find((a) => a.id === item.articleId) : undefined;
+  const flow = item.kind === 'feedback' ? flows.find((f) => f.id === item.flowId) : undefined;
+  const tone = item.kind === 'article' ? 'text-ld-violet' : item.kind === 'mission' ? 'text-emerald-600' : 'text-ld-honey-deep';
 
   return (
-    <li className="flex items-start gap-2 rounded-lg border border-ld-frost bg-white p-2.5">
-      <span className={`mt-1.5 shrink-0 ${item.kind === 'article' ? 'text-ld-violet' : 'text-emerald-600'}`}>
-        {item.kind === 'article' ? <BookOpen size={15} /> : <FlaskConical size={15} />}
+    <li className={`flex items-start gap-2 rounded-lg border border-ld-frost p-2.5 ${item.kind === 'feedback' ? 'bg-ld-cream/60' : 'bg-white'}`}>
+      <span className={`mt-1.5 shrink-0 ${tone}`}>
+        {item.kind === 'article' ? <BookOpen size={15} /> : item.kind === 'mission' ? <FlaskConical size={15} /> : <MessageSquareText size={15} />}
       </span>
       <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {item.kind === 'article' ? (
+        {item.kind === 'feedback' ? (
+          <>
+            <Select
+              value={item.flowId}
+              onChange={(flowId) => onChange({ ...item, flowId })}
+              options={flows.map((f) => ({
+                value: f.id,
+                label: `${f.name} (${f.items.length} pertanyaan${f.status === 'draft' ? ', draft' : ''})`,
+              }))}
+              placeholder="Pilih flow feedback…"
+              className={`${smallInputClass} sm:col-span-2`}
+              aria-label={`Flow feedback item ${index + 1}`}
+            />
+            <p className="m-0 sm:col-span-2 text-[11px] text-ld-steel">Checkpoint, tidak dihitung sebagai lesson. Muncul saat lesson berikutnya dibuka.</p>
+            {item.flowId && !flow && <p className="m-0 sm:col-span-2 text-xs text-red-600">Flow ini sudah tidak ada.</p>}
+            {flow?.status === 'draft' && <p className="m-0 sm:col-span-2 text-xs text-amber-700">Flow masih draft, checkpoint ini tidak tampil ke learner.</p>}
+            {warning && <p className="m-0 sm:col-span-2 text-xs text-amber-700">{warning}</p>}
+          </>
+        ) : item.kind === 'article' ? (
           <>
             <Combobox
               options={articles.map((a) => ({
@@ -141,7 +170,7 @@ const ItemRow: React.FC<{
   );
 };
 
-const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSubmit, course }) => {
+const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSaved, onSubmit, course }) => {
   const isEdit = course !== null;
   const [data, setData] = useState<QaCourseData>(() => {
     if (!course) return emptyData;
@@ -164,10 +193,12 @@ const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSubmit, course }
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const { articles, load: loadArticles } = useAdminQaLibraryStore();
+  const { flows, load: loadFeedback } = useAdminFeedbackStore();
   const projects = useSimulatorProjects();
 
-  useEffect(() => { loadArticles(); }, [loadArticles]);
+  useEffect(() => { loadArticles(); loadFeedback(); }, [loadArticles, loadFeedback]);
 
+  const checkpointWarnings = courseCheckpointWarnings(data);
   const sortedArticles = [...articles].sort((a, b) => a.title.localeCompare(b.title, 'id'));
 
   const setModules = (modules: QaCourseModule[]) => setData((d) => ({ ...d, modules }));
@@ -177,7 +208,9 @@ const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSubmit, course }
   const addItem = (mi: number, kind: QaCourseItem['kind']) => {
     const item: QaCourseItem = kind === 'article'
       ? { id: newId(), kind: 'article', articleId: '' }
-      : { id: newId(), kind: 'mission', projectId: '', phaseId: '' };
+      : kind === 'mission'
+        ? { id: newId(), kind: 'mission', projectId: '', phaseId: '' }
+        : { id: newId(), kind: 'feedback', flowId: '' };
     updateModule(mi, { items: [...data.modules[mi].items, item] });
   };
 
@@ -201,22 +234,25 @@ const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSubmit, course }
     const saved = await onSubmit({ ...payload, slug });
     setSaving(false);
     if (!saved.ok) { setError(saved.reason ?? 'Gagal menyimpan course.'); return; }
-    onClose();
+    if (onSaved) onSaved(slug);
+    else onClose?.();
   };
 
   return (
     <div className={ADMIN_CARD}>
       <div className={`${ADMIN_CARD_HEADER} justify-between`}>
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 -ml-1 rounded-lg text-ld-fog hover:text-ld-graphite hover:bg-ld-cloud cursor-pointer border-none bg-transparent transition-colors"
-            aria-label="Kembali ke daftar course"
-          >
-            <ArrowLeft size={17} />
-          </button>
-          <h2 className="text-sm font-semibold text-ld-onyx m-0">{isEdit ? 'Edit Course' : 'Tambah Course'}</h2>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 -ml-1 rounded-lg text-ld-fog hover:text-ld-graphite hover:bg-ld-cloud cursor-pointer border-none bg-transparent transition-colors"
+              aria-label="Kembali ke daftar course"
+            >
+              <ArrowLeft size={17} />
+            </button>
+          )}
+          <h2 className="text-sm font-semibold text-ld-onyx m-0">{isEdit ? 'Detail course' : 'Tambah Course'}</h2>
         </div>
         <StatusBadge tone={STATUS_TONE[data.status]}>{data.status}</StatusBadge>
       </div>
@@ -296,7 +332,11 @@ const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSubmit, course }
                       <button type="button" onClick={() => setModules(move(data.modules, mi, 1))} disabled={mi === data.modules.length - 1} className={iconBtn} aria-label="Turunkan modul"><ArrowDown size={14} /></button>
                       <button
                         type="button"
-                        onClick={() => { if (window.confirm(`Hapus modul "${mod.title || mi + 1}"?`)) setModules(data.modules.filter((_, i) => i !== mi)); }}
+                        onClick={async () => {
+                          if (await confirmAction({ title: `Hapus modul "${mod.title || mi + 1}"?`, description: `${mod.items.length} item di modul ini ikut terhapus dari course. Perubahan baru tersimpan setelah Simpan.`, confirmLabel: 'Hapus modul' })) {
+                            setModules(data.modules.filter((_, i) => i !== mi));
+                          }
+                        }}
                         className={`${iconBtn} hover:text-red-500`}
                         aria-label="Hapus modul"
                       >
@@ -314,6 +354,8 @@ const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSubmit, course }
                         count={mod.items.length}
                         articles={sortedArticles}
                         projects={projects}
+                        flows={flows}
+                        warning={checkpointWarnings[item.id]}
                         onChange={(next) => updateModule(mi, { items: mod.items.map((it, i) => (i === ii ? next : it)) })}
                         onMove={(delta) => updateModule(mi, { items: move(mod.items, ii, delta) })}
                         onRemove={() => updateModule(mi, { items: mod.items.filter((_, i) => i !== ii) })}
@@ -323,6 +365,7 @@ const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSubmit, course }
                   <div className="mt-2 pl-0 sm:pl-8 flex flex-wrap gap-2">
                     <button type="button" onClick={() => addItem(mi, 'article')} className={ADD_ITEM_BUTTON}><BookOpen size={14} /> Artikel</button>
                     <button type="button" onClick={() => addItem(mi, 'mission')} className={ADD_ITEM_BUTTON}><FlaskConical size={14} /> Misi simulator</button>
+                    <button type="button" onClick={() => addItem(mi, 'feedback')} className={ADD_ITEM_BUTTON}><MessageSquareText size={14} /> Feedback</button>
                   </div>
                 </li>
               ))}
@@ -338,7 +381,7 @@ const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSubmit, course }
               onChange={(thumbnailUrl) => setData({ ...data, thumbnailUrl })}
               feature="qaLibrary"
               maxWidth={1600}
-              ratioHint="Rasio 16:9, mis. 1600x900px"
+              ratioHint="Rasio 16:9, mis. 1600x900px" preview="natural"
             />
 
             <FormField label="Status">
@@ -379,9 +422,11 @@ const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSubmit, course }
         {error && <p className="text-sm text-red-500 m-0 mt-6">{error}</p>}
 
         <div className="flex justify-end gap-2 mt-8 pt-5 border-t border-ld-frost/60">
-          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-ld-frost bg-white text-sm text-ld-graphite cursor-pointer">
-            Batal
-          </button>
+          {onClose && (
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-ld-frost bg-white text-sm text-ld-graphite cursor-pointer">
+              Batal
+            </button>
+          )}
           <button
             type="submit"
             disabled={saving}

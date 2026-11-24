@@ -1,10 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { requireSession, resolveAdminSession, resolveSession } from '../_lib/auth.js';
 import {
-  courseLearners, coursesForProjectWithProgress, createQaCourse, deleteQaCourse, isCourseSlugTaken, listCompletedArticles, listQaCourses, publishedCoursesForArticle,
-  readQaCourseBySlug, resolveCourseArticles, setArticleCompleted, updateQaCourse,
+  courseActiveUserCount, courseLearners, coursesForProjectWithProgress, createQaCourse, deleteQaCourse, isCourseSlugTaken, listCompletedArticles,
+  listQaCourses, publishedCoursesForArticle, readQaCourseBySlug, resolveCourseArticles, setArticleCompleted, updateQaCourse,
 } from '../_lib/qaCourseStore.js';
-import { courseArticleIds, validateQaCourseData } from '../../src/lib/qaCourseValidation.js';
+import { courseArticleIds, courseFlowIds, validateQaCourseData } from '../../src/lib/qaCourseValidation.js';
+import { deleteContextResponses, flowStatuses, resolvePublicFlows, userCheckpointStates } from '../_lib/feedbackStore.js';
 import { isValidSlug, slugify } from '../../src/lib/portfolioValidation.js';
 import { checkRateLimit } from '../_lib/rateLimit.js';
 import type { QaCourseData, QaCourseDetail } from '../../src/types/qaCourse.js';
@@ -19,7 +20,7 @@ import type { QaCourseData, QaCourseDetail } from '../../src/types/qaCourse.js';
 //   PUT    /api/qa-courses/:slug            admin: replace, CAS via x-qa-course-updated-at
 //   DELETE /api/qa-courses/:slug            admin
 //   GET    /api/qa-courses/for-project/:projectId  user: { courses: QaCourseWithProgress[] }
-//   GET    /api/qa-courses/:slug/progress   user: { courseId, completedArticleIds }
+//   GET    /api/qa-courses/:slug/progress   user: { courseId, completedArticleIds, feedback }
 //   PUT    /api/qa-courses/:slug/progress   user: { articleId, completed } → same shape
 
 const RESERVED_SLUGS = new Set(['admin', 'for-project']);
@@ -46,7 +47,13 @@ function readBody(req: VercelRequest): Record<string, unknown> {
 // A published course must only point at published articles, or a lesson
 // would 404 for learners.
 async function publishErrors(data: QaCourseData): Promise<string[]> {
-  if (data.status !== 'published') return [];
+  // Checkpoints must point at an existing flow, whatever the course status.
+  const statuses = await flowStatuses(courseFlowIds(data));
+  const flowErrors: string[] = [];
+  data.modules.forEach((mod, mi) => mod.items.forEach((item, ii) => {
+    if (item.kind === 'feedback' && !statuses[item.flowId]) flowErrors.push(`Modul ${mi + 1}, item ${ii + 1}: flow feedback sudah dihapus.`);
+  }));
+  if (flowErrors.length > 0 || data.status !== 'published') return flowErrors;
   const ids = courseArticleIds(data);
   const refs = await resolveCourseArticles(ids);
   const errors: string[] = [];
@@ -123,7 +130,11 @@ async function handleSlugGet(req: VercelRequest, res: VercelResponse, slug: stri
   const isAdmin = Boolean(session?.roles.includes('admin'));
   if (course.status !== 'published' && !isAdmin) return res.status(404).json({ error: 'not_found' });
 
-  const detail: QaCourseDetail = { ...course, articles: await resolveCourseArticles(courseArticleIds(course)) };
+  const [articles, feedbackFlows] = await Promise.all([
+    resolveCourseArticles(courseArticleIds(course)),
+    resolvePublicFlows(courseFlowIds(course)),
+  ]);
+  const detail: QaCourseDetail = { ...course, articles, feedbackFlows };
   res.setHeader('Cache-Control', isAdmin ? 'no-store' : 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
   return res.status(200).json(detail);
 }
@@ -161,7 +172,15 @@ async function handleSlugDelete(req: VercelRequest, res: VercelResponse, slug: s
   if (!(await resolveAdminSession(req, res))) return;
   const existing = await readQaCourseBySlug(slug);
   if (!existing) return res.status(404).json({ error: 'not_found' });
+  // Learners' progress and feedback would be lost: unpublish (draft) instead.
+  if ((await courseActiveUserCount(existing.id)) > 0) {
+    return res.status(409).json({
+      error: 'course_has_learners',
+      message: 'Course ini sudah punya peserta atau feedback, jadi tidak bisa dihapus. Ubah status ke draft untuk menyembunyikannya.',
+    });
+  }
   await deleteQaCourse(existing.id);
+  await deleteContextResponses('course', existing.id);
   return res.status(204).end();
 }
 
@@ -190,9 +209,12 @@ async function handleProgress(req: VercelRequest, res: VercelResponse, slug: str
     await setArticleCompleted(session.userId, course.id, body.articleId, body.completed);
   }
 
-  const completedArticleIds = await listCompletedArticles(session.userId, course.id);
+  const [completedArticleIds, feedback] = await Promise.all([
+    listCompletedArticles(session.userId, course.id),
+    userCheckpointStates(session.userId, 'course', course.id),
+  ]);
   res.setHeader('Cache-Control', 'no-store');
-  return res.status(200).json({ courseId: course.id, completedArticleIds });
+  return res.status(200).json({ courseId: course.id, completedArticleIds, feedback });
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
