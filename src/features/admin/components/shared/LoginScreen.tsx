@@ -3,6 +3,11 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
 import { useSnackbarStore } from '../../../../store/useSnackbarStore';
 import { loadGoogleIdentity } from '../../../../lib/loadGoogleIdentity';
+import { currentInAppBrowser } from '../../../../lib/inAppBrowser';
+import InAppBrowserNotice from '../../../../components/common/InAppBrowserNotice';
+
+// Static for the page's lifetime.
+const inAppBrowser = currentInAppBrowser();
 
 const LoginScreen: React.FC = () => {
   const { login, loggingIn, token, user } = useAdminAuthStore();
@@ -26,7 +31,7 @@ const LoginScreen: React.FC = () => {
   }, [token, user, navigate, redirectTo]);
 
   useEffect(() => {
-    if (!clientId) return;
+    if (!clientId || inAppBrowser) return;
 
     let cancelled = false;
 
@@ -122,6 +127,9 @@ const LoginScreen: React.FC = () => {
             <h1 className="font-ld-display font-semibold text-2xl text-ld-onyx m-0 mb-2">Selamat datang</h1>
             <p className="text-sm text-ld-fog m-0 mb-8">Masuk atau buat akun baru dengan Google.</p>
 
+            {inAppBrowser ? (
+              <InAppBrowserNotice appName={inAppBrowser} />
+            ) : (
             <div className="relative w-full">
               {loggingIn && (
                 <div className="flex items-center justify-center gap-2.5 w-full py-2 px-3 h-[40px] rounded-lg border border-[#dadce0] bg-white text-sm font-medium text-[#3c4043]">
@@ -131,6 +139,7 @@ const LoginScreen: React.FC = () => {
               )}
               <div ref={buttonRef} className={`w-full ${loggingIn ? 'hidden' : ''}`} />
             </div>
+            )}
             {displayError && <p className="mt-3 text-sm text-red-500 m-0 text-center">{displayError}</p>}
 
             <p className="text-xs text-ld-fog text-center mt-6">
