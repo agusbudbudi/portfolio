@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { track } from '../../../../lib/analytics';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Building2, CalendarCheck, Check, CheckCircle2, Copy, ExternalLink, Eye, EyeOff,
@@ -208,7 +209,10 @@ const MemberDashboard: React.FC = () => {
         const result = await updatePortfolio({ slug: portfolio.slug, status: next, data: portfolio.data });
         setPublishing(false);
         if (!result.ok) { showSnackbar(result.reason || 'Gagal mengubah status portfolio.', 'error'); return; }
-        if (publish) setPublishedUrl(portfolioUrl);
+        if (publish) {
+          setPublishedUrl(portfolioUrl);
+          track('portfolio_published', { source: 'status_toggle' });
+        }
         else showSnackbar('Portfolio dijadikan draft. Link publik tidak bisa dibuka.', 'success');
       },
     });
@@ -1240,6 +1244,7 @@ const MemberDashboard: React.FC = () => {
                     setPortfolioFormOpen(false);
                     if (payload.status === 'published' && !wasPublished) {
                       setPublishedUrl(`${window.location.origin}/portfolio/${payload.slug}`);
+                      track('portfolio_published', { source: portfolio ? 'form_update' : 'form_create' });
                     } else {
                       showSnackbar(
                         payload.status === 'draft' && wasPublished ? 'Portfolio dijadikan draft. Link publik tidak bisa dibuka.'

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { apiLogin, type AdminUser } from '../lib/adminApi';
 import type { OnboardingStatus } from '../types/onboarding';
+import { identifyUser, resetUser } from '../lib/analytics';
 
 const STORAGE_KEY = 'mentoring-admin-session';
 
@@ -40,6 +41,7 @@ interface AdminAuthState {
 
 export const useAdminAuthStore = create<AdminAuthState>((set, get) => {
   const stored = readStoredSession();
+  if (stored) identifyUser(stored.user);
   return {
     token: stored?.token ?? null,
     expiresAt: stored?.expiresAt ?? null,
@@ -52,6 +54,7 @@ export const useAdminAuthStore = create<AdminAuthState>((set, get) => {
         const session = await apiLogin(credential);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
         set({ token: session.token, expiresAt: session.expiresAt, user: session.user });
+        identifyUser(session.user);
       } finally {
         set({ loggingIn: false });
       }
@@ -60,6 +63,7 @@ export const useAdminAuthStore = create<AdminAuthState>((set, get) => {
     logout: () => {
       localStorage.removeItem(STORAGE_KEY);
       set({ token: null, expiresAt: null, user: null });
+      resetUser();
     },
 
     setOnboardingStatus: (status) => {

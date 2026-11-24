@@ -19,6 +19,7 @@ import PhaseStepper from '../components/PhaseStepper';
 import ReferencePanel from '../components/ReferencePanel';
 import LoginPromptModal from '../components/LoginPromptModal';
 import { useSnackbarStore } from '../../../store/useSnackbarStore';
+import { track } from '../../../lib/analytics';
 import PhaseIntroModal from '../components/PhaseIntroModal';
 import { hasSeenPhaseIntro, markPhaseIntroSeen } from '../lib/phaseIntro';
 import TeamAvatar from '../components/TeamAvatar';
@@ -83,6 +84,30 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
   const { popup: feedbackPopup } = useCheckpointPopup({ course, lessons, checkpoints, loggedIn: courseLoggedIn, progressLoaded, submitFeedback });
 
   const states = project.phases.map((_, i) => phaseState(project, i, progress, loggedIn));
+
+  // simulator_phase_completed fires on the transition to completed while the
+  // learner is here. The first settled render (after the server copy loads)
+  // is only the baseline, so phases finished in earlier visits don't count.
+  const completedPhases = project.phases.filter((_, i) => states[i] === 'completed').map((p) => p.id).join(',');
+  const seenCompleted = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    if (status === 'loading') return;
+    const now = new Set(completedPhases ? completedPhases.split(',') : []);
+    const before = seenCompleted.current;
+    seenCompleted.current = now;
+    if (!before) return;
+    project.phases.forEach((p, i) => {
+      if (now.has(p.id) && !before.has(p.id)) {
+        track('simulator_phase_completed', {
+          project_id: project.id,
+          phase_id: p.id,
+          phase_index: i,
+          course_slug: courseSlug,
+          logged_in: loggedIn,
+        });
+      }
+    });
+  }, [completedPhases, status, project, courseSlug, loggedIn]);
   const requested = project.phases.findIndex((p) => p.id === searchParams.get('phase'));
   const targetIndex = requested >= 0 && states[requested] !== 'locked' ? requested : defaultPhaseIndex(states);
   // Guests never land *on* a login-required phase: they stay on the last open

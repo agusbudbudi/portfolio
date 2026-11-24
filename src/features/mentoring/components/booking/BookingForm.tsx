@@ -1,5 +1,6 @@
 // BookingForm – 2-panel layout styled with Tailwind CSS using Zustand state management
 import React, { useEffect, useRef, useState } from 'react';
+import { track } from '../../../../lib/analytics';
 import { Send, CheckCircle, ExternalLink } from 'lucide-react';
 import type { MentoringConfig } from '../../../../hooks/useConfig';
 import { useFormValidation } from '../../../../hooks/useFormValidation';
@@ -109,6 +110,11 @@ const BookingForm: React.FC<BookingFormProps> = ({ config }) => {
     resetForm(defaultDate);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 4000);
+    track('mentoring_booking_sent', {
+      channel: 'public_whatsapp',
+      mentor_id: selectedMentor?.id ?? null,
+      topics_count: selectedTopics.length,
+    });
     window.open(pendingLink, '_blank', 'noopener,noreferrer');
     setPendingLink(null);
   };

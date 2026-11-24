@@ -6,6 +6,7 @@ import App from './App.tsx'
 import { preloadHomePage } from './features/home/homePageLoader'
 import { preloadProgramsPage } from './features/programs/programsPageLoader'
 import { normalizePath } from './lib/pagePreloader'
+import { initAnalytics } from './lib/analytics'
 
 // On "/" (and the /programs ad landing), wait for the code-split page chunk
 // before the first render so the landing paints without a Suspense fallback
@@ -26,4 +27,5 @@ ready.then(() => {
       </HelmetProvider>
     </StrictMode>,
   )
+  initAnalytics()
 })

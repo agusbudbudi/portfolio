@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { track } from '../../../lib/analytics';
 import { useAdminAuthStore } from '../../../store/useAdminAuthStore';
 import type { QaCourseDetail } from '../../../types/qaCourse';
 import type { ProjectProgress, SimulatorProject } from '../../../types/qaSimulator';
@@ -123,6 +124,7 @@ export function useCourse(slug: string | null | undefined) {
     try {
       const saved = await postCourseFeedback(course.slug, checkpointId, status, answers, token, durationMs);
       setProgress((prev) => (prev && prev.key === progressKey ? { ...prev, feedback: { ...prev.feedback, [checkpointId]: saved } } : prev));
+      track('feedback_submitted', { context: 'course', course_slug: course.slug, checkpoint_id: checkpointId, status });
       return null;
     } catch (e) {
       return e instanceof Error ? e.message : 'Gagal mengirim feedback.';
@@ -141,6 +143,13 @@ export function useCourse(slug: string | null | undefined) {
     try {
       const saved = await putCourseArticleDone(course.slug, articleId, done, token);
       setProgress((prev) => (prev && prev.key === progressKey ? { ...prev, completed: new Set(saved.completedArticleIds) } : prev));
+      if (done) {
+        track('course_lesson_completed', {
+          course_slug: course.slug,
+          article_id: articleId,
+          lessons_done: saved.completedArticleIds.length,
+        });
+      }
       return true;
     } catch {
       apply(!done); // roll back

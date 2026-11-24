@@ -9,6 +9,7 @@ import { LOWEST_MENTORING_PRICE, pageSeo } from '../../../lib/pageSeo';
 import { fetchCourse } from '../../qa-course/lib/courseApi';
 import { DEFAULT_FEATURED, PROGRAMS, isProgramKey, type Program, type ProgramKey } from '../data/programs';
 import { applyCourse } from '../lib/courseProgram';
+import { track } from '../../../lib/analytics';
 
 // Ad landing page: a short list of program cards, each linking straight into
 // the first action (lesson 1, simulator phase 1, booking form). No site nav,
@@ -60,10 +61,26 @@ const Facts: React.FC<{ facts: string[] }> = ({ facts }) => (
   </div>
 );
 
-const FeaturedCard: React.FC<{ program: Program }> = ({ program }) => {
+// One event for both card types, so "which card gets clicked most" is a single
+// breakdown by program_key. position 0 = featured, then the "Program lainnya" order;
+// campaign = the ad's ?p= (null for organic visits).
+type CardClick = { position: number; campaign: string | null };
+
+function trackCardClick(program: Program, variant: 'featured' | 'list', { position, campaign }: CardClick) {
+  track('program_card_clicked', {
+    program_key: program.key,
+    program_title: program.title,
+    paid: Boolean(program.paid),
+    variant,
+    position,
+    campaign,
+  });
+}
+
+const FeaturedCard: React.FC<{ program: Program; click: CardClick }> = ({ program, click }) => {
   const Icon = program.icon;
   return (
-    <Link to={program.href} className={`group block rounded-xl border p-5 no-underline transition-[box-shadow,border-color] duration-200 ${featuredTone(program.paid)} ${ELEVATED}`}>
+    <Link to={program.href} onClick={() => trackCardClick(program, 'featured', click)} className={`group block rounded-xl border p-5 no-underline transition-[box-shadow,border-color] duration-200 ${featuredTone(program.paid)} ${ELEVATED}`}>
       <div className="flex items-start gap-3">
         <Icon size={48} className="shrink-0" />
         <div className="min-w-0">
@@ -83,11 +100,12 @@ const FeaturedCard: React.FC<{ program: Program }> = ({ program }) => {
   );
 };
 
-const ProgramCard: React.FC<{ program: Program }> = ({ program }) => {
+const ProgramCard: React.FC<{ program: Program; click: CardClick }> = ({ program, click }) => {
   const Icon = program.icon;
   return (
     <Link
       to={program.href}
+      onClick={() => trackCardClick(program, 'list', click)}
       className={`group flex gap-3 rounded-xl border p-4 no-underline transition-colors ${cardTone(program.paid)}`}
     >
       <Icon size={40} className="shrink-0" />
@@ -199,7 +217,7 @@ const ProgramsPage: React.FC = () => {
             </h1>
             <p className="m-0 mt-3 text-base text-white leading-relaxed">{featured.hero.subtitle}</p>
             <div className="mt-7">
-              <FeaturedCard program={featured} />
+              <FeaturedCard program={featured} click={{ position: 0, campaign: p }} />
             </div>
           </div>
         </section>
@@ -209,8 +227,8 @@ const ProgramsPage: React.FC = () => {
           <div className="max-w-[560px] mx-auto px-4 py-8">
             <h2 className="m-0 mb-4 text-lg font-semibold tracking-[-0.01em] text-ld-graphite">Program lainnya</h2>
             <div className="flex flex-col gap-3">
-              {rest.map((program) => (
-                <ProgramCard key={program.key} program={program} />
+              {rest.map((program, i) => (
+                <ProgramCard key={program.key} program={program} click={{ position: i + 1, campaign: p }} />
               ))}
             </div>
             <Link
