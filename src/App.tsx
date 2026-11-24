@@ -59,6 +59,7 @@ const AdminPage = lazy(() => import('./features/admin/pages/AdminPage'));
 const LoginScreen = lazy(() => import('./features/admin/components/shared/LoginScreen'));
 const OnboardingPage = lazy(() => import('./features/onboarding/pages/OnboardingPage'));
 import OnboardingGate from './features/onboarding/components/OnboardingGate';
+import OnboardingClaimSync from './features/onboarding/components/OnboardingClaimSync';
 const Snackbar = lazy(() => import('./features/admin/components/shared/Snackbar').then((m) => ({ default: m.Snackbar })));
 const NotFound = lazy(() => import('./components/NotFound'));
 
@@ -217,6 +218,7 @@ function App() {
     <Router>
       <ScrollToTop />
       <OnboardingGate />
+      <OnboardingClaimSync />
       <Routes>
         <Route
           path="/"

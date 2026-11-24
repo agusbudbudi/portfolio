@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, ChevronDown, LayoutDashboard, Menu, X } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
 import { ProductsMobileList, ProductsTrayPanel } from './ProductsTray';
+import OnboardingBanner from '../../../onboarding/components/OnboardingBanner';
 
 const navLinks = [
   { label: 'Mentoring', to: '/mentoring' },
@@ -210,6 +211,8 @@ const LightdashNavbar: React.FC = () => {
             </AnimatePresence>
           </button>
         </nav>
+        {/* Guest invite to onboarding, hangs below the header bar */}
+        <OnboardingBanner suppressed={trayOpen || isMenuOpen} />
         {/* Products tray (desktop) — hangs below the header bar */}
         <AnimatePresence>
           {trayOpen && (

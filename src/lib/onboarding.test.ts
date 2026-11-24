@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_ONBOARDING_CONFIG, isOnboardingConfig, programHref, scoreOnboarding } from './onboarding';
+import {
+  CLAIM_MAX_AGE_MS,
+  DEFAULT_ONBOARDING_CONFIG,
+  isOnboardingConfig,
+  parseParkedClaim,
+  programHref,
+  scoreOnboarding,
+  serializeClaim,
+} from './onboarding';
 import type { OnboardingAnswers, OnboardingConfig, ProgramId } from '../types/onboarding';
 
 const config = DEFAULT_ONBOARDING_CONFIG;
@@ -61,5 +69,33 @@ describe('onboarding matrix v3', () => {
     const course = config.catalog.find((c) => c.id === 'course')!;
     expect(programHref(course, 'onboarding')).toBe('/dashboard/courses?ref=onboarding');
     expect(programHref(course, 'onboarding', true)).toBe('/courses?ref=onboarding');
+  });
+});
+
+describe('guest claim parking', () => {
+  const answers: OnboardingAnswers = { q1: ['a'], q2: ['b'], q3: ['c', 'd'], q4: ['e'] };
+  const now = 1_800_000_000_000;
+
+  it('round-trips a fresh claim', () => {
+    const parsed = parseParkedClaim(serializeClaim(answers, 3, now), now + 1000);
+    expect(parsed).toEqual({ answers, version: 3, savedAt: now });
+  });
+
+  it('drops a claim older than the max age', () => {
+    const raw = serializeClaim(answers, 3, now);
+    expect(parseParkedClaim(raw, now + CLAIM_MAX_AGE_MS)).not.toBeNull();
+    expect(parseParkedClaim(raw, now + CLAIM_MAX_AGE_MS + 1)).toBeNull();
+  });
+
+  it('drops a claim saved in the future (clock skew / tampering)', () => {
+    expect(parseParkedClaim(serializeClaim(answers, 3, now + 60_000), now)).toBeNull();
+  });
+
+  it('rejects missing, malformed and incomplete values', () => {
+    expect(parseParkedClaim(null, now)).toBeNull();
+    expect(parseParkedClaim('not json', now)).toBeNull();
+    expect(parseParkedClaim(JSON.stringify({ answers, savedAt: now }), now)).toBeNull();
+    expect(parseParkedClaim(serializeClaim({ ...answers, q4: [] }, 3, now), now)).toBeNull();
+    expect(parseParkedClaim(JSON.stringify({ answers: { ...answers, q1: [1] }, version: 3, savedAt: now }), now)).toBeNull();
   });
 });
