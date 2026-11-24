@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Select from '../../../../components/common/Select';
 import {
   ArrowLeft, BadgeCheck, CheckCircle2, ExternalLink, Loader2, XCircle,
   UserCircle2, Briefcase, GraduationCap, Award, FolderKanban, Sparkles, FileCheck2, Quote, Newspaper, Share2, MousePointerClick, Github, FolderGit2, ListOrdered, CalendarClock, FlaskConical,
@@ -32,6 +31,8 @@ import {
 import DashboardCardHeader, { CARD_ACTION_PRIMARY, CARD_ACTION_SECONDARY, FORM_FOOTER_STICKY_MOBILE } from '../shared/DashboardCardHeader';
 import { QaPortfolioIcon } from '../../../../components/illustration/ProductIcons';
 import StatusBadge, { type StatusBadgeTone } from '../shared/StatusBadge';
+import Checkbox from '../../../../components/common/Checkbox';
+import { useConfirmStore } from '../../../../store/useConfirmStore';
 
 interface PortfolioFormProps {
   onClose: () => void;
@@ -96,7 +97,9 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
       : emptyData
   );
   const [slug, setSlug] = useState(record?.slug ?? '');
-  const [status, setStatus] = useState<PortfolioStatus>(record?.status ?? 'draft');
+  // Status is chosen by which footer button saves (Simpan draft / Simpan & publish).
+  const currentStatus: PortfolioStatus = record?.status ?? 'draft';
+  const [savingAs, setSavingAs] = useState<PortfolioStatus | null>(null);
   const [slugTouched, setSlugTouched] = useState(isEdit); // edit mode: don't auto-overwrite an existing slug
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -105,6 +108,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
   const [saving, setSaving] = useState(false);
   const checkTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const openConfirm = useConfirmStore((st) => st.open);
 
   // Auto-derive the slug from the name until the admin edits it manually.
   useEffect(() => {
@@ -131,8 +135,11 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // The clicked footer button says which status to save; Enter keeps the current one.
+    const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    const status: PortfolioStatus = submitter?.value === 'published' || submitter?.value === 'draft' ? submitter.value : currentStatus;
     setSubmitAttempt((n) => n + 1);
     if (!data.profile.name.trim() || !data.profile.bio.trim()) {
       return;
@@ -184,7 +191,25 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
       return;
     }
     setError(null);
+    // First publish goes live for everyone: confirm it first.
+    if (status === 'published' && currentStatus !== 'published') {
+      openConfirm({
+        mode: 'cta',
+        variant: 'info',
+        icon: 'info',
+        confirmLabel: 'Ya, publish sekarang',
+        title: isMember ? 'Publish portfolio kamu?' : 'Publish portfolio ini?',
+        description: <>Setelah dipublish, portfolio langsung live di <strong className="font-semibold text-ld-onyx break-all">{window.location.host}/portfolio/{slug}</strong> dan bisa dibuka siapa saja, termasuk recruiter. Bisa dijadikan draft lagi kapan saja.</>,
+        onConfirm: () => save(status),
+      });
+      return;
+    }
+    await save(status);
+  };
+
+  const save = async (status: PortfolioStatus) => {
     setSaving(true);
+    setSavingAs(status);
     const result = await onSubmit({
       slug,
       status,
@@ -203,6 +228,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
       },
     });
     setSaving(false);
+    setSavingAs(null);
     if (!result.ok) {
       setError(result.reason ?? 'Gagal menyimpan portfolio.');
       return;
@@ -336,7 +362,16 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
         </div>
       )}
 
-      <form ref={formRef} onSubmit={handleSubmit} className={`${ADMIN_CARD_BODY} w-full space-y-3 ${isMember ? 'max-md:pb-24' : ''}`}>
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        // Enter in a text field would "click" the first submit button (Jadikan draft):
+        // only the footer buttons save, so the status change is always deliberate.
+        onKeyDown={(e) => {
+          const t = e.target as HTMLElement;
+          if (e.key === 'Enter' && t instanceof HTMLInputElement && !['checkbox', 'radio', 'submit', 'button'].includes(t.type)) e.preventDefault();
+        }}
+        className={`${ADMIN_CARD_BODY} w-full space-y-3 ${isMember ? 'max-md:pb-24' : ''}`}>
         <AccordionSection title="Profile" icon={UserCircle2} hasError={profileHasError} errorSignal={submitAttempt} defaultOpen>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
             <ImageUploadField
@@ -385,14 +420,6 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
                   profile: { ...data.profile, yearsOfExperience: e.target.value === '' ? undefined : Number(e.target.value) },
                 })}
                 className={inputClass}
-              />
-            </FormField>
-            <FormField label="Status">
-              <Select
-                value={status}
-                onChange={(v) => setStatus(v as PortfolioStatus)}
-                className={`${inputClass} w-full`}
-                options={[{ value: 'draft', label: 'Draft' }, { value: 'published', label: 'Published' }]}
               />
             </FormField>
             <FormField label="Bio" required className="md:col-span-2" error={submitted && !data.profile.bio.trim() ? 'Bio wajib diisi.' : null}>
@@ -553,15 +580,7 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
 
         <AccordionSection title="GitHub Activity" icon={Github} hasError={githubActivityHasError} errorSignal={submitAttempt}>
           <div className="grid grid-cols-1 gap-y-4">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={data.githubActivity.showActivity}
-                onChange={(e) => setData({ ...data, githubActivity: { ...data.githubActivity, showActivity: e.target.checked } })}
-                className="w-4 h-4 rounded border-ld-frost text-ld-violet focus:ring-ld-lilac cursor-pointer"
-              />
-              <span className="text-xs text-ld-graphite">Tampilkan GitHub Activity di halaman publik</span>
-            </label>
+            <Checkbox checked={data.githubActivity.showActivity} onChange={(c) => setData({ ...data, githubActivity: { ...data.githubActivity, showActivity: c } })} size="sm" align="center" className="select-none" labelClassName="text-xs leading-relaxed text-ld-graphite">Tampilkan GitHub Activity di halaman publik</Checkbox>
             <FormField
               label="Username GitHub"
               required={data.githubActivity.showActivity}
@@ -613,24 +632,8 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
                 className={inputClass}
               />
             </FormField>
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={data.cta.showViewCv}
-                onChange={(e) => setData({ ...data, cta: { ...data.cta, showViewCv: e.target.checked } })}
-                className="w-4 h-4 rounded border-ld-frost text-ld-violet focus:ring-ld-lilac cursor-pointer"
-              />
-              <span className="text-xs text-ld-graphite">Tampilkan tombol View CV</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={data.cta.showConnectLinkedin}
-                onChange={(e) => setData({ ...data, cta: { ...data.cta, showConnectLinkedin: e.target.checked } })}
-                className="w-4 h-4 rounded border-ld-frost text-ld-violet focus:ring-ld-lilac cursor-pointer"
-              />
-              <span className="text-xs text-ld-graphite">Tampilkan tombol Connect LinkedIn</span>
-            </label>
+            <Checkbox checked={data.cta.showViewCv} onChange={(c) => setData({ ...data, cta: { ...data.cta, showViewCv: c } })} size="sm" align="center" className="select-none" labelClassName="text-xs leading-relaxed text-ld-graphite">Tampilkan tombol View CV</Checkbox>
+            <Checkbox checked={data.cta.showConnectLinkedin} onChange={(c) => setData({ ...data, cta: { ...data.cta, showConnectLinkedin: c } })} size="sm" align="center" className="select-none" labelClassName="text-xs leading-relaxed text-ld-graphite">Tampilkan tombol Connect LinkedIn</Checkbox>
           </div>
         </AccordionSection>
 
@@ -651,12 +654,25 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
           >
             Batal
           </button>
+          {/* Secondary keeps or makes it a draft; primary publishes (or keeps it published). */}
           <button
             type="submit"
+            name="status"
+            value="draft"
+            disabled={saving}
+            className={isMember ? CARD_ACTION_SECONDARY : ADMIN_BTN_SECONDARY}
+            title={currentStatus === 'published' ? 'Simpan dan sembunyikan dari publik' : undefined}
+          >
+            {savingAs === 'draft' ? 'Menyimpan…' : currentStatus === 'published' ? 'Jadikan draft' : 'Simpan draft'}
+          </button>
+          <button
+            type="submit"
+            name="status"
+            value="published"
             disabled={saving}
             className={isMember ? CARD_ACTION_PRIMARY : ADMIN_BTN_PRIMARY}
           >
-            {saving ? 'Menyimpan…' : isEdit ? 'Simpan Portfolio' : 'Tambah Portfolio'}
+            {savingAs === 'published' ? 'Menyimpan…' : currentStatus === 'published' ? 'Simpan perubahan' : 'Simpan & publish'}
           </button>
         </div>
       </form>
