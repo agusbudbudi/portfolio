@@ -82,7 +82,7 @@ const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   canceled: 'Canceled',
 };
 
-type UserRole = 'Admin' | 'Mentor' | 'Mentee';
+type UserRole = 'Mentor' | 'Mentee';
 
 const DEFAULT_MENTOR_AVATAR = '/admin/img/default-avatar-mentor.webp';
 
@@ -241,7 +241,9 @@ const MemberDashboard: React.FC = () => {
 
   const isEdit = mentor !== null;
   const isVerifiedMentor = mentor?.verificationStatus === 'verified';
-  const userRole: UserRole = user?.roles.includes('admin') ? 'Admin' : isVerifiedMentor ? 'Mentor' : 'Mentee';
+  // In the user view an admin sees the same role badge a member would.
+  const isAdminAccount = !!user?.roles.includes('admin');
+  const userRole: UserRole = isVerifiedMentor ? 'Mentor' : 'Mentee';
   const topics = config?.topics ?? [];
   const availableDays = config?.availableDays ?? [];
   const existingIds = (config?.mentors ?? []).map((m) => m.id);
@@ -1026,6 +1028,7 @@ const MemberDashboard: React.FC = () => {
             <ProfileMenu
               user={user}
               roleLabel={userRole === 'Mentee' ? null : userRole}
+              showViewSwitch={isAdminAccount}
               onLogout={() => { logout(); showSnackbar('Kamu telah berhasil keluar.', 'info'); }}
             />
           )}

@@ -14,6 +14,8 @@ import ImageUploadField from './ImageUploadField';
 import FormField from '../shared/FormField';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY, ADD_ITEM_BUTTON } from '../shared/adminCard';
 import StatusBadge, { type StatusBadgeTone } from '../shared/StatusBadge';
+import Select from '../../../../components/common/Select';
+import Combobox from '../../../../components/common/Combobox';
 
 interface QaCourseFormProps {
   onClose: () => void;
@@ -90,43 +92,43 @@ const ItemRow: React.FC<{
       <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-2">
         {item.kind === 'article' ? (
           <>
-            <select
+            <Combobox
+              options={articles.map((a) => ({
+                value: a.id,
+                label: a.title,
+                description: [a.status === 'draft' ? 'Draft' : null, a.visibility === 'course-only' ? 'Course only' : null]
+                  .filter(Boolean).join(' · ') || undefined,
+              }))}
               value={item.articleId}
-              onChange={(e) => onChange({ ...item, articleId: e.target.value })}
+              onChange={(articleId) => onChange({ ...item, articleId })}
+              placeholder="Pilih artikel…"
+              searchPlaceholder="Cari artikel…"
+              emptyLabel="Artikel tidak ditemukan."
               className={`${smallInputClass} sm:col-span-2`}
               aria-label={`Artikel item ${index + 1}`}
-            >
-              <option value="">Pilih artikel…</option>
-              {articles.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.title}{a.status === 'draft' ? ' (draft)' : ''}{a.visibility === 'course-only' ? ' · course only' : ''}
-                </option>
-              ))}
-            </select>
+            />
             {item.articleId && !article && <p className="m-0 sm:col-span-2 text-xs text-red-600">Artikel ini sudah tidak ada.</p>}
             {article?.status === 'draft' && <p className="m-0 sm:col-span-2 text-xs text-amber-700">Artikel masih draft. Course tidak bisa dipublish sampai artikel ini dipublish.</p>}
           </>
         ) : (
           <>
-            <select
+            <Select
               value={item.projectId}
-              onChange={(e) => onChange({ ...item, projectId: e.target.value, phaseId: '' })}
+              onChange={(projectId) => onChange({ ...item, projectId, phaseId: '' })}
+              options={projects.map((p) => ({ value: p.id, label: `${p.product}: ${p.title}` }))}
+              placeholder="Pilih project…"
               className={smallInputClass}
               aria-label={`Project simulator item ${index + 1}`}
-            >
-              <option value="">Pilih project…</option>
-              {projects.map((p) => <option key={p.id} value={p.id}>{p.product}: {p.title}</option>)}
-            </select>
-            <select
+            />
+            <Select
               value={item.phaseId}
-              onChange={(e) => onChange({ ...item, phaseId: e.target.value })}
+              onChange={(phaseId) => onChange({ ...item, phaseId })}
+              options={(project?.phases ?? []).map((ph, i) => ({ value: ph.id, label: `Phase ${i + 1}: ${ph.title}` }))}
+              placeholder="Pilih phase…"
               disabled={!project}
               className={smallInputClass}
               aria-label={`Phase simulator item ${index + 1}`}
-            >
-              <option value="">Pilih phase…</option>
-              {project?.phases.map((ph, i) => <option key={ph.id} value={ph.id}>Phase {i + 1}: {ph.title}</option>)}
-            </select>
+            />
           </>
         )}
       </div>
@@ -232,9 +234,13 @@ const QaCourseForm: React.FC<QaCourseFormProps> = ({ onClose, onSubmit, course }
               </FormField>
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="Level" required>
-                  <select value={data.level} onChange={(e) => setData({ ...data, level: e.target.value as QaCourseLevel })} className={inputClass}>
-                    {(Object.keys(QA_COURSE_LEVEL_LABEL) as QaCourseLevel[]).map((l) => <option key={l} value={l}>{QA_COURSE_LEVEL_LABEL[l]}</option>)}
-                  </select>
+                  <Select
+                    value={data.level}
+                    onChange={(level) => setData({ ...data, level: level as QaCourseLevel })}
+                    options={(Object.keys(QA_COURSE_LEVEL_LABEL) as QaCourseLevel[]).map((l) => ({ value: l, label: QA_COURSE_LEVEL_LABEL[l] }))}
+                    className={inputClass}
+                    aria-label="Level"
+                  />
                 </FormField>
                 <FormField label="Estimasi jam" required>
                   <input

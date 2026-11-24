@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
+import { PANEL_CLASS, useAnchoredPanel } from './useAnchoredPanel';
 
 // Brand-styled replacement for native <select> (docs/DESIGN.md palette:
 // white panel, Frost border, 8px radius, slate-tinted shadow, Sky Blue for
@@ -34,7 +35,6 @@ interface SelectProps {
 }
 
 const PANEL_MAX_H = 240;
-const GAP = 4;
 
 const Select: React.FC<SelectProps> = ({
   value, onChange, options, placeholder = 'Pilih…', className = '', id, disabled = false,
@@ -47,22 +47,19 @@ const Select: React.FC<SelectProps> = ({
   const listRef = useRef<HTMLUListElement>(null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const [pos, setPos] = useState<{ left: number; width: number; top?: number; bottom?: number }>({ left: 0, width: 0 });
   const typeahead = useRef({ text: '', at: 0 });
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : null;
 
-  const place = useCallback(() => {
-    const el = triggerRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const below = window.innerHeight - r.bottom;
-    const flipUp = below < Math.min(PANEL_MAX_H, options.length * 36 + 8) + GAP && r.top > below;
-    setPos(flipUp
-      ? { left: r.left, width: r.width, bottom: window.innerHeight - r.top + GAP }
-      : { left: r.left, width: r.width, top: r.bottom + GAP });
-  }, [options.length]);
+  const closeQuietly = useCallback(() => setOpen(false), []);
+  const { pos, place } = useAnchoredPanel({
+    open,
+    triggerRef,
+    panelRef: listRef,
+    panelHeight: Math.min(PANEL_MAX_H, options.length * 36 + 8),
+    onOutsideClick: closeQuietly,
+  });
 
   const openList = (at = selectedIndex >= 0 ? selectedIndex : 0) => {
     if (disabled) return;
@@ -79,31 +76,6 @@ const Select: React.FC<SelectProps> = ({
     if (opt) onChange(opt.value);
     close();
   };
-
-  // Keep the panel glued to the trigger while open.
-  useLayoutEffect(() => {
-    if (!open) return;
-    place();
-    const onMove = () => place();
-    window.addEventListener('resize', onMove);
-    window.addEventListener('scroll', onMove, true);
-    return () => {
-      window.removeEventListener('resize', onMove);
-      window.removeEventListener('scroll', onMove, true);
-    };
-  }, [open, place]);
-
-  // Click outside closes.
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (triggerRef.current?.contains(t) || listRef.current?.contains(t)) return;
-      setOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    return () => document.removeEventListener('mousedown', onDown);
-  }, [open]);
 
   // Keep the highlighted option in view.
   useEffect(() => {
@@ -192,7 +164,7 @@ const Select: React.FC<SelectProps> = ({
             aria-labelledby={triggerId}
             tabIndex={-1}
             style={{ position: 'fixed', left: pos.left, width: Math.max(pos.width, 160), top: pos.top, bottom: pos.bottom, maxHeight: PANEL_MAX_H }}
-            className="z-[3000] m-0 p-1 list-none overflow-auto rounded-lg border border-ld-frost bg-white shadow-[0_12px_32px_-8px_rgba(39,40,53,0.22)] font-ld-sans"
+            className={`${PANEL_CLASS} p-1 list-none overflow-auto`}
           >
             {options.map((o, i) => {
               const isSelected = o.value === value;
