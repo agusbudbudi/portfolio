@@ -33,9 +33,11 @@ interface ImageUploadFieldProps {
   fallbackSrc?: string;
   /** 'contain' for logos/marks that shouldn't be cropped (default 'cover'). */
   objectFit?: 'cover' | 'contain';
+  /** 'natural': wider preview at the image's own aspect ratio (thumbnails, covers), stacked above the buttons. Default: 80px square crop. */
+  preview?: 'square' | 'natural';
 }
 
-const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onChange, feature, maxWidth, ratioHint, shape = 'square', fallbackSrc, objectFit = 'cover' }) => {
+const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onChange, feature, maxWidth, ratioHint, shape = 'square', fallbackSrc, objectFit = 'cover', preview = 'square' }) => {
   const token = useAdminAuthStore((s) => s.token);
   const showSnackbar = useSnackbarStore((s) => s.show);
   const [uploading, setUploading] = useState(false);
@@ -87,26 +89,30 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({ label, value, onCha
 
   const previewClass = shape === 'circle' ? 'rounded-full' : shape === 'rounded-md' ? 'rounded-md' : 'rounded-lg';
   const fitClass = objectFit === 'contain' ? 'object-contain' : 'object-cover';
+  const natural = preview === 'natural';
+  // Natural: fixed width, height from the image itself (capped so a tall upload can't take over the form).
+  const imgClass = natural ? `w-full max-w-xs h-auto max-h-64 object-contain bg-ld-cloud` : `w-20 h-20 ${fitClass}`;
+  const emptyClass = natural ? 'w-full max-w-xs aspect-video' : 'w-20 h-20';
 
   return (
     <div className="block">
       <span className="block text-xs font-medium text-ld-graphite mb-1.5">{label}</span>
-      <div className="flex items-start gap-3">
+      <div className={natural ? 'flex flex-col items-start gap-2.5' : 'flex items-start gap-3'}>
         {value && !broken ? (
           <img
             src={value}
             alt=""
             onError={() => setBroken(true)}
-            className={`w-20 h-20 ${fitClass} border border-ld-frost shrink-0 ${previewClass}`}
+            className={`${imgClass} border border-ld-frost shrink-0 ${previewClass}`}
           />
         ) : fallbackSrc ? (
           <img
             src={fallbackSrc}
             alt=""
-            className={`w-20 h-20 ${fitClass} border border-ld-frost shrink-0 ${previewClass}`}
+            className={`${imgClass} border border-ld-frost shrink-0 ${previewClass}`}
           />
         ) : (
-          <span className={`w-20 h-20 bg-ld-cloud border border-ld-frost shrink-0 flex items-center justify-center text-ld-fog ${previewClass}`}>
+          <span className={`${emptyClass} bg-ld-cloud border border-ld-frost shrink-0 flex items-center justify-center text-ld-fog ${previewClass}`}>
             <ImageOff size={18} />
           </span>
         )}

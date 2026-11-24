@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { track } from '../../../../lib/analytics';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  ArrowRight, Building2, CalendarCheck, Check, CheckCircle2, Copy, ExternalLink, Eye,
-  Menu, Pencil, Plus, X,
+  ArrowRight, Building2, CalendarCheck, Check, CheckCircle2, Copy, ExternalLink, Eye, EyeOff,
+  Globe, Menu, Pencil, Plus, X,
 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
 import { useMentorProfileStore } from '../../../../store/useMentorProfileStore';
@@ -13,7 +14,7 @@ import { useAdminToolsStore } from '../../../../store/useAdminToolsStore';
 import { useAdminSkillsStore } from '../../../../store/useAdminSkillsStore';
 import { useConfig } from '../../../../hooks/useConfig';
 import { useSnackbarStore } from '../../../../store/useSnackbarStore';
-import { useConfirmStore } from '../../../../store/useConfirmStore';
+import { confirmAction, useConfirmStore } from '../../../../store/useConfirmStore';
 import { formatDateLabel, parseDateId } from '../../../../lib/dates';
 import { apiGetPortfolioByOwner } from '../../../../lib/adminApi';
 import LoadingState from '../../../../components/common/LoadingState';
@@ -42,6 +43,8 @@ import {
 } from './DashboardCardHeader';
 import type { BookingConfig, BookingStatus, MentorEmploymentType } from '../../../../types/mentoring';
 import type { PortfolioData } from '../../../../types/portfolio';
+import { AnimatePresence } from 'framer-motion';
+import PortfolioPublishedDialog from './PortfolioPublishedDialog';
 
 const PORTFOLIO_SECTION_COUNT = 9;
 
@@ -82,7 +85,7 @@ const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   canceled: 'Canceled',
 };
 
-type UserRole = 'Admin' | 'Mentor' | 'Mentee';
+type UserRole = 'Mentor' | 'Mentee';
 
 const DEFAULT_MENTOR_AVATAR = '/admin/img/default-avatar-mentor.webp';
 
@@ -184,6 +187,36 @@ const MemberDashboard: React.FC = () => {
   const [assignedBookingDetailId, setAssignedBookingDetailId] = useState<string | null>(null);
   const [menteePortfolio, setMenteePortfolio] = useState<{ forId: string; slug: string | null; cvUrl: string | null } | null>(null);
   const [urlCopied, setUrlCopied] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  // Public URL just published: shows the success popup.
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+
+  // One-click publish / unpublish from the dashboard card (saves the stored data as is).
+  const setPortfolioStatus = (next: 'draft' | 'published') => {
+    if (!portfolio) return;
+    const publish = next === 'published';
+    openConfirm({
+      mode: 'cta',
+      variant: publish ? 'info' : 'warning',
+      icon: publish ? 'info' : 'alert',
+      confirmLabel: publish ? 'Ya, publish sekarang' : 'Jadikan draft',
+      title: publish ? 'Publish portfolio kamu?' : 'Jadikan portfolio draft?',
+      description: publish
+        ? <>Setelah dipublish, portfolio kamu langsung live di <strong className="font-semibold text-ld-onyx break-all">{portfolioUrl.replace(/^https?:\/\//, '')}</strong> dan bisa dibuka siapa saja, termasuk recruiter. Bisa dijadikan draft lagi kapan saja.</>
+        : 'Link publik tidak bisa dibuka sampai kamu publish lagi. Isi portfolio tidak berubah.',
+      onConfirm: async () => {
+        setPublishing(true);
+        const result = await updatePortfolio({ slug: portfolio.slug, status: next, data: portfolio.data });
+        setPublishing(false);
+        if (!result.ok) { showSnackbar(result.reason || 'Gagal mengubah status portfolio.', 'error'); return; }
+        if (publish) {
+          setPublishedUrl(portfolioUrl);
+          track('portfolio_published', { source: 'status_toggle' });
+        }
+        else showSnackbar('Portfolio dijadikan draft. Link publik tidak bisa dibuka.', 'success');
+      },
+    });
+  };
   const copiedTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(copiedTimer.current), []);
   const [assignedActionError, setAssignedActionError] = useState<string | null>(null);
@@ -208,7 +241,7 @@ const MemberDashboard: React.FC = () => {
 
   const handleAssignedTransition = async (booking: BookingConfig, newStatus: BookingStatus) => {
     setAssignedActionError(null);
-    if (newStatus === 'canceled' && !window.confirm(`Batalkan booking dari "${booking.menteeName}"?`)) return;
+    if (newStatus === 'canceled' && !(await confirmAction({ title: `Batalkan booking dari "${booking.menteeName}"?`, description: 'Slot jadwalnya kembali tersedia untuk mentee lain.', confirmLabel: 'Batalkan booking', variant: 'warning', icon: 'alert' }))) return;
     setAssignedTransitioningId(booking.id);
     const result = await transitionAssigned(booking.id, newStatus);
     setAssignedTransitioningId(null);
@@ -241,7 +274,9 @@ const MemberDashboard: React.FC = () => {
 
   const isEdit = mentor !== null;
   const isVerifiedMentor = mentor?.verificationStatus === 'verified';
-  const userRole: UserRole = user?.roles.includes('admin') ? 'Admin' : isVerifiedMentor ? 'Mentor' : 'Mentee';
+  // In the user view an admin sees the same role badge a member would.
+  const isAdminAccount = !!user?.roles.includes('admin');
+  const userRole: UserRole = isVerifiedMentor ? 'Mentor' : 'Mentee';
   const topics = config?.topics ?? [];
   const availableDays = config?.availableDays ?? [];
   const existingIds = (config?.mentors ?? []).map((m) => m.id);
@@ -581,6 +616,27 @@ const MemberDashboard: React.FC = () => {
                   >
                     {urlCopied ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
                   </button>
+                </div>
+                <div className="mt-auto pt-3">
+                  {published ? (
+                    <button
+                      type="button"
+                      onClick={() => setPortfolioStatus('draft')}
+                      disabled={publishing}
+                      className="inline-flex items-center gap-1 p-0 text-xs font-medium text-ld-slate bg-transparent border-none cursor-pointer hover:text-ld-graphite transition-colors disabled:opacity-50"
+                    >
+                      <EyeOff size={13} /> Jadikan draft
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setPortfolioStatus('published')}
+                      disabled={publishing}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ld-violet hover:bg-[#1f87e6] text-white text-xs font-medium border-none cursor-pointer transition-colors disabled:opacity-60"
+                    >
+                      <Globe size={13} /> {publishing ? 'Memproses…' : 'Publish portfolio'}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -1026,6 +1082,7 @@ const MemberDashboard: React.FC = () => {
             <ProfileMenu
               user={user}
               roleLabel={userRole === 'Mentee' ? null : userRole}
+              showViewSwitch={isAdminAccount}
               onLogout={() => { logout(); showSnackbar('Kamu telah berhasil keluar.', 'info'); }}
             />
           )}
@@ -1181,13 +1238,20 @@ const MemberDashboard: React.FC = () => {
                 variant="member"
                 onClose={() => setPortfolioFormOpen(false)}
                 onSubmit={async (payload) => {
+                  const wasPublished = portfolio?.status === 'published';
                   const result = portfolio ? await updatePortfolio(payload) : await createPortfolio(payload);
                   if (result.ok) {
                     setPortfolioFormOpen(false);
-                    showSnackbar(
-                      portfolio ? 'Portfolio berhasil diperbarui!' : 'Portfolio berhasil dibuat!',
-                      'success'
-                    );
+                    if (payload.status === 'published' && !wasPublished) {
+                      setPublishedUrl(`${window.location.origin}/portfolio/${payload.slug}`);
+                      track('portfolio_published', { source: portfolio ? 'form_update' : 'form_create' });
+                    } else {
+                      showSnackbar(
+                        payload.status === 'draft' && wasPublished ? 'Portfolio dijadikan draft. Link publik tidak bisa dibuka.'
+                          : portfolio ? 'Portfolio berhasil diperbarui!' : 'Portfolio berhasil dibuat!',
+                        'success'
+                      );
+                    }
                   } else {
                     showSnackbar(result.reason || 'Gagal menyimpan portfolio.', 'error');
                   }
@@ -1201,6 +1265,11 @@ const MemberDashboard: React.FC = () => {
           )}
         </main>
       </div>
+      <AnimatePresence>
+        {publishedUrl && (
+          <PortfolioPublishedDialog url={publishedUrl} photoUrl={portfolio?.data.profile.photo || undefined} onClose={() => setPublishedUrl(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

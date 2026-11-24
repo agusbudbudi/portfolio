@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { track } from '../../../../lib/analytics';
 import { CheckCircle2, Mail, MessageCircle, Phone, User } from 'lucide-react';
 import type { BookingConfig, MentorConfig, TopicConfig } from '../../../../types/mentoring';
 import { getAvailableDates } from '../../../../lib/dates';
@@ -134,6 +135,11 @@ const MemberBookingForm: React.FC<MemberBookingFormProps> = ({
       setSubmitError(result.reason ?? 'Gagal menyimpan booking.');
       return;
     }
+    track('mentoring_booking_sent', {
+      channel: 'member_dashboard',
+      mentor_id: form.mentorId ?? null,
+      topics_count: form.topics.length,
+    });
     setSubmitted(true);
   };
 

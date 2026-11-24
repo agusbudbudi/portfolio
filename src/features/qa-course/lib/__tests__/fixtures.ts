@@ -45,6 +45,7 @@ export function course(overrides: Partial<QaCourseDetail> = {}): QaCourseDetail 
       },
     ],
     articles: { art1: ref('art1'), art2: ref('art2'), art3: ref('art3') },
+    feedbackFlows: {},
     ...overrides,
   };
 }

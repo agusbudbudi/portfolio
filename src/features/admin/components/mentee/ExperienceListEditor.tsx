@@ -5,6 +5,7 @@ import { WORK_ARRANGEMENT_OPTIONS, type EmploymentType, type ExperienceEntry, ty
 import ImageUploadField from '../superadmin/ImageUploadField';
 import FormField from '../shared/FormField';
 import { ADD_ITEM_BUTTON } from '../shared/adminCard';
+import Checkbox from '../../../../components/common/Checkbox';
 
 interface ExperienceListEditorProps {
   experience: ExperienceEntry[];
@@ -116,15 +117,7 @@ const ExperienceListEditor: React.FC<ExperienceListEditorProps> = ({ experience,
                   className={`${inputClass} disabled:bg-ld-cloud disabled:text-ld-fog`}
                 />
               </FormField>
-              <label className="flex items-center gap-2 md:col-span-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={entry.isCurrent}
-                  onChange={(e) => update(entry.id, { isCurrent: e.target.checked, endDate: e.target.checked ? undefined : entry.endDate })}
-                  className="w-4 h-4 rounded border-ld-frost text-ld-violet focus:ring-ld-lilac cursor-pointer"
-                />
-                <span className="text-xs text-ld-graphite">Masih bekerja di sini</span>
-              </label>
+              <Checkbox checked={entry.isCurrent} onChange={(c) => update(entry.id, { isCurrent: c, endDate: c ? undefined : entry.endDate })} size="sm" align="center" className="md:col-span-2 select-none" labelClassName="text-xs leading-relaxed text-ld-graphite">Masih bekerja di sini</Checkbox>
               <FormField label="Job Desk" required compact className="md:col-span-2" error={submitted && !entry.jobDesc.trim() ? 'Job desk wajib diisi.' : null}>
                 <textarea value={entry.jobDesc} onChange={(e) => update(entry.id, { jobDesc: e.target.value })} rows={3} className={inputClass} />
               </FormField>

@@ -7,7 +7,7 @@ const STATUSES: readonly QaCourseStatus[] = ['draft', 'published'];
 const ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
 const SIMULATOR_ID_RE = /^[a-z0-9-]+$/;
 
-export const QA_COURSE_LIMITS = { modules: 20, itemsPerModule: 30 } as const;
+export const QA_COURSE_LIMITS = { modules: 20, itemsPerModule: 30, checkpointsPerModule: 3 } as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -52,6 +52,10 @@ export function validateQaCourseData(data: unknown): QaCourseValidationResult {
       if (!Array.isArray(mod.items)) { errors.push(`${at}: items wajib array.`); return; }
       if (mod.items.length === 0) errors.push(`${at}: minimal 1 item.`);
       if (mod.items.length > QA_COURSE_LIMITS.itemsPerModule) errors.push(`${at}: maksimal ${QA_COURSE_LIMITS.itemsPerModule} item.`);
+      const checkpoints = mod.items.filter((it) => isRecord(it) && it.kind === 'feedback').length;
+      if (checkpoints > QA_COURSE_LIMITS.checkpointsPerModule) {
+        errors.push(`${at}: maksimal ${QA_COURSE_LIMITS.checkpointsPerModule} checkpoint feedback.`);
+      }
       mod.items.forEach((item, ii) => {
         const iat = `${at}, item ${ii + 1}`;
         if (!isRecord(item)) { errors.push(`${iat}: harus objek.`); return; }
@@ -63,8 +67,10 @@ export function validateQaCourseData(data: unknown): QaCourseValidationResult {
         } else if (item.kind === 'mission') {
           if (typeof item.projectId !== 'string' || !SIMULATOR_ID_RE.test(item.projectId)) errors.push(`${iat}: pilih project simulator.`);
           if (typeof item.phaseId !== 'string' || !SIMULATOR_ID_RE.test(item.phaseId)) errors.push(`${iat}: pilih phase simulator.`);
+        } else if (item.kind === 'feedback') {
+          if (typeof item.flowId !== 'string' || !ID_RE.test(item.flowId)) errors.push(`${iat}: pilih flow feedback.`);
         } else {
-          errors.push(`${iat}: kind wajib article atau mission.`);
+          errors.push(`${iat}: kind wajib article, mission, atau feedback.`);
         }
       });
     });
@@ -84,4 +90,32 @@ export function courseArticleIds(course: Pick<QaCourseData, 'modules'>): string[
     }
   }
   return ids;
+}
+
+/** Feedback flow ids a course's checkpoints use (deduped). */
+export function courseFlowIds(course: Pick<QaCourseData, 'modules'>): string[] {
+  const ids: string[] = [];
+  for (const mod of course.modules) {
+    for (const item of mod.items) {
+      if (item.kind === 'feedback' && !ids.includes(item.flowId)) ids.push(item.flowId);
+    }
+  }
+  return ids;
+}
+
+/**
+ * Non-blocking warnings per checkpoint item id. Two checkpoints with no lesson
+ * between them (also across a module boundary) reach the learner at the same
+ * moment, and the popup only shows the last reached one (activeCheckpoint),
+ * so the earlier one never opens by itself.
+ */
+export function courseCheckpointWarnings(course: Pick<QaCourseData, 'modules'>): Record<string, string> {
+  const warnings: Record<string, string> = {};
+  const items = course.modules.flatMap((m) => m.items);
+  items.forEach((item, i) => {
+    if (item.kind === 'feedback' && items[i + 1]?.kind === 'feedback') {
+      warnings[item.id] = 'Checkpoint berikutnya menyusul tanpa lesson di antaranya, jadi popup checkpoint ini tidak muncul otomatis (learner hanya bisa membukanya dari outline). Sisipkan lesson atau hapus salah satu.';
+    }
+  });
+  return warnings;
 }

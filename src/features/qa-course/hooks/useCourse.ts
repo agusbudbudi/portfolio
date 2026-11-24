@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { track } from '../../../lib/analytics';
 import { useAdminAuthStore } from '../../../store/useAdminAuthStore';
 import type { QaCourseDetail } from '../../../types/qaCourse';
 import type { ProjectProgress, SimulatorProject } from '../../../types/qaSimulator';
 import { apiListSimulatorProgress, fetchSimulatorProject } from '../../qa-simulator/lib/simulatorApi';
 import {
-  clearPendingArticles, fetchCourse, fetchCourseProgress, putCourseArticleDone, readPendingArticles,
+  clearPendingArticles, fetchCourse, fetchCourseProgress, postCourseFeedback, putCourseArticleDone, readPendingArticles,
 } from '../lib/courseApi';
-import { buildLessons, courseCompletion } from '../lib/courseOutline';
+import { buildCheckpoints, buildLessons, courseCompletion } from '../lib/courseOutline';
+import type { FeedbackAnswers, FeedbackCheckpointState, FeedbackResponseStatus } from '../../../types/feedback';
 
 type CourseState =
   | { status: 'loading' }
@@ -20,10 +22,12 @@ interface ProgressResult {
   key: string;
   completed: Set<string>;
   simulator: Record<string, ProjectProgress>;
+  feedback: Record<string, FeedbackCheckpointState>;
 }
 
 const EMPTY_SET: Set<string> = new Set();
 const EMPTY_SIM: Record<string, ProjectProgress> = {};
+const EMPTY_FEEDBACK: Record<string, FeedbackCheckpointState> = {};
 
 /**
  * Everything a course page needs: the course, the simulator projects its
@@ -95,6 +99,7 @@ export function useCourse(slug: string | null | undefined) {
         key: progressKey,
         completed: new Set(saved?.completedArticleIds ?? []),
         simulator: Object.fromEntries(records.map((r) => [r.projectId, r.data])),
+        feedback: saved?.feedback ?? {},
       });
     })();
     return () => { cancelled = true; };
@@ -103,12 +108,28 @@ export function useCourse(slug: string | null | undefined) {
   const current = progressKey && progress?.key === progressKey ? progress : null;
   const completed = current?.completed ?? EMPTY_SET;
   const simulator = current?.simulator ?? EMPTY_SIM;
+  const feedback = current?.feedback ?? EMPTY_FEEDBACK;
   const progressLoaded = !token || Boolean(current);
 
   const lessons = useMemo(
     () => (course ? buildLessons({ course, projects, simulatorProgress: simulator, completedArticleIds: completed, loggedIn: Boolean(token) }) : []),
     [course, projects, simulator, completed, token]
   );
+
+  const checkpoints = useMemo(() => (course ? buildCheckpoints(course, lessons, feedback) : []), [course, lessons, feedback]);
+
+  /** Submit or skip a checkpoint; resolves to an error message or null. */
+  const submitFeedback = useCallback(async (checkpointId: string, status: FeedbackResponseStatus, answers: FeedbackAnswers, durationMs?: number): Promise<string | null> => {
+    if (!course || !token || !progressKey) return 'Login dulu untuk mengirim feedback.';
+    try {
+      const saved = await postCourseFeedback(course.slug, checkpointId, status, answers, token, durationMs);
+      setProgress((prev) => (prev && prev.key === progressKey ? { ...prev, feedback: { ...prev.feedback, [checkpointId]: saved } } : prev));
+      track('feedback_submitted', { context: 'course', course_slug: course.slug, checkpoint_id: checkpointId, status });
+      return null;
+    } catch (e) {
+      return e instanceof Error ? e.message : 'Gagal mengirim feedback.';
+    }
+  }, [course, token, progressKey]);
 
   const setArticleDone = useCallback(async (articleId: string, done: boolean) => {
     if (!course || !token || !progressKey) return false;
@@ -122,6 +143,13 @@ export function useCourse(slug: string | null | undefined) {
     try {
       const saved = await putCourseArticleDone(course.slug, articleId, done, token);
       setProgress((prev) => (prev && prev.key === progressKey ? { ...prev, completed: new Set(saved.completedArticleIds) } : prev));
+      if (done) {
+        track('course_lesson_completed', {
+          course_slug: course.slug,
+          article_id: articleId,
+          lessons_done: saved.completedArticleIds.length,
+        });
+      }
       return true;
     } catch {
       apply(!done); // roll back
@@ -137,5 +165,7 @@ export function useCourse(slug: string | null | undefined) {
     loggedIn: Boolean(token),
     progressLoaded,
     setArticleDone,
+    checkpoints,
+    submitFeedback,
   };
 }

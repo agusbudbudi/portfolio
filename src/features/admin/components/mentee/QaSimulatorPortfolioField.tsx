@@ -8,6 +8,7 @@ import {
   apiListSimulatorProgress, apiSetSimulatorShare, fetchSimulatorProject,
 } from '../../../qa-simulator/lib/simulatorApi';
 import { projectCompletion } from '../../../qa-simulator/lib/progress';
+import Checkbox from '../../../../components/common/Checkbox';
 
 interface QaSimulatorPortfolioFieldProps {
   value: QaSimulatorPortfolioConfig;
@@ -124,14 +125,14 @@ const QaSimulatorPortfolioField: React.FC<QaSimulatorPortfolioFieldProps> = ({ v
           const linkOff = checked && !row.record.shareId;
           return (
             <li key={id} className={`rounded-lg border p-3 sm:p-4 ${checked ? 'border-ld-violet bg-ld-lilac/30' : 'border-ld-frost'}`}>
-              <label className={`flex items-start gap-3 ${row.done ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  disabled={!row.done || busyId === id}
-                  onChange={() => toggle(row)}
-                  className="mt-1 w-4 h-4 accent-ld-violet"
-                />
+              <Checkbox
+                checked={checked}
+                disabled={!row.done || busyId === id}
+                onChange={() => toggle(row)}
+                size="sm"
+                className="!gap-3"
+                labelClassName="flex items-start gap-3"
+              >
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-medium text-ld-onyx">{row.project.title}</span>
                   <span className="block mt-0.5 text-xs text-ld-slate">
@@ -142,7 +143,7 @@ const QaSimulatorPortfolioField: React.FC<QaSimulatorPortfolioFieldProps> = ({ v
                   </span>
                 </span>
                 {busyId === id && <Loader2 size={16} className="animate-spin text-ld-fog shrink-0" />}
-              </label>
+              </Checkbox>
               {linkOff && (
                 <div className="mt-2 ml-7 flex flex-wrap items-center gap-2 text-xs text-amber-700">
                   <AlertTriangle size={13} /> Link publiknya sedang dimatikan, jadi card ini tidak tampil.

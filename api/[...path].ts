@@ -15,6 +15,7 @@ import blobUploadHandler from './_endpoints/blob-upload.js';
 import simulatorHandler from './_endpoints/simulator.js';
 import qaCoursesHandler from './_endpoints/qa-courses.js';
 import onboardingHandler from './_endpoints/onboarding.js';
+import feedbackHandler from './_endpoints/feedback.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const segments = req.query.path;
@@ -51,6 +52,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return qaCoursesHandler(req, res);
     case 'onboarding':
       return onboardingHandler(req, res);
+    case 'feedback':
+      return feedbackHandler(req, res);
     case 'admin-config': {
       // Map the resource parameter from path for the admin-config sub-handler
       const subPath = req.query.path;

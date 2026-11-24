@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronDown, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Check, ChevronDown, LogOut, ShieldCheck, UserRound, type LucideIcon } from 'lucide-react';
+import { useDashboardViewStore, type DashboardView } from '../../../../store/useDashboardViewStore';
 
 const ROLE_BADGE_OUTLINE = 'text-ld-violet bg-ld-lilac rounded-full px-1.5 py-0 text-[10px] font-medium';
 
@@ -14,14 +16,37 @@ interface ProfileMenuProps {
   /** Omit/null to hide the role badge (e.g. plain mentee accounts). */
   roleLabel?: string | null;
   onLogout: () => void;
+  /** Admin accounts only: show the Admin/User view switcher. */
+  showViewSwitch?: boolean;
+  /** The view this menu sits in (the dashboard on screen). */
+  currentView?: DashboardView;
 }
+
+const VIEW_OPTIONS: { id: DashboardView; label: string; hint: string; icon: LucideIcon }[] = [
+  { id: 'admin', label: 'Tampilan Admin', hint: 'Kelola konten, user & mentoring', icon: ShieldCheck },
+  { id: 'user', label: 'Tampilan User', hint: 'Dashboard seperti mentor / mentee', icon: UserRound },
+];
 
 // Top-right header identity control — avatar/name/role trigger + a click-open
 // tray with account details and logout. Shared by AdminDashboard and
 // MemberDashboard so both header areas stay visually and behaviorally
 // identical; only `roleLabel` differs per dashboard.
-const ProfileMenu: React.FC<ProfileMenuProps> = ({ user, roleLabel, onLogout }) => {
+const ProfileMenu: React.FC<ProfileMenuProps> = ({ user, roleLabel, onLogout, showViewSwitch = false, currentView = 'user' }) => {
   const [open, setOpen] = useState(false);
+  const view = currentView;
+  const setView = useDashboardViewStore((s) => s.setView);
+  const resetView = useDashboardViewStore((s) => s.reset);
+  const navigate = useNavigate();
+
+  const switchView = (next: DashboardView) => {
+    setOpen(false);
+    if (next === view) return;
+    setView(next);
+    // Section paths differ per view (and some overlap with different
+    // meanings, e.g. /portfolios), so always land on the view's home.
+    navigate('/dashboard');
+    window.scrollTo({ top: 0 });
+  };
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,9 +96,33 @@ const ProfileMenu: React.FC<ProfileMenuProps> = ({ user, roleLabel, onLogout }) 
               {roleLabel && <span className={`inline-block mt-1.5 ${ROLE_BADGE_OUTLINE}`}>{roleLabel}</span>}
             </div>
           </div>
+          {showViewSwitch && (
+            <div className="p-2 border-b border-ld-frost/60">
+              <p className="px-3 pt-1 pb-1.5 m-0 text-[10px] font-semibold uppercase tracking-widest text-ld-fog">Ganti tampilan</p>
+              {VIEW_OPTIONS.map((option) => {
+                const Icon = option.icon;
+                const active = option.id === view;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => switchView(option.id)}
+                    aria-pressed={active}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left cursor-pointer border-none transition-colors ${active ? 'bg-ld-lilac/60' : 'bg-transparent hover:bg-ld-cloud'}`}
+                  >
+                    <Icon size={17} className={`shrink-0 ${active ? 'text-ld-violet' : 'text-ld-slate'}`} />
+                    <span className="min-w-0 flex-1">
+                      <span className={`block text-sm leading-tight ${active ? 'font-semibold text-ld-violet' : 'font-medium text-ld-slate'}`}>{option.label}</span>
+                      <span className="block text-[11px] text-ld-fog leading-tight mt-0.5 truncate">{option.hint}</span>
+                    </span>
+                    {active && <Check size={16} className="shrink-0 text-ld-violet" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <div className="p-2">
             <button
-              onClick={() => { setOpen(false); onLogout(); }}
+              onClick={() => { setOpen(false); resetView(); onLogout(); }}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-ld-slate hover:bg-red-50 hover:text-red-500 cursor-pointer bg-transparent border-none text-left transition-colors"
             >
               <LogOut size={17} className="shrink-0" /> Logout

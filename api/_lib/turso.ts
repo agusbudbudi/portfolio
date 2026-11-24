@@ -167,11 +167,58 @@ async function runMigrate(): Promise<void> {
         created_at TEXT NOT NULL
       )`,
       `CREATE INDEX IF NOT EXISTS user_onboarding_user_created ON user_onboarding(user_id, created_at)`,
+      // Feedback Checkpoint: reusable questions (bank), flows that order
+      // them, and one response per learner per checkpoint. Responses are
+      // generic over context_type so QA Simulator checkpoints (phase 2)
+      // need no migration.
+      `CREATE TABLE IF NOT EXISTS feedback_questions (
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        prompt TEXT NOT NULL,
+        help_text TEXT,
+        config TEXT NOT NULL DEFAULT '{}',
+        is_system INTEGER NOT NULL DEFAULT 0,
+        status TEXT NOT NULL DEFAULT 'active',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS feedback_flows (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        title TEXT NOT NULL,
+        intro TEXT,
+        status TEXT NOT NULL DEFAULT 'draft',
+        items TEXT NOT NULL DEFAULT '[]',
+        ask_consent INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS feedback_responses (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        context_type TEXT NOT NULL,
+        context_id TEXT NOT NULL,
+        checkpoint_id TEXT NOT NULL,
+        flow_id TEXT NOT NULL,
+        status TEXT NOT NULL,
+        answers TEXT NOT NULL DEFAULT '{}',
+        snapshot TEXT NOT NULL DEFAULT '[]',
+        rating INTEGER,
+        consent INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS feedback_responses_unique
+        ON feedback_responses(user_id, context_type, context_id, checkpoint_id)`,
+      `CREATE INDEX IF NOT EXISTS feedback_responses_context
+        ON feedback_responses(context_type, context_id, checkpoint_id)`,
     ],
     'write'
   );
 
   await ensureColumn(db, 'portfolios', 'owner_id', 'TEXT');
+  // Visible time from the first question to Kirim (first submission only).
+  await ensureColumn(db, 'feedback_responses', 'duration_ms', 'INTEGER');
   await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS portfolios_owner_id_unique ON portfolios(owner_id)');
   await ensureColumn(db, 'bookings', 'mentee_user_id', 'TEXT');
   await ensureColumn(db, 'qa_library_articles', 'author_user_id', 'TEXT');

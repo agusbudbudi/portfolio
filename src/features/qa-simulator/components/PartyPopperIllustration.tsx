@@ -29,16 +29,19 @@ type Shape = 'rect' | 'dot' | 'tri' | 'ring' | 'zig' | 'star';
 // Only a few pieces stay; the rest join the burst then fade out so the bar
 // doesn't stay busy.
 const CONFETTI: [number, number, Shape, string, number, boolean][] = [
-  [37, 5, 'rect', C.blue, 25, true],
-  [47, 11, 'star', C.blue, 0, false],
-  [54, 20, 'rect', C.graphite, -30, true],
-  [45, 29, 'tri', C.blue, 10, true],
-  [31, 3, 'dot', C.graphite, 0, false],
-  [55, 7, 'ring', C.blue, 0, true],
-  [51, 35, 'zig', C.blue, 20, false],
-  [21, 6, 'rect', C.wash, 40, false],
-  [41, 17, 'dot', C.wash, 0, false],
-  [57, 28, 'dot', C.blue, 0, false],
+  // Top arc (above the streamers) carries most of the pieces that stay...
+  [37, 4, 'rect', C.blue, 25, true],
+  [42, 7, 'tri', C.graphite, -15, true],
+  [17, 6, 'rect', C.wash, 40, true],
+  // ...two more sit between the streamers, clear of the right edge.
+  [50, 15, 'ring', C.blue, 0, true],
+  [46, 19, 'rect', C.graphite, -30, true],
+  // Burst only.
+  [23, 3, 'dot', C.graphite, 0, false],
+  [36, 9.5, 'dot', C.wash, 0, false],
+  [50, 30, 'star', C.blue, 0, false],
+  [49, 37, 'zig', C.blue, 20, false],
+  [12, 6, 'dot', C.blue, 0, false],
 ];
 
 const Piece: React.FC<{ shape: Shape; x: number; y: number; color: string; rot: number }> = ({ shape, x, y, color, rot }) => {
@@ -67,6 +70,8 @@ const Piece: React.FC<{ shape: Shape; x: number; y: number; color: string; rot: 
 const STREAMERS = [
   { d: 'M30 18 q4 -8 10 -6 t8 -8', color: C.blue, w: 2.2 },
   { d: 'M32 24 q6 -2 8 3 t9 2', color: C.wash, w: 2.2 },
+  // Upward one above the blue streamer, so the burst also reads vertically.
+  { d: 'M27 16 q-1.5 -5 2 -8 t4 -6', color: C.graphite, w: 2.2 },
 ];
 
 // Radial "pop" flash lines from the mouth, fanned up-right.
@@ -77,7 +82,7 @@ const FLASH = [-80, -50, -20, 10].map((deg) => {
   return `M${(MOUTH.x + 4 + r0 * Math.cos(a)).toFixed(1)} ${(MOUTH.y - 4 + r0 * Math.sin(a)).toFixed(1)} L${(MOUTH.x + 4 + r1 * Math.cos(a)).toFixed(1)} ${(MOUTH.y - 4 + r1 * Math.sin(a)).toFixed(1)}`;
 });
 
-const SPARKLES: [number, number, number][] = [[14, 12, 2.4], [58, 15, 2]];
+const SPARKLES: [number, number, number][] = [[10, 15, 2.4], [53, 3, 2]];
 
 const PartyPopperIllustration: React.FC<{ className?: string }> = ({ className = '' }) => {
   const reduce = !!useReducedMotion();

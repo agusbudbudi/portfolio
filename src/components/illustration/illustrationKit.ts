@@ -14,6 +14,10 @@ export const C = {
   ash: '#cdd2d9',
   steel: '#818898',
   graphite: '#36394a',
+  // Honey: feedback & rating only (docs/DESIGN.md → Honey accent).
+  honey: '#f5b301',
+  butter: '#ffe3a1',
+  cream: '#fff6dc',
 };
 
 const EASE = [0.4, 0, 0.2, 1] as const;

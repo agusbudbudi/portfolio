@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle2, ChevronDown, Lock } from 'lucide-react';
-import { QaLibraryIcon, QaSimulatorIcon } from '../../../components/illustration/ProductIcons';
+import { QaLibraryIcon, QaSimulatorIcon, FeedbackIcon } from '../../../components/illustration/ProductIcons';
 import type { QaCourseDetail } from '../../../types/qaCourse';
-import type { Lesson } from '../lib/courseOutline';
+import type { Checkpoint, Lesson } from '../lib/courseOutline';
 
 interface CourseOutlineProps {
   course: QaCourseDetail;
@@ -16,7 +16,43 @@ interface CourseOutlineProps {
   onNavigate?: () => void;
   /** 'full' = detail page cards with module intros; 'compact' = lesson drawer. */
   variant?: 'full' | 'compact';
+  /** Feedback checkpoints to show between lessons (logged-in learners). */
+  checkpoints?: Checkpoint[];
+  onOpenCheckpoint?: (checkpointId: string) => void;
 }
+
+// A checkpoint sits between lessons: FeedbackIcon on its Honey tile (articles
+// are Sky, missions dark), no lesson number, not
+// counted in the module's x/y. Its state is in the meta line.
+const CheckpointRow: React.FC<{ cp: Checkpoint; compact: boolean; first: boolean; onOpen?: (id: string) => void }> = ({ cp, compact, first, onOpen }) => {
+  const meta = cp.state?.status === 'submitted' ? 'Checkpoint · terkirim, klik untuk ubah'
+    : cp.state?.status === 'skipped' ? 'Checkpoint · dilewati, klik untuk isi'
+      : cp.reached ? 'Checkpoint · belum diisi'
+        : 'Checkpoint · terbuka setelah lesson sebelumnya';
+  const open = Boolean(onOpen && cp.reached);
+  const row = `flex items-center w-full text-left no-underline ${compact ? 'gap-2.5 px-3 py-2.5' : 'gap-3.5 px-5 sm:px-6 py-3.5'} ${first ? '' : 'border-t border-ld-frost'}`;
+  const body = (
+    <>
+      <FeedbackIcon size={compact ? 24 : 32} className="shrink-0" />
+      <span className="flex-1 min-w-0">
+        <span className={`block leading-snug ${compact ? 'text-[13px]' : 'text-[15px]'} ${open ? 'text-ld-graphite' : 'text-ld-slate'}`}>{cp.flow?.title}</span>
+        <span className={`block mt-0.5 text-ld-steel ${compact ? 'text-[11px]' : 'text-xs'}`}>{meta}</span>
+      </span>
+      {cp.state?.status === 'submitted' && <CheckCircle2 size={compact ? 15 : 17} className="text-emerald-600 shrink-0" aria-label="Terkirim" />}
+    </>
+  );
+  return (
+    <li>
+      {open ? (
+        <button type="button" onClick={() => onOpen?.(cp.item.id)} className={`${row} border-x-0 border-b-0 ${first ? 'border-t-0' : ''} bg-transparent cursor-pointer hover:bg-ld-cloud`}>
+          {body}
+        </button>
+      ) : (
+        <div className={row} aria-disabled="true">{body}</div>
+      )}
+    </li>
+  );
+};
 
 // Brand product icons: an article lives in QA Library, a mission in QA
 // Simulator. Missions sit on a dark Midnight tile (as in the course design)
@@ -56,7 +92,7 @@ const LessonStatus: React.FC<{ lesson: Lesson; loggedInView: boolean; compact: b
  * open or close any module after that. Lessons past the next unfinished one
  * are locked and only open by finishing the lesson before them.
  */
-const CourseOutline: React.FC<CourseOutlineProps> = ({ course, lessons, activeIndex, onLocked, onNavigate, variant = 'full' }) => {
+const CourseOutline: React.FC<CourseOutlineProps> = ({ course, lessons, activeIndex, onLocked, onNavigate, variant = 'full', checkpoints, onOpenCheckpoint }) => {
   const compact = variant === 'compact';
   const focus = lessons.find((l) => l.index === activeIndex) ?? lessons.find((l) => l.isNext);
   const defaultOpen = focus?.moduleIndex ?? 0;
@@ -130,7 +166,13 @@ const CourseOutline: React.FC<CourseOutlineProps> = ({ course, lessons, activeIn
                   <p className="m-0 px-5 sm:px-6 pb-4 bg-ld-cloud text-sm text-ld-slate leading-relaxed">{mod.intro}</p>
                 )}
                 <ul className="m-0 p-0 list-none border-t border-ld-frost">
-                  {moduleLessons.map((lesson, li) => {
+                  {mod.items.map((modItem, li) => {
+                    if (modItem.kind === 'feedback') {
+                      const cp = checkpoints?.find((c) => c.item.id === modItem.id);
+                      return cp?.flow ? <CheckpointRow key={modItem.id} cp={cp} compact={compact} first={li === 0} onOpen={onOpenCheckpoint} /> : null;
+                    }
+                    const lesson = moduleLessons.find((l) => l.item.id === modItem.id);
+                    if (!lesson) return null;
                     const active = lesson.index === activeIndex;
                     const row = `flex items-center w-full text-left no-underline ${compact ? 'gap-2.5 px-3 py-2.5' : 'gap-3.5 px-5 sm:px-6 py-3.5'} ${
                       li > 0 ? 'border-t border-ld-frost' : ''

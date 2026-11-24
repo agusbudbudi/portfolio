@@ -2,6 +2,7 @@ import { ApiError, UnauthorizedError } from '../../../lib/adminApi';
 import type {
   QaCourseDetail, QaCourseMembership, QaCourseProgress, QaCourseSummary, QaCourseWithProgress,
 } from '../../../types/qaCourse';
+import type { FeedbackAnswers, FeedbackCheckpointState, FeedbackResponseStatus } from '../../../types/feedback';
 
 export async function fetchCourses(): Promise<QaCourseSummary[]> {
   const res = await fetch('/api/qa-courses');
@@ -91,6 +92,80 @@ export function readPendingArticles(slug: string): string[] {
 export function clearPendingArticles(slug: string) {
   try {
     localStorage.removeItem(pendingKey(slug));
+  } catch {
+    // ignore
+  }
+}
+
+/** Submit or skip a course feedback checkpoint. Returns the saved state. */
+export async function postCourseFeedback(
+  slug: string,
+  checkpointId: string,
+  status: FeedbackResponseStatus,
+  answers: FeedbackAnswers,
+  token: string,
+  durationMs?: number,
+): Promise<FeedbackCheckpointState> {
+  const res = await fetch('/api/feedback/responses', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ contextType: 'course', contextId: slug, checkpointId, status, answers, durationMs }),
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new ApiError(res.status, body?.message ?? `Gagal mengirim feedback (HTTP ${res.status}).`, body?.errors);
+  }
+  const body = (await res.json()) as FeedbackCheckpointState;
+  return { status: body.status, answers: body.answers, updatedAt: body.updatedAt };
+}
+
+// "Nanti saja" snoozes a checkpoint for this browser session; the third
+// snooze counts as a skip so the popup stops nagging. Storage may throw
+// (private mode, blocked): then nothing is remembered, which is harmless.
+const snoozeKey = (slug: string) => `qa-course-fb-snooze:${slug}`;
+const snoozeCountKey = (slug: string, checkpointId: string) => `qa-course-fb-snooze-count:${slug}:${checkpointId}`;
+
+export function readSnoozed(slug: string): Set<string> {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(snoozeKey(slug)) ?? '[]') as unknown;
+    return new Set(Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === 'string') : []);
+  } catch {
+    return new Set();
+  }
+}
+
+/** Snoozes for this session; returns how many times this checkpoint was snoozed in total. */
+export function snoozeCheckpoint(slug: string, checkpointId: string): number {
+  try {
+    const set = readSnoozed(slug);
+    set.add(checkpointId);
+    sessionStorage.setItem(snoozeKey(slug), JSON.stringify([...set]));
+    const count = Number(localStorage.getItem(snoozeCountKey(slug, checkpointId)) ?? '0') + 1;
+    localStorage.setItem(snoozeCountKey(slug, checkpointId), String(count));
+    return count;
+  } catch {
+    return 1;
+  }
+}
+
+// Unsent answers survive a closed tab (same idea as useDraft).
+const draftKey = (slug: string, checkpointId: string) => `qa-course-fb-draft:${slug}:${checkpointId}`;
+
+export function readFeedbackDraft(slug: string, checkpointId: string): FeedbackAnswers | null {
+  try {
+    const raw = localStorage.getItem(draftKey(slug, checkpointId));
+    const parsed = raw ? (JSON.parse(raw) as unknown) : null;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? (parsed as FeedbackAnswers) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeFeedbackDraft(slug: string, checkpointId: string, answers: FeedbackAnswers | null) {
+  try {
+    if (answers) localStorage.setItem(draftKey(slug, checkpointId), JSON.stringify(answers));
+    else localStorage.removeItem(draftKey(slug, checkpointId));
   } catch {
     // ignore
   }

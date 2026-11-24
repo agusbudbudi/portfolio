@@ -15,7 +15,8 @@
     "seed:course": "tsx --env-file=.env.local scripts/seed-qa-course.ts",
     "course:thumbs": "tsx scripts/og/course-thumbs.tsx",
     "publish:course": "tsx --env-file=.env.local scripts/publish-qa-course.ts",
-    "sync:article-meta": "tsx --env-file=.env.local scripts/sync-qa-article-meta.ts"
+    "sync:article-meta": "tsx --env-file=.env.local scripts/sync-qa-article-meta.ts",
+    "seed:feedback": "tsx --env-file=.env.local scripts/seed-course-feedback.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
@@ -23,6 +24,7 @@
     "framer-motion": "^12.34.2",
     "jose": "^6.2.3",
     "lucide-react": "^0.574.0",
+    "posthog-js": "^1.454.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-helmet-async": "^3.0.0",

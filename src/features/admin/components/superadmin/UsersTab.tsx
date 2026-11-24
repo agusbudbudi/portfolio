@@ -1,11 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAdminUsersStore } from '../../../../store/useAdminUsersStore';
 import { usePagination } from '../../../../hooks/usePagination';
-import { sortByUpdatedAtDesc } from '../../../../lib/sortByUpdatedAt';
 import LoadingState from '../../../../components/common/LoadingState';
 import Pagination from '../shared/Pagination';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
 import StatusBadge, { type StatusBadgeTone } from '../shared/StatusBadge';
+import SortableTh from '../shared/SortableTh';
+import type { SortState } from '../../../../lib/tableSort';
+import type { AdminUserRecord } from '../../../../lib/adminApi';
+
+type UserSortKey = 'createdAt' | 'updatedAt';
 
 const ROLE_TONE: Record<string, StatusBadgeTone> = {
   admin: 'violet',
@@ -28,8 +32,14 @@ const UsersTab: React.FC = () => {
 
   useEffect(() => { load(); }, [load]);
 
-  const sorted = sortByUpdatedAtDesc(users);
+  // Default: newest registration first.
+  const [sort, setSort] = useState<SortState<UserSortKey>>({ key: 'createdAt', dir: 'desc' });
+  const sorted = [...users].sort((a: AdminUserRecord, b: AdminUserRecord) => {
+    const diff = Date.parse(a[sort.key]) - Date.parse(b[sort.key]);
+    return sort.dir === 'desc' ? -diff : diff;
+  });
   const { page, setPage, totalPages, pageItems: pagedUsers } = usePagination(sorted);
+  const changeSort = (next: SortState<UserSortKey>) => { setSort(next); setPage(1); };
 
   return (
     <div className={ADMIN_CARD}>
@@ -56,8 +66,8 @@ const UsersTab: React.FC = () => {
                     <th className="px-4 py-3 text-xs font-medium text-ld-steel whitespace-nowrap">Id</th>
                     <th className="px-4 py-3 text-xs font-medium text-ld-steel whitespace-nowrap">User</th>
                     <th className="px-4 py-3 text-xs font-medium text-ld-steel whitespace-nowrap">Role</th>
-                    <th className="px-4 py-3 text-xs font-medium text-ld-steel whitespace-nowrap">Terdaftar</th>
-                    <th className="px-4 py-3 text-xs font-medium text-ld-steel whitespace-nowrap">Update terakhir</th>
+                    <SortableTh label="Terdaftar" sortKey="createdAt" sort={sort} onSort={changeSort} />
+                    <SortableTh label="Update terakhir" sortKey="updatedAt" sort={sort} onSort={changeSort} />
                   </tr>
                 </thead>
                 <tbody>

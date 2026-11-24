@@ -1,15 +1,16 @@
-import type { QaCourseDetail, QaCourseItem } from '../../../types/qaCourse';
+import type { QaCourseDetail, QaCourseFeedbackItem, QaCourseLessonItem } from '../../../types/qaCourse';
+import type { FeedbackCheckpointState, FeedbackFlowPublic } from '../../../types/feedback';
 import type { ProjectProgress, SimulatorProject } from '../../../types/qaSimulator';
 import { isPhaseComplete } from '../../qa-simulator/lib/progress';
 
 /** One step of a course, flattened in reading order with everything the UI shows. */
 export interface Lesson {
-  item: QaCourseItem;
+  item: QaCourseLessonItem;
   /** 0-based position across the whole course. */
   index: number;
   moduleIndex: number;
   moduleTitle: string;
-  kind: QaCourseItem['kind'];
+  kind: QaCourseLessonItem['kind'];
   title: string;
   /** Secondary line: reading time, or the simulator project. */
   meta: string;
@@ -49,6 +50,8 @@ export function buildLessons({ course, projects, simulatorProgress, completedArt
   const lessons: Lesson[] = [];
   course.modules.forEach((mod, moduleIndex) => {
     for (const item of mod.items) {
+      // Feedback checkpoints are not lessons (see buildCheckpoints).
+      if (item.kind === 'feedback') continue;
       const index = lessons.length;
       const needsLogin = !loggedIn && index > 0;
       if (item.kind === 'article') {
@@ -113,4 +116,61 @@ export function courseCompletion(lessons: Lesson[]) {
 /** First lesson not done yet (the "Lanjutkan" target), or the first lesson. */
 export function nextLesson(lessons: Lesson[]): Lesson | undefined {
   return lessons.find((l) => l.available && !l.done) ?? lessons[0];
+}
+
+/** A feedback checkpoint placed between lessons. */
+export interface Checkpoint {
+  item: QaCourseFeedbackItem;
+  moduleIndex: number;
+  moduleTitle: string;
+  /** Lessons that come before it, in course order. */
+  lessonsBefore: number;
+  /** Resolved flow; absent = draft or deleted, so the checkpoint is hidden. */
+  flow?: FeedbackFlowPublic;
+  /** Every available lesson before it is done. */
+  reached: boolean;
+  /** The learner's saved state, if any. */
+  state?: FeedbackCheckpointState;
+}
+
+export function buildCheckpoints(
+  course: QaCourseDetail,
+  lessons: Lesson[],
+  feedback: Record<string, FeedbackCheckpointState>,
+): Checkpoint[] {
+  const out: Checkpoint[] = [];
+  let lessonsBefore = 0;
+  course.modules.forEach((mod, moduleIndex) => {
+    for (const item of mod.items) {
+      if (item.kind !== 'feedback') { lessonsBefore += 1; continue; }
+      const before = lessons.slice(0, lessonsBefore);
+      out.push({
+        item,
+        moduleIndex,
+        moduleTitle: mod.title,
+        lessonsBefore,
+        flow: course.feedbackFlows?.[item.flowId],
+        reached: before.every((l) => !l.available || l.done),
+        state: feedback[item.id],
+      });
+    }
+  });
+  return out;
+}
+
+/**
+ * The checkpoint the popup should ask about now, or undefined: the LAST one
+ * the learner has reached that has a live flow, no saved response and is not
+ * snoozed this session. Older unanswered ones are not queued up; they stay
+ * reachable from the outline. Guests never get one.
+ */
+export function activeCheckpoint(
+  checkpoints: Checkpoint[],
+  opts: { loggedIn: boolean; snoozed: ReadonlySet<string> },
+): Checkpoint | undefined {
+  if (!opts.loggedIn) return undefined;
+  const reached = checkpoints.filter((c) => c.flow && c.reached);
+  const last = reached.at(-1);
+  if (!last || last.state || opts.snoozed.has(last.item.id)) return undefined;
+  return last;
 }

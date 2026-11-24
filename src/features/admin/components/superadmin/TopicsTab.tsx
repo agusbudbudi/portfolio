@@ -8,6 +8,7 @@ import TopicForm from './TopicForm';
 import Pagination from '../shared/Pagination';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
 import StatusBadge from '../shared/StatusBadge';
+import { confirmAction } from '../../../../store/useConfirmStore';
 
 const TopicsTab: React.FC = () => {
   const { topics, upsertTopic, deleteTopic } = useAdminConfigStore();
@@ -34,7 +35,7 @@ const TopicsTab: React.FC = () => {
 
   const handleDelete = async (topic: TopicConfig) => {
     setDeleteError(null);
-    if (!window.confirm(`Hapus topic "${topic.label}"?`)) return;
+    if (!(await confirmAction({ title: `Hapus topic "${topic.label}"?`, description: 'Topic tidak bisa dipilih lagi saat booking mentoring.', confirmLabel: 'Hapus topic' }))) return;
     setDeletingId(topic.id);
     const result = await deleteTopic(topic.id);
     setDeletingId(null);

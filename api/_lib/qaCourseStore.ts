@@ -6,6 +6,7 @@ import type { Row } from '@libsql/client';
 import type {
   QaCourse, QaCourseArticleRef, QaCourseData, QaCourseLearner, QaCourseMembership, QaCourseModule, QaCourseSummary, QaCourseWithProgress,
 } from '../../src/types/qaCourse.js';
+import { isLessonItem } from '../../src/types/qaCourse.js';
 import { courseArticleIds } from '../../src/lib/qaCourseValidation.js';
 import { getClient, migrate } from './turso.js';
 
@@ -51,14 +52,42 @@ function toSummary(course: QaCourse): QaCourseSummary {
   };
 }
 
+// Accounts with any activity in the course whose id is bound to both `?`:
+// a lesson marked done, or a checkpoint answered/skipped. Blocks deleting
+// the course. (Peserta, the count shown, is the progress half only, the
+// same rule as the Peserta panel; mission progress lives per simulator
+// project, not per course, so neither counts it.)
+const ACTIVE_USERS_SQL = `SELECT user_id FROM qa_course_progress WHERE course_id = ?
+  UNION SELECT user_id FROM feedback_responses WHERE context_type = 'course' AND context_id = ?`;
+
 export async function listQaCourses(opts?: { publishedOnly?: boolean }): Promise<QaCourseSummary[]> {
   await migrate();
+  if (opts?.publishedOnly) {
+    const result = await getClient().execute(`SELECT * FROM qa_courses WHERE status = 'published' ORDER BY created_at ASC`);
+    return result.rows.map((row) => toSummary(rowToCourse(row)));
+  }
+  // Admin list: Peserta, submitted feedback, and whether anything blocks delete.
   const result = await getClient().execute(
-    opts?.publishedOnly
-      ? `SELECT * FROM qa_courses WHERE status = 'published' ORDER BY created_at ASC`
-      : 'SELECT * FROM qa_courses ORDER BY updated_at DESC'
+    `SELECT c.*,
+            (SELECT COUNT(DISTINCT p.user_id) FROM qa_course_progress p WHERE p.course_id = c.id) AS learner_count,
+            (SELECT COUNT(*) FROM feedback_responses f
+              WHERE f.context_type = 'course' AND f.context_id = c.id AND f.status = 'submitted') AS feedback_count,
+            (SELECT COUNT(*) FROM (${ACTIVE_USERS_SQL.replace(/\?/g, 'c.id')})) AS active_count
+       FROM qa_courses c ORDER BY c.updated_at DESC`
   );
-  return result.rows.map((row) => toSummary(rowToCourse(row)));
+  return result.rows.map((row) => ({
+    ...toSummary(rowToCourse(row)),
+    learnerCount: Number(row.learner_count),
+    feedbackCount: Number(row.feedback_count),
+    deleteLocked: Number(row.active_count) > 0,
+  }));
+}
+
+/** Accounts with progress or feedback in a course; a course with any cannot be deleted. */
+export async function courseActiveUserCount(courseId: string): Promise<number> {
+  await migrate();
+  const result = await getClient().execute({ sql: `SELECT COUNT(*) AS n FROM (${ACTIVE_USERS_SQL})`, args: [courseId, courseId] });
+  return Number(result.rows[0]?.n ?? 0);
 }
 
 export async function readQaCourseBySlug(slug: string): Promise<QaCourse | null> {
@@ -212,9 +241,10 @@ export async function publishedCoursesForArticle(articleId: string): Promise<QaC
   });
   return result.rows.map((row) => {
     const course = rowToCourse(row);
-    const items = course.modules.flatMap((m) => m.items);
-    const position = items.findIndex((i) => i.kind === 'article' && i.articleId === articleId);
-    return { slug: course.slug, title: course.title, lessonNumber: position + 1, totalLessons: items.length };
+    // Feedback checkpoints are not lessons: leave them out of "Lesson X dari Y".
+    const lessons = course.modules.flatMap((m) => m.items).filter(isLessonItem);
+    const position = lessons.findIndex((i) => i.kind === 'article' && i.articleId === articleId);
+    return { slug: course.slug, title: course.title, lessonNumber: position + 1, totalLessons: lessons.length };
   });
 }
 
@@ -245,7 +275,7 @@ export async function coursesForProjectWithProgress(userId: string, projectId: s
       null
     );
     out.push({
-      course: { ...course, articles: await resolveCourseArticles(courseArticleIds(course)) },
+      course: { ...course, articles: await resolveCourseArticles(courseArticleIds(course)), feedbackFlows: {} },
       completedArticleIds,
       lastCompletedAt,
     });

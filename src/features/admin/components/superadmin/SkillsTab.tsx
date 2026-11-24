@@ -8,6 +8,7 @@ import LoadingState from '../../../../components/common/LoadingState';
 import SkillForm from './SkillForm';
 import Pagination from '../shared/Pagination';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
+import { confirmAction } from '../../../../store/useConfirmStore';
 
 const SkillsTab: React.FC = () => {
   const { skills, loading, loadError, load, upsertSkill, deleteSkill } = useAdminSkillsStore();
@@ -36,7 +37,7 @@ const SkillsTab: React.FC = () => {
 
   const handleDelete = async (skill: SkillConfig) => {
     setDeleteError(null);
-    if (!window.confirm(`Hapus skill "${skill.name}"? Portfolio yang masih mereferensikan skill ini tidak akan diperbarui otomatis.`)) return;
+    if (!(await confirmAction({ title: `Hapus skill "${skill.name}"?`, description: 'Portfolio yang masih mereferensikan skill ini tidak akan diperbarui otomatis.', confirmLabel: 'Hapus skill' }))) return;
     setDeletingId(skill.id);
     const result = await deleteSkill(skill.id);
     setDeletingId(null);

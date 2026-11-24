@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { courseArticleIds, validateQaCourseData } from './qaCourseValidation';
+import { courseArticleIds, courseCheckpointWarnings, validateQaCourseData } from './qaCourseValidation';
 
 const valid = () => ({
   title: 'Junior QA Ready',
@@ -57,5 +57,25 @@ describe('courseArticleIds', () => {
     const c = valid();
     c.modules.push({ id: 'm2', title: 'x', items: [{ id: 'i3', kind: 'article', articleId: 'art1' }, { id: 'i4', kind: 'article', articleId: 'art2' }] });
     expect(courseArticleIds(c as never)).toEqual(['art1', 'art2']);
+  });
+});
+
+describe('courseCheckpointWarnings', () => {
+  const art = (id: string) => ({ id, kind: 'article' as const, articleId: `a-${id}` });
+  const fb = (id: string) => ({ id, kind: 'feedback' as const, flowId: 'flow-1' });
+
+  it('is empty when every checkpoint has a lesson after it', () => {
+    const modules = [{ id: 'm1', title: 'M1', items: [fb('f0'), art('x'), fb('f1')] }, { id: 'm2', title: 'M2', items: [art('y'), fb('f2')] }];
+    expect(courseCheckpointWarnings({ modules })).toEqual({});
+  });
+
+  it('flags the earlier of two adjacent checkpoints in one module', () => {
+    const modules = [{ id: 'm1', title: 'M1', items: [art('x'), fb('f1'), fb('f2'), art('y')] }];
+    expect(Object.keys(courseCheckpointWarnings({ modules }))).toEqual(['f1']);
+  });
+
+  it('flags adjacency across a module boundary', () => {
+    const modules = [{ id: 'm1', title: 'M1', items: [art('x'), fb('end')] }, { id: 'm2', title: 'M2', items: [fb('start'), art('y')] }];
+    expect(Object.keys(courseCheckpointWarnings({ modules }))).toEqual(['end']);
   });
 });

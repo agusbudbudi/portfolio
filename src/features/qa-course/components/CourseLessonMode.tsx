@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Check, ListTree, Lock, X } from 'lucide-react';
 import { useCourse } from '../hooks/useCourse';
+import { useCheckpointPopup } from '../hooks/useCheckpointPopup';
 import { addPendingArticle } from '../lib/courseApi';
 import type { Lesson } from '../lib/courseOutline';
 import CourseOutline from './CourseOutline';
@@ -84,7 +85,8 @@ const OutlineDrawer: React.FC<{ onClose: () => void; children: React.ReactNode; 
  */
 const CourseLessonMode: React.FC<CourseLessonModeProps> = ({ courseSlug, articleId, head, children, extras }) => {
   const navigate = useNavigate();
-  const { course, lessons, completion, loggedIn, progressLoaded, setArticleDone, state } = useCourse(courseSlug);
+  const { course, lessons, completion, loggedIn, progressLoaded, setArticleDone, state, checkpoints, submitFeedback } = useCourse(courseSlug);
+  const { popup: feedbackPopup, openCheckpoint } = useCheckpointPopup({ course, lessons, checkpoints, loggedIn, progressLoaded, submitFeedback });
   const [outlineOpen, setOutlineOpen] = useState(false);
   const closeOutline = useCallback(() => setOutlineOpen(false), []);
   const [loginFor, setLoginFor] = useState<Lesson | null>(null);
@@ -180,6 +182,8 @@ const CourseLessonMode: React.FC<CourseLessonModeProps> = ({ courseSlug, article
               variant="compact"
               activeIndex={current.index}
               onLocked={setLoginFor}
+              checkpoints={checkpoints}
+              onOpenCheckpoint={openCheckpoint}
             />
           </div>
         </div>
@@ -281,10 +285,14 @@ const CourseLessonMode: React.FC<CourseLessonModeProps> = ({ courseSlug, article
             activeIndex={current.index}
             onLocked={(l) => { setOutlineOpen(false); setLoginFor(l); }}
             onNavigate={() => setOutlineOpen(false)}
+            checkpoints={checkpoints}
+            onOpenCheckpoint={(id) => { setOutlineOpen(false); openCheckpoint(id); }}
           />
         </OutlineDrawer>
       )}
       </AnimatePresence>
+
+      {!locked && feedbackPopup}
 
       {loginFor && (
         <CourseLoginModal

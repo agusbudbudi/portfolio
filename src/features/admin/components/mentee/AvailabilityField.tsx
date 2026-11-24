@@ -2,6 +2,7 @@ import React from 'react';
 import { WORK_ARRANGEMENT_OPTIONS, type AvailabilityConfig, type EmploymentType, type WorkArrangement } from '../../../../types/portfolio';
 import { EMPLOYMENT_TYPE_LABEL } from '../../../../lib/portfolioFormat';
 import FormField from '../shared/FormField';
+import Checkbox from '../../../../components/common/Checkbox';
 
 interface AvailabilityFieldProps {
   value: AvailabilityConfig;
@@ -37,25 +38,9 @@ const AvailabilityField: React.FC<AvailabilityFieldProps> = ({ value, onChange }
 
   return (
     <div className="grid grid-cols-1 gap-y-4">
-      <label className="flex items-center gap-2 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={value.showOpenToWork}
-          onChange={(e) => onChange({ ...value, showOpenToWork: e.target.checked })}
-          className="w-4 h-4 rounded border-ld-frost text-ld-violet focus:ring-ld-lilac cursor-pointer"
-        />
-        <span className="text-xs text-ld-graphite">Tampilkan badge "Open to Work" di foto profil</span>
-      </label>
+      <Checkbox checked={value.showOpenToWork} onChange={(c) => onChange({ ...value, showOpenToWork: c })} size="sm" align="center" className="select-none" labelClassName="text-xs leading-relaxed text-ld-graphite">Tampilkan badge "Open to Work" di foto profil</Checkbox>
 
-      <label className="flex items-center gap-2 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={value.showPreferences}
-          onChange={(e) => onChange({ ...value, showPreferences: e.target.checked })}
-          className="w-4 h-4 rounded border-ld-frost text-ld-violet focus:ring-ld-lilac cursor-pointer"
-        />
-        <span className="text-xs text-ld-graphite">Tampilkan preferensi kerja (notice period, lokasi, tipe kerja) di halaman publik</span>
-      </label>
+      <Checkbox checked={value.showPreferences} onChange={(c) => onChange({ ...value, showPreferences: c })} size="sm" align="center" className="select-none" labelClassName="text-xs leading-relaxed text-ld-graphite">Tampilkan preferensi kerja (notice period, lokasi, tipe kerja) di halaman publik</Checkbox>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField label="Notice Period (opsional)">

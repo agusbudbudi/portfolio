@@ -35,7 +35,8 @@ const Stat: React.FC<{ label: string; value: string; hint?: string }> = ({ label
  * who graduated and who shared a portfolio. Covers the PRD's success metrics
  * (started, completion rate, shared portfolios) from data already stored.
  */
-const QaCourseLearnersPanel: React.FC<{ slug: string; onClose: () => void }> = ({ slug, onClose }) => {
+/** `onClose` adds a back arrow; omitted when shown as a tab of the course detail page. */
+const QaCourseLearnersPanel: React.FC<{ slug: string; onClose?: () => void }> = ({ slug, onClose }) => {
   const token = useAdminAuthStore((s) => s.token);
   const [state, setState] = useState<LoadState>({ status: 'loading' });
 
@@ -72,16 +73,18 @@ const QaCourseLearnersPanel: React.FC<{ slug: string; onClose: () => void }> = (
   const header = (
     <div className={`${ADMIN_CARD_HEADER} justify-between`}>
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={onClose}
-          className="p-1.5 -ml-1 rounded-lg text-ld-fog hover:text-ld-graphite hover:bg-ld-cloud cursor-pointer border-none bg-transparent transition-colors"
-          aria-label="Kembali ke daftar course"
-        >
-          <ArrowLeft size={17} />
-        </button>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 -ml-1 rounded-lg text-ld-fog hover:text-ld-graphite hover:bg-ld-cloud cursor-pointer border-none bg-transparent transition-colors"
+            aria-label="Kembali ke daftar course"
+          >
+            <ArrowLeft size={17} />
+          </button>
+        )}
         <div>
-          <h2 className="text-sm font-semibold text-ld-onyx m-0">Peserta{state.status === 'ready' ? `: ${state.course.title}` : ''}</h2>
+          <h2 className="text-sm font-semibold text-ld-onyx m-0">Peserta{onClose && state.status === 'ready' ? `: ${state.course.title}` : ''}</h2>
           <p className="text-xs text-ld-fog m-0 mt-0.5">Peserta = akun yang sudah menandai minimal satu lesson selesai.</p>
         </div>
       </div>

@@ -203,7 +203,7 @@ const ProjectListEditor: React.FC<ProjectListEditorProps> = ({ projects, tools, 
                     onChange={(thumbnail) => update(entry.id, { thumbnail })}
                     feature="portfolio"
                     maxWidth={800}
-                    ratioHint="Rasio 16:9, mis. 800×450px"
+                    ratioHint="Rasio 16:9, mis. 800×450px" preview="natural"
                   />
                   <span className="block text-[11px] font-medium text-ld-graphite mt-1">Preview</span>
                   <div className="bg-ld-canvas border border-ld-ash rounded-xl overflow-hidden flex flex-col">

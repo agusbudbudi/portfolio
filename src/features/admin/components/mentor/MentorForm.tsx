@@ -13,6 +13,7 @@ import {
 } from '../shared/adminCard';
 import DashboardCardHeader, { CARD_ACTION_PRIMARY, CARD_ACTION_SECONDARY, FORM_FOOTER_STICKY_MOBILE } from '../shared/DashboardCardHeader';
 import { MentorIcon } from '../../../../components/illustration/ProductIcons';
+import Checkbox from '../../../../components/common/Checkbox';
 
 // Rendered conditionally by both MentorsTab (admin, managing any mentor) and
 // MemberDashboard (self-serve mentor application) — mode swaps the header
@@ -246,15 +247,9 @@ const MentorForm: React.FC<MentorFormProps> = ({
           <p className="text-xs text-ld-fog m-0 mb-3">Platform eksternal tempat mentor ini juga terdaftar.</p>
           <div className="flex flex-wrap gap-4">
             {PLATFORM_OPTIONS.map((platform) => (
-              <label key={platform.key} className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={form.platforms?.[platform.key] ?? false}
-                  onChange={() => togglePlatform(platform.key)}
-                  className="w-4 h-4 rounded border-ld-frost text-ld-violet focus:ring-ld-lilac cursor-pointer"
-                />
-                <span className="text-sm text-ld-graphite">{platform.label}</span>
-              </label>
+              <Checkbox key={platform.key} checked={form.platforms?.[platform.key] ?? false} onChange={() => togglePlatform(platform.key)} size="sm" align="center" className="select-none" labelClassName="text-sm text-ld-graphite">
+                {platform.label}
+              </Checkbox>
             ))}
           </div>
         </AccordionSection>

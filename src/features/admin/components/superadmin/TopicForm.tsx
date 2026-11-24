@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import type { TopicConfig } from '../../../../types/mentoring';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
 import TopicImageField from './TopicImageField';
+import Checkbox from '../../../../components/common/Checkbox';
 
 // Rendered conditionally by TopicsTab so form state re-initializes from
 // props on every open — no reset effect needed.
@@ -140,15 +141,9 @@ const TopicForm: React.FC<TopicFormProps> = ({ onClose, onSubmit, topic, existin
                 onChange={(image) => setForm((f) => ({ ...f, image }))}
                 topicId={form.id}
               />
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={!!form.popular}
-                  onChange={(e) => setForm({ ...form, popular: e.target.checked })}
-                  className="accent-[var(--tw-color-ld-violet,#3b9eff)] w-4 h-4"
-                />
-                <span className="text-sm text-ld-graphite">Tandai sebagai popular</span>
-              </label>
+              <Checkbox checked={!!form.popular} onChange={(c) => setForm({ ...form, popular: c })} size="sm" align="center" labelClassName="text-sm text-ld-graphite">
+                Tandai sebagai popular
+              </Checkbox>
             </div>
           </section>
         </div>
