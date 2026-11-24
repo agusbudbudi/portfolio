@@ -7,8 +7,8 @@ interface InAppBrowserNoticeProps {
   appName: string;
 }
 
-// Shown instead of the Google Sign-In button inside in-app browsers, where
-// Google refuses to sign in and the popup opens as a blank page.
+// Fallback for in-app browsers when the redirect login (InAppGoogleLogin)
+// still fails: move the user to a real browser.
 const InAppBrowserNotice: React.FC<InAppBrowserNoticeProps> = ({ appName }) => {
   const [copied, setCopied] = useState(false);
   const url = typeof window !== 'undefined' ? window.location.href : '';
@@ -34,7 +34,7 @@ const InAppBrowserNotice: React.FC<InAppBrowserNoticeProps> = ({ appName }) => {
     <div className="w-full rounded-xl border border-amber-200 bg-amber-50 p-4 text-left">
       <p className="m-0 text-sm font-semibold text-ld-onyx">Buka di browser untuk login</p>
       <p className="m-0 mt-1 text-xs leading-relaxed text-ld-slate">
-        Google tidak mengizinkan login dari browser bawaan {appName}.{' '}
+        Login dari browser bawaan {appName} kadang diblokir.{' '}
         {android
           ? 'Ketuk tombol di bawah untuk membuka halaman ini di Chrome.'
           : 'Ketuk ikon ••• di pojok kanan atas, lalu pilih "Buka di browser", atau salin link lalu tempel di Safari.'}

@@ -4,10 +4,25 @@ import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
 import { useSnackbarStore } from '../../../../store/useSnackbarStore';
 import { loadGoogleIdentity } from '../../../../lib/loadGoogleIdentity';
 import { currentInAppBrowser } from '../../../../lib/inAppBrowser';
-import InAppBrowserNotice from '../../../../components/common/InAppBrowserNotice';
+import InAppGoogleLogin from '../../../../components/common/InAppGoogleLogin';
+import { parseGoogleRedirect, safeReturnTo, takePendingRedirect, type RedirectResult } from '../../../../lib/googleRedirectAuth';
 
 // Static for the page's lifetime.
 const inAppBrowser = currentInAppBrowser();
+
+// Google's reply to the in-app redirect login arrives in the URL fragment.
+// Read it once per page load (StrictMode renders twice; the pending entry in
+// sessionStorage can only be taken once) and strip the token from the URL.
+let redirectReply: RedirectResult | null | undefined;
+let redirectLoginStarted = false;
+function readRedirectReply(): RedirectResult | null {
+  if (redirectReply !== undefined) return redirectReply;
+  const hash = window.location.hash;
+  if (!/[#&](id_token|error)=/.test(hash)) return (redirectReply = null);
+  redirectReply = parseGoogleRedirect(hash, takePendingRedirect());
+  window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+  return redirectReply;
+}
 
 const LoginScreen: React.FC = () => {
   const { login, loggingIn, token, user } = useAdminAuthStore();
@@ -16,7 +31,13 @@ const LoginScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get('redirect') || '/dashboard';
+  // Set when we come back from the in-app browser redirect login; wins over
+  // ?redirect= because Google returns to the bare /login URL.
+  const [reply] = useState(readRedirectReply);
+  const [redirectError, setRedirectError] = useState<string | null>(
+    reply?.kind === 'error' ? reply.message : null,
+  );
+  const redirectTo = reply?.returnTo ?? safeReturnTo(searchParams.get('redirect'));
 
   // Static across the component's lifetime — no state needed, just derive it.
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
@@ -29,6 +50,19 @@ const LoginScreen: React.FC = () => {
     if (!token || !user) return;
     navigate(redirectTo, { replace: true });
   }, [token, user, navigate, redirectTo]);
+
+  // Finish the in-app redirect login with the ID token Google sent back.
+  useEffect(() => {
+    if (reply?.kind !== 'success' || redirectLoginStarted) return;
+    redirectLoginStarted = true;
+    login(reply.credential).then(
+      () => showSnackbar('Login berhasil! Selamat datang.', 'success'),
+      () => {
+        setRedirectError('Gagal login. Coba lagi.');
+        showSnackbar('Gagal melakukan login. Silakan coba lagi.', 'error');
+      },
+    );
+  }, [reply, login, showSnackbar]);
 
   useEffect(() => {
     if (!clientId || inAppBrowser) return;
@@ -68,7 +102,7 @@ const LoginScreen: React.FC = () => {
     return () => { cancelled = true; };
   }, [login, clientId, showSnackbar]);
 
-  const displayError = !clientId ? 'VITE_GOOGLE_CLIENT_ID belum diset.' : error;
+  const displayError = !clientId ? 'VITE_GOOGLE_CLIENT_ID belum diset.' : (error ?? (inAppBrowser ? null : redirectError));
 
   return (
     <div className="min-h-screen flex font-ld-sans bg-ld-cloud">
@@ -128,7 +162,11 @@ const LoginScreen: React.FC = () => {
             <p className="text-sm text-ld-fog m-0 mb-8">Masuk atau buat akun baru dengan Google.</p>
 
             {inAppBrowser ? (
-              <InAppBrowserNotice appName={inAppBrowser} />
+              loggingIn ? (
+                <p className="m-0 text-center text-sm text-ld-slate">Menghubungkan ke Google...</p>
+              ) : (
+                <InAppGoogleLogin appName={inAppBrowser} returnTo={redirectTo} error={redirectError} />
+              )
             ) : (
             <div className="relative w-full">
               {loggingIn && (
