@@ -2,6 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useAdminAuthStore } from '../../store/useAdminAuthStore';
 import { loadGoogleIdentity } from '../../lib/loadGoogleIdentity';
+import { currentInAppBrowser } from '../../lib/inAppBrowser';
+import InAppBrowserNotice from './InAppBrowserNotice';
+
+// Static for the page's lifetime.
+const inAppBrowser = currentInAppBrowser();
 
 interface GoogleSignInButtonProps {
   onSuccess?: () => void;
@@ -24,7 +29,7 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ onSuccess, onEr
   useEffect(() => { handlers.current = { onSuccess, onError }; });
 
   useEffect(() => {
-    if (!clientId) return;
+    if (!clientId || inAppBrowser) return;
     let cancelled = false;
 
     const init = () => {
@@ -58,6 +63,8 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ onSuccess, onEr
     });
     return () => { cancelled = true; };
   }, [clientId, login, text]);
+
+  if (inAppBrowser) return <InAppBrowserNotice appName={inAppBrowser} />;
 
   const error = !clientId ? 'VITE_GOOGLE_CLIENT_ID belum diset.' : loadError;
 
