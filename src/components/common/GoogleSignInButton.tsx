@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { useAdminAuthStore } from '../../store/useAdminAuthStore';
 import { loadGoogleIdentity } from '../../lib/loadGoogleIdentity';
 import { currentInAppBrowser } from '../../lib/inAppBrowser';
-import InAppBrowserNotice from './InAppBrowserNotice';
+import InAppGoogleLogin from './InAppGoogleLogin';
 
 // Static for the page's lifetime.
 const inAppBrowser = currentInAppBrowser();
@@ -64,7 +64,8 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ onSuccess, onEr
     return () => { cancelled = true; };
   }, [clientId, login, text]);
 
-  if (inAppBrowser) return <InAppBrowserNotice appName={inAppBrowser} />;
+  // Popup login opens blank in in-app browsers; use a same-tab redirect.
+  if (inAppBrowser) return <InAppGoogleLogin appName={inAppBrowser} />;
 
   const error = !clientId ? 'VITE_GOOGLE_CLIENT_ID belum diset.' : loadError;
 
