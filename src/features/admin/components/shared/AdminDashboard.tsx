@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   RefreshCw,
   Users, BookOpen, SlidersHorizontal, CalendarCheck, Menu, X,
@@ -163,7 +163,7 @@ const AdminDashboard: React.FC = () => {
   // MemberDashboard) so it's obvious at a glance you're in the admin view.
   const sidebarContent = (
     <>
-      <div className="flex items-center gap-2.5 px-4 h-16 border-b border-white/15">
+      <Link to="/" aria-label="Mentor.QA, ke halaman utama" className="flex items-center gap-2.5 px-4 h-16 border-b border-white/15 no-underline transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2">
         <span className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0">
           <img
             src="/shared/img/mentor-logo-96.webp"
@@ -180,7 +180,7 @@ const AdminDashboard: React.FC = () => {
           </p>
           <p className="m-0 text-[11px] text-white/70 leading-tight truncate">Operational Dashboard</p>
         </div>
-      </div>
+      </Link>
 
       <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
         {NAV_GROUPS.map((group) => (
