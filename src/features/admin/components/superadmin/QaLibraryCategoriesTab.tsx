@@ -7,6 +7,7 @@ import LoadingState from '../../../../components/common/LoadingState';
 import QaLibraryCategoryForm from './QaLibraryCategoryForm';
 import Pagination from '../shared/Pagination';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
+import { confirmAction } from '../../../../store/useConfirmStore';
 
 const QaLibraryCategoriesTab: React.FC = () => {
   const { categories, loading, loadError, load, upsertCategory, deleteCategory } = useAdminQaLibraryCategoriesStore();
@@ -34,7 +35,7 @@ const QaLibraryCategoriesTab: React.FC = () => {
 
   const handleDelete = async (category: QaLibraryCategory) => {
     setDeleteError(null);
-    if (!window.confirm(`Hapus category "${category.label}"?`)) return;
+    if (!(await confirmAction({ title: `Hapus category "${category.label}"?`, description: 'Category dihapus permanen dari QA Library.', confirmLabel: 'Hapus category' }))) return;
     setDeletingId(category.id);
     const result = await deleteCategory(category.id);
     setDeletingId(null);

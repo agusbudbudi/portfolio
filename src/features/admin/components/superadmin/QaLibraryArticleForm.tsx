@@ -193,7 +193,7 @@ const QaLibraryArticleForm: React.FC<QaLibraryArticleFormProps> = ({ onClose, on
               onChange={(thumbnailUrl) => setData({ ...data, thumbnailUrl })}
               feature="qaLibrary"
               maxWidth={1600}
-              ratioHint="Rasio 16:9, mis. 1600x900px"
+              ratioHint="Rasio 16:9, mis. 1600x900px" preview="natural"
             />
 
             <FormField label="Author" required hint={<span className="block text-[11px] text-ld-fog mt-1">Lookup ke user terdaftar.</span>}>

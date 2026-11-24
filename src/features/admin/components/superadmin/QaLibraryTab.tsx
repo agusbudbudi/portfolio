@@ -10,6 +10,7 @@ import QaLibraryArticleForm from './QaLibraryArticleForm';
 import Pagination from '../shared/Pagination';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
 import StatusBadge, { type StatusBadgeTone } from '../shared/StatusBadge';
+import { confirmAction } from '../../../../store/useConfirmStore';
 
 const STATUS_TONE: Record<QaLibraryArticleSummary['status'], StatusBadgeTone> = {
   draft: 'slate',
@@ -39,7 +40,7 @@ const QaLibraryTab: React.FC = () => {
 
   const handleDelete = async (article: QaLibraryArticleSummary) => {
     setDeleteError(null);
-    if (!window.confirm(`Hapus artikel "${article.title}"?`)) return;
+    if (!(await confirmAction({ title: `Hapus artikel "${article.title}"?`, description: 'Artikel dihapus permanen dari QA Library. Artikel yang dipakai course tidak bisa dihapus.', confirmLabel: 'Hapus artikel' }))) return;
     setDeletingSlug(article.slug);
     const result = await remove(article.slug);
     setDeletingSlug(null);
@@ -109,9 +110,9 @@ const QaLibraryTab: React.FC = () => {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3 min-w-[180px]">
                           {article.thumbnailUrl ? (
-                            <img src={article.thumbnailUrl} alt="" className="w-9 h-9 rounded-lg object-cover object-top border border-ld-frost shrink-0" />
+                            <img src={article.thumbnailUrl} alt="" className="h-9 w-auto max-w-20 rounded-md border border-ld-frost shrink-0" />
                           ) : (
-                            <span className="w-9 h-9 rounded-lg bg-ld-cloud border border-ld-frost shrink-0" />
+                            <span className="h-9 aspect-video rounded-md bg-ld-cloud border border-ld-frost shrink-0" />
                           )}
                           <button
                             onClick={() => openEdit(article.slug)}

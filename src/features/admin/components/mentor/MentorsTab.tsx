@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Check, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useAdminConfigStore } from '../../../../store/useAdminConfigStore';
 import { useAdminMentorStore } from '../../../../store/useAdminMentorStore';
-import { useConfirmStore } from '../../../../store/useConfirmStore';
+import { confirmAction, useConfirmStore } from '../../../../store/useConfirmStore';
 import type { MentorConfig, MentorVerificationStatus } from '../../../../types/mentoring';
 import { usePagination } from '../../../../hooks/usePagination';
 import { sortByUpdatedAtDesc } from '../../../../lib/sortByUpdatedAt';
@@ -55,7 +55,7 @@ const MentorsTab: React.FC = () => {
 
   const handleDelete = async (mentor: MentorConfig) => {
     setDeleteError(null);
-    if (!window.confirm(`Hapus mentor "${mentor.name}"?`)) return;
+    if (!(await confirmAction({ title: `Hapus mentor "${mentor.name}"?`, description: 'Mentor tidak muncul lagi di halaman booking.', confirmLabel: 'Hapus mentor' }))) return;
     setDeletingId(mentor.id);
     const result = await remove(mentor.id);
     setDeletingId(null);

@@ -8,6 +8,7 @@ import LoadingState from '../../../../components/common/LoadingState';
 import ToolForm from './ToolForm';
 import Pagination from '../shared/Pagination';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
+import { confirmAction } from '../../../../store/useConfirmStore';
 
 const ToolsTab: React.FC = () => {
   const { tools, loading, loadError, load, upsertTool, deleteTool } = useAdminToolsStore();
@@ -36,7 +37,7 @@ const ToolsTab: React.FC = () => {
 
   const handleDelete = async (tool: ToolConfig) => {
     setDeleteError(null);
-    if (!window.confirm(`Hapus tool "${tool.name}"? Project yang masih mereferensikan tool ini tidak akan diperbarui otomatis.`)) return;
+    if (!(await confirmAction({ title: `Hapus tool "${tool.name}"?`, description: 'Project yang masih mereferensikan tool ini tidak akan diperbarui otomatis.', confirmLabel: 'Hapus tool' }))) return;
     setDeletingId(tool.id);
     const result = await deleteTool(tool.id);
     setDeletingId(null);

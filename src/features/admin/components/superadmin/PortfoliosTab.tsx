@@ -11,6 +11,7 @@ import PortfolioForm from './PortfolioForm';
 import Pagination from '../shared/Pagination';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
 import StatusBadge, { type StatusBadgeTone } from '../shared/StatusBadge';
+import { confirmAction } from '../../../../store/useConfirmStore';
 
 const STATUS_TONE: Record<PortfolioSummary['status'], StatusBadgeTone> = {
   draft: 'slate',
@@ -42,7 +43,7 @@ const PortfoliosTab: React.FC = () => {
 
   const handleDelete = async (portfolio: PortfolioSummary) => {
     setDeleteError(null);
-    if (!window.confirm(`Hapus portfolio "${portfolio.name}"?`)) return;
+    if (!(await confirmAction({ title: `Hapus portfolio "${portfolio.name}"?`, description: 'Portfolio dan link publiknya dihapus permanen.', confirmLabel: 'Hapus portfolio' }))) return;
     setDeletingSlug(portfolio.slug);
     const result = await remove(portfolio.slug);
     setDeletingSlug(null);

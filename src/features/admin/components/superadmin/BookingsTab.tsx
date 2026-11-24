@@ -12,6 +12,7 @@ import AdminBookingForm from './AdminBookingForm';
 import Pagination from '../shared/Pagination';
 import { ADMIN_CARD, ADMIN_CARD_HEADER, ADMIN_CARD_BODY } from '../shared/adminCard';
 import StatusBadge, { type StatusBadgeTone } from '../shared/StatusBadge';
+import { confirmAction } from '../../../../store/useConfirmStore';
 
 const STATUS_TONE: Record<BookingStatus, StatusBadgeTone> = {
   booked: 'sky',
@@ -56,7 +57,7 @@ const BookingsTab: React.FC = () => {
 
   const handleTransition = async (booking: BookingConfig, newStatus: BookingStatus) => {
     setActionError(null);
-    if (newStatus === 'canceled' && !window.confirm(`Batalkan booking "${booking.menteeName}"?`)) return;
+    if (newStatus === 'canceled' && !(await confirmAction({ title: `Batalkan booking "${booking.menteeName}"?`, description: 'Slot jadwalnya kembali tersedia untuk mentee lain.', confirmLabel: 'Batalkan booking', variant: 'warning', icon: 'alert' }))) return;
     setTransitioningId(booking.id);
     const result = await transitionBooking(booking.id, newStatus);
     setTransitioningId(null);
