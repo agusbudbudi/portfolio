@@ -113,7 +113,7 @@ export const LearnCard: React.FC<{ phase: SimulatorPhase; defaultOpen: boolean }
           {phase.learn.resources && phase.learn.resources.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {phase.learn.resources.map((r) => (
-                <Link key={r.url} to={r.url} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-ld-frost bg-white text-xs font-medium text-ld-graphite no-underline hover:border-ld-violet hover:text-ld-violet transition-colors">
+                <Link key={r.url} to={r.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-ld-frost bg-white text-xs font-medium text-ld-graphite no-underline hover:border-ld-violet hover:text-ld-violet transition-colors">
                   <ExternalLink size={12} /> {r.label}
                 </Link>
               ))}
