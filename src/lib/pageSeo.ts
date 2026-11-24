@@ -33,6 +33,7 @@ export type OgImageName =
   | 'portfolio'
   | 'mentoring'
   | 'mentoring-booking'
+  | 'programs'
   | 'personal-portfolio'
   | 'personal-about'
   | 'personal-projects'
@@ -61,6 +62,7 @@ export type PageSeoPath =
   | '/portfolio'
   | '/mentoring'
   | '/mentoring/booking'
+  | '/programs'
   | '/personal-portfolio'
   | '/personal-portfolio/about'
   | '/personal-portfolio/projects'
@@ -127,6 +129,14 @@ export const PAGE_SEO: Record<PageSeoPath, PageSeo> = {
       'Booking sesi mentoring QA 1-on-1. Pilih topik, mentor QA berpengalaman, dan jadwal yang sesuai untuk kelas atau kursus QA kamu.',
     shareTitle: 'Booking sesi mentoring QA: pilih mentor, topik, dan jadwal',
     shareDescription: 'Sesi 1-on-1 selama 60 menit bareng praktisi QA, termasuk akhir pekan. Konfirmasi lewat WhatsApp.',
+  }),
+  '/programs': page('/programs', 'programs', {
+    title: 'Program Belajar QA Engineer: Course, Simulator & Mentoring | Mentor.QA',
+    description:
+      'Pilih jalur belajar QA Engineer: QA Course gratis dari nol, simulasi kerja QA di aplikasi staging, atau mentoring 1-on-1 bareng praktisi. Mulai sekarang.',
+    shareTitle: 'Mau jadi QA Engineer? Pilih jalurmu dan mulai sekarang',
+    shareDescription:
+      'QA Course gratis, simulasi kerja QA, dan mentoring 1-on-1 bareng praktisi. Langsung mulai dari satu klik.',
   }),
   '/personal-portfolio': page('/personal-portfolio', 'personal-portfolio', {
     title: 'Agus Budiman | Portfolio QA Engineer & Automation Testing',

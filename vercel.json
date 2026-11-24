@@ -37,7 +37,7 @@
       "destination": "/api/qa-library-og?type=page&path=/"
     },
     {
-      "source": "/:page(courses|qa-simulator|qa-library|portfolio|mentoring|mentoring/booking|personal-portfolio|personal-portfolio/about|personal-portfolio/projects|personal-portfolio/certifications)",
+      "source": "/:page(courses|qa-simulator|qa-library|portfolio|mentoring|mentoring/booking|programs|personal-portfolio|personal-portfolio/about|personal-portfolio/projects|personal-portfolio/certifications)",
       "has": [{ "type": "header", "key": "user-agent", "value": ".*(facebookexternalhit|Facebot|WhatsApp|Twitterbot|Slackbot|LinkedInBot|TelegramBot|Discordbot|Pinterest|redditbot|SkypeUriPreview|vkShare|Applebot|Googlebot|bingbot|DuckDuckBot|YandexBot|Baiduspider).*" }],
       "destination": "/api/qa-library-og?type=page&path=:page"
     },

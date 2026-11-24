@@ -12,6 +12,7 @@ import { pageSeo } from './lib/pageSeo';
 import Seo from './components/common/Seo';
 import LoadingState from './components/common/LoadingState';
 import { loadedHomePage, preloadHomePage } from './features/home/homePageLoader';
+import { loadedProgramsPage, preloadProgramsPage } from './features/programs/programsPageLoader';
 
 // Code-split, but preloaded by main.tsx on "/" so the first render uses the
 // loaded module directly (no Suspense fallback, no layout shift). See homePageLoader.
@@ -19,6 +20,13 @@ const LazyHomePage = lazy(preloadHomePage);
 const HomePage: React.FC = () => {
   const mod = loadedHomePage();
   return mod ? <mod.default /> : <LazyHomePage />;
+};
+
+// Same preload pattern for the /programs ad landing page.
+const LazyProgramsPage = lazy(preloadProgramsPage);
+const ProgramsPage: React.FC = () => {
+  const mod = loadedProgramsPage();
+  return mod ? <mod.default /> : <LazyProgramsPage />;
 };
 
 const MentoringPage = lazy(() => import('./features/mentoring/pages/MentoringPage'));
@@ -290,6 +298,15 @@ function App() {
               />
               <PortfolioBookingPage />
             </LightdashLayout>
+          }
+        />
+        {/* Ad landing page: own minimal header/footer, no site nav */}
+        <Route
+          path="/programs"
+          element={
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
+              <ProgramsPage />
+            </Suspense>
           }
         />
         <Route

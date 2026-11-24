@@ -23,6 +23,10 @@ import { LOWEST_MENTORING_PRICE } from '../../src/lib/pageSeo';
 import experience from '../../src/features/personal-portfolio/data/experience.json';
 import projects from '../../src/features/personal-portfolio/data/projects.json';
 import certifications from '../../src/features/personal-portfolio/data/certifications.json';
+import { QA_COURSE_LEVEL_LABEL, type QaCourseLevel } from '../../src/types/qaCourse';
+// Seed source of the course (the DB copy is what /programs shows at runtime;
+// a build script can't read it). Re-run og:build after changing either.
+import juniorCourse from '../../content/qa-course/junior-qa-ready/course.json';
 
 const ROOT = resolve(import.meta.dirname, '../..');
 const OUT = resolve(ROOT, 'public/shared/img/og');
@@ -74,10 +78,12 @@ const AgusAvatar: React.FC<{ size: number }> = ({ size }) => (
 
 // Brand pixel mosaic (same pattern as components/illustration/PixelMosaic).
 const PATTERN = ['......PWWBB.', '....P.WBBWBB', '.....PWWBBWB', '...P..PWBWBB', '......PPWWBW', '....P...PWWB', '.........PWW', '.......P..PW', '...........P'];
-const Mosaic: React.FC<{ style: Css; cell?: number }> = ({ style, cell = 30 }) => (
+type TileTints = Record<'B' | 'W' | 'P', string>;
+const BLUE_TILES: TileTints = { B: T.violet, W: T.lavender, P: T.lilac };
+const Mosaic: React.FC<{ style: Css; cell?: number; tiles?: TileTints }> = ({ style, cell = 30, tiles = BLUE_TILES }) => (
   <div style={{ position: 'absolute', display: 'grid', gridTemplateColumns: `repeat(12, ${cell}px)`, gap: 5, ...style }}>
     {PATTERN.flatMap((r, y) => [...r].map((ch, x) => (
-      <span key={`${x}-${y}`} style={{ width: cell, height: cell, borderRadius: 3, background: ch === 'B' ? T.violet : ch === 'W' ? T.lavender : ch === 'P' ? T.lilac : 'transparent' }} />
+      <span key={`${x}-${y}`} style={{ width: cell, height: cell, borderRadius: 3, background: tiles[ch as keyof TileTints] ?? 'transparent' }} />
     )))}
   </div>
 );
@@ -94,40 +100,74 @@ interface Spec {
   sub: string;
   path: string;
   visual: React.ReactNode;
+  /** Headline font size (default 56). */
+  titleSize?: number;
+  /** 'blue': dark-blue gradient background with white text (ad-facing images). */
+  tone?: Tone;
 }
 
 const FREE = { text: 'Gratis', bg: T.greenBg, fg: T.greenText };
 const PAID = { text: `Mulai ${LOWEST_MENTORING_PRICE}`, bg: '#fef3c7', fg: '#92400e' };
 
+// Dark blue the white hero text sits on (~5:1 for white, ~3.8:1 for lavender).
+// Brand #3b9eff alone is only ~2.7:1 under white, see docs/DESIGN.md.
+const DEEP_BLUE = '#0f6fd1';
+// /programs hero band (ProgramsPage BLUE_BAND): dark top half, brand blue below.
+const BAND_BG = `linear-gradient(180deg, ${DEEP_BLUE} 50%, ${T.violet} 100%)`;
+
+// Everything that differs per tone, looked up once by Frame.
+type Tone = 'light' | 'blue';
+const TONES: Record<Tone, {
+  bg: string; glow: string; tiles: TileTints; mosaicOpacity: number; stripe: boolean; logoRing?: string;
+  text: string; accent: string; sub: string; url: string;
+}> = {
+  light: {
+    bg: T.white,
+    glow: `radial-gradient(circle, ${T.lilac} 0%, rgba(227,242,255,0.55) 45%, rgba(255,255,255,0) 70%)`,
+    tiles: BLUE_TILES, mosaicOpacity: 0.35, stripe: true,
+    text: T.graphite, accent: T.violet, sub: T.slate, url: T.steel,
+  },
+  blue: {
+    // The left text column (x 72-592) stays on solid DEEP_BLUE; brand blue
+    // only comes in behind the product visual on the right.
+    bg: `linear-gradient(90deg, ${DEEP_BLUE} 50%, ${T.violet} 100%)`,
+    glow: 'radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 45%, rgba(255,255,255,0) 70%)',
+    tiles: { B: 'rgba(255,255,255,0.22)', W: 'rgba(255,255,255,0.14)', P: 'rgba(255,255,255,0.08)' },
+    mosaicOpacity: 1, stripe: false, logoRing: '0 0 0 2px rgba(255,255,255,0.85)',
+    text: T.white, accent: T.lavender, sub: 'rgba(255,255,255,0.95)', url: 'rgba(255,255,255,0.9)',
+  },
+};
+
 const Frame: React.FC<{ s: Spec }> = ({ s }) => {
   const Icon = s.icon;
+  const c = TONES[s.tone ?? 'light'];
   return (
-    <div style={{ position: 'relative', width: W, height: H, overflow: 'hidden', background: T.white, fontFamily: "'Inter', system-ui, sans-serif", color: T.graphite }}>
-      <div style={{ position: 'absolute', top: -260, right: -180, width: 760, height: 760, borderRadius: '50%', background: `radial-gradient(circle, ${T.lilac} 0%, rgba(227,242,255,0.55) 45%, rgba(255,255,255,0) 70%)` }} />
-      <Mosaic style={{ right: 28, bottom: 24, opacity: 0.35, transform: 'scaleY(-1)' }} cell={26} />
-      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 8, background: T.violet }} />
+    <div style={{ position: 'relative', width: W, height: H, overflow: 'hidden', background: c.bg, fontFamily: "'Inter', system-ui, sans-serif", color: c.text }}>
+      <div style={{ position: 'absolute', top: -260, right: -180, width: 760, height: 760, borderRadius: '50%', background: c.glow }} />
+      <Mosaic style={{ right: 28, bottom: 24, opacity: c.mosaicOpacity, transform: 'scaleY(-1)' }} cell={26} tiles={c.tiles} />
+      {c.stripe && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 8, background: T.violet }} />}
 
       {/* left: brand + message */}
       <div style={{ position: 'absolute', left: 72, top: 60, bottom: 56, width: 520, display: 'flex', flexDirection: 'column' }}>
         <div style={row({ gap: 12 })}>
-          <img src={LOGO} width={44} height={44} style={{ borderRadius: 10 }} />
-          <span style={{ fontSize: 28, fontWeight: 600, letterSpacing: -0.5, color: T.graphite }}>Mentor<span style={{ color: T.violet }}>.QA</span></span>
+          <img src={LOGO} width={44} height={44} style={{ borderRadius: 10, boxShadow: c.logoRing }} />
+          <span style={{ fontSize: 28, fontWeight: 600, letterSpacing: -0.5, color: c.text }}>Mentor<span style={{ color: c.accent }}>.QA</span></span>
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <div style={row({ gap: 14 })}>
             <Icon size={52} />
-            <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: 2.4, textTransform: 'uppercase', color: T.graphite }}>{s.label}</span>
+            <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: 2.4, textTransform: 'uppercase', color: c.text }}>{s.label}</span>
             {s.badge && <Pill bg={s.badge.bg} fg={s.badge.fg} style={{ fontSize: 15 }}>{s.badge.text}</Pill>}
           </div>
-          <h1 style={{ margin: '26px 0 0', fontSize: 56, lineHeight: 1.07, fontWeight: 600, letterSpacing: -1.6, color: T.graphite }}>
+          <h1 style={{ margin: '26px 0 0', fontSize: s.titleSize ?? 56, lineHeight: s.titleSize ? 1.05 : 1.07, fontWeight: 600, letterSpacing: s.titleSize ? s.titleSize * -0.028 : -1.6, color: c.text }}>
             {s.headline.map((part, i) => (Array.isArray(part)
               // Short accents (e.g. "QA Engineer") never split across lines.
-              ? <span key={i} style={{ color: T.violet, whiteSpace: part[0].length <= 14 ? 'nowrap' : 'normal' }}>{part[0]}</span>
+              ? <span key={i} style={{ color: c.accent, whiteSpace: part[0].length <= 14 ? 'nowrap' : 'normal' }}>{part[0]}</span>
               : <span key={i}>{part}</span>))}
           </h1>
-          <p style={{ margin: '20px 0 0', fontSize: 23, lineHeight: 1.45, color: T.slate }}>{s.sub}</p>
+          <p style={{ margin: '20px 0 0', fontSize: 23, lineHeight: 1.45, color: c.sub }}>{s.sub}</p>
         </div>
-        <span style={{ fontFamily: MONO, fontSize: s.path.length > 26 ? 16 : 19, color: T.steel, whiteSpace: 'nowrap' }}>mentorqa.com{s.path === '/' ? '' : s.path}</span>
+        <span style={{ fontFamily: MONO, fontSize: s.path.length > 26 ? 16 : 19, color: c.url, whiteSpace: 'nowrap' }}>mentorqa.com{s.path === '/' ? '' : s.path}</span>
       </div>
 
       {/* right: product visual */}
@@ -412,6 +452,79 @@ const BookingVisual = () => {
   );
 };
 
+// /programs ad landing: a phone showing the page itself (featured card with
+// the one blue CTA + the other programs), plus one floating "tap" card.
+const ProgramsVisual = () => {
+  const others: [React.FC<{ size?: number }>, string, string, boolean?][] = [
+    [QaSimulatorIcon, 'QA Simulator', 'Simulasi kerja QA di SplitBill'],
+    [MentoringIcon, 'Mentoring 1-on-1', 'Sesi bareng praktisi QA', true],
+  ];
+  const chip = (t: string) => <span key={t} style={{ background: T.cloud, color: T.slate, borderRadius: 6, padding: '3px 8px', fontSize: 12, fontWeight: 500 }}>{t}</span>;
+  return (
+    <div style={{ position: 'relative', width: 500, height: 630, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+      {/* phone: the QA Simulator landing's iPhone (ProjectMockups.tsx <Phone>,
+          164×340) scaled ×2.2: thin bezel, dynamic island, side buttons.
+          Runs off the bottom edge of the image. */}
+      <div style={{ position: 'relative', marginTop: 40, flexShrink: 0, width: 360, height: 746 }}>
+        {[[136, 44, 'l'], [202, 70, 'l'], [281, 70, 'l'], [220, 105, 'r']].map(([top, h, side]) => (
+          <span key={`${side}${top}`} style={{ position: 'absolute', top: top as number, height: h as number, width: 7, background: T.graphite, ...(side === 'l' ? { left: -4, borderRadius: '4px 0 0 4px' } : { right: -4, borderRadius: '0 4px 4px 0' }) }} />
+        ))}
+        <div style={{ position: 'relative', height: '100%', borderRadius: 66, background: T.onyx, padding: 9, boxShadow: '0 40px 80px -24px rgba(16,24,40,0.5)' }}>
+        <div style={{ width: '100%', height: '100%', borderRadius: 57, background: T.white, overflow: 'hidden', position: 'relative' }}>
+          <div style={{ position: 'absolute', top: 18, left: '50%', marginLeft: -48, width: 97, height: 26, borderRadius: 26, background: T.onyx }} />
+          {/* header + hero on the same blue band as the live page */}
+          <div style={{ background: BAND_BG, paddingBottom: 18 }}>
+          <div style={row({ gap: 8, padding: '58px 20px 12px', borderBottom: '1px solid rgba(255,255,255,0.15)' })}>
+            <img src={LOGO} width={22} height={22} style={{ borderRadius: 5, boxShadow: '0 0 0 1.5px rgba(255,255,255,0.85)' }} />
+            <span style={{ fontSize: 15, fontWeight: 600, color: T.white }}>Mentor<span style={{ color: T.lilac }}>.QA</span></span>
+          </div>
+          <div style={{ padding: '16px 16px 0' }}>
+            <div style={{ fontSize: 23, fontWeight: 600, lineHeight: 1.1, letterSpacing: -0.6, color: T.white }}>
+              Mau jadi <span style={{ color: T.lavender }}>QA Engineer</span>? Pilih jalurmu.
+            </div>
+            {/* featured card */}
+            <div style={{ marginTop: 14, background: T.white, border: `1px solid ${T.frost}`, borderRadius: 12, padding: 14, boxShadow: '0 10px 24px rgba(16,60,120,0.28)' }}>
+              <div style={row({ gap: 10 })}>
+                <QaCourseIcon size={40} />
+                <div>
+                  <div style={{ fontSize: 11.5, fontWeight: 500, color: T.violet }}>Rekomendasi · QA Course</div>
+                  <div style={{ fontSize: 17, fontWeight: 600, color: T.graphite, marginTop: 1 }}>{juniorCourse.title}</div>
+                </div>
+              </div>
+              <div style={row({ gap: 5, marginTop: 10 })}>{['Gratis', `±${juniorCourse.estimatedHours.toLocaleString('id-ID')} jam`, QA_COURSE_LEVEL_LABEL[juniorCourse.level as QaCourseLevel]].map(chip)}</div>
+              <div style={{ marginTop: 12, height: 38, borderRadius: 8, background: T.violet, color: T.white, fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                Mulai belajar <span style={{ fontSize: 15 }}>→</span>
+              </div>
+            </div>
+          </div>
+          </div>
+          <div style={{ background: T.cloud, borderTop: `1px solid ${T.frost}`, padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8, height: 400 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: T.graphite }}>Program lainnya</div>
+            {others.map(([Icon, t, d, paid]) => (
+              <div key={t} style={row({ gap: 10, background: paid ? 'linear-gradient(135deg, #fff 55%, #fffbeb)' : T.white, border: `1px solid ${paid ? '#fde68a' : T.frost}`, borderRadius: 12, padding: '9px 11px' })}>
+                <Icon size={32} />
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 500, color: T.steel }}>{t}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: T.graphite, whiteSpace: 'nowrap' }}>{d}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        </div>
+      </div>
+      {/* floating card */}
+      <div style={card({ ...row({ gap: 12 }), position: 'absolute', left: -40, bottom: 22, padding: '12px 16px' })}>
+        <Check size={30} bg={T.violet} />
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: T.onyx }}>Satu klik, langsung mulai</div>
+          <div style={{ fontSize: 13, color: T.slate, marginTop: 1 }}>Tanpa login untuk lesson pertama</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 type Variant = 'base' | 'about' | 'projects' | 'certifications';
 const PersonalVisual: React.FC<{ v: Variant }> = ({ v }) => {
   const exp = (experience as { company: string; role: string; period: string }[]).slice(0, 3);
@@ -466,6 +579,7 @@ const SPECS: Spec[] = [
   { name: 'qa-library', icon: QaLibraryIcon, label: 'QA Library', badge: FREE, headline: ['Materi QA yang ', ['langsung kepakai']], sub: 'Dari fundamental testing sampai automation, ditulis praktisi.', path: '/qa-library', visual: <LibraryVisual /> },
   { name: 'portfolio', icon: QaPortfolioIcon, label: 'Portfolio QA', badge: FREE, headline: ['Tunjukkan skill-mu, ', ['bukan cuma CV']], sub: 'Portfolio online dengan link sendiri, siap dikirim ke recruiter.', path: '/portfolio', visual: <PortfolioVisual /> },
   { name: 'mentoring', icon: MentoringIcon, label: 'Mentoring 1-on-1', badge: PAID, headline: ['Dibimbing langsung oleh ', ['praktisi QA']], sub: 'Review CV dan portfolio, latihan interview, sampai automation.', path: '/mentoring', visual: <MentoringVisual /> },
+  { name: 'programs', icon: DashboardIcon, label: 'Program', tone: 'blue', titleSize: 68, badge: { text: 'Mulai gratis', bg: T.white, fg: DEEP_BLUE }, headline: ['Mau jadi ', ['QA Engineer'], '? Pilih jalurmu.'], sub: 'Course, simulasi kerja, portfolio, dan mentoring. Mulai dari satu klik.', path: '/programs', visual: <ProgramsVisual /> },
   { name: 'mentoring-booking', icon: MentoringIcon, label: 'Booking mentoring', badge: PAID, headline: ['Pilih mentor, topik, dan ', ['jadwalmu']], sub: 'Sesi 60 menit, termasuk akhir pekan. Konfirmasi lewat WhatsApp.', path: '/mentoring/booking', visual: <BookingVisual /> },
   { name: 'personal-portfolio', icon: QaPortfolioIcon, label: 'Portfolio pribadi', headline: ['Agus Budiman, ', ['QA Engineer']], sub: '6+ tahun di automation, manual, dan API testing.', path: '/personal-portfolio', visual: <PersonalVisual v="base" /> },
   { name: 'personal-about', icon: QaPortfolioIcon, label: 'Tentang', headline: ['Perjalanan karier sebagai ', ['QA Engineer']], sub: 'Pengalaman kerja, pendidikan, dan cerita di baliknya.', path: '/personal-portfolio/about', visual: <PersonalVisual v="about" /> },

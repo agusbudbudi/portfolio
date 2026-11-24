@@ -35,6 +35,7 @@ const STATIC_ROUTES: UrlEntry[] = [
   { loc: '/qa-library', changefreq: 'weekly', priority: '0.8' },
   { loc: '/qa-simulator', changefreq: 'weekly', priority: '0.8' },
   { loc: '/courses', changefreq: 'weekly', priority: '0.8' },
+  { loc: '/programs', changefreq: 'weekly', priority: '0.7' },
 ];
 
 function toXml(entries: UrlEntry[]): string {
