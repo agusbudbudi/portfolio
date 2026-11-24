@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAdminAuthStore } from '../../../store/useAdminAuthStore';
 import { apiGetOnboardingMe } from '../../../lib/adminApi';
+import { hasPendingClaim, useOnboardingClaimStore } from '../claimStore';
 
 // PRD FR-1: a freshly registered user (status 'pending') is always sent to
 // onboarding first, whichever login entry point they used (/login page or
@@ -11,6 +12,9 @@ import { apiGetOnboardingMe } from '../../../lib/adminApi';
 // The stored session's status is a snapshot from login, so before the first
 // redirect of a session it's re-checked against /api/onboarding/me: a user who
 // finished or skipped onboarding on another device isn't sent back to it.
+//
+// A guest who answered and logged in from the result page has an armed claim:
+// OnboardingClaimSync saves it (status → completed), so they aren't asked again.
 const OnboardingGate: React.FC = () => {
   const token = useAdminAuthStore((s) => s.token);
   const status = useAdminAuthStore((s) => s.user?.onboardingStatus);
@@ -18,10 +22,12 @@ const OnboardingGate: React.FC = () => {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const verifiedToken = useRef<string | null>(null);
+  const claimState = useOnboardingClaimStore((s) => s.state);
 
   useEffect(() => {
     if (!token || status !== 'pending') return;
     if (pathname.startsWith('/onboarding') || pathname.startsWith('/login')) return;
+    if (claimState === 'saving' || hasPendingClaim()) return;
     const target = `/onboarding?next=${encodeURIComponent(pathname + search)}`;
 
     if (verifiedToken.current === token) {
@@ -43,7 +49,7 @@ const OnboardingGate: React.FC = () => {
         navigate(target, { replace: true });
       });
     return () => { cancelled = true; };
-  }, [token, status, pathname, search, navigate, setOnboardingStatus]);
+  }, [token, status, pathname, search, navigate, setOnboardingStatus, claimState]);
 
   return null;
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { track } from '../../../../lib/analytics';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Building2, CalendarCheck, Check, CheckCircle2, Copy, ExternalLink, Eye, EyeOff,
   Globe, Menu, Pencil, Plus, X,
@@ -308,13 +308,13 @@ const MemberDashboard: React.FC = () => {
   // ≥44px touch targets.
   const renderSidebar = (mobile: boolean) => (
     <>
-      <div className={`flex items-center gap-2.5 h-16 border-b border-ld-frost/60 ${mobile ? 'pl-5 pr-14' : 'px-4'}`}>
+      <Link to="/" aria-label="Mentor.QA, ke halaman utama" className={`flex items-center gap-2.5 h-16 border-b border-ld-frost/60 no-underline transition-colors hover:bg-ld-cloud/60 focus-visible:outline-2 focus-visible:outline-ld-violet focus-visible:-outline-offset-2 ${mobile ? 'pl-5 pr-14' : 'px-4'}`}>
         <img src="/shared/img/mentor-logo-96.webp" alt="Mentor.QA" width={36} height={36} className={`${mobile ? 'w-9 h-9' : 'w-8 h-8'} rounded-lg object-contain shrink-0`} />
         <div className="min-w-0">
           <p className={`m-0 font-semibold text-ld-onyx leading-tight truncate ${mobile ? 'text-base' : 'text-sm'}`}>Mentor.QA</p>
           <p className={`m-0 text-ld-fog leading-tight truncate ${mobile ? 'text-xs' : 'text-[11px]'}`}>Dashboard</p>
         </div>
-      </div>
+      </Link>
 
       <nav className={`flex-1 overflow-y-auto ${mobile ? 'p-4 space-y-1.5' : 'p-3 space-y-1'}`} aria-label="Menu dashboard">
         {/* Non-applicants reach the mentor flow via the status card on the Mentoring tab. */}

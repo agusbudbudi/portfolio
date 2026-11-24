@@ -277,3 +277,46 @@ export function isOnboardingConfig(value: unknown): value is OnboardingConfig {
     && Array.isArray(catalog) && catalog.every(isCatalogEntry)
     && catalog.some((c) => (c as ProgramCatalogEntry).isActive);
 }
+
+// ---- Guest claim (answers parked until the guest logs in) ----
+//
+// A guest gets a locally scored result; the answers are parked in
+// localStorage so that logging in (popup on the result page, or the
+// same-tab redirect used by in-app browsers) can save them to the account.
+// Pure (de)serialisation lives here so it is unit-tested; the storage
+// access itself is in the onboarding feature (browser only).
+
+export const ONBOARDING_CLAIM_KEY = 'onboarding-claim';
+/** Answers older than this are dropped instead of claimed. */
+export const CLAIM_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+export interface ParkedClaim {
+  answers: OnboardingAnswers;
+  /** Config version the answers were given against (debugging aid; the
+   *  server re-validates against its current config either way). */
+  version: number;
+  savedAt: number;
+}
+
+export function serializeClaim(answers: OnboardingAnswers, version: number, now: number): string {
+  const claim: ParkedClaim = { answers, version, savedAt: now };
+  return JSON.stringify(claim);
+}
+
+/** Parses a parked claim; null when missing, malformed, incomplete or expired. */
+export function parseParkedClaim(raw: string | null, now: number): ParkedClaim | null {
+  if (!raw) return null;
+  let value: unknown;
+  try { value = JSON.parse(raw); } catch { return null; }
+  if (!isObject(value) || !isObject(value.answers)) return null;
+  if (typeof value.version !== 'number' || typeof value.savedAt !== 'number') return null;
+  if (value.savedAt > now || now - value.savedAt > CLAIM_MAX_AGE_MS) return null;
+  const answers = emptyAnswers();
+  for (const id of QUESTION_IDS) {
+    const list = (value.answers as Record<string, unknown>)[id];
+    if (!Array.isArray(list) || !list.every((v) => typeof v === 'string')) return null;
+    answers[id] = list as string[];
+  }
+  if (!isAnswersComplete(answers)) return null;
+  return { answers, version: value.version, savedAt: value.savedAt };
+}

@@ -1,9 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, ChevronRight } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Check, ChevronRight, CircleCheck, Loader2 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../store/useAdminAuthStore';
 import { useSnackbarStore } from '../../../store/useSnackbarStore';
 import { ApiError, UnauthorizedError, apiSkipOnboarding, apiSubmitOnboarding } from '../../../lib/adminApi';
+import { track } from '../../../lib/analytics';
+import GoogleSignInButton from '../../../components/common/GoogleSignInButton';
+import { armClaim, clearParkedClaim, hasPendingClaim, parkClaim, readParkedClaim, useOnboardingClaimStore } from '../claimStore';
 import {
   QUESTION_IDS,
   emptyAnswers,
@@ -32,11 +35,16 @@ interface Draft { step: Step; answers: OnboardingAnswers }
 
 const RESUMABLE_STEPS: Step[] = ['welcome', ...QUESTION_IDS];
 
+/** Draft owner: the user id, or 'guest' before login (PRD Onboarding Guest G2).
+ *  The guest draft lives in sessionStorage (this tab only), so another guest
+ *  on a shared device never resumes it. */
 function draftKey(userId: string) { return `onboarding-draft:${userId}`; }
+const GUEST = 'guest';
+const draftStore = (userId: string) => (userId === GUEST ? sessionStorage : localStorage);
 
 function readDraft(userId: string): Draft | null {
   try {
-    const raw = localStorage.getItem(draftKey(userId));
+    const raw = draftStore(userId).getItem(draftKey(userId));
     if (!raw) return null;
     const draft = JSON.parse(raw) as Partial<Draft> | null;
     // Only resume into a screen that exists (never the transient calc/result
@@ -56,8 +64,8 @@ function readDraft(userId: string): Draft | null {
 
 function writeDraft(userId: string, draft: Draft | null) {
   try {
-    if (draft) localStorage.setItem(draftKey(userId), JSON.stringify(draft));
-    else localStorage.removeItem(draftKey(userId));
+    if (draft) draftStore(userId).setItem(draftKey(userId), JSON.stringify(draft));
+    else draftStore(userId).removeItem(draftKey(userId));
   } catch { /* storage unavailable — draft is a convenience only */ }
 }
 
@@ -70,11 +78,39 @@ const OnboardingPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const next = safeInternalPath(searchParams.get('next'));
   const config = useOnboardingConfig();
-
-  const [initialDraft] = useState(() => (user ? readDraft(user.id) : null));
-  const [step, setStep] = useState<Step>(initialDraft?.step ?? 'welcome');
-  const [answers, setAnswers] = useState<OnboardingAnswers>(initialDraft?.answers ?? emptyAnswers());
+  // Back from a redirect login (in-app browsers) with armed guest answers:
+  // show that result (being claimed, or already claimed by the sync) instead
+  // of starting over.
+  const [initialResult] = useState<{ answers: OnboardingAnswers; serverRec: OnboardingRecommendation | null } | null>(() => {
+    if (!user) return null;
+    const { claimed } = useOnboardingClaimStore.getState();
+    if (claimed) return { answers: claimed.answers, serverRec: claimed.recommendation };
+    const parked = hasPendingClaim() ? readParkedClaim() : null;
+    return parked ? { answers: parked.answers, serverRec: null } : null;
+  });
+  const [initialDraft] = useState(() => (initialResult ? null : readDraft(user?.id ?? GUEST)));
+  const [step, setStep] = useState<Step>(initialResult ? 'result' : initialDraft?.step ?? 'welcome');
+  const [answers, setAnswers] = useState<OnboardingAnswers>(initialResult?.answers ?? initialDraft?.answers ?? emptyAnswers());
   const [recommendation, setRecommendation] = useState<OnboardingRecommendation | null>(null);
+  /** The shown result came from the guest flow, so it offers the claim card. */
+  const [guestResult, setGuestResult] = useState(initialResult !== null);
+  /** The server's recommendation once the guest answers were claimed. */
+  const [serverRec, setServerRec] = useState<OnboardingRecommendation | null>(initialResult?.serverRec ?? null);
+
+  // A guest result is scored with the live config (the remote one replaces
+  // the bundled default after load) until the claim returns the server's.
+  const shownRec = guestResult ? serverRec ?? scoreOnboarding(answers, config) : recommendation;
+
+  // Take the claim result: one already finished before this page mounted, and
+  // any that finishes while it is open.
+  useEffect(() => {
+    const apply = () => {
+      const taken = useOnboardingClaimStore.getState().takeClaimed();
+      if (taken) setServerRec(taken.recommendation);
+    };
+    apply();
+    return useOnboardingClaimStore.subscribe((s) => { if (s.claimed) apply(); });
+  }, []);
   const [showAll, setShowAll] = useState(false);
   const advanceTimer = useRef<number | null>(null);
 
@@ -82,21 +118,42 @@ const OnboardingPage: React.FC = () => {
 
   // Keyed on the id (not the user object): setOnboardingStatus replaces the
   // object, which would otherwise re-save a draft right after skip clears it.
-  const userId = user?.id ?? null;
+  const userId = user?.id ?? GUEST;
   useEffect(() => {
-    if (!userId) return;
     if (step === 'calc' || step === 'result') return;
     writeDraft(userId, { step, answers });
   }, [userId, step, answers]);
+  // Logged in mid-flow: the answers carry over in state (saved under the
+  // account above), so drop the tab's guest copy.
+  useEffect(() => { if (userId !== GUEST) writeDraft(GUEST, null); }, [userId]);
 
   const catalog = useMemo(() => new Map<ProgramId, ProgramCatalogEntry>(config.catalog.map((c) => [c.id, c])), [config.catalog]);
   const qIndex = QUESTION_IDS.indexOf(step as OnboardingQuestion['id']);
   const question = qIndex >= 0 ? config.questions[qIndex] : null;
 
   const submit = useCallback(async (final: OnboardingAnswers) => {
-    if (!token || !user) return;
     setStep('calc');
     const started = Date.now();
+    const finish = async (rec: OnboardingRecommendation, guest: boolean) => {
+      const wait = MIN_CALC_MS - (Date.now() - started);
+      if (wait > 0) await new Promise((r) => window.setTimeout(r, wait));
+      track('onboarding_completed', { guest, primary: rec.primary.id });
+      setRecommendation(rec);
+      setServerRec(null);
+      setGuestResult(guest);
+      setShowAll(false);
+      setStep('result');
+    };
+
+    if (!token || !user) {
+      // Guest (PRD G4/S1): score locally, park the answers for the claim.
+      const rec = scoreOnboarding(final, config);
+      parkClaim(final, config.version);
+      writeDraft(GUEST, null);
+      await finish(rec, true);
+      return;
+    }
+
     let rec: OnboardingRecommendation;
     try {
       const { result } = await apiSubmitOnboarding(final, token);
@@ -124,13 +181,9 @@ const OnboardingPage: React.FC = () => {
       // 'pending', so onboarding comes back on the next login.
       rec = scoreOnboarding(final, config);
     }
-    const wait = MIN_CALC_MS - (Date.now() - started);
-    if (wait > 0) await new Promise((r) => window.setTimeout(r, wait));
     writeDraft(user.id, null);
     setOnboardingStatus('completed');
-    setRecommendation(rec);
-    setShowAll(false);
-    setStep('result');
+    await finish(rec, false);
   }, [token, user, config, next, navigate, showSnackbar, setOnboardingStatus]);
 
   const pick = (q: OnboardingQuestion, optionId: string) => {
@@ -170,7 +223,14 @@ const OnboardingPage: React.FC = () => {
   };
 
   const skip = async () => {
-    if (!token || !user) return;
+    if (!token || !user) {
+      // Guest: nothing to record server-side (PRD G3); abandoning drops any
+      // earlier unclaimed answers too.
+      writeDraft(GUEST, null);
+      clearParkedClaim();
+      navigate(next ?? '/', { replace: true });
+      return;
+    }
     try {
       const { status } = await apiSkipOnboarding(token);
       setOnboardingStatus(status);
@@ -184,12 +244,14 @@ const OnboardingPage: React.FC = () => {
   };
 
   const restart = () => {
+    // Retaking replaces the unclaimed answers; they must not be claimed later.
+    if (guestResult && !serverRec) clearParkedClaim();
     setAnswers(emptyAnswers());
     setRecommendation(null);
+    setServerRec(null);
+    setGuestResult(false);
     setStep('q1');
   };
-
-  if (!token || !user) return <Navigate to="/login?redirect=%2Fonboarding" replace />;
 
   const inFlow = question !== null;
 
@@ -320,14 +382,15 @@ const OnboardingPage: React.FC = () => {
         </main>
       )}
 
-      {step === 'result' && recommendation && (
+      {step === 'result' && shownRec && (
         <ResultView
-          recommendation={recommendation}
+          recommendation={shownRec}
           catalog={catalog}
           showAll={showAll}
           onToggleAll={() => setShowAll((v) => !v)}
           next={next}
           onRestart={restart}
+          claimable={guestResult}
         />
       )}
     </div>
@@ -353,10 +416,16 @@ interface ResultViewProps {
   onToggleAll: () => void;
   next: string | null;
   onRestart: () => void;
+  /** Result of the guest flow: show the claim card (login to save it). */
+  claimable: boolean;
 }
 
-const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAll, onToggleAll, next, onRestart }) => {
+const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAll, onToggleAll, next, onRestart, claimable }) => {
+  const signedIn = useAdminAuthStore((s) => !!s.token);
   const isAdmin = useAdminAuthStore((s) => !!s.user?.roles.includes('admin'));
+  // Guests have no dashboard yet: program CTAs go to the public landing page
+  // (programHref's fallback), switching to the dashboard once they log in.
+  const publicLinks = isAdmin || !signedIn;
   const primary = catalog.get(recommendation.primary.id);
   const listed = showAll ? [...recommendation.secondary, ...recommendation.others] : recommendation.secondary;
   if (!primary) return null;
@@ -377,13 +446,15 @@ const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAl
         </div>
         <p className="m-0 text-[15px] leading-relaxed text-ld-slate">{recommendation.primary.reason}</p>
         <Link
-          to={programHref(primary, 'onboarding', isAdmin)}
+          to={programHref(primary, 'onboarding', publicLinks)}
           className="flex items-center justify-center gap-2.5 h-12 rounded-lg bg-ld-midnight text-white text-base font-medium no-underline hover:bg-ld-onyx transition-colors cursor-pointer"
         >
           {primary.cta}
           <ArrowRight size={18} />
         </Link>
       </article>
+
+      {claimable && <ClaimCard />}
 
       <div className="flex flex-col">
         <span className="pb-1 text-[13px] font-semibold text-ld-slate">Coba juga</span>
@@ -393,7 +464,7 @@ const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAl
           return (
             <Link
               key={item.id}
-              to={programHref(program, 'onboarding', isAdmin)}
+              to={programHref(program, 'onboarding', publicLinks)}
               className="flex items-center gap-3.5 min-h-16 border-b border-ld-frost no-underline text-inherit group cursor-pointer"
             >
               <ProgramIcon id={program.id} size={32} className="shrink-0" />
@@ -416,12 +487,14 @@ const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAl
       </div>
 
       <div className="flex justify-center gap-6 pt-1">
-        <Link
-          to={next ?? '/dashboard'}
-          className="inline-flex items-center h-11 text-sm font-medium text-ld-graphite underline underline-offset-4 decoration-ld-fog hover:decoration-ld-graphite cursor-pointer"
-        >
-          {next ? 'Lanjut ke halaman tadi' : 'Ke dashboard'}
-        </Link>
+        {(next || signedIn) && (
+          <Link
+            to={next ?? '/dashboard'}
+            className="inline-flex items-center h-11 text-sm font-medium text-ld-graphite underline underline-offset-4 decoration-ld-fog hover:decoration-ld-graphite cursor-pointer"
+          >
+            {next ? 'Lanjut ke halaman tadi' : 'Ke dashboard'}
+          </Link>
+        )}
         <button
           type="button"
           onClick={onRestart}
@@ -433,5 +506,122 @@ const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAl
     </main>
   );
 };
+
+const CLAIM_BENEFITS = [
+  'Tersimpan di dashboard, buka dari mana pun.',
+  'Progress program ikut tersimpan.',
+  'Cukup login pakai akun Google.',
+];
+
+// Guest result → "claim" the recommendation by logging in right here (Google
+// popup; same-tab redirect in in-app browsers). Showing this card to a guest
+// arms the claim for this tab; OnboardingClaimSync saves the answers as soon
+// as the session exists, and this card mirrors its state.
+const ClaimCard: React.FC = () => {
+  const signedIn = useAdminAuthStore((s) => !!s.token);
+  const state = useOnboardingClaimStore((s) => s.state);
+  const claim = useOnboardingClaimStore((s) => s.claim);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => { if (!signedIn) armClaim(); }, [signedIn]);
+
+  const retry = () => { void claim(); };
+
+  // Brand guideline (docs/DESIGN.md): white card, 12px radius, 1px Ash
+  // border, no shadow; slate text plus one blue; the pixel mosaic is the only
+  // ornament. Exception, by request: the benefit ticks are filled green
+  // (same "done" green as the QA Simulator); error/outdated states stay neutral.
+  const box = 'relative overflow-hidden rounded-xl border border-ld-ash bg-ld-canvas p-5 md:p-6 flex flex-col gap-4';
+
+  if (signedIn && state === 'saved') {
+    return (
+      <section className={box} aria-live="polite">
+        <ClaimPixels />
+        <div className="flex items-start gap-3 pr-14">
+          <span className="shrink-0 w-9 h-9 rounded-lg bg-ld-lilac text-ld-violet flex items-center justify-center"><CircleCheck size={18} /></span>
+          <div className="flex flex-col gap-1">
+            <h2 className="m-0 font-ld-display text-lg font-semibold tracking-[-0.01em] text-ld-onyx">Tersimpan di akunmu</h2>
+            <p className="m-0 text-sm text-ld-slate leading-relaxed">Rekomendasi ini sekarang ada di dashboard.</p>
+          </div>
+        </div>
+        <Link
+          to="/dashboard"
+          className="self-start inline-flex items-center gap-1.5 h-10 px-4 rounded-lg border border-ld-ash text-sm font-medium text-ld-graphite no-underline hover:border-ld-violet hover:text-ld-violet transition-colors"
+        >
+          Ke dashboard <ArrowRight size={15} />
+        </Link>
+      </section>
+    );
+  }
+
+  if (signedIn && state === 'outdated') {
+    return (
+      <section className={box} aria-live="polite">
+        <div className="flex flex-col gap-1">
+          <h2 className="m-0 font-ld-display text-lg font-semibold tracking-[-0.01em] text-ld-onyx">Pertanyaannya sudah diperbarui</h2>
+          <p className="m-0 text-sm text-ld-slate leading-relaxed">Jawaban tadi tidak bisa disimpan. Ulangi pertanyaan di bawah ya.</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (signedIn && state === 'error') {
+    return (
+      <section className={box} aria-live="polite">
+        <div className="flex flex-col gap-1">
+          <h2 className="m-0 font-ld-display text-lg font-semibold tracking-[-0.01em] text-ld-onyx">Gagal menyimpan</h2>
+          <p className="m-0 text-sm text-ld-slate leading-relaxed">Koneksi terputus. Jawabanmu masih aman, coba lagi.</p>
+        </div>
+        <button
+          type="button"
+          onClick={retry}
+          className="self-start h-10 px-4 rounded-lg bg-ld-violet text-white text-sm font-medium border-none hover:bg-[#1f87e6] transition-colors cursor-pointer"
+        >
+          Coba lagi
+        </button>
+      </section>
+    );
+  }
+
+  if (signedIn) {
+    return (
+      <section className={box} aria-live="polite">
+        <p className="m-0 flex items-center gap-2 text-sm text-ld-slate"><Loader2 size={16} className="animate-spin text-ld-violet" /> Menyimpan ke akunmu…</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className={box}>
+      <ClaimPixels />
+      <div className="flex flex-col gap-1">
+        <span className="pr-14 text-[11px] font-semibold uppercase tracking-widest text-ld-violet">Gratis</span>
+        <h2 className="m-0 font-ld-display text-lg md:text-xl font-semibold tracking-[-0.01em] text-ld-onyx">Klaim program personalmu</h2>
+        <p className="m-0 text-sm text-ld-slate">Login sekali, rekomendasi jadi milikmu.</p>
+      </div>
+      <ul className="m-0 p-0 list-none flex flex-col gap-2">
+        {CLAIM_BENEFITS.map((b) => (
+          <li key={b} className="flex items-start gap-2.5 text-sm text-ld-graphite">
+            <span className="mt-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-emerald-500 text-white shrink-0">
+              <Check size={11} strokeWidth={3} />
+            </span>
+            {b}
+          </li>
+        ))}
+      </ul>
+      <GoogleSignInButton onSuccess={() => setError(null)} onError={setError} />
+      {error && <p className="m-0 text-xs text-red-500 text-center">{error}</p>}
+    </section>
+  );
+};
+
+/** Small brand pixel mosaic, inset in the card's top-right corner. */
+const ClaimPixels: React.FC = () => (
+  <div aria-hidden="true" className="absolute top-5 right-5 md:top-6 md:right-6 grid grid-cols-4 gap-[3px]">
+    {['bg-ld-lilac', 'bg-ld-lavender', 'bg-ld-violet', 'bg-ld-violet', '', 'bg-ld-lilac', 'bg-ld-lavender', 'bg-ld-violet'].map((c, i) => (
+      <span key={i} className={`w-[7px] h-[7px] rounded-[2px] ${c}`} />
+    ))}
+  </div>
+);
 
 export default OnboardingPage;
