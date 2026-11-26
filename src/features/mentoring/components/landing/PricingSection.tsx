@@ -5,7 +5,7 @@ import { MENTORING_PLANS as plans } from '../../data/pricingPlans';
 
 const PricingSection: React.FC = () => {
   return (
-    <section id="pricing" className="py-8 md:py-20 bg-ld-canvas font-ld-sans">
+    <section id="pricing" className="scroll-mt-16 py-8 md:py-20 bg-ld-canvas font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 sm:mb-14 sm:mb-14">
           <h2 className="font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">

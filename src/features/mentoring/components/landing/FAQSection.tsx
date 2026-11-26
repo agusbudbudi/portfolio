@@ -30,7 +30,7 @@ const faqs = [
 
 const FAQSection: React.FC = () => {
   return (
-    <section id="faq" className="py-8 md:py-20 bg-ld-canvas font-ld-sans">
+    <section id="faq" className="scroll-mt-16 py-8 md:py-20 bg-ld-canvas font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 sm:mb-14">
           <h2 className="font-semibold text-3xl sm:text-4xl tracking-[-0.02em] text-ld-graphite mb-4">
