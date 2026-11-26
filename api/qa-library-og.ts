@@ -166,6 +166,7 @@ function handlePage(res: VercelResponse, path: string) {
     shareTitle: seo.shareTitle,
     shareDescription: seo.shareDescription,
     image: seo.image,
+    noindex: seo.noindex,
     type: seo.path.startsWith('/personal-portfolio') ? 'profile' : 'website',
     bodyHtml: `<main><h1>${escapeHtml(seo.title)}</h1><p>${escapeHtml(seo.description)}</p></main>`,
   }), CACHE_PUBLIC);

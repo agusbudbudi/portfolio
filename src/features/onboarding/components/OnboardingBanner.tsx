@@ -26,7 +26,8 @@ const OnboardingBanner: React.FC<{ suppressed?: boolean }> = ({ suppressed = fal
   const answered = readParkedClaim() !== null;
   const [atTop, setAtTop] = useState(() => typeof window === 'undefined' || window.scrollY < 8);
 
-  const eligible = !signedIn && !dismissed && !answered;
+  // /career-path embeds the same questionnaire, so no invite away from it.
+  const eligible = !signedIn && !dismissed && !answered && pathname.replace(/\/+$/, '') !== '/career-path';
 
   useEffect(() => {
     if (!eligible) return;

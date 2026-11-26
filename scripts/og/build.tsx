@@ -41,6 +41,9 @@ const LOGO = dataUri('public/shared/img/mentor-logo.webp', 'image/webp');
 // Transparent cut-out (profile-agus.webp has a caption baked into the photo).
 const AGUS = dataUri('public/personal-portfolio/img/profile/hero-agus.webp', 'image/webp');
 
+// The /career-path hero photo (mirrored on the page, so mirrored here too).
+const HERO = dataUri('public/shared/img/journey/hero.webp', 'image/webp');
+
 // docs/DESIGN.md tokens
 const T = {
   white: '#ffffff', cloud: '#f6f8fa', frost: '#eceff3', ash: '#cdd2d9', fog: '#a4abb8',
@@ -525,6 +528,35 @@ const ProgramsVisual = () => {
   );
 };
 
+/** /career-path hero: the same photo with its two floating program cards. */
+const CareerPathVisual = () => (
+  <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <img src={HERO} width={560} height={560} style={{ position: 'absolute', left: -28, bottom: 0, display: 'block', transform: 'scaleX(-1)' }} />
+    <div style={card({ position: 'absolute', right: -24, top: 44, width: 236, padding: '16px 18px' })}>
+      <div style={row({ gap: 12 })}>
+        <QaCourseIcon size={44} />
+        <div>
+          <div style={{ fontSize: 17, fontWeight: 600, color: T.onyx }}>QA Course</div>
+          <div style={{ fontSize: 14, color: T.slate, marginTop: 2 }}>Junior QA Ready</div>
+        </div>
+      </div>
+      <div style={{ marginTop: 14 }}><Bar pct={75} color={T.violet} w={198} /></div>
+      <div style={row({ justifyContent: 'space-between', marginTop: 8, fontSize: 13, color: T.slate })}>
+        <span>Learning progress</span><span style={{ fontWeight: 600, color: T.violet }}>75%</span>
+      </div>
+    </div>
+    <div style={card({ position: 'absolute', left: -44, bottom: 44, padding: '12px 20px 12px 12px' })}>
+      <div style={row({ gap: 12 })}>
+        <MentoringIcon size={44} />
+        <div>
+          <div style={{ fontSize: 17, fontWeight: 600, color: T.onyx }}>QA Mentoring</div>
+          <div style={{ fontSize: 14, color: T.slate, marginTop: 2 }}>1-on-1 career guidance</div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 type Variant = 'base' | 'about' | 'projects' | 'certifications';
 const PersonalVisual: React.FC<{ v: Variant }> = ({ v }) => {
   const exp = (experience as { company: string; role: string; period: string }[]).slice(0, 3);
@@ -580,6 +612,7 @@ const SPECS: Spec[] = [
   { name: 'portfolio', icon: QaPortfolioIcon, label: 'Portfolio QA', badge: FREE, headline: ['Tunjukkan skill-mu, ', ['bukan cuma CV']], sub: 'Portfolio online dengan link sendiri, siap dikirim ke recruiter.', path: '/portfolio', visual: <PortfolioVisual /> },
   { name: 'mentoring', icon: MentoringIcon, label: 'Mentoring 1-on-1', badge: PAID, headline: ['Dibimbing langsung oleh ', ['praktisi QA']], sub: 'Review CV dan portfolio, latihan interview, sampai automation.', path: '/mentoring', visual: <MentoringVisual /> },
   { name: 'programs', icon: DashboardIcon, label: 'Program', tone: 'blue', titleSize: 68, badge: { text: 'Mulai gratis', bg: T.white, fg: DEEP_BLUE }, headline: ['Mau jadi ', ['QA Engineer'], '? Pilih jalurmu.'], sub: 'Course, simulasi kerja, portfolio, dan mentoring. Mulai dari satu klik.', path: '/programs', visual: <ProgramsVisual /> },
+  { name: 'career-path', icon: DashboardIcon, label: 'Find Your QA Journey', badge: FREE, headline: ['Level Up Karier QA\u2011mu, ', ['Mulai\u00a0dari\u00a0Sini.']], sub: '4 pertanyaan singkat. Dapatkan program yang cocok dengan tujuanmu.', path: '/career-path', visual: <CareerPathVisual /> },
   { name: 'mentoring-booking', icon: MentoringIcon, label: 'Booking mentoring', badge: PAID, headline: ['Pilih mentor, topik, dan ', ['jadwalmu']], sub: 'Sesi 60 menit, termasuk akhir pekan. Konfirmasi lewat WhatsApp.', path: '/mentoring/booking', visual: <BookingVisual /> },
   { name: 'personal-portfolio', icon: QaPortfolioIcon, label: 'Portfolio pribadi', headline: ['Agus Budiman, ', ['QA Engineer']], sub: '6+ tahun di automation, manual, dan API testing.', path: '/personal-portfolio', visual: <PersonalVisual v="base" /> },
   { name: 'personal-about', icon: QaPortfolioIcon, label: 'Tentang', headline: ['Perjalanan karier sebagai ', ['QA Engineer']], sub: 'Pengalaman kerja, pendidikan, dan cerita di baliknya.', path: '/personal-portfolio/about', visual: <PersonalVisual v="about" /> },
