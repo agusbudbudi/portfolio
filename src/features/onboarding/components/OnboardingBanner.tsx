@@ -26,8 +26,10 @@ const OnboardingBanner: React.FC<{ suppressed?: boolean }> = ({ suppressed = fal
   const answered = readParkedClaim() !== null;
   const [atTop, setAtTop] = useState(() => typeof window === 'undefined' || window.scrollY < 8);
 
-  // /career-path embeds the same questionnaire, so no invite away from it.
-  const eligible = !signedIn && !dismissed && !answered && pathname.replace(/\/+$/, '') !== '/career-path';
+  // /career-path embeds the same questionnaire and the home page has its own
+  // invite card under the hero (HomePersonalizeCard), so no strip on either.
+  const path = pathname.replace(/\/+$/, '') || '/';
+  const eligible = !signedIn && !dismissed && !answered && path !== '/career-path' && path !== '/';
 
   useEffect(() => {
     if (!eligible) return;

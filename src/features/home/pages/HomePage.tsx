@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import HomeHero from '../components/HomeHero';
 import HomeProducts from '../components/HomeProducts';
 import HomeJourney from '../components/HomeJourney';
+import HomePersonalizeCard from '../components/HomePersonalizeCard';
 import HomeLibrary from '../components/HomeLibrary';
 import HomeSimulatorProjects from '../components/HomeSimulatorProjects';
 import HomePricing from '../components/HomePricing';
@@ -59,6 +60,7 @@ const HomePage: React.FC = () => {
   return (
     <div ref={pageRef} className="w-full bg-ld-canvas">
       <HomeHero />
+      <HomePersonalizeCard />
       {/* overview of the 4-step path first, then each product in depth */}
       <HomeJourney />
       <HomeProducts />
