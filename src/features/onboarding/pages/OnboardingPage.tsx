@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, ChevronRight, CircleCheck, Loader2 } from 'lucide-react';
 import { useAdminAuthStore } from '../../../store/useAdminAuthStore';
 import { useSnackbarStore } from '../../../store/useSnackbarStore';
@@ -69,14 +69,30 @@ function writeDraft(userId: string, draft: Draft | null) {
   } catch { /* storage unavailable — draft is a convenience only */ }
 }
 
-const OnboardingPage: React.FC = () => {
+interface OnboardingPageProps {
+  /** Rendered inside a landing-page section (/career-path) instead of as its
+   *  own screen: no page chrome, welcome or skip, and headings step down. */
+  embedded?: boolean;
+  /** Extra content under the result, above the Google "claim" card (e.g. a
+   *  lead form). */
+  resultSlot?: (summary: ResultSummary) => React.ReactNode;
+}
+
+/** What the visitor answered and got, as display labels. */
+export interface ResultSummary {
+  recommended: string[];
+  answers: string[];
+}
+
+const OnboardingPage: React.FC<OnboardingPageProps> = ({ embedded = false, resultSlot }) => {
   const token = useAdminAuthStore((s) => s.token);
   const user = useAdminAuthStore((s) => s.user);
   const setOnboardingStatus = useAdminAuthStore((s) => s.setOnboardingStatus);
   const showSnackbar = useSnackbarStore((s) => s.show);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const next = safeInternalPath(searchParams.get('next'));
+  const next = embedded ? null : safeInternalPath(searchParams.get('next'));
+  const { pathname } = useLocation();
   const config = useOnboardingConfig();
   // Back from a redirect login (in-app browsers) with armed guest answers:
   // show that result (being claimed, or already claimed by the sync) instead
@@ -89,7 +105,11 @@ const OnboardingPage: React.FC = () => {
     return parked ? { answers: parked.answers, serverRec: null } : null;
   });
   const [initialDraft] = useState(() => (initialResult ? null : readDraft(user?.id ?? GUEST)));
-  const [step, setStep] = useState<Step>(initialResult ? 'result' : initialDraft?.step ?? 'welcome');
+  const [step, setStep] = useState<Step>(() => {
+    if (initialResult) return 'result';
+    const resumed = initialDraft?.step ?? 'welcome';
+    return embedded && resumed === 'welcome' ? 'q1' : resumed;
+  });
   const [answers, setAnswers] = useState<OnboardingAnswers>(initialResult?.answers ?? initialDraft?.answers ?? emptyAnswers());
   const [recommendation, setRecommendation] = useState<OnboardingRecommendation | null>(null);
   /** The shown result came from the guest flow, so it offers the claim card. */
@@ -121,8 +141,10 @@ const OnboardingPage: React.FC = () => {
   const userId = user?.id ?? GUEST;
   useEffect(() => {
     if (step === 'calc' || step === 'result') return;
+    // An untouched embedded form must not make /onboarding skip its welcome.
+    if (embedded && !QUESTION_IDS.some((id) => answers[id].length)) return;
     writeDraft(userId, { step, answers });
-  }, [userId, step, answers]);
+  }, [embedded, userId, step, answers]);
   // Logged in mid-flow: the answers carry over in state (saved under the
   // account above), so drop the tab's guest copy.
   useEffect(() => { if (userId !== GUEST) writeDraft(GUEST, null); }, [userId]);
@@ -137,7 +159,7 @@ const OnboardingPage: React.FC = () => {
     const finish = async (rec: OnboardingRecommendation, guest: boolean) => {
       const wait = MIN_CALC_MS - (Date.now() - started);
       if (wait > 0) await new Promise((r) => window.setTimeout(r, wait));
-      track('onboarding_completed', { guest, primary: rec.primary.id });
+      track('onboarding_completed', { guest, primary: rec.primary.id, surface: embedded ? 'career_path' : 'onboarding' });
       setRecommendation(rec);
       setServerRec(null);
       setGuestResult(guest);
@@ -163,7 +185,7 @@ const OnboardingPage: React.FC = () => {
         // Session expired: nothing was saved. Keep the draft (it already holds
         // these answers) and come back here after logging in again.
         showSnackbar('Sesi kamu habis. Login lagi untuk menyimpan hasilnya.', 'error');
-        const returnTo = next ? `/onboarding?next=${encodeURIComponent(next)}` : '/onboarding';
+        const returnTo = embedded ? pathname : next ? `/onboarding?next=${encodeURIComponent(next)}` : '/onboarding';
         navigate(`/login?redirect=${encodeURIComponent(returnTo)}`, { replace: true });
         return;
       }
@@ -184,7 +206,7 @@ const OnboardingPage: React.FC = () => {
     writeDraft(user.id, null);
     setOnboardingStatus('completed');
     await finish(rec, false);
-  }, [token, user, config, next, navigate, showSnackbar, setOnboardingStatus]);
+  }, [token, user, config, next, embedded, pathname, navigate, showSnackbar, setOnboardingStatus]);
 
   const pick = (q: OnboardingQuestion, optionId: string) => {
     const current = answers[q.id];
@@ -254,10 +276,22 @@ const OnboardingPage: React.FC = () => {
   };
 
   const inFlow = question !== null;
+  const Body = embedded ? 'div' : 'main';
+  const QuestionTitle = embedded ? 'h3' : 'h2';
 
   return (
-    <div className="min-h-screen bg-ld-canvas font-ld-sans text-ld-graphite flex flex-col">
-      <header className="h-14 md:h-16 shrink-0 flex items-center justify-between px-5 md:px-10">
+    <div className={`font-ld-sans text-ld-graphite flex flex-col ${embedded ? 'min-h-[460px]' : 'min-h-screen bg-ld-canvas'}`}>
+      {embedded && inFlow && (
+        <div className="px-5 md:px-8 pt-5 flex items-center justify-between">
+          {qIndex > 0 ? (
+            <button type="button" onClick={back} className="-ml-2 h-11 px-2 inline-flex items-center gap-1.5 text-sm font-medium text-ld-slate hover:text-ld-graphite cursor-pointer">
+              <ArrowLeft size={16} aria-hidden="true" /> Kembali
+            </button>
+          ) : <span className="h-11 inline-flex items-center text-sm font-medium text-ld-slate">4 pertanyaan singkat</span>}
+          <span className="font-ld-mono text-[13px] text-ld-slate">{qIndex + 1} / {QUESTION_IDS.length}</span>
+        </div>
+      )}
+      {!embedded && <header className="h-14 md:h-16 shrink-0 flex items-center justify-between px-5 md:px-10">
         {inFlow ? (
           <button
             type="button"
@@ -290,9 +324,9 @@ const OnboardingPage: React.FC = () => {
         ) : (
           <span className="w-11" aria-hidden="true" />
         )}
-      </header>
+      </header>}
       {inFlow && (
-        <div className="h-[3px] bg-ld-frost" role="progressbar" aria-valuemin={0} aria-valuemax={4} aria-valuenow={qIndex + 1}>
+        <div className={`h-[3px] bg-ld-frost ${embedded ? 'mx-5 md:mx-8 mt-2' : ''}`} role="progressbar" aria-label="Progres pertanyaan" aria-valuemin={0} aria-valuemax={4} aria-valuenow={qIndex + 1}>
           <div className="h-full bg-ld-violet transition-[width] duration-300" style={{ width: `${((qIndex + 1) / QUESTION_IDS.length) * 100}%` }} />
         </div>
       )}
@@ -320,11 +354,11 @@ const OnboardingPage: React.FC = () => {
       )}
 
       {question && (
-        <main className="flex-1 w-full max-w-[600px] mx-auto px-5 md:px-10 pt-6 md:pt-14 pb-12 flex flex-col gap-6 md:gap-7">
+        <Body className={`flex-1 w-full flex flex-col ${embedded ? 'px-5 md:px-8 pt-5 pb-6 md:pb-8 gap-5' : 'max-w-[600px] mx-auto px-5 md:px-10 pt-6 md:pt-14 pb-12 gap-6 md:gap-7'}`}>
           <div className="flex flex-col gap-2">
-            <h2 className="m-0 font-ld-display font-semibold text-[26px] md:text-[34px] leading-[1.12] tracking-[-0.02em] text-ld-onyx">
+            <QuestionTitle className={`m-0 font-ld-display font-semibold leading-[1.12] tracking-[-0.02em] text-ld-onyx ${embedded ? 'text-[22px] md:text-[26px]' : 'text-[26px] md:text-[34px]'}`}>
               {question.title}
-            </h2>
+            </QuestionTitle>
             {question.maxSelect > 1 && <p className="m-0 text-sm text-ld-slate">Pilih maksimal {question.maxSelect}</p>}
           </div>
           <div role="group" aria-label={question.title} className="flex flex-col gap-2.5">
@@ -368,18 +402,18 @@ const OnboardingPage: React.FC = () => {
               Lanjut
             </button>
           )}
-        </main>
+        </Body>
       )}
 
       {step === 'calc' && (
-        <main className="flex-1 flex flex-col items-center justify-center gap-4 pb-16 px-5 text-center" aria-live="polite">
+        <Body className="flex-1 flex flex-col items-center justify-center gap-4 pb-16 px-5 text-center" aria-live="polite">
           <div className="flex gap-1.5" aria-hidden="true">
             <span className="w-3 h-3 rounded-[3px] bg-ld-violet animate-pulse" />
             <span className="w-3 h-3 rounded-[3px] bg-ld-lavender animate-pulse [animation-delay:150ms]" />
             <span className="w-3 h-3 rounded-[3px] bg-ld-lilac animate-pulse [animation-delay:300ms]" />
           </div>
           <h2 className="m-0 font-ld-display font-semibold text-[26px] md:text-[34px] tracking-[-0.02em] text-ld-onyx">Menyusun rekomendasi…</h2>
-        </main>
+        </Body>
       )}
 
       {step === 'result' && shownRec && (
@@ -391,6 +425,11 @@ const OnboardingPage: React.FC = () => {
           next={next}
           onRestart={restart}
           claimable={guestResult}
+          embedded={embedded}
+          slot={resultSlot?.({
+            recommended: [shownRec.primary, ...shownRec.secondary].map((p) => catalog.get(p.id)?.name ?? p.id),
+            answers: config.questions.flatMap((q) => q.options.filter((o) => answers[q.id].includes(o.id)).map((o) => o.label)),
+          })}
         />
       )}
     </div>
@@ -418,9 +457,11 @@ interface ResultViewProps {
   onRestart: () => void;
   /** Result of the guest flow: show the claim card (login to save it). */
   claimable: boolean;
+  embedded: boolean;
+  slot?: React.ReactNode;
 }
 
-const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAll, onToggleAll, next, onRestart, claimable }) => {
+const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAll, onToggleAll, next, onRestart, claimable, embedded, slot }) => {
   const signedIn = useAdminAuthStore((s) => !!s.token);
   const isAdmin = useAdminAuthStore((s) => !!s.user?.roles.includes('admin'));
   // Guests have no dashboard yet: program CTAs go to the public landing page
@@ -429,12 +470,14 @@ const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAl
   const primary = catalog.get(recommendation.primary.id);
   const listed = showAll ? [...recommendation.secondary, ...recommendation.others] : recommendation.secondary;
   if (!primary) return null;
+  const Body = embedded ? 'div' : 'main';
+  const Title = embedded ? 'h3' : 'h1';
 
   return (
-    <main className="flex-1 w-full max-w-[600px] mx-auto px-5 md:px-10 pt-6 md:pt-14 pb-12 flex flex-col gap-6 md:gap-7">
-      <h1 className="m-0 font-ld-display font-semibold text-[30px] md:text-[44px] leading-[1.05] tracking-[-0.02em] text-ld-onyx">
+    <Body className={`flex-1 w-full flex flex-col ${embedded ? 'p-5 md:p-8 gap-5' : 'max-w-[600px] mx-auto px-5 md:px-10 pt-6 md:pt-14 pb-12 gap-6 md:gap-7'}`}>
+      <Title className={`m-0 font-ld-display font-semibold leading-[1.05] tracking-[-0.02em] text-ld-onyx ${embedded ? 'text-[26px] md:text-[30px]' : 'text-[30px] md:text-[44px]'}`}>
         Paling cocok untukmu
-      </h1>
+      </Title>
 
       <article className="rounded-xl bg-ld-canvas p-6 flex flex-col gap-4 shadow-ld-subtle-3">
         <div className="flex items-center gap-3.5">
@@ -454,6 +497,7 @@ const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAl
         </Link>
       </article>
 
+      {slot}
       {claimable && <ClaimCard />}
 
       <div className="flex flex-col">
@@ -503,7 +547,7 @@ const ResultView: React.FC<ResultViewProps> = ({ recommendation, catalog, showAl
           Ulangi pertanyaan
         </button>
       </div>
-    </main>
+    </Body>
   );
 };
 

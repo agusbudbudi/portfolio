@@ -347,3 +347,8 @@ body {
     font-size: 16px;
   }
 }
+
+/* Endless horizontal loop: the track holds two identical halves. */
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}

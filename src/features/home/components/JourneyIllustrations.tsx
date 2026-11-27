@@ -192,3 +192,61 @@ export const GuidedIllustration: React.FC<{ className?: string }> = ({ className
     </Svg>
   );
 };
+
+/** Career growth: bars rise one by one, then a flag pops on the tallest. */
+export const CareerIllustration: React.FC<{ className?: string }> = ({ className }) => {
+  const still = useReducedMotion();
+  const bars = [{ x: 18, h: 14, fill: LAVENDER }, { x: 34, h: 24, fill: VIOLET }, { x: 50, h: 34, fill: ONYX }];
+  return (
+    <Svg className={className}>
+      {bars.map((b, i) => (
+        <motion.rect
+          key={b.x} x={b.x} y={62 - b.h} width="12" height={b.h} rx="3" fill={b.fill}
+          style={{ originX: 0.5, originY: 1 }}
+          initial={{ scaleY: still ? 1 : 0 }}
+          animate={still ? undefined : { scaleY: [0, 1, 1, 0] }}
+          transition={{ duration: 4, times: [0, 0.2, 0.88, 1], repeat: Infinity, delay: i * 0.25 }}
+        />
+      ))}
+      <motion.g
+        style={{ originX: 0, originY: 1 }}
+        initial={{ scale: still ? 1 : 0 }}
+        animate={still ? undefined : { scale: [0, 0, 1.25, 1, 1, 0] }}
+        transition={{ duration: 4, times: [0, 0.3, 0.4, 0.47, 0.85, 0.95], repeat: Infinity }}
+      >
+        <path d="M56 28V12" stroke={ONYX} strokeWidth="2" strokeLinecap="round" />
+        <path d="M57 13h12l-3.5 4.5L69 22H57z" fill={VIOLET} />
+      </motion.g>
+    </Svg>
+  );
+};
+
+/** Community: three people bob in turn while a heart beats above them. */
+export const CommunityIllustration: React.FC<{ className?: string }> = ({ className }) => {
+  const still = useReducedMotion();
+  const people = [
+    { cx: 22, cy: 44, r: 6, fill: ONYX },
+    { cx: 58, cy: 44, r: 6, fill: ONYX },
+    { cx: 40, cy: 42, r: 8, fill: VIOLET },
+  ];
+  return (
+    <Svg className={className}>
+      {people.map((p, i) => (
+        <motion.g
+          key={p.cx}
+          animate={still ? undefined : { y: [0, -3, 0, 0] }}
+          transition={{ duration: 2.4, times: [0, 0.15, 0.3, 1], repeat: Infinity, delay: i * 0.3 }}
+        >
+          <circle cx={p.cx} cy={p.cy} r={p.r} fill={p.fill} />
+          <path d={`M${p.cx - p.r * 1.7} 64a${p.r * 1.7} ${p.r * 1.5} 0 0 1 ${p.r * 3.4} 0z`} fill={p.fill} />
+        </motion.g>
+      ))}
+      <motion.path
+        d="M40 27c-9-5.5-10-13-5-14.500 2.500-.7 4.300.8 5 2.300.7-1.500 2.500-3 5-2.300 5 1.500 4 9-5 14.500z" fill="#ef4444"
+        style={{ originX: 0.5, originY: 0.5 }}
+        animate={still ? undefined : { scale: [1, 1.2, 1, 1.15, 1, 1] }}
+        transition={{ duration: 1.8, times: [0, 0.12, 0.24, 0.36, 0.48, 1], repeat: Infinity }}
+      />
+    </Svg>
+  );
+};

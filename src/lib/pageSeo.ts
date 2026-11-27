@@ -34,6 +34,7 @@ export type OgImageName =
   | 'mentoring'
   | 'mentoring-booking'
   | 'programs'
+  | 'career-path'
   | 'personal-portfolio'
   | 'personal-about'
   | 'personal-projects'
@@ -52,6 +53,8 @@ export interface PageSeo {
   shareTitle: string;
   shareDescription: string;
   image: string;
+  /** Kept out of search: read by <Seo> in the app and by the crawler HTML. */
+  noindex?: boolean;
 }
 
 export type PageSeoPath =
@@ -63,6 +66,7 @@ export type PageSeoPath =
   | '/mentoring'
   | '/mentoring/booking'
   | '/programs'
+  | '/career-path'
   | '/personal-portfolio'
   | '/personal-portfolio/about'
   | '/personal-portfolio/projects'
@@ -137,6 +141,15 @@ export const PAGE_SEO: Record<PageSeoPath, PageSeo> = {
     shareTitle: 'Mau jadi QA Engineer? Pilih jalurmu dan mulai sekarang',
     shareDescription:
       'QA Course gratis, simulasi kerja QA, dan mentoring 1-on-1 bareng praktisi. Langsung mulai dari satu klik.',
+  }),
+  '/career-path': page('/career-path', 'career-path', {
+    // campaign page, must not compete with "/" in search
+    noindex: true,
+    title: 'Karier QA Engineer: Find Your QA Journey | Mentor.QA',
+    description:
+      'Level up karier QA Engineer: jawab 4 pertanyaan singkat dan temukan program yang cocok, dari QA Course, Simulator, Portfolio sampai Mentoring.',
+    shareTitle: 'Level Up Karier QA-mu, mulai dari sini',
+    shareDescription: 'Find your QA journey: 4 pertanyaan singkat, tanpa login. Dapatkan program yang cocok dengan tujuanmu.',
   }),
   '/personal-portfolio': page('/personal-portfolio', 'personal-portfolio', {
     title: 'Agus Budiman | Portfolio QA Engineer & Automation Testing',

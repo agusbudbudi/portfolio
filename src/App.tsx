@@ -29,6 +29,7 @@ const ProgramsPage: React.FC = () => {
   return mod ? <mod.default /> : <LazyProgramsPage />;
 };
 
+const CareerPathPage = lazy(() => import('./features/home/pages/CareerPathPage'));
 const MentoringPage = lazy(() => import('./features/mentoring/pages/MentoringPage'));
 const PortfolioHome = lazy(() => import('./features/personal-portfolio/pages/Home'));
 const PortfolioAbout = lazy(() => import('./features/personal-portfolio/pages/About'));
@@ -230,6 +231,16 @@ function App() {
               />
               <HomePage />
             </LightdashLayout>
+          }
+        />
+        <Route
+          path="/career-path"
+          element={
+            <Suspense fallback={<LoadingState className="min-h-screen" />}>
+              <Seo {...pageSeo('/career-path')} />
+              <CareerPathPage />
+              <Snackbar />
+            </Suspense>
           }
         />
         <Route

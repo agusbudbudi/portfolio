@@ -201,7 +201,7 @@ const TopicsSection: React.FC = () => {
   }, [config]);
 
   return (
-    <section id="topics" className="pt-8 md:pt-20 pb-8 md:pb-20 bg-ld-canvas font-ld-sans">
+    <section id="topics" className="scroll-mt-16 pt-8 md:pt-20 pb-8 md:pb-20 bg-ld-canvas font-ld-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         {/* Header + stack share a wrapper so the sticky title releases together
             with the last card (see releaseGap). */}
