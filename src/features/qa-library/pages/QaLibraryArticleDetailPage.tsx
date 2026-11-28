@@ -12,6 +12,7 @@ import LoadingState from '../../../components/common/LoadingState';
 import NotFoundState from '../../../components/common/NotFoundState';
 import CourseLessonMode from '../../qa-course/components/CourseLessonMode';
 import CourseMembershipBanner from '../../qa-course/components/CourseMembershipBanner';
+import ArticlePreviewLock from '../../qa-course/components/ArticlePreviewLock';
 import { MARKDOWN_COMPONENTS } from '../../../lib/markdownComponents';
 
 function formatBytes(bytes: number | undefined): string {
@@ -28,7 +29,7 @@ const QaLibraryArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   // ?course=<slug>: the article is being read as a lesson of that course.
   const courseSlug = useSearchParams()[0].get('course');
-  const { article, loading, notFound, error } = useQaLibraryArticle(slug);
+  const { article, loading, notFound, error } = useQaLibraryArticle(slug, courseSlug);
   const { categories } = useQaLibraryCategories();
   const { articles: allArticles } = useQaLibraryArticles();
 
@@ -110,6 +111,20 @@ const QaLibraryArticleDetailPage: React.FC = () => {
     </div>
   );
 
+  // Course-only article read from the library: the API sent only its top.
+  // The last lines fade out (nothing is hidden client-side; the rest was
+  // never sent), then the lock card leads to the course.
+  const preview = !courseSlug ? article.preview : undefined;
+  const previewBody = preview && (
+    <>
+      <div className="relative">
+        {body}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-white/0 to-white" />
+      </div>
+      <ArticlePreviewLock articleId={article.id} articleSlug={article.slug} preview={preview} />
+    </>
+  );
+
   const extras = (
     <>
       {article.docUrl && (
@@ -155,6 +170,10 @@ const QaLibraryArticleDetailPage: React.FC = () => {
           dateModified: article.updatedAt,
           author: { '@type': 'Person', name: article.authorName },
           mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.mentorqa.com/qa-library/${article.slug}` },
+          // Preview of a course-only article: point to the course that has the rest.
+          isPartOf: article.preview?.courses[0]
+            ? { '@type': 'Course', name: article.preview.courses[0].title, url: `https://www.mentorqa.com/courses/${article.preview.courses[0].slug}` }
+            : undefined,
         }}
       />
 
@@ -178,8 +197,12 @@ const QaLibraryArticleDetailPage: React.FC = () => {
           </Link>
           {head}
           {article.status === 'published' && <CourseMembershipBanner articleId={article.id} articleSlug={article.slug} />}
-          {body}
-          {extras}
+          {previewBody || (
+            <>
+              {body}
+              {extras}
+            </>
+          )}
         </div>
       )}
 

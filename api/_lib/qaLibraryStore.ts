@@ -59,15 +59,24 @@ function rowToSummary(row: Row): QaLibraryArticleSummary {
   };
 }
 
+// Article ids used as a lesson by a published course (JSON1 walks
+// modules[].items[], same shape as qaCourseStore's membership queries).
+const PUBLISHED_COURSE_ARTICLE_IDS = `SELECT json_extract(i.value, '$.articleId')
+  FROM qa_courses c, json_each(c.modules) m, json_each(m.value, '$.items') i
+  WHERE c.status = 'published' AND json_extract(i.value, '$.kind') = 'article'`;
+
 export async function listQaLibraryArticles(
-  opts?: { publishedOnly?: boolean; categoryId?: string; libraryOnly?: boolean; slugs?: string[] }
+  opts?: { publishedOnly?: boolean; categoryId?: string; publicGrid?: boolean; slugs?: string[] }
 ): Promise<QaLibraryArticleSummary[]> {
   await migrate();
   const db = getClient();
   const conditions: string[] = [];
   const args: string[] = [];
   if (opts?.publishedOnly) conditions.push(`status = 'published'`);
-  if (opts?.libraryOnly) conditions.push(`visibility != 'course-only'`);
+  // The public grid: library articles, plus course-only ones a published
+  // course uses (shown as a locked preview that leads to the course). A
+  // course-only article no course publishes stays out of the grid.
+  if (opts?.publicGrid) conditions.push(`(visibility != 'course-only' OR id IN (${PUBLISHED_COURSE_ARTICLE_IDS}))`);
   if (opts?.categoryId) { conditions.push('category_id = ?'); args.push(opts.categoryId); }
   if (opts?.slugs) {
     if (opts.slugs.length === 0) return [];

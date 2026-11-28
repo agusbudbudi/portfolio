@@ -43,6 +43,10 @@ export interface CourseOutlineInput {
 export const articleLessonHref = (courseSlug: string, articleSlug: string) =>
   `/qa-library/${articleSlug}?course=${encodeURIComponent(courseSlug)}`;
 
+/** Course detail with an article's lesson opened, scrolled to and highlighted (CourseDetailPage). */
+export const courseLessonAnchorHref = (courseSlug: string, articleSlug: string) =>
+  `/courses/${courseSlug}#lesson-${articleSlug}`;
+
 export const missionLessonHref = (courseSlug: string, projectId: string, phaseId: string) =>
   `/qa-simulator/${projectId}?phase=${encodeURIComponent(phaseId)}&course=${encodeURIComponent(courseSlug)}`;
 

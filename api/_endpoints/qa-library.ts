@@ -5,7 +5,8 @@ import {
   createQaLibraryArticle, deleteQaLibraryArticle, incrementQaLibraryArticleViewCount, isSlugTaken,
   listQaLibraryArticles, readQaLibraryArticleBySlug, updateQaLibraryArticle,
 } from '../_lib/qaLibraryStore.js';
-import { coursesUsingArticle } from '../_lib/qaCourseStore.js';
+import { coursesUsingArticle, publishedCourseRefsByArticle } from '../_lib/qaCourseStore.js';
+import { publicArticleView } from '../_lib/qaLibraryPublic.js';
 import { computeReadingTimeMinutes, validateQaLibraryArticleData } from '../../src/lib/qaLibraryValidation.js';
 import { isValidSlug, slugify } from '../../src/lib/portfolioValidation.js';
 
@@ -37,7 +38,15 @@ async function handleRootGet(req: VercelRequest, res: VercelResponse) {
   const slugs = typeof slugsParam === 'string' && slugsParam
     ? slugsParam.split(',').map((s) => s.trim()).filter((s) => isValidSlug(s)).slice(0, 20)
     : undefined;
-  const articles = await listQaLibraryArticles({ publishedOnly: true, libraryOnly: !slugs, categoryId, slugs });
+  const [articles, courseRefs] = await Promise.all([
+    listQaLibraryArticles({ publishedOnly: true, publicGrid: !slugs, categoryId, slugs }),
+    publishedCourseRefsByArticle(),
+  ]);
+  // Course-only rows carry their course, for the card's "Bagian dari" badge.
+  for (const article of articles) {
+    const course = article.visibility === 'course-only' ? courseRefs.get(article.id) : undefined;
+    if (course) article.course = course;
+  }
   res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
   return res.status(200).json({ articles });
 }
@@ -78,7 +87,8 @@ async function handleRoot(req: VercelRequest, res: VercelResponse) {
 
 // Public reader — drafts are only visible to an admin session, mirroring
 // portfolios.ts handleSlugGet's canSeeDraft pattern. Never varies s-maxage by
-// session (a shared edge cache doesn't check Authorization).
+// session (a shared edge cache doesn't check Authorization). `?course=` is part
+// of the URL, so a lesson read and a preview read are separate cache entries.
 async function handleSlugGet(req: VercelRequest, res: VercelResponse, slug: string) {
   let article = await readQaLibraryArticleBySlug(slug);
   if (!article) return res.status(404).json({ error: 'not_found' });
@@ -94,6 +104,11 @@ async function handleSlugGet(req: VercelRequest, res: VercelResponse, slug: stri
     if (article.status === 'published' && !session) {
       const viewCount = await incrementQaLibraryArticleViewCount(article.id);
       article = { ...article, viewCount };
+    }
+    // Admins (form edit/preview) get the stored body, marker included.
+    if (!canSeeDraft) {
+      const courseParam = typeof req.query.course === 'string' && req.query.course ? req.query.course : undefined;
+      article = await publicArticleView(article, courseParam);
     }
     res.setHeader('Cache-Control', canSeeDraft ? 'no-store' : 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).json(article);

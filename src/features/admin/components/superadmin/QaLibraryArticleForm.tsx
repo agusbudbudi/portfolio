@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import type { QaLibraryArticle, QaLibraryArticleData, QaLibraryArticleStatus, QaLibraryCategory } from '../../../../types/qaLibrary';
 import { slugify, isValidSlug } from '../../../../lib/portfolioValidation';
 import { computeReadingTimeMinutes } from '../../../../lib/qaLibraryValidation';
+import { PREVIEW_MARKER, splitPreview } from '../../../../lib/articlePreview';
 import { useAdminUsersStore } from '../../../../store/useAdminUsersStore';
 import type { QaCourseMembership } from '../../../../types/qaCourse';
 import { fetchCoursesForArticle } from '../../../qa-course/lib/courseApi';
@@ -47,6 +48,19 @@ const emptyData: QaLibraryArticleData = {
   seoMetaTitle: undefined,
   seoMetaDescription: undefined,
   seoOgImage: undefined,
+};
+
+/** Where the public library preview of a course-only article stops (src/lib/articlePreview.ts). */
+const PreviewCutHint: React.FC<{ body: string }> = ({ body }) => {
+  const cut = splitPreview(body);
+  return (
+    <span className="block text-[11px] text-ld-fog mt-1">
+      {cut
+        ? <>Preview publik: {Math.round(cut.ratio * 100)}% atas ({cut.source === 'marker' ? 'marker' : 'otomatis'}), {cut.lockedHeadings.length} section terkunci.</>
+        : <>Artikel terlalu pendek untuk dikunci, tampil penuh di QA Library.</>}
+      {' '}Tulis <code className="font-mono">{PREVIEW_MARKER}</code> di baris sendiri untuk mengatur batasnya.
+    </span>
+  );
 };
 
 const QaLibraryArticleForm: React.FC<QaLibraryArticleFormProps> = ({ onClose, onSubmit, article, categories }) => {
@@ -168,7 +182,12 @@ const QaLibraryArticleForm: React.FC<QaLibraryArticleFormProps> = ({ onClose, on
               <FormField
                 label="Konten Artikel"
                 required
-                hint={<span className="block text-[11px] text-ld-fog mt-1">~{computeReadingTimeMinutes(data.body)} menit baca</span>}
+                hint={
+                  <>
+                    <span className="block text-[11px] text-ld-fog mt-1">~{computeReadingTimeMinutes(data.body)} menit baca</span>
+                    {data.visibility === 'course-only' && <PreviewCutHint body={data.body} />}
+                  </>
+                }
               >
                 <QaLibraryMarkdownEditor value={data.body} onChange={(body) => setData({ ...data, body })} />
               </FormField>
@@ -232,7 +251,7 @@ const QaLibraryArticleForm: React.FC<QaLibraryArticleFormProps> = ({ onClose, on
 
             <FormField
               label="Tampil di"
-              hint={<span className="block text-[11px] text-ld-fog mt-1">Course-only: tidak muncul di daftar QA Library, tapi tetap bisa dibuka dari course.</span>}
+              hint={<span className="block text-[11px] text-ld-fog mt-1">Course saja: tampil di QA Library sebagai preview, sisanya terkunci dan mengarah ke course. Belum dipakai course yang published: tidak muncul di daftar.</span>}
             >
               <div className="flex items-center gap-2">
                 {([['library', 'QA Library'], ['course-only', 'Course saja']] as const).map(([v, label]) => (

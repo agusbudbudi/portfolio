@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { readQaLibraryArticleBySlug } from './_lib/qaLibraryStore.js';
+import { publicArticleView } from './_lib/qaLibraryPublic.js';
 import { readQaCourseBySlug } from './_lib/qaCourseStore.js';
 import { readPublicByShareId, SHARE_ID_PATTERN } from './_lib/simulatorStore.js';
 import { listMentors } from './_lib/mentorStore.js';
@@ -252,19 +253,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const slugParam = req.query.slug;
   const slug = typeof slugParam === 'string' ? slugParam : Array.isArray(slugParam) ? slugParam[0] : '';
-  const article = slug ? await readQaLibraryArticleBySlug(slug) : null;
+  const stored = slug ? await readQaLibraryArticleBySlug(slug) : null;
 
-  if (!article || article.status !== 'published') {
+  if (!stored || stored.status !== 'published') {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
     return res.status(404).send(notFoundHtml());
   }
 
+  // Same content readers get: a course-only article is cut to its preview,
+  // so crawlers never see (or index) the locked part.
+  const article = await publicArticleView(stored, undefined);
+  const course = article.preview?.courses[0];
   const url = `${SITE_URL}/qa-library/${article.slug}`;
   const title = escapeHtml(article.seoMetaTitle || `${article.title} | QA Library`);
   const description = escapeHtml(article.seoMetaDescription || article.excerpt);
   const image = escapeHtml(ogImage(article.seoOgImage, article.thumbnailUrl, ogImageUrl('qa-library')));
-  const bodyHtml = renderToStaticMarkup(React.createElement(ReactMarkdown, { remarkPlugins: [remarkGfm] }, article.body));
+  const bodyHtml = renderToStaticMarkup(React.createElement(ReactMarkdown, { remarkPlugins: [remarkGfm] }, article.body))
+    + (course
+      ? `<p>Lanjutan artikel ini ada di course <a href="${SITE_URL}/courses/${escapeHtml(course.slug)}">${escapeHtml(course.title)}</a> (lesson ${course.lessonNumber} dari ${course.totalLessons}).</p>`
+      : '');
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -276,6 +284,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     dateModified: article.updatedAt,
     author: { '@type': 'Person', name: article.authorName },
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    isPartOf: course ? { '@type': 'Course', name: course.title, url: `${SITE_URL}/courses/${course.slug}` } : undefined,
   };
 
   const html = `<!doctype html>
