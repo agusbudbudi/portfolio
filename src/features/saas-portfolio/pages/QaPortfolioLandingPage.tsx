@@ -15,6 +15,7 @@ import {
   FileText,
   Hand,
   Link2,
+  Loader2,
   Lock,
   Mouse,
   MousePointer2,
@@ -204,7 +205,7 @@ const DeviceShowcase: React.FC = () => {
   // one at a time so each viewport downloads only its own ~0.6MB screenshot.
   const isDesktop = useMediaQuery('(min-width: 768px)');
   return (
-  <div id="demo" className="relative mt-10 text-left sm:mt-14">
+  <div id="demo" className="relative z-10 mt-10 text-left sm:mt-14">
     {!isDesktop && (
     <PinnedStage className="md:hidden" scrollLength="170svh">
       {(progress, manual) => (
@@ -569,7 +570,7 @@ const FeaturesSection: React.FC = () => (
           </div>
         </div>
 
-        <div className={FEATURE_TILE}>
+        <div className={`${FEATURE_TILE} md:col-span-2 lg:col-span-1`}>
           <div>
             <h3 className={`${FEATURE_H3} flex items-center gap-2`}>Endorsement <span className="rounded-full bg-ld-cloud px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-ld-steel">Contoh</span></h3>
             <p className={TILE_P}>Rekomendasi dari rekan kerja atau mentor.</p>
@@ -762,12 +763,12 @@ const TYPE_TIMING = [600, ...Array<number>(TYPED_TOTAL).fill(55), 2000] as const
 
 const FormField: React.FC<{ label: string; value: string; active: boolean }> = ({ label, value, active }) => (
   <div
-    className={`flex h-[30px] items-center rounded-lg border bg-white px-3 text-xs text-ld-graphite transition-shadow duration-200 ${
+    className={`flex h-[30px] items-center whitespace-nowrap rounded-lg border bg-white px-3 text-xs text-ld-graphite transition-shadow duration-200 ${
       active ? 'border-ld-violet ring-1 ring-ld-violet' : 'border-ld-frost'
     }`}
   >
-    <span className="mr-1 text-ld-slate">{label}:</span>
-    {value}
+    <span className="mr-1 shrink-0 text-ld-slate">{label}:</span>
+    <span className="min-w-0 truncate">{value}</span>
     {active && <span className="ml-0.5 h-3.5 w-px animate-pulse bg-ld-violet" />}
   </div>
 );
@@ -867,10 +868,10 @@ const HowItWorksSection: React.FC = () => {
         ref={listRef}
         onScroll={onScroll}
         aria-label="Langkah membuat portfolio"
-        className="-mx-4 my-0 flex list-none snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 py-0 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 md:mx-0 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden"
+        className="-mx-4 my-0 flex list-none snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 py-0 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden"
       >
         {STEPS.map(({ title, desc, visual }, idx) => (
-          <li key={title} className={`${TILE} w-[86%] shrink-0 snap-start sm:w-[60%] md:w-auto`}>
+          <li key={title} className={`${TILE} w-[86%] shrink-0 snap-start sm:w-[60%] md:w-[46%] lg:w-auto`}>
             <span className="font-ld-mono text-[13px] font-medium text-ld-violet">0{idx + 1}</span>
             <div className="flex h-[120px] items-center justify-center overflow-hidden rounded-xl bg-ld-cloud" aria-hidden="true">{visual}</div>
             <div>
@@ -880,7 +881,7 @@ const HowItWorksSection: React.FC = () => {
           </li>
         ))}
       </ol>
-      <div className="mt-5 flex justify-center gap-2 md:hidden">
+      <div className="mt-5 flex justify-center gap-2 lg:hidden">
         {STEPS.map(({ title }, i) => (
           <button
             key={title}
@@ -892,7 +893,7 @@ const HowItWorksSection: React.FC = () => {
           />
         ))}
       </div>
-      <div className="mt-8 text-center md:mt-12">
+      <div className="mt-8 text-center lg:mt-12">
         <Link to="/dashboard/portfolios" className={`${BTN_PRIMARY} w-full sm:w-auto`}>
           Buat Portfolio Sekarang
           <ArrowRight size={18} />
@@ -980,7 +981,7 @@ const MENTORING_POINTS = [
 const MentoringSection: React.FC = () => (
   <section id="mentoring" className="bg-white py-8 md:py-20">
     <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-      <div className="relative grid grid-cols-1 overflow-hidden rounded-[28px] border border-ld-lavender bg-[linear-gradient(0deg,#ffffff_0%,#f1f8ff_55%,#e3f2ff_100%)] lg:grid-cols-[1.05fr_1fr] lg:bg-[linear-gradient(90deg,#ffffff_0%,#f1f8ff_45%,#e3f2ff_100%)]">
+      <div className="relative grid grid-cols-1 overflow-hidden rounded-[28px] border border-ld-lavender bg-[linear-gradient(0deg,#ffffff_0%,#f1f8ff_55%,#e3f2ff_100%)] xl:grid-cols-[1.05fr_1fr] xl:bg-[linear-gradient(90deg,#ffffff_0%,#f1f8ff_45%,#e3f2ff_100%)]">
         <PixelMosaic
           variant="white"
           className="pointer-events-none absolute -left-6 -top-6 w-[min(60vw,360px)] opacity-70"
@@ -1013,7 +1014,7 @@ const MentoringSection: React.FC = () => (
             ))}
           </ul>
           <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-5">
-            <Link to="/mentoring/booking" className={`${BTN_PRIMARY} w-full sm:w-auto`}>
+            <Link to="/mentoring/booking" className={`${BTN_PRIMARY} w-full whitespace-nowrap sm:w-auto`}>
               Book Mentoring
               <ArrowRight size={18} />
             </Link>
@@ -1023,8 +1024,8 @@ const MentoringSection: React.FC = () => (
             </span>
           </div>
         </div>
-        <div className="relative order-first p-4 pb-0 lg:order-last lg:py-3 lg:pl-0 lg:pr-3">
-          <div className="relative h-full min-h-[280px] overflow-hidden rounded-[22px] bg-white sm:min-h-[360px]">
+        <div className="relative order-first p-4 pb-0 xl:order-last xl:py-3 xl:pl-0 xl:pr-3">
+          <div className="relative h-full min-h-[280px] overflow-hidden rounded-[22px] bg-white sm:min-h-[360px] md:min-h-[420px] xl:min-h-[360px]">
             <img
               src="/qa-portfolio/img/mentoring-benefit.webp"
               alt="Review portfolio bersama mentor QA"
@@ -1032,7 +1033,7 @@ const MentoringSection: React.FC = () => (
               height={944}
               loading="lazy"
               decoding="async"
-              className="absolute inset-0 h-full w-full object-cover object-[center_30%]"
+              className="absolute inset-0 h-full w-full object-cover object-[center_30%] md:object-contain md:object-bottom xl:object-cover xl:object-[center_30%]"
             />
             <div className="absolute bottom-4 left-4 flex items-center gap-3 rounded-[14px] border border-ld-frost bg-white px-4 py-3 shadow-[0_12px_30px_rgba(59,158,255,0.14)]">
               <span className="font-ld-display text-2xl font-semibold text-ld-violet">1-on-1</span>
@@ -1191,11 +1192,18 @@ const ClaimUrlForm: React.FC<{ className?: string; align?: 'center' | 'left' }> 
   if (emptyError && !finalSlug) {
     hint = <span className="text-ld-slate">Tulis nama untuk link portfolio kamu dulu, misalnya <b className="font-ld-mono font-medium text-ld-onyx">budi-santoso</b>.</span>;
   } else if (state === 'checking') {
-    hint = <span className="text-ld-slate">Mengecek ketersediaan...</span>;
+    hint = (
+      <span className="inline-flex items-center gap-1.5 text-ld-slate">
+        <Loader2 size={15} strokeWidth={2.5} aria-hidden="true" className="shrink-0 text-ld-violet motion-safe:animate-spin" />
+        Mengecek ketersediaan...
+      </span>
+    );
   } else if (state === 'available') {
     hint = (
       <span className="inline-flex items-center gap-1.5 text-emerald-700">
-        <Check size={15} strokeWidth={2.5} className="shrink-0" />
+        <span aria-hidden="true" className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500">
+          <Check size={10} strokeWidth={3.5} className="text-white" />
+        </span>
         <span><b className="font-ld-mono font-medium">{finalSlug}</b> masih tersedia</span>
       </span>
     );
@@ -1222,7 +1230,7 @@ const ClaimUrlForm: React.FC<{ className?: string; align?: 'center' | 'left' }> 
         noValidate
         className={`flex flex-col gap-2 rounded-[14px] bg-white p-2 text-left sm:flex-row ${className}`}
       >
-        <label htmlFor={inputId} className="flex flex-1 items-center pl-3 font-ld-mono text-[13px] text-ld-slate sm:pl-3.5 sm:text-[15px]">
+        <label htmlFor={inputId} className="flex min-w-0 flex-1 items-center pl-3 font-ld-mono text-[13px] text-ld-slate sm:pl-3.5 sm:text-[15px]">
           <span className="whitespace-nowrap">mentorqa.com/portfolio/</span>
           <input
             ref={inputRef}
@@ -1240,7 +1248,7 @@ const ClaimUrlForm: React.FC<{ className?: string; align?: 'center' | 'left' }> 
             autoCapitalize="none"
             spellCheck={false}
             maxLength={SLUG_MAX_LENGTH}
-            className="min-w-0 flex-1 border-0 bg-transparent px-1 py-3 font-ld-mono text-[13px] text-ld-onyx outline-none sm:text-[15px]"
+            className="w-0 min-w-0 flex-1 border-0 bg-transparent px-1 py-3 font-ld-mono text-[13px] text-ld-onyx outline-none sm:text-[15px]"
           />
         </label>
         <button type="submit" className={`${BTN_PRIMARY} shrink-0 cursor-pointer whitespace-nowrap border-0 shadow-none`}>
@@ -1262,10 +1270,10 @@ const ClaimUrlForm: React.FC<{ className?: string; align?: 'center' | 'left' }> 
 // Same layout as the career-path final CTA (FinalCta): copy + claim field on
 // the left, cut-out photo with glow and pixel mosaics on the section's bottom edge.
 const FinalCtaSection: React.FC = () => (
-  <section id="klaim" className="relative scroll-mt-16 overflow-hidden bg-white pt-16 md:pt-24 lg:pt-0">
+  <section id="klaim" className="relative scroll-mt-16 overflow-hidden bg-white pt-16 md:pt-24 xl:pt-0">
     <div aria-hidden="true" className="pointer-events-none absolute -top-40 left-[-10%] h-[560px] w-[560px] rounded-full bg-ld-lilac/60 blur-3xl" />
-    <div className="relative mx-auto grid max-w-[1200px] grid-cols-1 gap-8 px-4 sm:px-6 lg:grid-cols-12">
-      <div className="relative z-10 lg:col-span-7 lg:self-center lg:py-24">
+    <div className="relative mx-auto grid max-w-[1200px] grid-cols-1 gap-8 px-4 sm:px-6 xl:grid-cols-12">
+      <div className="relative z-10 xl:col-span-7 xl:self-center xl:py-24">
         <h2 className="m-0 max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.025em] text-ld-graphite md:text-[40px]">
           Siap Mendapatkan Interview QA Berikutnya?
         </h2>
@@ -1277,9 +1285,9 @@ const FinalCtaSection: React.FC = () => (
         </div>
         <p className="m-0 mt-2 text-[13px] text-ld-slate">Gratis selamanya · Login Google · Custom URL</p>
       </div>
-      <div className="relative mx-auto w-full max-w-[420px] self-end lg:col-span-5 lg:-ml-[18%] lg:mr-0 lg:w-[118%] lg:max-w-none lg:pt-5">
+      <div className="relative mx-auto w-full max-w-[420px] self-end xl:col-span-5 xl:-ml-[18%] xl:mr-0 xl:w-[118%] xl:max-w-none xl:pt-5">
         <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-1/2 aspect-square w-[85%] -translate-x-1/2 rounded-full bg-ld-violet/15 blur-3xl" />
-        <PixelMosaic variant="blue" className="absolute top-4 -right-2 w-[45%] max-w-[280px] opacity-70 lg:-right-8" />
+        <PixelMosaic variant="blue" className="absolute top-4 -right-2 w-[45%] max-w-[280px] opacity-70 xl:-right-8" />
         <PixelMosaic variant="blue" className="absolute bottom-0 right-[80%] hidden w-[65%] opacity-70 sm:grid" style={{ transform: 'scaleY(-1)' }} />
         <img
           src="/shared/img/journey/cta.webp"
