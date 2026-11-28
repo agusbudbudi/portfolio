@@ -6,6 +6,7 @@ import type { QaLibraryArticlePreview } from '../../../types/qaLibrary';
 import type { QaCourseMembership } from '../../../types/qaCourse';
 import { useCourse } from '../hooks/useCourse';
 import { courseLessonAnchorHref } from '../lib/courseOutline';
+import CourseLockIllustration from '../../../components/illustration/CourseLockIllustration';
 
 interface ArticlePreviewLockProps {
   articleId: string;
@@ -80,11 +81,9 @@ const ArticlePreviewLock: React.FC<ArticlePreviewLockProps> = ({ articleId, arti
         aria-labelledby="preview-lock-title"
         className="mt-5 rounded-2xl border border-ld-ash bg-white p-5 sm:p-7 flex flex-col gap-5 shadow-[0_12px_32px_-12px_rgba(39,40,53,0.18)]"
       >
-        <div className="flex flex-col sm:flex-row gap-4 items-start">
-          <span aria-hidden="true" className="shrink-0 w-11 h-11 rounded-xl bg-ld-lilac flex items-center justify-center text-ld-violet">
-            <Lock size={21} />
-          </span>
-          <div className="min-w-0 flex flex-col gap-1.5">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 items-center">
+          <CourseLockIllustration className="shrink-0 w-44 sm:w-40 h-auto -my-2" />
+          <div className="min-w-0 flex flex-col gap-1.5 text-center sm:text-left">
             <h2 id="preview-lock-title" className="m-0 font-ld-display font-semibold text-lg sm:text-xl text-ld-onyx tracking-[-0.02em] leading-snug">
               Lanjutan artikel ini ada di course {primary.title}
             </h2>
