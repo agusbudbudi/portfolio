@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Search, X } from 'lucide-react';
 import { useQaLibraryArticles } from '../hooks/useQaLibraryArticles';
 import { useQaLibraryCategories } from '../hooks/useQaLibraryCategories';
 import QaLibraryArticleCard from '../components/QaLibraryArticleCard';
@@ -8,6 +10,7 @@ import { usePagination } from '../../../hooks/usePagination';
 import Pagination from '../../admin/components/shared/Pagination';
 import QaLibraryHeroArt from '../components/QaLibraryHeroArt';
 import CoursePromoStrip from '../../qa-course/components/CoursePromoStrip';
+import { searchArticles } from '../lib/searchArticles';
 
 const PAGE_SIZE = 12;
 
@@ -22,8 +25,25 @@ const QaLibraryIndexPage: React.FC = () => {
 
   const categoryIdsWithArticles = new Set(articles.map((a) => a.categoryId));
   const visibleCategories = categories.filter((c) => categoryIdsWithArticles.has(c.id));
-  const filteredArticles = activeCategoryId ? articles.filter((a) => a.categoryId === activeCategoryId) : articles;
+  // ?q= keeps a search shareable and survives back navigation from an article.
+  // The input reads local state, not the URL: a router navigation per
+  // keystroke lands asynchronously and would drop fast typing.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [query, setQueryState] = useState(() => searchParams.get('q') ?? '');
+  const inCategory = activeCategoryId ? articles.filter((a) => a.categoryId === activeCategoryId) : articles;
+  const filteredArticles = searchArticles(inCategory, query, categoryLabel);
   const { page, setPage, totalPages, pageItems: displayedArticles } = usePagination(filteredArticles, PAGE_SIZE);
+
+  const setQuery = (value: string) => {
+    setQueryState(value);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (value) next.set('q', value); else next.delete('q');
+      return next;
+    }, { replace: true });
+    setPage(1);
+  };
+  const trimmedQuery = query.trim();
 
   return (
     <div className="font-ld-sans pb-16">
@@ -49,10 +69,47 @@ const QaLibraryIndexPage: React.FC = () => {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <CoursePromoStrip />
 
+        <form role="search" onSubmit={(e) => e.preventDefault()} className="mb-5">
+          <label htmlFor="qa-library-search" className="sr-only">Cari artikel</label>
+          <div className="relative w-full md:max-w-md">
+            <Search size={18} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ld-steel" />
+            <input
+              id="qa-library-search"
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Escape' && query) { e.preventDefault(); setQuery(''); } }}
+              placeholder="Cari artikel, topik, atau tag"
+              autoComplete="off"
+              className="w-full h-11 pl-10 pr-10 rounded-lg border border-ld-ash bg-white text-[15px] text-ld-onyx placeholder:text-ld-fog outline-none transition-colors focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac [&::-webkit-search-cancel-button]:appearance-none"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery('')}
+                aria-label="Hapus pencarian"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-md border-none bg-transparent text-ld-steel hover:bg-ld-cloud hover:text-ld-onyx cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        </form>
+
         {visibleCategories.length > 0 && (
           <div className="mb-8">
-            <QaLibraryCategoryFilter categories={visibleCategories} activeCategoryId={activeCategoryId} onChange={setActiveCategoryId} />
+            <QaLibraryCategoryFilter
+              categories={visibleCategories}
+              activeCategoryId={activeCategoryId}
+              onChange={(id) => { setActiveCategoryId(id); setPage(1); }}
+            />
           </div>
+        )}
+
+        {!loading && !error && trimmedQuery && filteredArticles.length > 0 && (
+          <p className="m-0 -mt-3 mb-5 text-sm text-ld-slate" aria-live="polite">
+            {filteredArticles.length} artikel untuk <span className="font-medium text-ld-onyx">"{trimmedQuery}"</span>
+          </p>
         )}
 
         {loading ? (
@@ -65,6 +122,20 @@ const QaLibraryIndexPage: React.FC = () => {
               className="px-5 py-2.5 rounded-lg bg-ld-violet text-white text-sm font-medium cursor-pointer border-none hover:bg-[#1f87e6] transition-colors"
             >
               Coba lagi
+            </button>
+          </div>
+        ) : filteredArticles.length === 0 && trimmedQuery ? (
+          <div className="text-center py-16" aria-live="polite">
+            <p className="m-0 text-sm text-ld-slate">
+              Tidak ada artikel untuk <span className="font-medium text-ld-onyx">"{trimmedQuery}"</span>
+              {activeCategoryId ? ' di category ini' : ''}.
+            </p>
+            <button
+              type="button"
+              onClick={() => { setQuery(''); setActiveCategoryId(undefined); }}
+              className="mt-4 px-4 py-2 rounded-lg border border-ld-ash bg-white text-sm font-medium text-ld-graphite cursor-pointer hover:border-ld-violet hover:text-ld-violet transition-colors"
+            >
+              Hapus pencarian dan filter
             </button>
           </div>
         ) : filteredArticles.length === 0 ? (
