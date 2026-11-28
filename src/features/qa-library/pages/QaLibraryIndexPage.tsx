@@ -87,7 +87,7 @@ const QaLibraryIndexPage: React.FC = () => {
           </form>
         </div>
         <div className="hidden md:block">
-          <QaLibraryHeroArt categories={categories} />
+          <QaLibraryHeroArt />
         </div>
       </div>
       </div>
