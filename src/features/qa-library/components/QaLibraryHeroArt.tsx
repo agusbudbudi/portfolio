@@ -1,104 +1,131 @@
-import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import React, { useId } from 'react';
+import { motion, useReducedMotion, type Transition } from 'framer-motion';
+import { C, pop } from '../../../components/illustration/illustrationKit';
+import { Bar, Shadow } from '../../../components/illustration/IllustrationParts';
 import PixelMosaic from '../../../components/illustration/PixelMosaic';
-import { C } from '../../../components/illustration/illustrationKit';
-import type { QaLibraryCategory } from '../../../types/qaLibrary';
 
-// Compact hero art for /qa-library: a flat-vector bookshelf. Each book stands
-// for a topic; the one Sky Blue book (the focal element) slides up off the
-// shelf, and the category chips underneath name what's on it. Brand tokens
-// only, Graphite outlines; plays once on mount with one gentle idle bob on
-// the blue book. Static under reduced motion. Decorative.
+// Compact hero art for /qa-library (design canvas "QA Library Hero", option
+// A): a magnifying glass sweeps over an article, the line it rests on lights
+// up Sky Blue and a matching tag pops out (#test-case, #api, #bug-report).
+// Echoes the search box beside it. Entrance plays once in view, then a 7s
+// loop; static (glass on the first hit, all tags shown) under reduced
+// motion. Brand tokens only; decorative.
 
-// [x, width, height, fill, spine-bar colour, tilt]
-const BOOKS: [number, number, number, string, string, number][] = [
-  [40, 22, 86, C.wash, C.blue, 0],
-  [64, 16, 74, C.white, C.ash, 0],
-  [82, 26, 92, C.whisper, C.wash, 0],
-  [138, 18, 80, C.white, C.ash, 0],
-  [158, 24, 70, C.wash, C.white, 0],
-  [184, 20, 88, C.white, C.ash, 0],
-  [206, 28, 78, C.whisper, C.wash, 0],
-  [254, 18, 84, C.wash, C.white, 0],
-  [274, 22, 72, C.white, C.ash, 0],
-  [318, 24, 90, C.whisper, C.wash, -14],
+const LOOP = 7;
+const ENTRANCE = 1.1;
+
+// Glass path: rest → line 1 → line 2 → rest (offsets from its start point).
+const SCAN = {
+  x: [0, 0, 120, 120, 30, 30, 0],
+  y: [0, 0, 46, 46, 92, 92, 0],
+  times: [0, 0.08, 0.3, 0.38, 0.6, 0.68, 0.92],
+};
+
+const loopTransition = (times: number[], delay = 0): Transition => ({
+  duration: LOOP, times, repeat: Infinity, ease: 'easeInOut', delay: ENTRANCE + delay,
+});
+
+// [x, y, width, label, style, loop delay]
+const TAGS: [number, number, number, string, 'solid' | 'outline' | 'dark', number][] = [
+  [338, 74, 92, '#test-case', 'solid', 0],
+  [348, 152, 74, '#api', 'outline', 2.3],
+  [36, 128, 96, '#bug-report', 'dark', 4.6],
 ];
-const SHELF_Y = 128;
-const PULLED = { x: 110, w: 24, h: 96 };
 
-const QaLibraryHeroArt: React.FC<{ categories: QaLibraryCategory[] }> = ({ categories }) => {
+const QaLibraryHeroArt: React.FC = () => {
   const reduce = !!useReducedMotion();
-  const chips = categories.length ? categories.slice(0, 4).map((c) => c.label) : ['QA Fundamentals', 'Test Planning', 'Automation', 'AI in QA'];
+  const shadowId = `qlh-sh-${useId().replace(/:/g, '')}`;
+
+  const highlight = (from: number, to: number) => reduce
+    ? {}
+    : {
+        animate: { fill: [C.ash, C.ash, C.blue, C.blue, C.ash, C.ash] },
+        transition: loopTransition([0, from - 0.08, from, to, to + 0.08, 1]),
+      };
 
   return (
-    <div aria-hidden="true" className="relative w-full max-w-[440px] ml-auto select-none">
-      <PixelMosaic variant="blue" className="absolute -top-6 -right-4" style={{ width: 'min(50%, 200px)' }} />
+    <div aria-hidden="true" className="relative w-full max-w-[380px] ml-auto select-none">
+      {/* Brand pixel mosaic behind the art, as on the other page heroes. */}
+      <PixelMosaic variant="blue" className="absolute -top-8 -right-6 w-[55%] max-w-[220px] opacity-70" />
+      <motion.svg
+        viewBox="0 0 460 300"
+        className="relative w-full h-auto"
+        fill="none"
+        initial={reduce ? 'show' : 'hidden'}
+        whileInView="show"
+        viewport={{ once: true, amount: 0.4 }}
+      >
+        <defs><Shadow id={shadowId} /></defs>
 
-      <svg viewBox="0 0 360 150" className="relative w-full h-auto" fill="none">
-        {/* shelf */}
-        <rect x="24" y={SHELF_Y} width="324" height="8" rx="3" fill={C.white} stroke={C.graphite} strokeWidth="2" />
-        <rect x="40" y={SHELF_Y + 8} width="10" height="8" rx="1.5" fill={C.graphite} />
-        <rect x="322" y={SHELF_Y + 8} width="10" height="8" rx="1.5" fill={C.graphite} />
+        <motion.circle variants={pop(0)} style={{ originX: 0.5, originY: 0.5 }} cx="230" cy="150" r="128" fill={C.whisper} />
 
-        {/* books */}
-        {BOOKS.map(([x, w, h, fill, bar, tilt], i) => (
-          <motion.g
-            key={x}
-            initial={reduce ? false : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.05 + i * 0.05, ease: [0.4, 0, 0.2, 1] }}
-          >
-            <g transform={tilt ? `rotate(${tilt} ${x} ${SHELF_Y})` : undefined}>
-              <rect x={x} y={SHELF_Y - h} width={w} height={h} rx="3" fill={fill} stroke={C.graphite} strokeWidth="2" />
-              <rect x={x + 4} y={SHELF_Y - h + 10} width={w - 8} height="3" rx="1.5" fill={bar} />
-              <rect x={x + 4} y={SHELF_Y - 16} width={w - 8} height="3" rx="1.5" fill={bar} />
-            </g>
-          </motion.g>
-        ))}
-
-        {/* gap where the blue book came from */}
-        <rect x={PULLED.x} y={SHELF_Y - 20} width={PULLED.w} height="18" rx="2" fill={C.whisper} opacity="0.6" />
-
-        {/* the pulled-out blue book */}
+        {/* the article: rises in, then floats */}
         <motion.g
-          initial={reduce ? false : { y: 0, rotate: 0, opacity: 0 }}
-          animate={reduce ? undefined : { y: [0, -34, -30], rotate: [0, -6, -6], opacity: 1 }}
-          transition={{ duration: 0.9, delay: 0.7, ease: [0.4, 0, 0.2, 1] }}
-          style={{ originX: 0.5, originY: 1 }}
-          transform={reduce ? `translate(0 -30) rotate(-6 ${PULLED.x + PULLED.w / 2} ${SHELF_Y})` : undefined}
+          variants={{
+            hidden: { opacity: 0, y: 24 },
+            show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.4, 0, 0.2, 1], delay: 0.1 } },
+          }}
         >
-          <motion.g
-            animate={reduce ? undefined : { y: [0, -3, 0] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 1.8 }}
-          >
-            <rect x={PULLED.x} y={SHELF_Y - PULLED.h} width={PULLED.w} height={PULLED.h} rx="3" fill={C.blue} stroke={C.graphite} strokeWidth="2" />
-            <rect x={PULLED.x + 4} y={SHELF_Y - PULLED.h + 10} width={PULLED.w - 8} height="3" rx="1.5" fill={C.white} />
-            <rect x={PULLED.x + 4} y={SHELF_Y - PULLED.h + 17} width={PULLED.w - 12} height="3" rx="1.5" fill={C.white} opacity="0.7" />
-            <rect x={PULLED.x + 4} y={SHELF_Y - 16} width={PULLED.w - 8} height="3" rx="1.5" fill={C.white} />
+          <motion.g {...(reduce ? {} : { animate: { y: [0, -6, 0] }, transition: { duration: 4, repeat: Infinity, ease: 'easeInOut', delay: ENTRANCE } })}>
+            <g filter={`url(#${shadowId})`}>
+              <rect x="120" y="44" width="220" height="210" rx="16" fill={C.white} stroke={C.ash} />
+            </g>
+            <Bar delay={0.35} x="140" y="64" width="90" height="10" rx="5" fill={C.blue} />
+            <rect x="140" y="84" width="54" height="16" rx="8" fill={C.whisper} />
+            <Bar delay={0.45} x="140" y="116" width="180" height="6" rx="3" fill={C.ash} />
+            <Bar delay={0.5} x="140" y="130" width="150" height="6" rx="3" fill={C.ash} />
+            <motion.rect x="140" y="144" width="166" height="6" rx="3" fill={reduce ? C.blue : C.ash} {...highlight(0.3, 0.52)} />
+            <Bar delay={0.6} x="140" y="158" width="120" height="6" rx="3" fill={C.ash} />
+            <Bar delay={0.65} x="140" y="172" width="172" height="6" rx="3" fill={C.ash} />
+            <motion.rect x="140" y="190" width="140" height="6" rx="3" fill={C.ash} {...highlight(0.6, 0.84)} />
+            <Bar delay={0.75} x="140" y="204" width="176" height="6" rx="3" fill={C.ash} />
+            <Bar delay={0.8} x="140" y="218" width="96" height="6" rx="3" fill={C.ash} />
           </motion.g>
         </motion.g>
 
-        {/* sparkle */}
-        <motion.path
-          d="M146 14q0 6 6 6-6 0-6 6 0-6-6-6 6 0 6-6z"
-          fill={C.blue}
-          initial={reduce ? false : { opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.5, type: 'spring', stiffness: 300, damping: 15 }}
-          style={{ originX: 0.5, originY: 0.5 }}
-        />
-      </svg>
-
-      <div className="mt-2 flex flex-wrap justify-end gap-1.5">
-        {chips.map((c, i) => (
-          <span
-            key={c}
-            className={`px-2 py-0.5 rounded-md text-[10.5px] font-medium ${i === 0 ? 'bg-ld-violet text-white' : 'bg-ld-cloud border border-ld-frost text-ld-slate'}`}
+        {/* the magnifying glass: pops in, then sweeps line to line */}
+        <motion.g variants={pop(0.85)} style={{ originX: 0.5, originY: 0.5 }}>
+          <motion.g
+            {...(reduce
+              ? { style: { x: 120, y: 46 } }
+              : { animate: { x: SCAN.x, y: SCAN.y }, transition: loopTransition(SCAN.times) })}
           >
-            {c}
-          </span>
+            <g transform="translate(150 96)">
+              <circle cx="0" cy="0" r="30" fill="rgba(255,255,255,0.35)" stroke={C.graphite} strokeWidth="7" />
+              <path d="M22 22 L44 44" stroke={C.graphite} strokeWidth="10" strokeLinecap="round" />
+              <path d="M-14 -10 a18 18 0 0 1 12 -9" stroke={C.white} strokeWidth="4" strokeLinecap="round" />
+            </g>
+          </motion.g>
+        </motion.g>
+
+        {/* tags found, one per stop of the glass */}
+        {TAGS.map(([x, y, w, label, style, delay]) => (
+          <motion.g
+            key={label}
+            style={{ originX: 0.5, originY: 0.5 }}
+            {...(reduce
+              ? {}
+              : {
+                  initial: { scale: 0, opacity: 0 },
+                  animate: { scale: [0, 0, 1, 1, 0, 0], opacity: [0, 0, 1, 1, 0, 0] },
+                  transition: loopTransition([0, 0.2, 0.28, 0.8, 0.9, 1], delay),
+                })}
+          >
+            <rect
+              x={x} y={y} width={w} height="28" rx="14"
+              fill={style === 'solid' ? C.blue : style === 'dark' ? C.graphite : C.white}
+              stroke={style === 'outline' ? C.blue : undefined}
+            />
+            <text
+              x={x + w / 2} y={y + 19} textAnchor="middle" fontSize="12" fontWeight="600"
+              fill={style === 'outline' ? C.blue : C.white}
+              style={{ fontFamily: 'inherit' }}
+            >
+              {label}
+            </text>
+          </motion.g>
         ))}
-      </div>
+      </motion.svg>
     </div>
   );
 };

@@ -17,7 +17,7 @@ const QaLibraryArticleCard: React.FC<QaLibraryArticleCardProps> = ({ article, ca
   >
     <div className="relative aspect-video w-full bg-ld-cloud overflow-hidden">
       {article.course && (
-        <span className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-ld-onyx text-white text-[11px] font-semibold">
+        <span className="absolute top-2.5 right-2.5 z-10 inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-ld-onyx text-white text-[11px] font-semibold">
           <GraduationCap size={13} aria-hidden="true" /> Course
         </span>
       )}
