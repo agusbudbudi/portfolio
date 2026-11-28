@@ -12,6 +12,7 @@ import { courseCompletion, nextLesson } from '../lib/courseOutline';
 import { useLearnerCourses } from '../hooks/useLearnerCourses';
 import { COMING_SOON } from './landing/content';
 import CourseBannerIllustration from './CourseBannerIllustration';
+import { CourseLevelIcon } from '../../../components/illustration/CourseLevelIcons';
 
 const LEVEL_STYLE = {
   beginner: 'bg-emerald-50 text-emerald-700',
@@ -70,8 +71,13 @@ const CourseDashboardTab: React.FC = () => {
                   </div>
 
                   <div className="p-3.5 md:p-4">
-                    <Link to={`/courses/${course.slug}`} className="text-base font-semibold leading-snug text-ld-onyx no-underline hover:text-ld-violet">{course.title}</Link>
-                    <p className="m-0 mt-0.5 text-xs text-ld-steel line-clamp-1">{course.description}</p>
+                    <div className="flex items-center gap-3">
+                      <CourseLevelIcon level={course.level} size={48} className="shrink-0" />
+                      <div className="min-w-0">
+                        <Link to={`/courses/${course.slug}`} className="text-base font-semibold leading-snug text-ld-onyx no-underline hover:text-ld-violet">{course.title}</Link>
+                        <p className="m-0 mt-0.5 text-xs text-ld-steel line-clamp-2 sm:line-clamp-1">{course.description}</p>
+                      </div>
+                    </div>
 
                     <div className="mt-4">
                       <div className="flex items-center justify-between text-xs mb-1.5">
