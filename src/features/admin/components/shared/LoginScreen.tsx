@@ -6,6 +6,7 @@ import { loadGoogleIdentity } from '../../../../lib/loadGoogleIdentity';
 import { currentInAppBrowser } from '../../../../lib/inAppBrowser';
 import InAppGoogleLogin from '../../../../components/common/InAppGoogleLogin';
 import { parseGoogleRedirect, safeReturnTo, takePendingRedirect, type RedirectResult } from '../../../../lib/googleRedirectAuth';
+import { readPortfolioClaim } from '../../../../lib/portfolioClaim';
 
 // Static for the page's lifetime.
 const inAppBrowser = currentInAppBrowser();
@@ -38,6 +39,8 @@ const LoginScreen: React.FC = () => {
     reply?.kind === 'error' ? reply.message : null,
   );
   const redirectTo = reply?.returnTo ?? safeReturnTo(searchParams.get('redirect'));
+  // Came from "Klaim Gratis" on the /portfolio landing: say what logging in is for.
+  const [claimedSlug] = useState(() => (redirectTo.startsWith('/dashboard/portfolios') ? readPortfolioClaim() : null));
 
   // Static across the component's lifetime — no state needed, just derive it.
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
@@ -158,8 +161,21 @@ const LoginScreen: React.FC = () => {
               <h1 className="text-lg font-semibold text-ld-onyx m-0">Mentor.QA</h1>
             </Link>
 
-            <h1 className="font-ld-display font-semibold text-2xl text-ld-onyx m-0 mb-2">Selamat datang</h1>
-            <p className="text-sm text-ld-fog m-0 mb-8">Masuk atau buat akun baru dengan Google.</p>
+            {claimedSlug ? (
+              <>
+                <h1 className="font-ld-display font-semibold text-2xl text-ld-onyx m-0 mb-2">Satu langkah lagi</h1>
+                <p className="text-sm text-ld-slate m-0 mb-8">
+                  Masuk dengan Google untuk mulai membuat portfolio di
+                  <span className="my-1.5 block font-ld-mono font-medium text-ld-onyx [overflow-wrap:anywhere]">mentorqa.com/portfolio/{claimedSlug}</span>
+                  Gratis, tanpa kartu kredit.
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 className="font-ld-display font-semibold text-2xl text-ld-onyx m-0 mb-2">Selamat datang</h1>
+                <p className="text-sm text-ld-fog m-0 mb-8">Masuk atau buat akun baru dengan Google.</p>
+              </>
+            )}
 
             {inAppBrowser ? (
               loggingIn ? (
