@@ -104,7 +104,7 @@ export const PAGE_SEO: Record<PageSeoPath, PageSeo> = {
       'Review PRD, tulis test case, berburu bug di aplikasi staging, lalu putuskan Go / No-Go. Phase 1 bisa dicoba tanpa login.',
   }),
   '/qa-library': page('/qa-library', 'qa-library', {
-    title: 'QA Library: Artikel & Materi QA Engineer | Mentor.QA',
+    title: 'Artikel Software Testing untuk QA Engineer | QA Library Mentor.QA',
     description:
       'Artikel praktis QA Engineer dari praktisi: fundamental testing, test design, API testing, automation, sampai AI di QA. Gratis dibaca tanpa login.',
     shareTitle: 'QA Library: materi QA yang langsung kepakai di kerjaan',

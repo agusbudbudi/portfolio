@@ -53,11 +53,15 @@ const QaLibraryIndexPage: React.FC = () => {
       <div aria-hidden="true" className="pointer-events-none absolute -top-32 -left-24 w-[420px] h-[420px] rounded-full bg-white/70 blur-3xl" />
       <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 pt-24 md:pt-28 pb-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div>
-          <h1 className="font-ld-display font-semibold text-3xl sm:text-4xl text-ld-onyx tracking-[-0.02em] mb-3">
-            QA Library
+          {/* Same hero pattern as /courses and /qa-simulator: product eyebrow,
+              then a keyword-led H1 (what people search for) with the
+              benefit in Sky Blue. */}
+          <p className="m-0 mb-3 text-xs font-medium uppercase tracking-[0.06em] text-ld-steel">QA Library</p>
+          <h1 className="m-0 mb-4 font-ld-display font-semibold text-[32px] sm:text-[40px] lg:text-[44px] leading-[1.08] tracking-[-0.025em] text-ld-graphite">
+            Artikel Software Testing <span className="text-ld-violet">untuk QA Engineer</span>
           </h1>
           <p className="text-ld-slate text-sm sm:text-base leading-relaxed max-w-xl m-0">
-            Kumpulan artikel dan materi seputar manual testing, automation testing, dan API testing untuk QA Engineer.
+            Belajar manual testing, test case, API testing, automation, sampai AI di QA dari praktisi. Bahasa Indonesia, gratis dibaca tanpa login.
           </p>
           <form role="search" onSubmit={(e) => e.preventDefault()} className="mt-5">
             <label htmlFor="qa-library-search" className="sr-only">Cari artikel</label>
