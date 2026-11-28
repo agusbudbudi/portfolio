@@ -21,6 +21,7 @@ import LoginPromptModal from '../components/LoginPromptModal';
 import { useSnackbarStore } from '../../../store/useSnackbarStore';
 import { track } from '../../../lib/analytics';
 import PhaseIntroModal from '../components/PhaseIntroModal';
+import { ConfirmationDialog } from '../../admin/components/shared/ConfirmationDialog';
 import { hasSeenPhaseIntro, markPhaseIntroSeen } from '../lib/phaseIntro';
 import TeamAvatar from '../components/TeamAvatar';
 import TrophyIllustration from '../components/TrophyIllustration';
@@ -236,6 +237,7 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
         shareTitle={`Simulasi QA: ${project.title}`}
         image={ogImageUrl('qa-simulator')}
       />
+      <ConfirmationDialog />
 
       <AnimatePresence>
         {promptIndex !== null && (

@@ -7,6 +7,7 @@ import FieldControl from './FieldControl';
 import JiraBugModal from './JiraBugModal';
 import { useLeaveGuard } from '../hooks/useLeaveGuard';
 import { DIALOG_BODY, DIALOG_FOOTER, DIALOG_HEADER } from '../../../lib/dialogLayout';
+import { confirmAction, useConfirmStore } from '../../../store/useConfirmStore';
 
 type ListSpec = Extract<SimulatorInputSpec, { type: 'list' }>;
 
@@ -35,8 +36,20 @@ const ListItemModal: React.FC<ListItemModalProps> = ({ spec, index, displayNumbe
   // The draft only reaches progress on Save — closing the tab would lose it.
   useLeaveGuard(!readOnly && dirty);
 
-  const requestClose = () => {
-    if (!readOnly && dirty && !window.confirm('Perubahan belum disimpan. Tutup tanpa menyimpan?')) return;
+  const requestClose = async () => {
+    // Esc while the confirm dialog is open belongs to that dialog.
+    if (useConfirmStore.getState().options) return;
+    if (!readOnly && dirty) {
+      const ok = await confirmAction({
+        title: 'Tutup tanpa menyimpan?',
+        description: 'Perubahan yang belum disimpan akan hilang.',
+        confirmLabel: 'Tutup',
+        cancelLabel: 'Lanjut edit',
+        variant: 'warning',
+        icon: 'alert',
+      });
+      if (!ok) return;
+    }
     onClose();
   };
   const closeRef = useRef(requestClose);

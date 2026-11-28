@@ -5,6 +5,7 @@ import type { AssignmentContent, SimulatorInputSpec } from '../../../types/qaSim
 import { isItemFilled } from '../lib/progress';
 import { SIM_INPUT } from '../lib/ui';
 import ListItemModal from './ListItemModal';
+import { confirmAction } from '../../../store/useConfirmStore';
 
 interface AssignmentInputProps {
   spec: SimulatorInputSpec;
@@ -79,8 +80,13 @@ const ListInput: React.FC<{ spec: ListSpec; content: AssignmentContent; disabled
   const [editing, setEditing] = useState<number | null>(null);
   const label = spec.itemLabel.toLowerCase();
 
-  const removeItem = (index: number) => {
-    if (!window.confirm(`Hapus ${spec.itemLabel} #${index + 1}?`)) return;
+  const removeItem = async (index: number) => {
+    const ok = await confirmAction({
+      title: `Hapus ${spec.itemLabel} #${index + 1}?`,
+      description: `${spec.itemLabel} ini akan dihapus dari jawabanmu.`,
+      confirmLabel: 'Hapus',
+    });
+    if (!ok) return;
     onChange({ ...content, items: items.filter((_, i) => i !== index) });
   };
   const saveItem = (item: Record<string, string>, addAnother: boolean) => {
