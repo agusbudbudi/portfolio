@@ -10,7 +10,7 @@ import type { ProjectProgress, SimulatorProject } from '../../../types/qaSimulat
 import { QaSimulatorIcon } from '../../../components/illustration/ProductIcons';
 import SimulatorBannerIllustration from './SimulatorBannerIllustration';
 import { apiListSimulatorProgress, fetchSimulatorIndex, fetchSimulatorProject } from '../lib/simulatorApi';
-import { emptyProgress, isPhaseComplete, phaseScore, projectCompletion } from '../lib/progress';
+import { emptyProgress, isPhaseComplete, isPortfolioReady, phaseScore, projectCompletion } from '../lib/progress';
 import { DIFFICULTY_LABEL } from '../lib/ui';
 import { PROJECT_MOCKUPS } from './landing/projectMockupMap';
 
@@ -129,7 +129,11 @@ const SimulatorDashboardTab: React.FC = () => {
 
                       <div className="mt-4 pt-3.5 border-t border-ld-frost/70 flex items-center justify-between gap-3">
                         <span className="text-xs text-ld-fog">
-                          {completion.percent === 100 ? 'Semua phase selesai' : started ? 'Lanjutkan dari terakhir kamu berhenti' : 'Belum dimulai'}
+                          {completion.percent === 100
+                            ? 'Semua phase selesai'
+                            : started && isPortfolioReady(project, progress)
+                              ? 'Ada phase baru. Portfolio kamu tetap tersedia.'
+                              : started ? 'Lanjutkan dari terakhir kamu berhenti' : 'Belum dimulai'}
                         </span>
                         <Link
                           to={`/qa-simulator/${project.id}`}

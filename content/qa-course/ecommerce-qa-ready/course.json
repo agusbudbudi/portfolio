@@ -1,0 +1,73 @@
+{
+  "slug": "ecommerce-qa-ready",
+  "title": "E-commerce QA Ready",
+  "description": "Level lanjut untuk QA e-commerce. Kawal rilis kampanye dari PRD promo, design review, menguji logika voucher dan race condition, sampai membaca load test, memvalidasi analytics, dan memutuskan Go / No-Go. Praktik di project TokoKita.",
+  "level": "advanced",
+  "estimatedHours": 14,
+  "seoTitle": "E-commerce QA Ready: Kursus QA Kampanye & Promo",
+  "seoDescription": "Kursus QA tingkat lanjut untuk e-commerce: review PRD promo, design review, decision table, race condition, load test, dan Go / No-Go. Praktik di TokoKita.",
+  "categories": [
+    {
+      "label": "Design QA",
+      "description": "Membandingkan build dengan file desain: deviasi visual, state yang hilang, data ekstrem, dan aksesibilitas."
+    },
+    {
+      "label": "Performance & Release",
+      "description": "Kesiapan rilis: membaca hasil load test, memvalidasi analytics, monitoring, rollback, dan keputusan Go / No-Go."
+    }
+  ],
+  "modules": [
+    {
+      "title": "Requirement",
+      "intro": "Fitur promo terlihat sederhana di PRD, tapi penuh aturan yang belum diputuskan dan kasus yang hanya muncul saat ramai. Di modul ini kamu belajar membaca PRD promo dengan lima lensa, menemukan kasus kuota, stok, dan klik dobel, lalu menyusun peta risiko rilis kampanye. Di akhir modul, kamu mereview PRD Checkout & Voucher TokoKita menjelang 11.11.",
+      "articles": [
+        "membaca-prd-promo-dan-kampanye",
+        "kasus-ramai-kuota-stok-dan-klik-dobel",
+        "peta-risiko-rilis-kampanye"
+      ],
+      "mission": {
+        "projectId": "ecommerce",
+        "phaseId": "requirement-analysis"
+      }
+    },
+    {
+      "title": "Design Review",
+      "intro": "Build yang \"sudah sesuai desain\" sering menyimpan perbedaan kecil yang berdampak besar. Di modul ini kamu belajar membandingkan build dengan file desain secara terukur, menemukan state yang tidak pernah didesain, dan mengecek aksesibilitas dasar. Di akhir modul, kamu melakukan design review build staging TokoKita.",
+      "articles": [
+        "design-review-untuk-qa",
+        "state-yang-sering-hilang-dari-desain",
+        "aksesibilitas-dasar-untuk-qa"
+      ],
+      "mission": {
+        "projectId": "ecommerce",
+        "phaseId": "design-review"
+      }
+    },
+    {
+      "title": "Voucher Testing",
+      "intro": "Tampilan sudah benar, sekarang logikanya. Di modul ini kamu belajar menyusun decision table untuk aturan promo, menguji perpindahan status voucher dengan state transition, dan mereproduksi race condition seperti klik dobel dan kuota habis. Di akhir modul, kamu berburu bug voucher dan harga di build rc2 TokoKita.",
+      "articles": [
+        "decision-table-untuk-aturan-promo",
+        "state-transition-testing-promo",
+        "race-condition-dan-double-submit"
+      ],
+      "mission": {
+        "projectId": "ecommerce",
+        "phaseId": "voucher-testing"
+      }
+    },
+    {
+      "title": "Release Readiness",
+      "intro": "Fitur yang benar belum tentu siap menahan traffic kampanye. Di modul ini kamu belajar membaca hasil load test dengan kritis, memvalidasi event analytics terhadap tracking plan, dan menulis keputusan rilis lengkap dengan monitoring dan rollback. Di akhir modul, kamu memutuskan Go / No-Go TokoKita untuk 11.11.",
+      "articles": [
+        "membaca-hasil-load-test",
+        "validasi-event-analytics",
+        "monitoring-dan-rollback-hari-h"
+      ],
+      "mission": {
+        "projectId": "ecommerce",
+        "phaseId": "release-readiness"
+      }
+    }
+  ]
+}

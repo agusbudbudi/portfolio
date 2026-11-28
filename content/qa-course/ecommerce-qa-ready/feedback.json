@@ -1,0 +1,120 @@
+{
+  "questions": [
+    {
+      "key": "confidence",
+      "type": "scale",
+      "prompt": "Seberapa yakin kamu bisa menerapkan materi modul ini di pekerjaan nyata?",
+      "helpText": "Jawab jujur, ini membantu kami tahu bagian mana yang perlu diperkuat.",
+      "config": {
+        "options": [
+          { "id": "belum-yakin", "label": "Belum yakin", "description": "Masih bingung, perlu baca ulang materinya." },
+          { "id": "mulai-paham", "label": "Mulai paham", "description": "Paham konsepnya, tapi belum percaya diri mempraktikkan." },
+          { "id": "cukup-yakin", "label": "Cukup yakin", "description": "Bisa mempraktikkan dengan sesekali melihat contoh." },
+          { "id": "yakin", "label": "Yakin", "description": "Siap memakainya di project nyata tanpa panduan." }
+        ]
+      }
+    },
+    {
+      "key": "difficulty",
+      "type": "single_choice",
+      "prompt": "Bagaimana tingkat kesulitan materi modul ini?",
+      "config": {
+        "options": [
+          { "id": "terlalu-mudah", "label": "Terlalu mudah" },
+          { "id": "pas", "label": "Pas" },
+          { "id": "agak-sulit", "label": "Agak sulit" },
+          { "id": "terlalu-sulit", "label": "Terlalu sulit" }
+        ]
+      }
+    },
+    {
+      "key": "mission",
+      "type": "single_choice",
+      "prompt": "Seberapa membantu misi praktik di QA Simulator untuk modul ini?",
+      "config": {
+        "options": [
+          { "id": "sangat-membantu", "label": "Sangat membantu" },
+          { "id": "cukup-membantu", "label": "Cukup membantu" },
+          { "id": "kurang-membantu", "label": "Kurang membantu" }
+        ]
+      }
+    },
+    {
+      "key": "improve",
+      "type": "text",
+      "prompt": "Bagian mana yang masih membingungkan atau perlu diperbaiki?",
+      "config": {
+        "multiline": true,
+        "maxLength": 500,
+        "placeholder": "Contoh: contoh soal BVA kurang banyak, atau langkah misinya kurang jelas."
+      }
+    },
+    {
+      "key": "rating",
+      "type": "rating",
+      "prompt": "Secara keseluruhan, berapa rating kamu untuk course ini?",
+      "config": { "lowLabel": "Kurang", "highLabel": "Sangat bagus" }
+    },
+    {
+      "key": "review",
+      "type": "text",
+      "prompt": "Tulis ulasan singkat tentang course ini",
+      "helpText": "Apa yang paling berguna buat kamu? Ulasan bisa tampil di halaman course kalau kamu izinkan.",
+      "config": {
+        "multiline": true,
+        "maxLength": 600,
+        "placeholder": "Contoh: materinya runtut dan misi praktiknya bikin paham cara kerja QA di tim."
+      }
+    },
+    {
+      "key": "next-topic",
+      "type": "multi_choice",
+      "prompt": "Topik apa yang ingin kamu pelajari berikutnya?",
+      "config": {
+        "maxSelect": 2,
+        "options": [
+          { "id": "api-testing", "label": "API testing" },
+          { "id": "automation", "label": "Test automation" },
+          { "id": "mobile", "label": "Mobile testing" },
+          { "id": "performance", "label": "Performance testing" },
+          { "id": "sql", "label": "SQL untuk QA" },
+          { "id": "interview", "label": "Persiapan interview QA" }
+        ]
+      }
+    }
+  ],
+  "flows": [
+    {
+      "key": "module-end",
+      "name": "Akhir modul",
+      "title": "Gimana modul ini?",
+      "intro": "4 pertanyaan singkat, kurang dari 1 menit. Jawabanmu membantu kami memperbaiki materi.",
+      "askConsent": false,
+      "items": [
+        { "question": "confidence", "required": true },
+        { "question": "difficulty", "required": true },
+        { "question": "mission", "required": false },
+        { "question": "improve", "required": false }
+      ]
+    },
+    {
+      "key": "course-end",
+      "name": "Akhir course (rating + ulasan)",
+      "title": "Gimana course ini?",
+      "intro": "Selamat, kamu sudah menyelesaikan semua modul! Bantu kami dengan rating dan ulasan singkat, kurang dari 2 menit.",
+      "askConsent": true,
+      "items": [
+        { "question": "confidence", "required": true },
+        { "question": "difficulty", "required": true },
+        { "question": "mission", "required": false },
+        { "question": "rating", "required": true },
+        { "question": "review", "required": false },
+        { "question": "next-topic", "required": false }
+      ]
+    }
+  ],
+  "checkpoints": {
+    "course": "ecommerce-qa-ready",
+    "moduleEnd": ["module-end", "module-end", "module-end", "course-end"]
+  }
+}

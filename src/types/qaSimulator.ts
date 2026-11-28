@@ -59,6 +59,12 @@ export interface SimulatorPhase {
   shortTitle: string;
   summary: string;
   requiresLogin: boolean;
+  /**
+   * Date (ISO) this phase was added to an already published project. Learners
+   * who started before it and finished every earlier phase keep a complete
+   * portfolio without it (see portfolioPhases). Omit for original phases.
+   */
+  addedAt?: string;
   learn: {
     objectives: string[];
     keyPoints: SimulatorKeyPoint[];

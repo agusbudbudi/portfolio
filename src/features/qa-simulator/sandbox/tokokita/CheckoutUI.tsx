@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ArrowLeft, BadgeCheck, Check, ChevronRight, Footprints, Landmark, Loader2, MapPin, Minus, Plus, Shirt, Store, TicketPercent, Truck, X,
+  ArrowLeft, BadgeCheck, Check, ChevronRight, Footprints, Landmark, Loader2, MapPin, Minus, Package, Plus, Shirt, Store, TicketPercent, Truck, X,
 } from 'lucide-react';
 import {
   ADDRESS, CART, MAX_QTY, SELLER, SERVICE_FEE, SHIPPING, VOUCHERS, idr, subtotalOf, voucherSaving,
@@ -26,7 +26,7 @@ const C = {
   warn: '#B45309',
 } as const;
 
-const ITEM_ICON: Record<string, React.ElementType> = { shoe: Footprints, tee: Shirt };
+const ITEM_ICON: Record<string, React.ElementType> = { shoe: Footprints, tee: Shirt, socks: Package };
 
 // ── Button ──────────────────────────────────────────────────────────────────
 
@@ -118,8 +118,17 @@ const discountText = (spec: BuildSpec, n: number) => `${spec.discountMinus ? '�
 
 // ── Checkout screen ─────────────────────────────────────────────────────────
 
+/** Price breakdown override (staging builds with planted pricing bugs). */
+export interface CheckoutPricing {
+  subtotal: number;
+  service: number;
+  saving: number;
+  total: number;
+}
+
 export interface CheckoutScreenProps {
   spec: BuildSpec;
+  pricing?: CheckoutPricing;
   items?: CartItem[];
   voucher?: Voucher | null;
   /** Rendered as a static frame inside the design file (no sticky/fixed). */
@@ -133,18 +142,19 @@ export interface CheckoutScreenProps {
 }
 
 export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
-  spec, items = CART, voucher = VOUCHERS[0], inFrame, paying, onQty, onOpenVoucher, onPay, onBack, onToast,
+  spec, pricing, items = CART, voucher = VOUCHERS[0], inFrame, paying, onQty, onOpenVoucher, onPay, onBack, onToast,
 }) => {
-  const subtotal = subtotalOf(items);
-  const saving = voucherSaving(voucher, subtotal);
-  const total = subtotal + SHIPPING.fee + SERVICE_FEE - saving;
+  const subtotal = pricing?.subtotal ?? subtotalOf(items);
+  const saving = pricing?.saving ?? voucherSaving(voucher, subtotal);
+  const service = pricing?.service ?? SERVICE_FEE;
+  const total = pricing?.total ?? subtotal + SHIPPING.fee + service - saving;
   const count = items.reduce((s, it) => s + it.qty, 0);
   const soon = () => onToast?.('Belum tersedia di build staging ini.');
 
   const summary: Record<SummaryRow, React.ReactNode> = {
     subtotal: <SummaryLine key="subtotal" label={`Subtotal produk (${count} barang)`} value={idr(subtotal)} />,
     shipping: <SummaryLine key="shipping" label="Ongkos kirim" value={idr(SHIPPING.fee)} />,
-    service: <SummaryLine key="service" label="Biaya layanan" value={idr(SERVICE_FEE)} />,
+    service: <SummaryLine key="service" label="Biaya layanan" value={idr(service)} />,
     discount: saving > 0
       ? <SummaryLine key="discount" label={voucher?.kind === 'shipping' ? 'Diskon ongkir' : 'Diskon voucher'} value={discountText(spec, saving)} positive />
       : null,
@@ -264,6 +274,9 @@ const SummaryLine: React.FC<{ label: string; value: string; positive?: boolean }
 
 export interface VoucherSheetProps {
   spec: BuildSpec;
+  vouchers?: Voucher[];
+  /** Eligibility override (staging builds with planted bugs). Defaults to subtotal ≥ minSpend. */
+  eligibilityOf?: (v: Voucher, subtotal: number) => VoucherEligibility;
   subtotal: number;
   selected: string | null;
   code: string;
@@ -276,11 +289,23 @@ export interface VoucherSheetProps {
   onClose?: () => void;
 }
 
+export interface VoucherEligibility {
+  eligible: boolean;
+  /** Amount still missing, shown in the "Belanja Rp … lagi" hint. */
+  short: number;
+}
+
+const defaultEligibility = (v: Voucher, subtotal: number): VoucherEligibility => ({
+  eligible: subtotal >= v.minSpend,
+  short: Math.max(0, v.minSpend - subtotal),
+});
+
 export const VoucherCard: React.FC<{
   spec: BuildSpec; voucher: Voucher; subtotal: number; selected: boolean; onSelect?: () => void;
-}> = ({ spec, voucher, subtotal, selected, onSelect }) => {
-  const short = voucher.minSpend - subtotal;
-  const ineligible = short > 0;
+  eligibility?: VoucherEligibility;
+}> = ({ spec, voucher, subtotal, selected, onSelect, eligibility }) => {
+  const { eligible, short } = eligibility ?? defaultEligibility(voucher, subtotal);
+  const ineligible = !eligible;
   const locked = ineligible && spec.ineligibleState;
   return (
     <button
@@ -322,7 +347,7 @@ export const VoucherCard: React.FC<{
 };
 
 export const VoucherSheet: React.FC<VoucherSheetProps> = ({
-  spec, subtotal, selected, code, codeError, inFrame, onSelect, onCodeChange, onSubmitCode, onApply, onClose,
+  spec, vouchers = VOUCHERS, eligibilityOf, subtotal, selected, code, codeError, inFrame, onSelect, onCodeChange, onSubmitCode, onApply, onClose,
 }) => {
   const showInline = !!codeError && spec.inlineCodeError;
   return (
@@ -372,8 +397,16 @@ export const VoucherSheet: React.FC<VoucherSheetProps> = ({
 
           <p data-layer="Sheet / Subtitle" className="m-0 mt-4 mb-2 text-[12px] leading-4 font-medium text-[#64748B]">Voucher tersedia</p>
           <div data-layer="Voucher list" className="flex flex-col gap-3 pb-4">
-            {VOUCHERS.map((v) => (
-              <VoucherCard key={v.code} spec={spec} voucher={v} subtotal={subtotal} selected={selected === v.code} onSelect={() => onSelect?.(v.code)} />
+            {vouchers.map((v) => (
+              <VoucherCard
+                key={v.code}
+                spec={spec}
+                voucher={v}
+                subtotal={subtotal}
+                eligibility={eligibilityOf?.(v, subtotal)}
+                selected={selected === v.code}
+                onSelect={() => onSelect?.(v.code)}
+              />
             ))}
           </div>
         </div>

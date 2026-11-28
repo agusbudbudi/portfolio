@@ -99,9 +99,11 @@ export interface Voucher {
   title: string;
   detail: string;
   minSpend: number;
-  kind: 'discount' | 'shipping';
-  /** Flat amount (discount) or cap (shipping). */
+  kind: 'discount' | 'shipping' | 'percent';
+  /** Flat amount (discount) or cap (shipping, percent). */
   amount: number;
+  /** Percentage for kind 'percent'. */
+  percent?: number;
   expires: string;
 }
 
@@ -133,9 +135,12 @@ export const idr = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`;
 
 export const subtotalOf = (items: CartItem[]) => items.reduce((s, it) => s + it.price * it.qty, 0);
 
+/** Correct rules (PRD v1.1): min spend inclusive, shipping capped at the real fee, percent floored and capped. */
 export function voucherSaving(v: Voucher | null, subtotal: number): number {
   if (!v || subtotal < v.minSpend) return 0;
-  return v.kind === 'shipping' ? Math.min(v.amount, SHIPPING.fee) : v.amount;
+  if (v.kind === 'shipping') return Math.min(v.amount, SHIPPING.fee);
+  if (v.kind === 'percent') return Math.min(Math.floor((subtotal * (v.percent ?? 0)) / 100), v.amount);
+  return v.amount;
 }
 
 export function findVoucher(code: string): Voucher | null {

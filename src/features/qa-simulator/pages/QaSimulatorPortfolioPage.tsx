@@ -6,7 +6,7 @@ import { useAdminAuthStore } from '../../../store/useAdminAuthStore';
 import type { SimulatorProject } from '../../../types/qaSimulator';
 import { useSimulatorProject } from '../hooks/useSimulatorData';
 import { useSimulatorProgress } from '../hooks/useSimulatorProgress';
-import { isPhaseComplete } from '../lib/progress';
+import { isPortfolioReady } from '../lib/progress';
 import LockIllustration from '../components/LockIllustration';
 import PortfolioDocument from '../components/PortfolioDocument';
 import { portfolioDocTitle, printPortfolio } from '../lib/printPortfolio';
@@ -44,7 +44,7 @@ const Portfolio: React.FC<{ project: SimulatorProject }> = ({ project }) => {
 
   if (status === 'loading') return <LoadingState label="Memuat hasil kerjamu…" className="min-h-[60vh]" />;
 
-  const allDone = project.phases.every((p) => isPhaseComplete(p, progress));
+  const allDone = isPortfolioReady(project, progress);
   if (!allDone) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 px-4 text-center font-ld-sans">

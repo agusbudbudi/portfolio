@@ -323,12 +323,25 @@ function inspect(el: HTMLElement, toBox: (e: Element) => Box): Inspected {
 
 // ── Page ────────────────────────────────────────────────────────────────────
 
-const ZOOMS = [0.5, 0.75, 1];
+// Toolbar +/- step through these; pinch zooms freely between the ends.
+const ZOOMS = [0.25, 0.5, 0.75, 1, 1.5, 2];
+const MIN_ZOOM = ZOOMS[0];
+const MAX_ZOOM = ZOOMS[ZOOMS.length - 1];
+const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(z * 1000) / 1000));
+
+type Pinch = { dist: number; zoom: number; x: number; y: number };
+const touchDist = (a: Touch, b: Touch) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
 
 const TokoKitaDesignPage: React.FC = () => {
   const [zoom, setZoom] = useState(() => (typeof window !== 'undefined' && window.innerWidth >= 1700 ? 1 : 0.75));
   const [showNotes, setShowNotes] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLElement>(null);
+  // Zoom read by the native listeners, and the scroll to apply once the
+  // canvas has re-rendered at the new size (keeps the pinch point in place).
+  const zoomRef = useRef(zoom);
+  const pendingScrollRef = useRef<{ x: number; y: number } | null>(null);
+  const pinchRef = useRef<Pinch | null>(null);
   const [natural, setNatural] = useState({ w: 0, h: 0 });
   // Measured in event handlers (in unscaled canvas coordinates, so zooming
   // doesn't invalidate them).
@@ -345,6 +358,115 @@ const TokoKitaDesignPage: React.FC = () => {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  /**
+   * Zoom to `next` keeping the canvas point under (cx, cy) (relative to the
+   * canvas viewport) fixed, then scroll by (panX, panY).
+   */
+  const zoomAt = useCallback((next: number, cx: number, cy: number, panX = 0, panY = 0) => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const z = zoomRef.current;
+    const nz = clampZoom(next);
+    const base = pendingScrollRef.current ?? { x: el.scrollLeft, y: el.scrollTop };
+    const target = {
+      x: ((base.x + cx) / z) * nz - cx + panX,
+      y: ((base.y + cy) / z) * nz - cy + panY,
+    };
+    if (nz === z) {
+      if (pendingScrollRef.current) pendingScrollRef.current = target;
+      else el.scrollTo(target.x, target.y);
+      return;
+    }
+    zoomRef.current = nz;
+    pendingScrollRef.current = target;
+    setZoom(nz);
+  }, []);
+
+  useLayoutEffect(() => {
+    zoomRef.current = zoom;
+    const target = pendingScrollRef.current;
+    const el = canvasRef.current;
+    if (target && el) el.scrollTo(target.x, target.y);
+    pendingScrollRef.current = null;
+  }, [zoom, natural]);
+
+  // Native listeners: React's wheel/touch handlers are passive, so they can't
+  // stop the browser from zooming the whole page instead of the canvas.
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const local = (x: number, y: number) => {
+      const r = el.getBoundingClientRect();
+      return { x: x - r.left, y: y - r.top };
+    };
+
+    // Trackpad pinch (Chrome, Firefox, Edge) and Ctrl/Cmd + scroll.
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      const delta = Math.max(-40, Math.min(40, e.deltaY));
+      const p = local(e.clientX, e.clientY);
+      zoomAt(zoomRef.current * Math.exp(-delta * 0.01), p.x, p.y);
+    };
+
+    // Safari trackpad pinch (GestureEvent is Safari-only, not in lib.dom).
+    type Gesture = Event & { scale: number; clientX: number; clientY: number };
+    let gestureStart = zoomRef.current;
+    const onGestureStart = (e: Event) => { e.preventDefault(); gestureStart = zoomRef.current; };
+    const onGestureChange = (e: Event) => {
+      e.preventDefault();
+      if (pinchRef.current) return; // touch screens: handled by the touch listeners
+      const g = e as Gesture;
+      const p = local(g.clientX, g.clientY);
+      zoomAt(gestureStart * g.scale, p.x, p.y);
+    };
+
+    // Two fingers on a touch screen: pinch to zoom, move to pan.
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 2) { pinchRef.current = null; return; }
+      const [a, b] = [e.touches[0], e.touches[1]];
+      pinchRef.current = { dist: touchDist(a, b), zoom: zoomRef.current, x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 };
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const pinch = pinchRef.current;
+      if (!pinch || e.touches.length !== 2) return;
+      e.preventDefault();
+      const [a, b] = [e.touches[0], e.touches[1]];
+      const mx = (a.clientX + b.clientX) / 2;
+      const my = (a.clientY + b.clientY) / 2;
+      const p = local(mx, my);
+      zoomAt(pinch.zoom * (touchDist(a, b) / pinch.dist), p.x, p.y, pinch.x - mx, pinch.y - my);
+      pinch.x = mx;
+      pinch.y = my;
+    };
+    const onTouchEnd = (e: TouchEvent) => { if (e.touches.length < 2) pinchRef.current = null; };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    el.addEventListener('gesturestart', onGestureStart);
+    el.addEventListener('gesturechange', onGestureChange);
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd);
+    el.addEventListener('touchcancel', onTouchEnd);
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('gesturestart', onGestureStart);
+      el.removeEventListener('gesturechange', onGestureChange);
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+      el.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, [zoomAt]);
+
+  // Toolbar buttons: next preset, zooming around the viewport centre.
+  const stepZoom = (dir: 1 | -1) => {
+    const z = zoomRef.current;
+    const next = dir > 0 ? ZOOMS.find((p) => p > z + 0.001) ?? MAX_ZOOM : [...ZOOMS].reverse().find((p) => p < z - 0.001) ?? MIN_ZOOM;
+    const el = canvasRef.current;
+    zoomAt(next, (el?.clientWidth ?? 0) / 2, (el?.clientHeight ?? 0) / 2);
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -402,7 +524,7 @@ const TokoKitaDesignPage: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-[#1E1E1E] font-ld-sans text-[#E5E5E5] overflow-hidden">
-      <Seo path="/qa-simulator/sandbox/tokokita-design" title="TokoKita — Checkout v2 (File desain) | QA Simulator" description="File desain simulasi untuk latihan design review QA Simulator." noindex />
+      <Seo path="/qa-simulator/sandbox/tokokita-design" title="TokoKita Checkout v2 (File desain) | QA Simulator" description="File desain simulasi untuk latihan design review QA Simulator." noindex />
 
       {/* Toolbar */}
       <header className="h-12 shrink-0 flex items-center gap-3 px-3 border-b border-[#2C2C2C] bg-[#2C2C2C] text-[13px]">
@@ -412,15 +534,15 @@ const TokoKitaDesignPage: React.FC = () => {
         <span className="w-px h-5 bg-[#444]" />
         <span className="min-w-0 truncate">
           <span className="text-[#8C8C8C]">TokoKita / </span>
-          <span className="font-semibold text-white">Checkout v2 — Kampanye 11.11</span>
+          <span className="font-semibold text-white">Checkout v2 · Kampanye 11.11</span>
         </span>
         <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#14532D] text-[#86EFAC] text-[11px] font-semibold">
           <Check size={11} /> Ready for dev
         </span>
         <span className="ml-auto flex items-center gap-1">
-          <button type="button" aria-label="Perkecil" onClick={() => setZoom((z) => ZOOMS[Math.max(0, ZOOMS.indexOf(z) - 1)])} className="w-8 h-8 flex items-center justify-center rounded bg-transparent border-none text-[#B3B3B3] hover:bg-[#3A3A3A] cursor-pointer"><ZoomOut size={15} /></button>
+          <button type="button" aria-label="Perkecil" onClick={() => stepZoom(-1)} disabled={zoom <= MIN_ZOOM} className="w-8 h-8 flex items-center justify-center rounded bg-transparent border-none text-[#B3B3B3] hover:bg-[#3A3A3A] cursor-pointer"><ZoomOut size={15} /></button>
           <span className="w-11 text-center tabular-nums text-[12px]">{Math.round(zoom * 100)}%</span>
-          <button type="button" aria-label="Perbesar" onClick={() => setZoom((z) => ZOOMS[Math.min(ZOOMS.length - 1, ZOOMS.indexOf(z) + 1)])} className="w-8 h-8 flex items-center justify-center rounded bg-transparent border-none text-[#B3B3B3] hover:bg-[#3A3A3A] cursor-pointer"><ZoomIn size={15} /></button>
+          <button type="button" aria-label="Perbesar" onClick={() => stepZoom(1)} disabled={zoom >= MAX_ZOOM} className="w-8 h-8 flex items-center justify-center rounded bg-transparent border-none text-[#B3B3B3] hover:bg-[#3A3A3A] cursor-pointer"><ZoomIn size={15} /></button>
           <a href="/qa-simulator/sandbox/tokokita" target="_blank" rel="noreferrer" className="hidden sm:inline-flex items-center gap-1 ml-2 px-2.5 py-1.5 rounded bg-[#0D99FF] text-white text-[12px] font-semibold no-underline hover:bg-[#0B84DD]">
             Buka build staging <ExternalLink size={12} />
           </a>
@@ -447,12 +569,13 @@ const TokoKitaDesignPage: React.FC = () => {
           <div className="mt-auto m-3 p-3 rounded bg-[#2C2C2C] text-[11px] leading-relaxed text-[#B3B3B3] space-y-1.5">
             <p className="m-0 flex gap-1.5"><MousePointer2 size={12} className="shrink-0 mt-0.5" /> Klik elemen untuk melihat spec-nya.</p>
             <p className="m-0 flex gap-1.5"><Ruler size={12} className="shrink-0 mt-0.5" /> Pilih satu elemen, lalu arahkan kursor ke elemen lain untuk mengukur jarak.</p>
+            <p className="m-0 flex gap-1.5"><ZoomIn size={12} className="shrink-0 mt-0.5" /> Cubit trackpad atau Ctrl + scroll untuk zoom.</p>
             <p className="m-0">Esc untuk batal pilih.</p>
           </div>
         </aside>
 
         {/* Canvas */}
-        <main className="relative flex-1 min-h-0 min-w-0 overflow-auto bg-[#E5E5E5]">
+        <main ref={canvasRef} className="relative flex-1 min-h-0 min-w-0 overflow-auto bg-[#E5E5E5] overscroll-contain [touch-action:pan-x_pan-y]">
           <div style={{ width: natural.w * zoom, height: natural.h * zoom }}>
             <div
               ref={contentRef}

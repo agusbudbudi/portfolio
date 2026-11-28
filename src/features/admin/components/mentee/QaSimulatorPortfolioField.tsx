@@ -7,7 +7,7 @@ import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
 import {
   apiListSimulatorProgress, apiSetSimulatorShare, fetchSimulatorProject,
 } from '../../../qa-simulator/lib/simulatorApi';
-import { projectCompletion } from '../../../qa-simulator/lib/progress';
+import { isPortfolioReady, projectCompletion } from '../../../qa-simulator/lib/progress';
 import Checkbox from '../../../../components/common/Checkbox';
 
 interface QaSimulatorPortfolioFieldProps {
@@ -50,7 +50,7 @@ const QaSimulatorPortfolioField: React.FC<QaSimulatorPortfolioFieldProps> = ({ v
           const project = projects[i];
           if (!project) return;
           const { percent } = projectCompletion(project, record.data);
-          rows.push({ project, record, percent, done: percent === 100 });
+          rows.push({ project, record, percent, done: isPortfolioReady(project, record.data) });
         });
         if (!cancelled) setState({ status: 'ready', rows });
       } catch {
