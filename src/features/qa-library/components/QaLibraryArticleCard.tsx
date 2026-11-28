@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Clock, User } from 'lucide-react';
+import { ArrowRight, Clock, GraduationCap, Lock, User } from 'lucide-react';
 import type { QaLibraryArticleSummary } from '../../../types/qaLibrary';
 
 interface QaLibraryArticleCardProps {
@@ -8,12 +8,19 @@ interface QaLibraryArticleCardProps {
   categoryLabel: string;
 }
 
+// Course-only articles (article.course set by the public list) open as a
+// locked preview that leads to their course: the card says so up front.
 const QaLibraryArticleCard: React.FC<QaLibraryArticleCardProps> = ({ article, categoryLabel }) => (
   <Link
     to={`/qa-library/${article.slug}`}
     className="group flex flex-col rounded-xl border border-ld-frost bg-white overflow-hidden no-underline hover:border-ld-violet hover:shadow-[0_8px_24px_rgba(30,27,75,0.08)] transition-all"
   >
-    <div className="aspect-video w-full bg-ld-cloud overflow-hidden">
+    <div className="relative aspect-video w-full bg-ld-cloud overflow-hidden">
+      {article.course && (
+        <span className="absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-ld-onyx text-white text-[11px] font-semibold">
+          <GraduationCap size={13} aria-hidden="true" /> Course
+        </span>
+      )}
       {article.thumbnailUrl ? (
         <img
           src={article.thumbnailUrl}
@@ -33,6 +40,13 @@ const QaLibraryArticleCard: React.FC<QaLibraryArticleCardProps> = ({ article, ca
       </h3>
       <p className="text-sm text-ld-slate leading-relaxed line-clamp-2 mb-3">{article.excerpt}</p>
 
+      {article.course && (
+        <p className="m-0 mb-3 flex items-center gap-1.5 rounded-lg bg-ld-cloud px-2 py-1.5 text-xs text-ld-graphite">
+          <Lock size={13} className="shrink-0 text-ld-violet" aria-hidden="true" />
+          <span className="truncate">Bagian dari <strong className="font-semibold">{article.course.title}</strong></span>
+        </p>
+      )}
+
       <div className="flex items-center gap-2 mb-3">
         {article.authorAvatarUrl ? (
           <img src={article.authorAvatarUrl} alt="" className="w-5 h-5 rounded-full object-cover object-top border border-ld-frost shrink-0" />
@@ -50,7 +64,7 @@ const QaLibraryArticleCard: React.FC<QaLibraryArticleCardProps> = ({ article, ca
           <span>{article.readingTimeMinutes} menit baca</span>
         </div>
         <span className="inline-flex items-center gap-1 text-xs font-medium text-ld-violet">
-          Read More
+          {article.course ? 'Baca preview' : 'Read More'}
           <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
         </span>
       </div>

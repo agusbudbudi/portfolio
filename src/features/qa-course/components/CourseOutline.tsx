@@ -19,6 +19,13 @@ interface CourseOutlineProps {
   /** Feedback checkpoints to show between lessons (logged-in learners). */
   checkpoints?: Checkpoint[];
   onOpenCheckpoint?: (checkpointId: string) => void;
+  /**
+   * Lesson to point out (detail page opened from a library preview's lock
+   * card): its module opens and the row carries id "highlighted-lesson" so
+   * the page can scroll to it. `highlightOn` = the ring is showing.
+   */
+  highlightIndex?: number;
+  highlightOn?: boolean;
 }
 
 // A checkpoint sits between lessons: FeedbackIcon on its Honey tile (articles
@@ -92,9 +99,19 @@ const LessonStatus: React.FC<{ lesson: Lesson; loggedInView: boolean; compact: b
  * open or close any module after that. Lessons past the next unfinished one
  * are locked and only open by finishing the lesson before them.
  */
-const CourseOutline: React.FC<CourseOutlineProps> = ({ course, lessons, activeIndex, onLocked, onNavigate, variant = 'full', checkpoints, onOpenCheckpoint }) => {
+const CourseOutline: React.FC<CourseOutlineProps> = ({
+  course, lessons, activeIndex, onLocked, onNavigate, variant = 'full', checkpoints, onOpenCheckpoint, highlightIndex, highlightOn,
+}) => {
   const compact = variant === 'compact';
-  const focus = lessons.find((l) => l.index === activeIndex) ?? lessons.find((l) => l.isNext);
+  const focus = lessons.find((l) => l.index === activeIndex)
+    ?? lessons.find((l) => l.index === highlightIndex)
+    ?? lessons.find((l) => l.isNext);
+  const highlightProps = (lesson: Lesson) => lesson.index === highlightIndex
+    ? {
+        id: 'highlighted-lesson',
+        className: `scroll-mt-28 transition-[background-color,box-shadow] duration-700 ${highlightOn ? 'bg-ld-lilac/70 shadow-[inset_0_0_0_2px_var(--color-ld-violet)]' : ''}`,
+      }
+    : {};
   const defaultOpen = focus?.moduleIndex ?? 0;
   // Only explicit toggles are stored, so the default follows progress as it loads.
   const [toggled, setToggled] = useState<Record<number, boolean>>({});
@@ -187,13 +204,16 @@ const CourseOutline: React.FC<CourseOutlineProps> = ({ course, lessons, activeIn
                           {lesson.meta && <span className={`block mt-0.5 text-ld-steel ${compact ? 'text-[11px]' : 'text-xs'}`}>{lesson.meta}</span>}
                           {!lesson.available && <span className="block mt-0.5 text-xs text-amber-700">Sedang tidak tersedia</span>}
                         </span>
+                        {lesson.index === highlightIndex && !compact && (
+                          <span className="hidden sm:inline shrink-0 text-xs font-medium text-ld-graphite">Kamu baca preview ini</span>
+                        )}
                         <LessonStatus lesson={lesson} loggedInView={loggedInView} compact={compact} />
                       </>
                     );
 
                     if (!lesson.available || lesson.lock === 'sequence') {
                       return (
-                        <li key={lesson.item.id}>
+                        <li key={lesson.item.id} {...highlightProps(lesson)}>
                           <div
                             className={`${row} cursor-not-allowed`}
                             aria-disabled="true"
@@ -206,7 +226,7 @@ const CourseOutline: React.FC<CourseOutlineProps> = ({ course, lessons, activeIn
                     }
                     if (lesson.lock === 'login') {
                       return (
-                        <li key={lesson.item.id}>
+                        <li key={lesson.item.id} {...highlightProps(lesson)}>
                           <button type="button" onClick={() => onLocked(lesson)} className={`${row} border-x-0 border-b-0 bg-transparent cursor-pointer hover:bg-ld-cloud`}>
                             {body}
                           </button>
@@ -214,7 +234,7 @@ const CourseOutline: React.FC<CourseOutlineProps> = ({ course, lessons, activeIn
                       );
                     }
                     return (
-                      <li key={lesson.item.id}>
+                      <li key={lesson.item.id} {...highlightProps(lesson)}>
                         <Link
                           to={lesson.href}
                           onClick={onNavigate}

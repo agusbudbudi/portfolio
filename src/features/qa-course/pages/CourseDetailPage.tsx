@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Award, BookOpen, ChevronRight, Clock, FlaskConical, Layers } from 'lucide-react';
 import PixelMosaic from '../../../components/illustration/PixelMosaic';
 import { QaLibraryIcon, QaPortfolioIcon, QaSimulatorIcon } from '../../../components/illustration/ProductIcons';
@@ -25,6 +25,30 @@ const CourseDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { state, course, lessons, completion, loggedIn, progressLoaded } = useCourse(slug);
   const [lockedLesson, setLockedLesson] = useState<Lesson | null>(null);
+
+  // #lesson-<articleSlug>: came from that article's library preview. Open its
+  // module, scroll to it and ring it for 2 seconds.
+  const { hash } = useLocation();
+  const hashSlug = hash.startsWith('#lesson-') ? decodeURIComponent(hash.slice('#lesson-'.length)) : null;
+  const highlightIndex = hashSlug && course
+    ? lessons.find((l) => l.item.kind === 'article' && course.articles[l.item.articleId]?.slug === hashSlug)?.index
+    : undefined;
+  const [highlightOn, setHighlightOn] = useState(false);
+  useEffect(() => {
+    if (highlightIndex === undefined) return;
+    // After the module's expand transition has started, so the row is laid out.
+    let fade: number | undefined;
+    const scroll = window.setTimeout(() => {
+      document.getElementById('highlighted-lesson')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setHighlightOn(true);
+      fade = window.setTimeout(() => setHighlightOn(false), 2000);
+    }, 150);
+    return () => {
+      window.clearTimeout(scroll);
+      window.clearTimeout(fade);
+      setHighlightOn(false);
+    };
+  }, [highlightIndex]);
 
   if (state.status === 'loading') return <LoadingState className="min-h-[60vh] pt-16" />;
   if (state.status === 'error') return <p className="pt-28 px-4 text-center text-sm text-ld-slate">{state.message}</p>;
@@ -145,7 +169,7 @@ const CourseDetailPage: React.FC = () => {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 mt-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
         <section className="lg:col-span-2">
           <h2 className="m-0 mb-5 font-ld-display text-xl font-semibold text-ld-onyx">Kurikulum</h2>
-          <CourseOutline course={course} lessons={lessons} onLocked={setLockedLesson} />
+          <CourseOutline course={course} lessons={lessons} onLocked={setLockedLesson} highlightIndex={highlightIndex} highlightOn={highlightOn} />
         </section>
         {/* Sticky beside the (long) curriculum from lg up; top clears the fixed navbar. */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
