@@ -130,7 +130,7 @@ const LightdashNavbar: React.FC = () => {
             <span>Mentor<span className={onBlue ? 'text-ld-lilac' : 'text-ld-violet'}>.QA</span></span>
           </Link>
 
-          <div className="hidden md:flex items-stretch gap-7 h-full">
+          <div className="hidden lg:flex items-stretch gap-7 h-full">
             <button
               ref={trayBtnRef}
               type="button"
@@ -174,13 +174,13 @@ const LightdashNavbar: React.FC = () => {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-2 sm:gap-3">
+          <div className="hidden lg:flex items-center gap-2 sm:gap-3">
             <AuthCta inverted={onBlue} />
           </div>
 
           {/* Mobile hamburger */}
           <button
-            className={`w-9 h-9 rounded-md border flex items-center justify-center cursor-pointer transition-colors md:hidden ${onBlue ? 'border-white/40 bg-white/10 text-white hover:bg-white/20' : 'border-ld-ash bg-ld-canvas text-ld-graphite hover:border-ld-violet hover:text-ld-violet'}`}
+            className={`w-9 h-9 rounded-md border flex items-center justify-center cursor-pointer transition-colors lg:hidden ${onBlue ? 'border-white/40 bg-white/10 text-white hover:bg-white/20' : 'border-ld-ash bg-ld-canvas text-ld-graphite hover:border-ld-violet hover:text-ld-violet'}`}
             onClick={toggleMenu}
             aria-label="Toggle Menu"
           >
@@ -223,7 +223,7 @@ const LightdashNavbar: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-              className="hidden md:block absolute left-0 right-0 top-full bg-ld-canvas border-b border-ld-frost shadow-[0_18px_40px_-20px_rgba(39,40,53,0.25)]"
+              className="hidden lg:block absolute left-0 right-0 top-full bg-ld-canvas border-b border-ld-frost shadow-[0_18px_40px_-20px_rgba(39,40,53,0.25)]"
             >
               <ProductsTrayPanel id="products-tray" onNavigate={closeTray} />
             </motion.div>
@@ -240,7 +240,7 @@ const LightdashNavbar: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="hidden md:block fixed inset-0 top-16 bg-ld-onyx/20 z-[999]"
+            className="hidden lg:block fixed inset-0 top-16 bg-ld-onyx/20 z-[999]"
             aria-hidden="true"
           />
         )}
@@ -256,7 +256,7 @@ const LightdashNavbar: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 top-16 bg-black/50 z-[1001] md:hidden"
+              className="fixed inset-0 top-16 bg-black/50 z-[1001] lg:hidden"
               onClick={closeMenu}
             />
 
@@ -266,7 +266,7 @@ const LightdashNavbar: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-              className="fixed top-16 left-0 w-full max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain bg-ld-canvas border-b border-ld-ash z-[1002] md:hidden"
+              className="fixed top-16 left-0 w-full max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain bg-ld-canvas border-b border-ld-ash z-[1002] lg:hidden"
             >
               <div className="border-b border-ld-ash py-2">
                 <p className="m-0 px-6 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-widest text-ld-fog">Program</p>
