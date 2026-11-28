@@ -9,13 +9,15 @@ interface UseQaLibraryArticleResult {
 }
 
 // Public read-by-slug — GET /api/qa-library/:slug. 404 (draft or missing)
-// surfaces as notFound, distinct from a network/server error.
-export function useQaLibraryArticle(slug: string | undefined): UseQaLibraryArticleResult {
+// surfaces as notFound, distinct from a network/server error. `courseSlug` =
+// the article is read as a lesson of that course: the API then sends a
+// course-only article whole instead of its library preview.
+export function useQaLibraryArticle(slug: string | undefined, courseSlug?: string | null): UseQaLibraryArticleResult {
   const [article, setArticle] = useState<QaLibraryArticle | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const key = slug ?? '';
+  const key = `${slug ?? ''}|${courseSlug ?? ''}`;
 
   useEffect(() => {
     if (!slug) { setLoading(false); setNotFound(true); return; }
@@ -24,7 +26,8 @@ export function useQaLibraryArticle(slug: string | undefined): UseQaLibraryArtic
     setNotFound(false);
     setError(null);
 
-    fetch(`/api/qa-library/${encodeURIComponent(slug)}`)
+    const query = courseSlug ? `?course=${encodeURIComponent(courseSlug)}` : '';
+    fetch(`/api/qa-library/${encodeURIComponent(slug)}${query}`)
       .then((res) => {
         if (res.status === 404) { if (!cancelled) setNotFound(true); return null; }
         if (!res.ok) throw new Error(`Gagal memuat artikel (HTTP ${res.status}).`);

@@ -249,6 +249,26 @@ export async function publishedCoursesForArticle(articleId: string): Promise<QaC
 }
 
 /**
+ * articleId → the oldest published course using it as a lesson: the course a
+ * course-only article's card in the public library grid points to.
+ */
+export async function publishedCourseRefsByArticle(): Promise<Map<string, { slug: string; title: string }>> {
+  await migrate();
+  const result = await getClient().execute(
+    `SELECT json_extract(i.value, '$.articleId') AS article_id, c.slug, c.title
+     FROM qa_courses c, json_each(c.modules) m, json_each(m.value, '$.items') i
+     WHERE c.status = 'published' AND json_extract(i.value, '$.kind') = 'article'
+     ORDER BY c.created_at ASC`
+  );
+  const refs = new Map<string, { slug: string; title: string }>();
+  for (const row of result.rows) {
+    const id = row.article_id as string;
+    if (!refs.has(id)) refs.set(id, { slug: row.slug as string, title: row.title as string });
+  }
+  return refs;
+}
+
+/**
  * Published courses with a mission on `projectId`, each with `userId`'s
  * article progress: what the simulator portfolio's "QA Course" tab needs.
  */

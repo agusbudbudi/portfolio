@@ -28,7 +28,7 @@ const QaLibraryArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   // ?course=<slug>: the article is being read as a lesson of that course.
   const courseSlug = useSearchParams()[0].get('course');
-  const { article, loading, notFound, error } = useQaLibraryArticle(slug);
+  const { article, loading, notFound, error } = useQaLibraryArticle(slug, courseSlug);
   const { categories } = useQaLibraryCategories();
   const { articles: allArticles } = useQaLibraryArticles();
 

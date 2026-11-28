@@ -2,6 +2,7 @@
 // Shared by the public /qa-library pages, the admin dashboard, and the /api functions.
 // Named QaLibrary* (not Article*) to avoid colliding with ArticleEntry in
 // src/types/portfolio.ts, an unrelated link-preview card type.
+import type { QaCourseMembership } from './qaCourse.js';
 
 export interface QaLibraryCategory {
   id: string;
@@ -53,6 +54,29 @@ export interface QaLibraryArticle extends QaLibraryArticleData {
   viewCount: number;
   createdAt: string;
   updatedAt: string;
+  /**
+   * Set by the public API when it sent only the top of a course-only article
+   * (see src/lib/articlePreview.ts): `body` is the preview, the attachment is
+   * withheld, and the reader is sent to one of `courses` for the rest.
+   */
+  preview?: QaLibraryArticlePreview;
+}
+
+export interface QaLibraryArticlePreview {
+  /** H2 headings below the cut, in order. */
+  lockedHeadings: string[];
+  /** Preview words / article words, 0..1. */
+  previewWordRatio: number;
+  /** Published courses using the article, oldest first (the first is the main CTA). */
+  courses: QaCourseMembership[];
+  /** The article had an attachment, withheld with the rest. */
+  hasAttachment: boolean;
+}
+
+/** The course a course-only article in the public grid belongs to (oldest published). */
+export interface QaLibraryArticleCourseRef {
+  slug: string;
+  title: string;
 }
 
 // Lightweight row for list views (admin table, public grid) — excludes body/doc metadata.
@@ -60,4 +84,7 @@ export type QaLibraryArticleSummary = Pick<
   QaLibraryArticle,
   | 'id' | 'slug' | 'title' | 'categoryId' | 'excerpt' | 'thumbnailUrl' | 'tags' | 'status' | 'readingTimeMinutes'
   | 'authorName' | 'authorAvatarUrl' | 'updatedAt' | 'visibility'
->;
+> & {
+  /** Public list only: set on course-only rows, which show as a course preview. */
+  course?: QaLibraryArticleCourseRef;
+};
