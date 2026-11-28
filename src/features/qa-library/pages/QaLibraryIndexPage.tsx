@@ -59,6 +59,32 @@ const QaLibraryIndexPage: React.FC = () => {
           <p className="text-ld-slate text-sm sm:text-base leading-relaxed max-w-xl m-0">
             Kumpulan artikel dan materi seputar manual testing, automation testing, dan API testing untuk QA Engineer.
           </p>
+          <form role="search" onSubmit={(e) => e.preventDefault()} className="mt-5">
+            <label htmlFor="qa-library-search" className="sr-only">Cari artikel</label>
+            <div className="relative w-full md:max-w-md">
+              <Search size={18} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ld-steel" />
+              <input
+                id="qa-library-search"
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Escape' && query) { e.preventDefault(); setQuery(''); } }}
+                placeholder="Cari artikel, topik, atau tag"
+                autoComplete="off"
+                className="w-full h-11 pl-10 pr-10 rounded-lg border border-ld-ash bg-white shadow-[0_2px_8px_rgba(39,40,53,0.06)] text-[15px] text-ld-onyx placeholder:text-ld-fog outline-none transition-colors focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac [&::-webkit-search-cancel-button]:appearance-none"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  aria-label="Hapus pencarian"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-md border-none bg-transparent text-ld-steel hover:bg-ld-cloud hover:text-ld-onyx cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          </form>
         </div>
         <div className="hidden md:block">
           <QaLibraryHeroArt categories={categories} />
@@ -68,33 +94,6 @@ const QaLibraryIndexPage: React.FC = () => {
 
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <CoursePromoStrip />
-
-        <form role="search" onSubmit={(e) => e.preventDefault()} className="mb-5">
-          <label htmlFor="qa-library-search" className="sr-only">Cari artikel</label>
-          <div className="relative w-full md:max-w-md">
-            <Search size={18} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ld-steel" />
-            <input
-              id="qa-library-search"
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Escape' && query) { e.preventDefault(); setQuery(''); } }}
-              placeholder="Cari artikel, topik, atau tag"
-              autoComplete="off"
-              className="w-full h-11 pl-10 pr-10 rounded-lg border border-ld-ash bg-white text-[15px] text-ld-onyx placeholder:text-ld-fog outline-none transition-colors focus:border-ld-violet focus:ring-2 focus:ring-ld-lilac [&::-webkit-search-cancel-button]:appearance-none"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => setQuery('')}
-                aria-label="Hapus pencarian"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-md border-none bg-transparent text-ld-steel hover:bg-ld-cloud hover:text-ld-onyx cursor-pointer"
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-        </form>
 
         {visibleCategories.length > 0 && (
           <div className="mb-8">
