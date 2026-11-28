@@ -140,10 +140,12 @@ Renders `thumbnails/NN-<slug>.png` per article + `thumbnails/course.png`
 (1280×720, 16:9, brand style) with `scripts/og/course-thumbs.tsx` via local
 Chrome + Playwright. Claude can run this one itself.
 
-- The right-hand visual is picked per **module number** (`VISUALS` map: 1 PRD
-  review, 2 risk matrix, 3 API request/response, 4 regression + Go/No-Go).
-  For a course whose modules are about other topics, add or swap visuals there
-  first.
+- The right-hand visual is picked by **module name** first (`VISUALS_BY_NAME`:
+  Design Review, Voucher Testing, Release Readiness), then by **module number**
+  (`VISUALS`: 1 PRD review, 2 risk matrix, 3 API request/response, 4 regression
+  + Go/No-Go). For a course whose modules cover other topics, add a visual to
+  `VISUALS_BY_NAME` keyed by the module title (don't change the number map, it
+  would re-skin existing courses).
 - Look at several PNGs (Read the image), including the longest titles. Long
   single words are auto-shrunk, but check nothing touches the right card.
 - `--course` renders only `course.png` (for a course whose articles already

@@ -36,12 +36,14 @@
       "title": "TokoKita: Checkout & Voucher Promo",
       "product": "TokoKita",
       "domain": "E-commerce / Marketplace",
-      "summary": "Kamu QA di tim Checkout TokoKita menjelang kampanye 11.11. Review PRD checkout & voucher, lalu bandingkan file desain dengan build staging: temukan deviasi visual, state yang hilang, dan masalah aksesibilitas sebelum rilis.",
+      "summary": "Kamu QA di tim Checkout TokoKita menjelang kampanye 11.11. Review PRD, bandingkan desain dengan build staging, uji logika voucher dan harga, lalu putuskan apakah checkout siap menahan traffic puncak.",
       "difficulty": "advanced",
-      "estimatedHours": 5,
+      "estimatedHours": 8,
       "phaseTitles": [
         "Requirement",
-        "Design Review"
+        "Design Review",
+        "Voucher Testing",
+        "Release Readiness"
       ],
       "status": "available"
     }

@@ -157,8 +157,8 @@ const PortfolioDocument: React.FC<PortfolioDocumentProps> = ({ project, progress
   const activeTab: DocTab = courseView ? tab : 'simulator';
   const tabs: readonly DocTab[] = courseView ? ['course', 'simulator'] : ['simulator'];
   const showSimulator = () => { setTab('simulator'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  const { overall, phaseScores, stats, startedAt, finishedAt } = summarizePortfolio(project, progress);
-  const competencies = project.phases.flatMap((p) => p.learn.objectives);
+  const { phases, overall, phaseScores, stats, startedAt, finishedAt } = summarizePortfolio(project, progress);
+  const competencies = phases.flatMap((p) => p.learn.objectives);
 
   const meta = [
     { label: 'Peran', value: 'QA Engineer' },
@@ -311,7 +311,7 @@ const PortfolioDocument: React.FC<PortfolioDocumentProps> = ({ project, progress
           </section>
 
           {/* ── One chapter per phase ── */}
-          {project.phases.map((phase, pi) => (
+          {phases.map((phase, pi) => (
             <section key={phase.id} className="pf-chapter mt-14 print:mt-0">
               <div className="pf-keep flex items-start justify-between gap-6 pb-4 mb-6 border-b border-ld-onyx">
                 <div className="flex items-start gap-4 min-w-0">

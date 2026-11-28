@@ -4,8 +4,8 @@
   "product": "TokoKita",
   "domain": "E-commerce / Marketplace",
   "difficulty": "advanced",
-  "estimatedHours": 5,
-  "summary": "Kamu QA di tim Checkout TokoKita menjelang kampanye 11.11. Review PRD checkout & voucher, lalu bandingkan file desain dengan build staging: temukan deviasi visual, state yang hilang, dan masalah aksesibilitas sebelum rilis.",
+  "estimatedHours": 8,
+  "summary": "Kamu QA di tim Checkout TokoKita menjelang kampanye 11.11. Review PRD checkout & voucher, bandingkan file desain dengan build staging, uji logika voucher dan harga, lalu putuskan apakah checkout siap menahan traffic puncak 11.11.",
   "context": "**TokoKita** adalah marketplace fiktif dengan ±8 juta pembeli aktif bulanan. Kampanye **11.11** adalah hari dengan transaksi terbesar dalam setahun, dengan traffic diperkirakan 6× hari biasa.\n\nSaat 10.10 lalu, banyak user meninggalkan halaman checkout karena total harga membingungkan dan voucher gagal dipakai tanpa alasan yang jelas. Tim **Checkout** merombak halaman ini menjadi **Checkout v2**.\n\nKamu bergabung sebagai QA bersama 1 PM, 1 product designer, dan 1 frontend lead. Tim ini punya kebiasaan **design review** sebelum regression: QA membandingkan build dengan file desain agar tidak ada perbedaan yang lolos ke production.\n\nSemua nama, produk, dan data di project ini fiktif. File desain dan aplikasi yang kamu uji adalah simulasi di dalam browser.",
   "team": [
     {
@@ -42,9 +42,9 @@
     }
   ],
   "prd": {
-    "title": "PRD — Checkout v2 & Voucher Promo 11.11",
+    "title": "PRD: Checkout v2 & Voucher Promo 11.11",
     "version": "v1.0",
-    "markdown": "| Info | Detail |\n|---|---|\n| **Produk** | TokoKita (aplikasi Android, iOS, mobile web) |\n| **Fitur** | Checkout v2 & Voucher Promo 11.11 |\n| **PM** | Bima Santoso |\n| **Desain** | Laras Ayuningtyas · file \"Checkout v2 — Kampanye 11.11\" (Ready for dev) |\n| **Status** | Ready for QA Review |\n| **Target rilis** | 7 November, 4 hari sebelum kampanye 11.11 |\n\n## 1. Latar Belakang\n\nSaat kampanye 10.10, **31%** user yang sudah masuk halaman checkout tidak menyelesaikan pembayaran. Dari survei exit (n = 2.100), alasan terbanyak adalah **\"total harga tidak jelas\"** (38%) dan **\"voucher tidak bisa dipakai tanpa tahu alasannya\"** (27%).\n\nCheckout v2 merapikan ringkasan harga dan alur voucher. Rilisnya harus aman sebelum traffic puncak 11.11, yang diperkirakan **6× traffic** hari biasa.\n\n## 2. Tujuan & Success Metrics\n\n| Metric | 10.10 | Target 11.11 |\n|---|---|---|\n| Checkout → bayar (conversion) | 69% | ≥ 78% |\n| Ticket CS \"voucher tidak bisa dipakai\" | 1.840 | ≤ 600 |\n| Error checkout saat puncak traffic | 3,4% | ≤ 0,5% |\n\n## 3. Scope\n\n**In scope:** halaman checkout (alamat, produk, pengiriman, voucher, metode pembayaran, ringkasan), ubah jumlah barang, pilih voucher dari daftar, masukkan kode voucher, tombol Bayar.\n\n**Out of scope:** checkout multi-toko, cicilan/paylater, poin loyalti, ubah alamat (memakai halaman alamat yang sudah ada).\n\n## 4. User Stories & Acceptance Criteria\n\n### US-01 — Ringkasan checkout\n\n> Sebagai pembeli, saya ingin melihat rincian dan total yang harus dibayar dengan jelas sebelum membayar.\n\n- **AC1** Halaman menampilkan alamat pengiriman, daftar produk, opsi pengiriman, voucher, metode pembayaran, dan ringkasan pembayaran.\n- **AC2** Total tagihan = subtotal produk + ongkos kirim + biaya layanan − diskon voucher.\n- **AC3** Biaya layanan **Rp 1.000** per transaksi.\n- **AC4** Produk yang sedang diskon menampilkan harga coret dan persentase diskonnya.\n- **AC5** Diskon ditampilkan sebagai **pengurang** di ringkasan.\n\n### US-02 — Ubah jumlah barang\n\n> Sebagai pembeli, saya ingin mengubah jumlah barang tanpa kembali ke keranjang.\n\n- **AC1** Jumlah bisa diubah dengan tombol − dan +.\n- **AC2** Jumlah minimal 1.\n- **AC3** Total dan kelayakan voucher dihitung ulang setiap jumlah berubah.\n\n### US-03 — Pilih voucher\n\n> Sebagai pembeli, saya ingin memakai voucher agar belanja lebih hemat.\n\n- **AC1** User membuka daftar voucher dari halaman checkout.\n- **AC2** Jenis voucher: **diskon nominal**, **diskon persen dengan batas maksimal**, dan **gratis ongkir dengan batas maksimal**.\n- **AC3** Setiap voucher punya minimal belanja dan masa berlaku.\n- **AC4** User bisa memakai voucher promo.\n- **AC5** Voucher yang tidak bisa dipakai harus jelas alasannya.\n\n### US-04 — Kode voucher\n\n> Sebagai pembeli, saya ingin memasukkan kode voucher yang saya dapat dari media sosial.\n\n- **AC1** User bisa mengetik kode voucher lalu menekan **Pakai**.\n- **AC2** Kode tidak valid → tampilkan pesan error.\n\n### US-05 — Bayar\n\n> Sebagai pembeli, saya ingin menyelesaikan pesanan dengan satu tombol.\n\n- **AC1** Tombol **Bayar** membuat pesanan dan menampilkan instruksi pembayaran.\n- **AC2** Stok produk berkurang setelah pembayaran berhasil.\n- **AC3** Pesanan yang tidak dibayar dalam **24 jam** dibatalkan otomatis.\n\n## 5. Non-functional\n\n- Halaman checkout harus **cepat** saat traffic 11.11.\n- Tampilan mengikuti file desain yang berstatus *Ready for dev*.\n- Mendukung Android 9+, iOS 15+, dan mobile web (lebar layar mulai 360px).\n\n## 6. Analytics\n\n`checkout_viewed`, `voucher_sheet_opened`, `voucher_applied`, `voucher_failed`, `pay_clicked`, `order_created`."
+    "markdown": "| Info | Detail |\n|---|---|\n| **Produk** | TokoKita (aplikasi Android, iOS, mobile web) |\n| **Fitur** | Checkout v2 & Voucher Promo 11.11 |\n| **PM** | Bima Santoso |\n| **Desain** | Laras Ayuningtyas · file \"Checkout v2 · Kampanye 11.11\" (Ready for dev) |\n| **Status** | Ready for QA Review |\n| **Target rilis** | 7 November, 4 hari sebelum kampanye 11.11 |\n\n## 1. Latar Belakang\n\nSaat kampanye 10.10, **31%** user yang sudah masuk halaman checkout tidak menyelesaikan pembayaran. Dari survei exit (n = 2.100), alasan terbanyak adalah **\"total harga tidak jelas\"** (38%) dan **\"voucher tidak bisa dipakai tanpa tahu alasannya\"** (27%).\n\nCheckout v2 merapikan ringkasan harga dan alur voucher. Rilisnya harus aman sebelum traffic puncak 11.11, yang diperkirakan **6× traffic** hari biasa.\n\n## 2. Tujuan & Success Metrics\n\n| Metric | 10.10 | Target 11.11 |\n|---|---|---|\n| Checkout → bayar (conversion) | 69% | ≥ 78% |\n| Ticket CS \"voucher tidak bisa dipakai\" | 1.840 | ≤ 600 |\n| Error checkout saat puncak traffic | 3,4% | ≤ 0,5% |\n\n## 3. Scope\n\n**In scope:** halaman checkout (alamat, produk, pengiriman, voucher, metode pembayaran, ringkasan), ubah jumlah barang, pilih voucher dari daftar, masukkan kode voucher, tombol Bayar.\n\n**Out of scope:** checkout multi-toko, cicilan/paylater, poin loyalti, ubah alamat (memakai halaman alamat yang sudah ada).\n\n## 4. User Stories & Acceptance Criteria\n\n### US-01: Ringkasan checkout\n\n> Sebagai pembeli, saya ingin melihat rincian dan total yang harus dibayar dengan jelas sebelum membayar.\n\n- **AC1** Halaman menampilkan alamat pengiriman, daftar produk, opsi pengiriman, voucher, metode pembayaran, dan ringkasan pembayaran.\n- **AC2** Total tagihan = subtotal produk + ongkos kirim + biaya layanan − diskon voucher.\n- **AC3** Biaya layanan **Rp 1.000** per transaksi.\n- **AC4** Produk yang sedang diskon menampilkan harga coret dan persentase diskonnya.\n- **AC5** Diskon ditampilkan sebagai **pengurang** di ringkasan.\n\n### US-02: Ubah jumlah barang\n\n> Sebagai pembeli, saya ingin mengubah jumlah barang tanpa kembali ke keranjang.\n\n- **AC1** Jumlah bisa diubah dengan tombol − dan +.\n- **AC2** Jumlah minimal 1.\n- **AC3** Total dan kelayakan voucher dihitung ulang setiap jumlah berubah.\n\n### US-03: Pilih voucher\n\n> Sebagai pembeli, saya ingin memakai voucher agar belanja lebih hemat.\n\n- **AC1** User membuka daftar voucher dari halaman checkout.\n- **AC2** Jenis voucher: **diskon nominal**, **diskon persen dengan batas maksimal**, dan **gratis ongkir dengan batas maksimal**.\n- **AC3** Setiap voucher punya minimal belanja dan masa berlaku.\n- **AC4** User bisa memakai voucher promo.\n- **AC5** Voucher yang tidak bisa dipakai harus jelas alasannya.\n\n### US-04: Kode voucher\n\n> Sebagai pembeli, saya ingin memasukkan kode voucher yang saya dapat dari media sosial.\n\n- **AC1** User bisa mengetik kode voucher lalu menekan **Pakai**.\n- **AC2** Kode tidak valid → tampilkan pesan error.\n\n### US-05: Bayar\n\n> Sebagai pembeli, saya ingin menyelesaikan pesanan dengan satu tombol.\n\n- **AC1** Tombol **Bayar** membuat pesanan dan menampilkan instruksi pembayaran.\n- **AC2** Stok produk berkurang setelah pembayaran berhasil.\n- **AC3** Pesanan yang tidak dibayar dalam **24 jam** dibatalkan otomatis.\n\n## 5. Non-functional\n\n- Halaman checkout harus **cepat** saat traffic 11.11.\n- Tampilan mengikuti file desain yang berstatus *Ready for dev*.\n- Mendukung Android 9+, iOS 15+, dan mobile web (lebar layar mulai 360px).\n\n## 6. Analytics\n\n`checkout_viewed`, `voucher_sheet_opened`, `voucher_applied`, `voucher_failed`, `pay_clicked`, `order_created`."
   },
   "phases": [
     {
@@ -79,16 +79,16 @@
         ],
         "resources": [
           {
-            "label": "Cara Membaca PRD sebagai QA",
-            "url": "/qa-library/cara-membaca-prd-sebagai-qa"
+            "label": "Membaca PRD Promo dan Kampanye",
+            "url": "/qa-library/membaca-prd-promo-dan-kampanye"
           },
           {
-            "label": "Membaca PRD Fitur Uang dengan Kacamata Risiko",
-            "url": "/qa-library/membaca-prd-fitur-uang-dengan-kacamata-risiko"
+            "label": "Kasus Ramai: Kuota, Stok, dan Klik Dobel",
+            "url": "/qa-library/kasus-ramai-kuota-stok-dan-klik-dobel"
           },
           {
-            "label": "Kasus Gagal yang Sering Hilang dari PRD",
-            "url": "/qa-library/kasus-gagal-yang-sering-hilang-dari-prd"
+            "label": "Peta Risiko Rilis Kampanye",
+            "url": "/qa-library/peta-risiko-rilis-kampanye"
           }
         ]
       },
@@ -140,7 +140,7 @@
                 "label": "Pertanyaan untuk PM",
                 "type": "textarea",
                 "required": true,
-                "placeholder": "Contoh: US-03 AC3 — minimal belanja dihitung dari subtotal sebelum atau sesudah diskon produk? Ongkir ikut dihitung?"
+                "placeholder": "Contoh: US-03 AC3: minimal belanja dihitung dari subtotal sebelum atau sesudah diskon produk? Ongkir ikut dihitung?"
               },
               {
                 "id": "impact",
@@ -422,12 +422,20 @@
         ],
         "resources": [
           {
-            "label": "WebAIM Contrast Checker",
-            "url": "https://webaim.org/resources/contrastchecker/"
+            "label": "Design Review untuk QA: Sistematis dan Terukur",
+            "url": "/qa-library/design-review-untuk-qa"
           },
           {
-            "label": "QA Library: artikel manual testing",
-            "url": "/qa-library"
+            "label": "State yang Sering Hilang dari Desain",
+            "url": "/qa-library/state-yang-sering-hilang-dari-desain"
+          },
+          {
+            "label": "Aksesibilitas Dasar untuk QA",
+            "url": "/qa-library/aksesibilitas-dasar-untuk-qa"
+          },
+          {
+            "label": "WebAIM Contrast Checker",
+            "url": "https://webaim.org/resources/contrastchecker/"
           }
         ]
       },
@@ -827,6 +835,778 @@
                 "tag": "Keputusan desain",
                 "title": "Loading Bayar & state error",
                 "detail": "Laras perlu mengesahkan state loading Bayar yang sudah ada di build, dan mendesain error jaringan serta voucher kedaluwarsa saat Bayar."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "voucher-testing",
+      "title": "Voucher & Pricing Testing",
+      "shortTitle": "Voucher Testing",
+      "summary": "Uji logika voucher dan harga di build rc2: minimal belanja, batas diskon, gratis ongkir, kode voucher, perubahan jumlah barang, kuota, dan tombol Bayar. Temukan bug yang membuat total salah sebelum 11.11.",
+      "requiresLogin": true,
+      "addedAt": "2026-11-29",
+      "learn": {
+        "objectives": [
+          "Menurunkan test case dari aturan bisnis voucher dengan decision table dan boundary value analysis.",
+          "Memverifikasi rumus total secara manual, baris per baris, bukan hanya melihat angka akhir.",
+          "Menguji transisi state: voucher yang sudah terpakai lalu kondisi keranjang berubah.",
+          "Menguji alur yang rawan race condition: tombol ditekan berkali-kali dan kuota yang habis di tengah checkout."
+        ],
+        "keyPoints": [
+          {
+            "title": "Hitung sendiri, baru bandingkan",
+            "body": "Untuk setiap skenario, tulis dulu expected-nya dengan rumus PRD: **subtotal + ongkir + biaya layanan − diskon**. Baru setelah itu lihat layar. Tester yang melihat angka dulu cenderung ikut percaya pada angka itu.\n\nCek juga setiap baris ringkasan, bukan hanya total. Dua bug bisa saling menutupi sehingga totalnya kebetulan terlihat wajar."
+          },
+          {
+            "title": "Boundary ada di setiap angka syarat",
+            "body": "Setiap voucher punya **minimal belanja**, dan sebagian punya **batas maksimal** potongan. Uji di bawah, tepat di, dan di atas setiap batas. Atur subtotal lewat jumlah barang, lalu catat angkanya di data uji.\n\nBaca catatan rilis untuk tahu apakah batasnya inklusif atau eksklusif."
+          },
+          {
+            "title": "Voucher punya state, bukan cuma nilai",
+            "body": "Voucher yang valid saat dipilih bisa jadi tidak valid setelah jumlah barang dikurangi, setelah kuotanya habis, atau saat Bayar. Uji transisinya: **pakai voucher → ubah kondisi → cek ringkasan dan hasil Bayar**."
+          },
+          {
+            "title": "Semua jalan masuk harus lewat aturan yang sama",
+            "body": "Voucher bisa dipakai dari **daftar** dan dari **kode**. Kalau aturan hanya dicek di satu jalan, jalan lain jadi celah. Uji aturan yang sama dari setiap jalan masuk, terutama untuk voucher yang belum memenuhi syarat."
+          },
+          {
+            "title": "Severity untuk bug uang",
+            "body": "**Critical**: user membayar lebih sedikit atau lebih banyak dari aturan tanpa batas yang jelas, pesanan dobel, atau promo bisa dipakai melebihi kuota.\n\n**Major**: aturan voucher salah dengan selisih kecil dan terbatas, atau user terhalang memakai voucher yang seharusnya boleh.\n\n**Minor**: teks atau pesan yang kurang tepat tanpa salah hitung."
+          }
+        ],
+        "resources": [
+          {
+            "label": "Decision Table untuk Aturan Promo",
+            "url": "/qa-library/decision-table-untuk-aturan-promo"
+          },
+          {
+            "label": "State Transition Testing: Promo yang Berubah Status",
+            "url": "/qa-library/state-transition-testing-promo"
+          },
+          {
+            "label": "Menguji Race Condition dan Double Submit",
+            "url": "/qa-library/race-condition-dan-double-submit"
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "lead",
+        "message": "Halo, aku Reza, frontend lead Checkout 👋\n\nMakasih design review-nya. Semua 13 deviasi sudah kami fix di **v5.2.0-rc2**, dan Bima minta voucher baru **PERSEN11** ikut masuk untuk 11.11.\n\nSekarang giliran logikanya. Perhitungan voucher dan ringkasan harga kami tulis ulang, jadi aku belum yakin semua aturan di PRD sudah benar 😬\n\nTolong:\n1. Susun dan jalankan **test case voucher & harga** di staging rc2. Fokus ke aturan dan angka, bukan tampilan.\n2. Laporkan **bug** yang kamu temukan, lengkap dengan angka expected vs actual.\n\nDi staging ada panel **Test data** untuk mensimulasikan kuota voucher habis. Pakai ya, kasus itu susah dites manual. Detail build ada di **PRD v1.2**."
+      },
+      "prdAddendum": {
+        "version": "v1.2",
+        "markdown": "_Catatan rilis build **v5.2.0-rc2**. Acuan expected behavior tetap PRD v1.1. Bagian ini menambah, bukan mengganti._\n\n### Perbaikan dari rc1\n- Semua 13 deviasi design review (DR-01 s.d. DR-13) sudah diperbaiki. Tampilan rc2 mengikuti file desain Checkout v2.\n- State loading tombol Bayar disahkan desainer: spinner + teks \"Memproses…\", dan tombol **nonaktif** selama proses.\n\n### Perubahan logika\n- Perhitungan voucher dan ringkasan harga **ditulis ulang** di sisi aplikasi.\n- Voucher baru untuk 11.11: **PERSEN11**, diskon 11% maksimal Rp 75.000, minimal belanja Rp 250.000.\n\n### Klarifikasi tambahan dari PM\n- Minimal belanja bersifat **inklusif**: subtotal yang sama persis dengan minimal belanja sudah memenuhi syarat.\n- Aturan kelayakan berlaku **sama** untuk voucher yang dipilih dari daftar maupun yang dimasukkan lewat kode.\n- Kalau voucher tidak lagi memenuhi syarat setelah jumlah barang berubah, voucher **dilepas otomatis** dan user diberi tahu alasannya.\n\n### Data uji di staging\n| Data | Nilai |\n|---|---|\n| Keranjang awal | Sepatu Lari Pro Glide 3 (Rp 459.000) ×1, Kaos Kaki Lari Ankle (Rp 41.000) ×1 |\n| Ongkir | Reguler KitaExpress, Rp 18.000 |\n| Voucher | 1111HEMAT, ONGKIR20, SUPER11, PERSEN11 |\n| Panel Test data | \"Kuota voucher habis\": kuota voucher yang sedang kamu pakai diambil habis user lain saat kamu masih di checkout |\n| Tombol Reset | Mengembalikan keranjang dan voucher ke kondisi awal |"
+      },
+      "sandbox": {
+        "label": "Buka TokoKita Staging rc2",
+        "path": "/qa-simulator/sandbox/tokokita?build=rc2",
+        "description": "Build checkout v5.2.0-rc2. Tampilan sudah sesuai desain, logika voucher dan harga baru ditulis ulang. Pakai panel Test data untuk simulasi kuota habis, dan Reset untuk kembali ke keranjang awal."
+      },
+      "assignments": [
+        {
+          "id": "vp-cases",
+          "title": "Susun & jalankan test case voucher",
+          "instructions": "Turunkan test case dari aturan voucher di **PRD v1.1** dan **catatan rilis v1.2**. Untuk setiap test, tulis **data uji** (jumlah barang, voucher, cara memakainya) dan **expected** yang kamu hitung sendiri, lalu jalankan di staging rc2 dan isi hasilnya.\n\nPastikan setiap voucher diuji di **boundary** minimal belanja dan batas maksimalnya, setiap aturan diuji dari **semua jalan masuk** (daftar dan kode), dan ada test untuk **perubahan state** setelah voucher terpakai.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Test",
+            "minItems": 10,
+            "fields": [
+              {
+                "id": "area",
+                "label": "Area",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Minimal belanja",
+                  "Diskon nominal",
+                  "Diskon persen",
+                  "Gratis ongkir",
+                  "Kode voucher",
+                  "Ubah jumlah barang",
+                  "Ringkasan & total",
+                  "Bayar & kuota"
+                ]
+              },
+              {
+                "id": "technique",
+                "label": "Teknik",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Boundary value",
+                  "Equivalence partition",
+                  "Decision table",
+                  "State transition",
+                  "Error guessing"
+                ]
+              },
+              {
+                "id": "data",
+                "label": "Data uji",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Sepatu ×1 + Kaos kaki ×3 (subtotal Rp 582.000), pilih 1111HEMAT dari daftar"
+              },
+              {
+                "id": "expected",
+                "label": "Expected (hasil hitunganmu)",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Bisa dipilih. Total = 582.000 + 18.000 + 1.000 − 50.000 = Rp 551.000"
+              },
+              {
+                "id": "result",
+                "label": "Hasil",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Blocked"
+                ]
+              },
+              {
+                "id": "note",
+                "label": "Catatan",
+                "type": "text",
+                "placeholder": "Mis. actual Rp …, lihat bug #2"
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 10 test yang mencakup minimal 5 area berbeda.",
+            "Setiap voucher diuji di boundary minimal belanja: di bawah, tepat di, dan di atas batas.",
+            "Expected ditulis sebagai angka hasil hitungan sendiri, bukan \"sesuai PRD\".",
+            "Ada test transisi state: voucher terpakai lalu jumlah barang dikurangi.",
+            "Ada test jalan masuk kode untuk voucher yang belum memenuhi syarat.",
+            "Ada test alur Bayar: ditekan berkali-kali dan kuota habis."
+          ],
+          "rubric": [
+            {
+              "id": "coverage",
+              "label": "≥ 10 test di ≥ 5 area berbeda",
+              "weight": 2
+            },
+            {
+              "id": "boundary",
+              "label": "Boundary minimal belanja & batas maksimal diuji",
+              "weight": 2
+            },
+            {
+              "id": "expected",
+              "label": "Expected berupa angka yang dihitung sendiri",
+              "weight": 2
+            },
+            {
+              "id": "state",
+              "label": "Menguji transisi state dan semua jalan masuk voucher",
+              "weight": 2
+            },
+            {
+              "id": "executed",
+              "label": "Hasil sesuai eksekusi nyata (ada test yang Fail)",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Contoh test yang paling banyak menemukan bug di rc2. Data ujimu boleh berbeda, yang penting tekniknya sama.",
+            "items": [
+              {
+                "tag": "Boundary",
+                "title": "Subtotal tepat Rp 500.000 + 1111HEMAT",
+                "detail": "Keranjang awal sudah tepat Rp 500.000. Expected (v1.2, inklusif): voucher bisa dipilih. Total = 500.000 + 18.000 + 1.000 − 50.000 = Rp 469.000."
+              },
+              {
+                "tag": "Boundary",
+                "title": "PERSEN11 di atas batas maksimal",
+                "detail": "Sepatu ×2 + kaos kaki ×1 = Rp 959.000. 11% = Rp 105.490, dibatasi jadi Rp 75.000. Total = 959.000 + 18.000 + 1.000 − 75.000 = Rp 903.000."
+              },
+              {
+                "tag": "Equivalence",
+                "title": "ONGKIR20 saat ongkir lebih kecil dari batas",
+                "detail": "Ongkir Rp 18.000, batas voucher Rp 20.000. Expected potongan Rp 18.000. Sisa batas tidak dipakai untuk hal lain (v1.1)."
+              },
+              {
+                "tag": "Decision table",
+                "title": "Biaya layanan dengan banyak barang",
+                "detail": "Ubah jumlah jadi 4 barang. Expected biaya layanan tetap Rp 1.000, karena dihitung per transaksi (US-01 AC3)."
+              },
+              {
+                "tag": "State transition",
+                "title": "Voucher lepas saat subtotal turun di bawah syarat",
+                "detail": "Sepatu ×2 + kaos kaki ×3 = Rp 1.041.000, pakai SUPER11, lalu kurangi kaos kaki ke 1 (Rp 959.000). Expected: SUPER11 dilepas otomatis dan ada alasannya (v1.2)."
+              },
+              {
+                "tag": "Jalan masuk",
+                "title": "Kode untuk voucher yang belum memenuhi syarat",
+                "detail": "Di subtotal Rp 500.000, ketik SUPER11 lalu Pakai. Expected: ditolak dengan alasan kekurangan belanja, sama seperti di daftar."
+              },
+              {
+                "tag": "Error guessing",
+                "title": "Tekan Bayar dua kali dengan cepat",
+                "detail": "Expected: hanya 1 pesanan dan 1 nomor VA. Tombol nonaktif selama proses (v1.2)."
+              },
+              {
+                "tag": "State transition",
+                "title": "Kuota habis sebelum Bayar",
+                "detail": "Pakai PERSEN11, nyalakan \"Kuota voucher habis\", tekan Bayar. Expected: pesanan tidak dibuat dan user diminta memilih voucher lain (v1.1)."
+              },
+              {
+                "tag": "Negatif",
+                "title": "Kode tidak dikenal dan kode huruf kecil",
+                "detail": "Kode acak → error inline sesuai v1.1. Kode \"persen11\" (huruf kecil) tetap dikenali. Keduanya Pass di rc2: tidak semua test harus Fail."
+              }
+            ]
+          }
+        },
+        {
+          "id": "vp-bugs",
+          "title": "Laporkan bug voucher & harga",
+          "instructions": "Tulis bug report untuk setiap test yang Fail di rc2. Sertakan **angka** expected vs actual (subtotal, diskon, biaya layanan, total) dan rujuk aturannya di **PRD v1.1** atau **catatan rilis v1.2**.\n\nBug yang membuat user membayar dengan jumlah yang salah, membuat pesanan dobel, atau membuat promo terpakai melebihi kuota adalah kandidat Critical.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Bug",
+            "minItems": 4,
+            "fields": [
+              {
+                "id": "title",
+                "label": "Judul",
+                "type": "text",
+                "required": true,
+                "placeholder": "[Voucher] Ringkasan singkat masalahnya"
+              },
+              {
+                "id": "severity",
+                "label": "Severity",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Critical",
+                  "Major",
+                  "Minor",
+                  "Trivial"
+                ]
+              },
+              {
+                "id": "priority",
+                "label": "Priority",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "P1",
+                  "P2",
+                  "P3"
+                ]
+              },
+              {
+                "id": "steps",
+                "label": "Langkah reproduksi",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "1. Reset staging\n2. Ubah jumlah …\n3. Pakai voucher …"
+              },
+              {
+                "id": "expected",
+                "label": "Expected (rujuk PRD v1.1 / catatan rilis v1.2)",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Hitung angkanya: subtotal, diskon, biaya layanan, total"
+              },
+              {
+                "id": "actual",
+                "label": "Actual",
+                "type": "textarea",
+                "required": true
+              },
+              {
+                "id": "environment",
+                "label": "Environment",
+                "type": "text",
+                "placeholder": "Staging v5.2.0-rc2, Chrome 131, lebar 375px"
+              },
+              {
+                "id": "evidence",
+                "label": "Link evidence",
+                "type": "url",
+                "placeholder": "https://…"
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 4 bug valid. Target ideal: ≥ 6 dari 8 bug yang ditanam.",
+            "Minimal 1 bug Critical yang membuat total salah (voucher tidak lepas, diskon persen tanpa batas, atau kode melewati syarat).",
+            "Menemukan minimal 1 bug alur Bayar: pesanan dobel atau kuota tidak dicek ulang.",
+            "Langkah reproduksi menyebut jumlah barang, voucher, dan cara memakainya.",
+            "Expected berupa angka dan merujuk PRD v1.1 atau catatan rilis v1.2."
+          ],
+          "rubric": [
+            {
+              "id": "count",
+              "label": "Menemukan ≥ 5 bug valid",
+              "weight": 2
+            },
+            {
+              "id": "critical",
+              "label": "Menemukan bug Critical salah hitung (VP-01 / VP-03 / VP-06)",
+              "weight": 3
+            },
+            {
+              "id": "pay",
+              "label": "Menemukan bug alur Bayar (pesanan dobel / kuota)",
+              "weight": 2
+            },
+            {
+              "id": "repro",
+              "label": "Langkah reproduksi bisa diulang tanpa bertanya",
+              "weight": 2
+            },
+            {
+              "id": "severity",
+              "label": "Severity & priority masuk akal",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Ada 8 bug yang ditanam di build rc2. Berapa yang kamu temukan?",
+            "items": [
+              {
+                "tag": "Critical",
+                "title": "VP-01 Voucher tidak lepas setelah jumlah barang dikurangi",
+                "detail": "Sepatu ×2 + kaos kaki ×3 (Rp 1.041.000), pakai SUPER11, lalu kurangi kaos kaki ke 1 (Rp 959.000). SUPER11 tetap memotong Rp 150.000 padahal minimal belanjanya Rp 1.000.000. Expected (v1.2): voucher dilepas otomatis dengan alasan."
+              },
+              {
+                "tag": "Critical",
+                "title": "VP-03 Diskon persen tidak dibatasi maksimal",
+                "detail": "Sepatu ×2 + kaos kaki ×1 (Rp 959.000) + PERSEN11. Build memotong Rp 105.490 (11% penuh), expected Rp 75.000. Selisihnya makin besar di keranjang besar, dan ini voucher utama 11.11."
+              },
+              {
+                "tag": "Critical",
+                "title": "VP-06 Kode voucher melewati cek minimal belanja",
+                "detail": "Di subtotal Rp 500.000, ketik SUPER11 lalu Pakai. Voucher langsung terpakai dan memotong Rp 150.000, padahal di daftar SUPER11 terkunci. Aturan wajib sama di semua jalan masuk (v1.2)."
+              },
+              {
+                "tag": "Critical",
+                "title": "VP-07 Bayar ditekan dua kali membuat 2 pesanan",
+                "detail": "Tekan Bayar dua kali dengan cepat. Spinner baru muncul setelah ± 0,7 detik, lalu halaman sukses menampilkan 2 pesanan dengan 2 nomor VA. PRD v1.1: tombol Bayar tidak boleh membuat pesanan dobel. Stok juga ter-reserve dua kali."
+              },
+              {
+                "tag": "Critical",
+                "title": "VP-08 Kuota voucher tidak dicek ulang saat Bayar",
+                "detail": "Pakai PERSEN11, nyalakan \"Kuota voucher habis\", lalu Bayar. Pesanan tetap dibuat dengan diskon. PRD v1.1: kelayakan dan kuota dicek ulang saat Bayar. Saat 11.11 ini berarti promo terpakai melebihi kuota dan biaya promo bocor."
+              },
+              {
+                "tag": "Major",
+                "title": "VP-04 Gratis ongkir memotong lebih dari ongkir",
+                "detail": "Dengan ONGKIR20, ringkasan menampilkan ongkos kirim Rp 18.000 tetapi diskon ongkir −Rp 20.000. Sisa Rp 2.000 ikut memotong harga barang. Expected potongan Rp 18.000 (v1.1)."
+              },
+              {
+                "tag": "Major",
+                "title": "VP-05 Biaya layanan dihitung per barang",
+                "detail": "Keranjang awal (2 barang) menampilkan biaya layanan Rp 2.000, dan dengan 4 barang menjadi Rp 4.000. PRD US-01 AC3: Rp 1.000 per transaksi. Semua user membayar lebih."
+              },
+              {
+                "tag": "Major",
+                "title": "VP-02 Minimal belanja tidak inklusif",
+                "detail": "Di keranjang awal (Rp 500.000), 1111HEMAT terkunci dengan teks \"Belanja Rp 0 lagi untuk pakai voucher ini\". Expected (v1.2): subtotal tepat Rp 500.000 sudah memenuhi syarat. Teks \"Rp 0 lagi\" adalah bukti yang kuat untuk bug report."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "release-readiness",
+      "title": "Performance & Release Readiness 11.11",
+      "shortTitle": "Release Readiness",
+      "summary": "Build rc3 hampir siap secara fungsional. Baca hasil load test 6× traffic, validasi event analytics yang dipakai mengukur success metrics, lalu tulis rekomendasi Go / No-Go lengkap dengan rencana monitoring dan rollback untuk 11.11.",
+      "requiresLogin": true,
+      "addedAt": "2026-11-29",
+      "learn": {
+        "objectives": [
+          "Membaca laporan load test: membedakan rata-rata, p95, dan error rate, lalu membandingkannya dengan target di PRD per endpoint.",
+          "Menilai apakah skenario load test mewakili kondisi 11.11 yang sebenarnya.",
+          "Memvalidasi event analytics terhadap tracking plan, karena success metrics hanya bisa diukur kalau datanya benar.",
+          "Menulis keputusan rilis yang bisa dieksekusi: syarat Go, monitoring hari H, dan rencana rollback."
+        ],
+        "keyPoints": [
+          {
+            "title": "Rata-rata menyembunyikan user yang menunggu",
+            "body": "Target performa ditulis dalam **p95**: 95% request harus lebih cepat dari angka itu. Rata-rata 400 ms bisa berarti 1 dari 20 user menunggu lebih dari 1 detik. Di traffic puncak, 5% itu ribuan checkout per menit. Selalu bandingkan p95 (dan p99 kalau ada) dengan target, **per endpoint**."
+          },
+          {
+            "title": "Error rate per endpoint, bukan total",
+            "body": "Error rate total yang kecil bisa menyembunyikan satu endpoint dengan error tinggi, karena endpoint yang paling sering dipanggil mendominasi rata-ratanya. Hitung dan bandingkan error rate setiap endpoint yang penting untuk user."
+          },
+          {
+            "title": "Load test hanya sebaik skenarionya",
+            "body": "Cek tiga hal sebelum percaya hasilnya:\n\n1. **Bentuk traffic**: naik pelan, atau lonjakan tiba-tiba seperti tengah malam kampanye?\n2. **Data uji**: apakah mirip perilaku user asli? Misalnya, apakah banyak user memakai promo yang sama?\n3. **Dependency**: payment gateway, cache, dan database diuji asli, atau di-mock dan dipanaskan?"
+          },
+          {
+            "title": "Analytics adalah bagian dari fitur",
+            "body": "Success metrics di PRD dihitung dari event. Event yang hilang, dobel, atau salah tipe data membuat tim tidak bisa membuktikan fitur berhasil, atau lebih buruk, mengambil keputusan dari angka yang salah. Cocokkan setiap event dengan tracking plan: **kapan** dikirim, **berapa kali**, **properti** apa, dan **tipe datanya**."
+          },
+          {
+            "title": "Go / No-Go yang bisa dieksekusi",
+            "body": "Keputusan yang baik menyebut: status saat ini, risiko kalau tetap rilis, **syarat Go** yang terukur, **monitoring** hari H (metrik, ambang alert, siapa yang jaga), dan **rollback** (kapan fitur dimatikan, caranya, berapa lama, siapa yang memutuskan)."
+          }
+        ],
+        "resources": [
+          {
+            "label": "Membaca Hasil Load Test sebagai QA",
+            "url": "/qa-library/membaca-hasil-load-test"
+          },
+          {
+            "label": "Validasi Event Analytics sebelum Rilis",
+            "url": "/qa-library/validasi-event-analytics"
+          },
+          {
+            "label": "Go / No-Go Kampanye: Monitoring dan Rollback Hari H",
+            "url": "/qa-library/monitoring-dan-rollback-hari-h"
+          }
+        ]
+      },
+      "brief": {
+        "fromId": "pm",
+        "message": "Halo, aku Bima, PM Checkout 👋\n\nBerkat temuanmu di rc2, tim sudah merilis **v5.2.0-rc3** ke staging. Retest dari Sari: hampir semua bug VP sudah fixed, tinggal satu yang masih dikerjakan backend.\n\nRilis dijadwalkan **7 November**, dan Kamis ini ada **Go / No-Go meeting**. Sebelum itu aku butuh bantuanmu:\n1. Baca **hasil load test** dari tim Platform. Apakah checkout siap menahan 6× traffic?\n2. Cek **event analytics** dari sesi uji di staging. Setelah 11.11 aku harus melaporkan conversion dan ticket voucher, jadi datanya harus benar.\n3. Tulis **rekomendasi Go / No-Go** untuk aku dan Reza, lengkap dengan rencana monitoring dan rollback.\n\nSemua bahannya ada di **PRD v1.3**, dan build rc3 bisa kamu buka sendiri di staging. Tim Platform bilang \"aman\", tapi aku mau dengar pendapat QA dulu 🙏"
+      },
+      "prdAddendum": {
+        "version": "v1.3",
+        "markdown": "_Status build **v5.2.0-rc3**, hasil load test, dan log analytics dari staging. Bahan untuk Go / No-Go meeting, Kamis 5 November._\n\n### Status fungsional rc3\n| Item | Status |\n|---|---|\n| VP-01 s.d. VP-07 | Fixed, retest pass |\n| VP-08 Kuota voucher tidak dicek ulang saat Bayar | **Open**. Fix butuh locking kuota di backend, estimasi selesai 6 November |\n| DR-01 s.d. DR-13 | Fixed (sejak rc2) |\n\nRegression checkout: 42 test case, 41 pass, 1 fail (VP-08).\n\n### Hasil load test (tim Platform, 3 November)\n**Skenario:** traffic naik bertahap dari 1× ke 6× selama 30 menit, lalu bertahan di 6× selama 15 menit, dengan 20.000 virtual user. Setiap virtual user memakai salah satu dari 5.000 kode voucher unik yang dibuat khusus untuk test. Payment gateway di-mock (respons tetap 50 ms). Cache produk dipanaskan sebelum test dimulai.\n\n| Endpoint | Request/detik di 6× | Rata-rata | p95 | p99 | Error rate |\n|---|---|---|---|---|---|\n| GET /checkout | 2.400 | 310 ms | 690 ms | 1.450 ms | 0,1% |\n| POST /voucher/apply | 1.100 | 380 ms | 1.020 ms | 2.900 ms | 2,3% |\n| POST /order | 600 | 420 ms | 1.180 ms | 3.400 ms | 0,6% |\n| **Total** | **4.100** | **350 ms** | **880 ms** | **2.300 ms** | **0,4%** |\n\n- Error terbanyak di POST /voucher/apply: `HTTP 409 VOUCHER_LOCK_TIMEOUT`.\n- Autoscaling mencapai batas maksimal **40 pod** pada menit ke-26 (± 5× traffic). CPU rata-rata 91% selama fase 6×.\n- Halaman checkout (Lighthouse, throttling 4G, 20 run): LCP p95 **2,6 detik**.\n- Kesimpulan tim Platform: _\"Total error rate 0,4% masih di bawah target 0,5%. Aman untuk 11.11.\"_\n\n### Tracking plan\n| Event | Kapan dikirim | Properti wajib |\n|---|---|---|\n| checkout_viewed | Halaman checkout tampil | user_id, platform, cart_value (number) |\n| voucher_sheet_opened | Daftar voucher dibuka | user_id |\n| voucher_applied | Voucher berhasil dipakai | user_id, voucher_code, discount_amount (number) |\n| voucher_failed | Voucher gagal dipakai | user_id, voucher_code, reason |\n| pay_clicked | Tombol Bayar ditekan | user_id, total (number) |\n| order_created | Pesanan berhasil dibuat, 1× per pesanan | user_id, order_id, total (number), voucher_code |\n\n### Log analytics sesi uji staging (rc3, Android, user u_7731)\nLangkah sesi: buka checkout → buka daftar voucher → ketik kode SALAH11 → pilih 1111HEMAT → Bayar → pesanan TK-1105-50122 dibuat → halaman sukses.\n\n| # | Waktu | Event | Properti |\n|---|---|---|---|\n| 1 | 10:02:11 | checkout_viewed | user_id: u_7731, platform: android, cart_value: 588000 |\n| 2 | 10:02:19 | voucher_failed | user_id: u_7731, voucher_code: SALAH11 |\n| 3 | 10:02:25 | voucher_applied | user_id: u_7731, voucher_code: 1111HEMAT, discount_amount: \"50.000\" |\n| 4 | 10:02:31 | pay_clicked | user_id: u_7731, total: 557000 |\n| 5 | 10:02:33 | order_created | user_id: u_7731, order_id: TK-1105-50122, total: 557000, voucher_code: 1111HEMAT |\n| 6 | 10:02:34 | order_created | user_id: u_7731, order_id: TK-1105-50122, total: 557000, voucher_code: 1111HEMAT |\n| 7 | 10:02:40 | checkout_viewed | user_id: null, platform: android, cart_value: 0 |\n\n### Build rc3 di staging\n| Data | Nilai |\n|---|---|\n| Keranjang awal | Sepatu Lari Pro Glide 3 (Rp 459.000) ×1, Kaos Dry-Fit Training (Rp 129.000) ×1, sama dengan sesi log di atas |\n| Voucher | 1111HEMAT, ONGKIR20, SUPER11, PERSEN11 |\n| Panel Test data | \"Kuota voucher habis\" (untuk retest VP-08) dan \"Feature flag checkout_v2\" (OFF = checkout v1) |\n| Analytics debugger | Menampilkan event yang dikirim build ini secara langsung, dengan user staging u_8102 |\n\n### Kesiapan operasional\n- Feature flag `checkout_v2` tersedia. Kalau dimatikan dari dashboard config, semua user kembali ke checkout v1 dalam ± 2 menit. Belum pernah dicoba di staging.\n- Dashboard \"Checkout\" sudah ada (latency dan error per endpoint). **Belum ada alert** yang dikonfigurasi.\n- Jadwal on-call malam 11.11 **belum ditentukan**."
+      },
+      "sandbox": {
+        "label": "Buka TokoKita Staging rc3",
+        "path": "/qa-simulator/sandbox/tokokita?build=rc3",
+        "description": "Build checkout v5.2.0-rc3, kandidat rilis 11.11. Retest VP-08 lewat panel Test data, ulangi sesi uji sambil melihat Analytics debugger, dan coba matikan feature flag checkout_v2 untuk melihat rollback ke checkout v1."
+      },
+      "assignments": [
+        {
+          "id": "rr-performance",
+          "title": "Analisis hasil load test",
+          "instructions": "Baca hasil load test di **PRD v1.3** dan bandingkan dengan target non-functional di **PRD v1.1**: API checkout < 800 ms (p95) pada 6× traffic, halaman checkout tampil < 2 detik (p95) pada 4G, dan error checkout saat puncak ≤ 0,5%.\n\nCatat setiap temuan: angka yang tidak memenuhi target, bagian skenario yang tidak mewakili kondisi 11.11, dan risiko kapasitas. Jangan langsung percaya kesimpulan laporan. Cek sendiri angkanya per endpoint.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Temuan",
+            "minItems": 4,
+            "fields": [
+              {
+                "id": "kind",
+                "label": "Jenis",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Target tidak tercapai",
+                  "Skenario tidak realistis",
+                  "Kapasitas & infrastruktur"
+                ]
+              },
+              {
+                "id": "finding",
+                "label": "Temuan",
+                "type": "textarea",
+                "required": true
+              },
+              {
+                "id": "evidence",
+                "label": "Bukti (angka dari laporan)",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Contoh: p95 endpoint X sekian ms, target < 800 ms"
+              },
+              {
+                "id": "impact",
+                "label": "Dampak ke user / bisnis saat 11.11",
+                "type": "textarea",
+                "required": true
+              },
+              {
+                "id": "action",
+                "label": "Rekomendasi",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Test ulang apa, dengan skenario apa, target lulusnya berapa"
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 4 temuan yang mencampur angka yang gagal target dan kelemahan skenario.",
+            "Error rate dibaca per endpoint: POST /voucher/apply 2,3% dan POST /order 0,6% melewati target, walaupun totalnya 0,4%.",
+            "p95, bukan rata-rata, yang dibandingkan dengan target 800 ms.",
+            "Skenario dikritisi: ramp bertahap vs lonjakan tengah malam, kode voucher unik vs voucher populer, payment gateway di-mock.",
+            "Kapasitas disebut: autoscaling sudah mentok di ± 5× traffic."
+          ],
+          "rubric": [
+            {
+              "id": "endpoint",
+              "label": "Membaca error rate per endpoint dan menolak kesimpulan \"aman\"",
+              "weight": 3
+            },
+            {
+              "id": "p95",
+              "label": "Membandingkan p95 per endpoint dengan target",
+              "weight": 2
+            },
+            {
+              "id": "scenario",
+              "label": "Menemukan ≥ 2 kelemahan skenario load test",
+              "weight": 2
+            },
+            {
+              "id": "capacity",
+              "label": "Menyebut risiko kapasitas (batas autoscaling / CPU)",
+              "weight": 1
+            },
+            {
+              "id": "action",
+              "label": "Rekomendasi konkret: test ulang apa dan target lulusnya",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Ada 7 temuan di laporan load test. Kesimpulan tim Platform keliru karena hanya melihat angka total.",
+            "items": [
+              {
+                "tag": "Target",
+                "title": "PF-01 Error rate voucher dan order melewati target",
+                "detail": "POST /voucher/apply 2,3% dan POST /order 0,6%, target ≤ 0,5%. Total 0,4% terlihat aman hanya karena GET /checkout (paling banyak request, error 0,1%) mendominasi rata-ratanya. Error di voucher persis masalah 10.10: voucher gagal dipakai."
+              },
+              {
+                "tag": "Target",
+                "title": "PF-02 p95 API checkout di atas 800 ms",
+                "detail": "POST /voucher/apply p95 1.020 ms dan POST /order p95 1.180 ms, target < 800 ms. Rata-rata 380 dan 420 ms menyembunyikan ini. Hanya GET /checkout yang lulus."
+              },
+              {
+                "tag": "Target",
+                "title": "PF-03 Halaman checkout lebih lambat dari target",
+                "detail": "LCP p95 2,6 detik, target < 2 detik pada 4G."
+              },
+              {
+                "tag": "Skenario",
+                "title": "PF-04 Traffic naik pelan, bukan lonjakan",
+                "detail": "Ramp 30 menit dari 1× ke 6×. Di 11.11, traffic melonjak dalam hitungan menit tepat jam 00:00, sebelum autoscaling sempat menambah pod. Perlu spike test."
+              },
+              {
+                "tag": "Skenario",
+                "title": "PF-05 5.000 kode voucher unik tidak mewakili user asli",
+                "detail": "Saat 11.11 mayoritas user berebut voucher yang sama (misalnya 1111HEMAT). Antrean lock kuota di satu voucher jauh lebih parah. Error 409 VOUCHER_LOCK_TIMEOUT kemungkinan besar akan naik, apalagi setelah fix VP-08 menambah locking."
+              },
+              {
+                "tag": "Skenario",
+                "title": "PF-06 Payment gateway di-mock dan cache dipanaskan",
+                "detail": "Mock 50 ms membuat POST /order terlihat lebih cepat dari kenyataan. Cache yang dipanaskan juga menyembunyikan kondisi awal kampanye."
+              },
+              {
+                "tag": "Kapasitas",
+                "title": "PF-07 Autoscaling mentok di ± 5× traffic",
+                "detail": "Batas 40 pod tercapai di menit ke-26 dengan CPU 91%. Di 6× tidak ada ruang tambahan, dan traffic di atas perkiraan langsung menurunkan performa."
+              }
+            ]
+          }
+        },
+        {
+          "id": "rr-analytics",
+          "title": "Validasi event analytics",
+          "instructions": "Cocokkan **log analytics** sesi uji di PRD v1.3 dengan **tracking plan** dan langkah sesinya. Kamu juga bisa mengulang sesi yang sama di build rc3 dan melihat event-nya langsung di **Analytics debugger**. Untuk setiap event, cek: apakah dikirim di waktu yang benar, berapa kali, apakah semua properti wajib ada, dan apakah tipe datanya benar.\n\nLalu jelaskan **success metric** mana di PRD yang jadi salah kalau masalah itu lolos ke production.",
+          "input": {
+            "type": "list",
+            "itemLabel": "Temuan",
+            "minItems": 3,
+            "fields": [
+              {
+                "id": "event",
+                "label": "Event",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "checkout_viewed",
+                  "voucher_sheet_opened",
+                  "voucher_applied",
+                  "voucher_failed",
+                  "pay_clicked",
+                  "order_created"
+                ]
+              },
+              {
+                "id": "problem",
+                "label": "Masalah",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Event tidak terkirim",
+                  "Event terkirim dobel",
+                  "Properti wajib hilang",
+                  "Tipe data salah",
+                  "Terkirim di waktu yang salah"
+                ]
+              },
+              {
+                "id": "evidence",
+                "label": "Bukti dari log",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Baris #… : …"
+              },
+              {
+                "id": "impact",
+                "label": "Metrik yang terdampak",
+                "type": "textarea",
+                "required": true
+              },
+              {
+                "id": "severity",
+                "label": "Severity",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "High",
+                  "Medium",
+                  "Low"
+                ]
+              }
+            ]
+          },
+          "expectedOutput": [
+            "Minimal 3 masalah event yang valid, dengan nomor baris log sebagai bukti.",
+            "Menemukan order_created yang terkirim 2× untuk order_id yang sama.",
+            "Menemukan voucher_failed tanpa properti reason.",
+            "Setiap masalah dihubungkan ke success metric yang terdampak (conversion, ticket voucher, error checkout)."
+          ],
+          "rubric": [
+            {
+              "id": "found",
+              "label": "Menemukan ≥ 4 masalah event yang valid",
+              "weight": 2
+            },
+            {
+              "id": "double",
+              "label": "Menemukan order_created dobel",
+              "weight": 2
+            },
+            {
+              "id": "reason",
+              "label": "Menemukan voucher_failed tanpa reason",
+              "weight": 1
+            },
+            {
+              "id": "impact",
+              "label": "Dampak ke success metric dijelaskan",
+              "weight": 2
+            }
+          ],
+          "answerKey": {
+            "intro": "Ada 5 masalah di log sesi uji. Semuanya membuat laporan setelah 11.11 tidak bisa dipercaya.",
+            "items": [
+              {
+                "tag": "High",
+                "title": "AN-01 order_created terkirim 2× (baris 5 dan 6)",
+                "detail": "order_id sama, selisih 1 detik. Tracking plan: 1× per pesanan. Jumlah pesanan dan conversion checkout → bayar akan terhitung lebih tinggi dari kenyataan, sehingga target ≥ 78% bisa terlihat tercapai padahal tidak."
+              },
+              {
+                "tag": "High",
+                "title": "AN-02 voucher_failed tanpa reason (baris 2)",
+                "detail": "Properti wajib reason hilang. Tim tidak bisa membedakan kode salah, belum memenuhi syarat, atau kuota habis. Padahal \"voucher gagal tanpa alasan\" adalah masalah utama 10.10 dan target ticket CS ≤ 600."
+              },
+              {
+                "tag": "Medium",
+                "title": "AN-03 discount_amount berupa teks \"50.000\" (baris 3)",
+                "detail": "Tracking plan: number. Teks dengan titik ribuan bisa terbaca 50 atau gagal dijumlahkan, jadi total nilai diskon 11.11 salah."
+              },
+              {
+                "tag": "Medium",
+                "title": "AN-04 voucher_sheet_opened tidak terkirim",
+                "detail": "Langkah sesi membuka daftar voucher, tetapi tidak ada event di antara baris 1 dan 2. Funnel voucher (buka daftar → berhasil pakai) tidak bisa dihitung."
+              },
+              {
+                "tag": "Medium",
+                "title": "AN-05 checkout_viewed terkirim di halaman sukses (baris 7)",
+                "detail": "Terkirim setelah pesanan dibuat, dengan user_id null dan cart_value 0. Jumlah kunjungan checkout bertambah palsu sehingga conversion turun, dan event tanpa user_id tidak bisa digabung ke data user."
+              }
+            ]
+          }
+        },
+        {
+          "id": "rr-signoff",
+          "title": "Tulis rekomendasi Go / No-Go 11.11",
+          "instructions": "Tulis rekomendasi untuk Bima dan Reza yang akan dibawa ke Go / No-Go meeting. Gabungkan status fungsional, hasil load test, dan analytics. Sertakan:\n\n1. **Rekomendasi** Go / No-Go dan alasannya.\n2. **Syarat Go** yang terukur: bug apa yang harus fixed, test apa yang harus diulang, target lulusnya.\n3. **Monitoring hari H**: metrik, ambang alert, dan siapa yang jaga.\n4. **Rollback**: kapan fitur dimatikan, caranya, dan siapa yang memutuskan.",
+          "input": {
+            "type": "textarea",
+            "minLength": 300,
+            "placeholder": "Rekomendasi rilis Checkout v2 (rc3) untuk 11.11\n\nStatus: …\nRisiko kalau rilis 7 November: …\n\nRekomendasi: GO / NO-GO karena …\nSyarat Go: …\nMonitoring 11.11: …\nRollback: …"
+          },
+          "expectedOutput": [
+            "Rekomendasi tegas yang berbasis risiko dari bahan: VP-08, hasil load test, dan analytics.",
+            "Syarat Go terukur: angka target, test yang harus diulang, dan bug yang harus fixed.",
+            "Monitoring hari H berisi metrik, ambang alert, dan penanggung jawab.",
+            "Rollback memakai feature flag checkout_v2 dengan kriteria pemicu yang jelas dan sudah diuji.",
+            "Bahasa bisa dipahami PM, bukan hanya engineer."
+          ],
+          "rubric": [
+            {
+              "id": "decision",
+              "label": "Rekomendasi tegas dan berbasis risiko",
+              "weight": 2
+            },
+            {
+              "id": "conditions",
+              "label": "Syarat Go terukur (bug, test ulang, angka target)",
+              "weight": 2
+            },
+            {
+              "id": "monitoring",
+              "label": "Monitoring: metrik, ambang alert, penanggung jawab",
+              "weight": 2
+            },
+            {
+              "id": "rollback",
+              "label": "Rollback: pemicu, cara, dan pengambil keputusan",
+              "weight": 2
+            },
+            {
+              "id": "audience",
+              "label": "Ringkas dan bisa dipahami PM",
+              "weight": 1
+            }
+          ],
+          "answerKey": {
+            "intro": "Contoh rekomendasi yang baik. Keputusanmu boleh berbeda, selama alasannya berbasis risiko dan syaratnya terukur.",
+            "items": [
+              {
+                "tag": "Rekomendasi",
+                "title": "NO-GO untuk rc3 apa adanya, GO bersyarat untuk build berikutnya",
+                "detail": "Fungsional hampir siap, tetapi VP-08 masih open, dua endpoint utama gagal target performa di skenario yang justru lebih ringan dari 11.11, dan analytics belum bisa mengukur success metrics. Rilis sekarang berisiko mengulang 10.10: voucher gagal saat puncak."
+              },
+              {
+                "tag": "Syarat Go",
+                "title": "Fungsional",
+                "detail": "VP-08 fixed, retest, lalu regression 42 test case checkout lulus semua."
+              },
+              {
+                "tag": "Syarat Go",
+                "title": "Performa",
+                "detail": "Load test ulang setelah fix VP-08 (locking baru bisa menambah antrean), dengan spike 1× ke 6× dalam ≤ 5 menit, mayoritas user memakai voucher yang sama, dan latency payment gateway yang realistis. Lulus jika p95 < 800 ms dan error ≤ 0,5% di setiap endpoint. Batas autoscaling dinaikkan agar ada ruang di atas 6×."
+              },
+              {
+                "tag": "Syarat Go",
+                "title": "Analytics",
+                "detail": "AN-01 s.d. AN-05 diperbaiki dan dicek ulang di staging. Tanpa ini, conversion dan ticket voucher setelah 11.11 tidak bisa dibuktikan."
+              },
+              {
+                "tag": "Monitoring",
+                "title": "Alert dan jadwal jaga",
+                "detail": "Alert error rate per endpoint > 0,5% selama 5 menit, p95 POST /order > 800 ms, dan lonjakan voucher_failed. Jadwal on-call dan war room malam 10 ke 11 November (misalnya 23:00 s.d. 02:00) dengan QA, backend, dan PM."
+              },
+              {
+                "tag": "Rollback",
+                "title": "Matikan checkout_v2 dengan pemicu yang jelas",
+                "detail": "Matikan flag jika error checkout > 1% selama 5 menit atau p95 POST /order > 1.500 ms. Reza mengeksekusi, Bima memutuskan. Switch flag diuji dulu di staging sebelum 7 November, karena belum pernah dicoba."
+              },
+              {
+                "tag": "Rencana B",
+                "title": "Kalau syarat belum terpenuhi",
+                "detail": "Rilis dengan flag mati atau bertahap ke sebagian kecil user, lalu putuskan ulang dengan data. Lebih baik checkout v1 yang stabil daripada checkout v2 yang gagal di puncak."
               }
             ]
           }

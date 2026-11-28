@@ -25,7 +25,7 @@ function useProjects(ids: string[]) {
 }
 
 const QaSimulatorCard: React.FC<{ share: PublicSimulatorPortfolio; project: SimulatorProject }> = ({ share, project }) => {
-  const { overall, stats } = summarizePortfolio(project, share.data);
+  const { phases, overall, stats } = summarizePortfolio(project, share.data);
   return (
     <a
       href={`/qa-simulator/${project.id}/portfolio/${share.shareId}`}
@@ -49,7 +49,7 @@ const QaSimulatorCard: React.FC<{ share: PublicSimulatorPortfolio; project: Simu
       </div>
 
       <p className="m-0 text-xs text-ld-slate">
-        {project.phases.length} phase selesai: {project.phases.map((p) => p.shortTitle).join(', ')}
+        {phases.length} phase selesai: {phases.map((p) => p.shortTitle).join(', ')}
       </p>
 
       {stats.some((s) => s.count > 0) && (

@@ -13,7 +13,7 @@ import { useSimulatorProgress, type SyncStatus } from '../hooks/useSimulatorProg
 import { useLeaveGuard } from '../hooks/useLeaveGuard';
 import { useCourse } from '../../qa-course/hooks/useCourse';
 import { useCheckpointPopup } from '../../qa-course/hooks/useCheckpointPopup';
-import { phaseScore, phaseState, projectCompletion, type PhaseState } from '../lib/progress';
+import { isPortfolioReady, phaseScore, phaseState, projectCompletion, type PhaseState } from '../lib/progress';
 import AssignmentCard from '../components/AssignmentCard';
 import PhaseStepper from '../components/PhaseStepper';
 import ReferencePanel from '../components/ReferencePanel';
@@ -21,6 +21,7 @@ import LoginPromptModal from '../components/LoginPromptModal';
 import { useSnackbarStore } from '../../../store/useSnackbarStore';
 import { track } from '../../../lib/analytics';
 import PhaseIntroModal from '../components/PhaseIntroModal';
+import { ConfirmationDialog } from '../../admin/components/shared/ConfirmationDialog';
 import { hasSeenPhaseIntro, markPhaseIntroSeen } from '../lib/phaseIntro';
 import TeamAvatar from '../components/TeamAvatar';
 import TrophyIllustration from '../components/TrophyIllustration';
@@ -130,6 +131,8 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
   const state = states[activeIndex];
   const completion = projectCompletion(project, progress);
   const allDone = states.every((s) => s === 'completed');
+  // Started before later phases were added: portfolio is ready without them.
+  const portfolioReady = !allDone && isPortfolioReady(project, progress);
   const nextIndex = activeIndex + 1 < project.phases.length ? activeIndex + 1 : null;
   const missionLesson = lessons.find(
     (l) => l.item.kind === 'mission' && l.item.projectId === project.id && l.item.phaseId === phase.id
@@ -236,6 +239,7 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
         shareTitle={`Simulasi QA: ${project.title}`}
         image={ogImageUrl('qa-simulator')}
       />
+      <ConfirmationDialog />
 
       <AnimatePresence>
         {promptIndex !== null && (
@@ -490,13 +494,25 @@ const ProjectWorkspace: React.FC<{ project: SimulatorProject }> = ({ project }) 
                   <ArrowRight size={14} className="shrink-0" />
                 </button>
               ) : nextIndex !== null ? (
-                <button
-                  type="button"
-                  onClick={() => selectPhase(nextIndex)}
-                  className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium border-none cursor-pointer transition-colors shrink-0"
-                >
-                  <span className="hidden sm:inline">Lanjut:</span> {project.phases[nextIndex].shortTitle} <ArrowRight size={14} />
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  {portfolioReady && (
+                    <Link
+                      to={`/qa-simulator/${project.id}/portfolio`}
+                      target="_blank"
+                      rel="noopener"
+                      className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg border border-emerald-600 bg-white hover:bg-emerald-100 text-emerald-700 text-sm font-medium no-underline transition-colors"
+                    >
+                      <FileUser size={15} /> Portfolio
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => selectPhase(nextIndex)}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium border-none cursor-pointer transition-colors shrink-0"
+                  >
+                    <span className="hidden sm:inline">Lanjut:</span> {project.phases[nextIndex].shortTitle} <ArrowRight size={14} />
+                  </button>
+                </div>
               ) : (
                 <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto shrink-0">
                   {allDone && (

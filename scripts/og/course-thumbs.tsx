@@ -195,14 +195,118 @@ const RegressionVisual = () => {
   );
 };
 
+/** Design Review: design spec vs build values. */
+const DesignReviewVisual = () => {
+  const rows: [string, string, string, boolean][] = [['Tinggi tombol', '48', '44', false], ['Radius', '12', '12', true], ['Kontras teks', '5.0:1', '2.1:1', false], ['Label harga', '/ malam', '(kosong)', false]];
+  return (
+    <div style={{ position: 'relative', width: 500, height: 470 }}>
+      <div style={card({ position: 'absolute', left: 0, top: 0, width: 430, padding: 24 })}>
+        <div style={row({ justifyContent: 'space-between', marginBottom: 12 })}>
+          <span style={{ fontSize: 21, fontWeight: 600, color: T.onyx }}>Desain vs build</span>
+          <Pill bg={T.amberBg} fg={T.amberText} style={{ fontSize: 13 }}>Design QA</Pill>
+        </div>
+        <div style={row({ fontSize: 13, fontWeight: 600, color: T.steel, letterSpacing: 1.2, textTransform: 'uppercase', padding: '6px 0' })}>
+          <span style={{ flex: 1 }}>Elemen</span><span style={{ width: 90 }}>Desain</span><span style={{ width: 90 }}>Build</span>
+        </div>
+        {rows.map(([el, d, b, ok]) => (
+          <div key={el} style={row({ padding: '11px 0', borderTop: `1px solid ${T.frost}`, fontSize: 16 })}>
+            <span style={{ flex: 1, color: T.graphite }}>{el}</span>
+            <span style={{ width: 90, fontFamily: MONO, fontSize: 14, color: T.slate }}>{d}</span>
+            <span style={{ width: 90, fontFamily: MONO, fontSize: 14, color: ok ? T.greenText : T.redText }}>{b}</span>
+          </div>
+        ))}
+      </div>
+      <div style={card({ position: 'absolute', right: 0, bottom: 0, width: 280, padding: '16px 18px' })}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: T.steel, letterSpacing: 1.4, textTransform: 'uppercase', marginBottom: 6 }}>State</div>
+        {[['Default', true], ['Loading', false], ['Error', false]].map(([t, ok]) => (
+          <div key={t as string} style={row({ gap: 10, marginTop: 9 })}>
+            {ok ? <Check size={22} /> : <span style={{ width: 22, height: 22, borderRadius: 22, border: `2px dashed ${T.ash}`, flexShrink: 0 }} />}
+            <span style={{ fontSize: 16, color: T.graphite }}>{t as string}</span>
+            {!ok && <span style={{ fontSize: 14, color: T.amberText, marginLeft: 'auto' }}>belum didesain</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/** Voucher Testing: decision table + recomputed total. */
+const VoucherVisual = () => {
+  const rules: [string, string, string, 'ok' | 'no'][] = [['R1', 'Ya', 'Daftar', 'ok'], ['R2', 'Ya', 'Kode', 'ok'], ['R3', 'Tidak', 'Daftar', 'no'], ['R4', 'Tidak', 'Kode', 'no']];
+  return (
+    <div style={{ position: 'relative', width: 500, height: 470 }}>
+      <div style={card({ position: 'absolute', left: 0, top: 0, width: 420, padding: 24 })}>
+        <div style={row({ justifyContent: 'space-between', marginBottom: 10 })}>
+          <span style={{ fontSize: 21, fontWeight: 600, color: T.onyx }}>Decision table</span>
+          <span style={{ fontFamily: MONO, fontSize: 14, color: T.steel }}>promo</span>
+        </div>
+        <div style={row({ fontSize: 13, fontWeight: 600, color: T.steel, letterSpacing: 1.2, textTransform: 'uppercase', padding: '6px 0' })}>
+          <span style={{ width: 54 }}>Rule</span><span style={{ width: 90 }}>Syarat</span><span style={{ flex: 1 }}>Jalan masuk</span><span>Hasil</span>
+        </div>
+        {rules.map(([r, s, j, h]) => (
+          <div key={r} style={row({ padding: '10px 0', borderTop: `1px solid ${T.frost}`, fontSize: 16, color: T.graphite })}>
+            <span style={{ width: 54, fontFamily: MONO, fontSize: 14, color: T.slate }}>{r}</span>
+            <span style={{ width: 90 }}>{s}</span>
+            <span style={{ flex: 1 }}>{j}</span>
+            {h === 'ok' ? <Check size={22} /> : <Cross size={22} />}
+          </div>
+        ))}
+      </div>
+      <div style={card({ position: 'absolute', right: 0, bottom: 0, width: 290, padding: '16px 18px', fontFamily: MONO })}>
+        {[['Kamar', '1.200.000'], ['Pajak', '180.000'], ['Promo', '−200.000']].map(([k, v]) => (
+          <div key={k} style={row({ justifyContent: 'space-between', fontSize: 15, color: T.slate, marginTop: 6 })}><span>{k}</span><span>{v}</span></div>
+        ))}
+        <div style={row({ justifyContent: 'space-between', fontSize: 17, fontWeight: 600, color: T.onyx, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${T.frost}` })}>
+          <span>Total</span><span>1.180.000</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/** Release Readiness: p95 per endpoint vs target + decision. */
+const ReleaseVisual = () => {
+  const bars: [string, number, boolean][] = [['GET /hotels', 45, true], ['POST /promo', 130, false], ['POST /booking', 190, false]];
+  return (
+    <div style={{ position: 'relative', width: 500, height: 470 }}>
+      <div style={card({ position: 'absolute', left: 0, top: 0, width: 420, padding: 24 })}>
+        <div style={row({ justifyContent: 'space-between', marginBottom: 14 })}>
+          <span style={{ fontSize: 21, fontWeight: 600, color: T.onyx }}>Load test · p95</span>
+          <span style={{ fontFamily: MONO, fontSize: 14, color: T.steel }}>target 1 s</span>
+        </div>
+        {bars.map(([ep, w, ok]) => (
+          <div key={ep} style={{ marginBottom: 14 }}>
+            <div style={{ fontFamily: MONO, fontSize: 14, color: T.slate, marginBottom: 6 }}>{ep}</div>
+            <div style={{ position: 'relative', height: 14, borderRadius: 7, background: T.frost }}>
+              <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${Math.min(w / 2, 100)}%`, borderRadius: 7, background: ok ? T.green : T.red }} />
+              <span style={{ position: 'absolute', left: '50%', top: -4, bottom: -4, width: 2, background: T.onyx }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={card({ position: 'absolute', right: 0, bottom: 0, width: 270, padding: '18px 20px' })}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: T.steel, letterSpacing: 1.4, textTransform: 'uppercase' }}>Keputusan</div>
+        <div style={{ fontSize: 26, fontWeight: 600, color: T.onyx, marginTop: 8 }}>Go bersyarat</div>
+        <div style={{ fontSize: 15, color: T.slate, marginTop: 4 }}>Rollback: flag siap</div>
+      </div>
+    </div>
+  );
+};
+
 const VISUALS: Record<number, React.FC> = { 1: RequirementVisual, 2: TestPlanVisual, 3: ApiVisual, 4: RegressionVisual };
+/** Visuals picked by module name win over the module-number default (courses whose modules cover other topics). */
+const VISUALS_BY_NAME: Record<string, React.FC> = {
+  'Design Review': DesignReviewVisual,
+  'Voucher Testing': VoucherVisual,
+  'Release Readiness': ReleaseVisual,
+};
 
 // ── Frame ───────────────────────────────────────────────────────────────────
 
 interface Thumb { file: string; title: string; course: string; module: number; moduleName: string; lesson: number }
 
 const Frame: React.FC<{ t: Thumb }> = ({ t }) => {
-  const Visual = VISUALS[t.module] ?? RequirementVisual;
+  const Visual = VISUALS_BY_NAME[t.moduleName] ?? VISUALS[t.module] ?? RequirementVisual;
   // Shrink for long titles, and for long single words that can't wrap
   // (Indonesian compounds like "Dipertanggungjawabkan") so they stay in the column.
   const longestWord = Math.max(...t.title.split(/\s+/).map((w) => w.length));

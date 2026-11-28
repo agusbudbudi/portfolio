@@ -19,6 +19,37 @@ export function phaseState(project: SimulatorProject, index: number, progress: P
   return 'available';
 }
 
+/**
+ * Phases a learner's portfolio has to cover. A phase with `addedAt` came later
+ * to a published project: a learner who started the project before that date
+ * (earliest submittedAt) and finished every earlier phase does not need it, so
+ * their portfolio stays complete; the phase joins it once they finish it.
+ * Everyone else needs every phase.
+ */
+export function portfolioPhases(project: Pick<SimulatorProject, 'phases'>, progress: ProjectProgress): SimulatorPhase[] {
+  const waived = new Set<string>();
+  for (const phase of project.phases) {
+    if (!phase.addedAt || isPhaseComplete(phase, progress)) continue;
+    const added = Date.parse(phase.addedAt);
+    if (!Number.isFinite(added)) continue;
+    const earlier = project.phases.filter(
+      (p) => p !== phase && !waived.has(p.id) && (!p.addedAt || Date.parse(p.addedAt) < added)
+    );
+    if (earlier.length === 0 || !earlier.every((p) => isPhaseComplete(p, progress))) continue;
+    const submitted = earlier
+      .flatMap((p) => p.assignments)
+      .map((a) => Date.parse(progress.assignments[a.id]?.submittedAt ?? ''))
+      .filter(Number.isFinite);
+    if (submitted.length > 0 && Math.min(...submitted) < added) waived.add(phase.id);
+  }
+  return project.phases.filter((p) => !waived.has(p.id));
+}
+
+/** Portfolio can be shown: every phase it has to cover is complete. */
+export function isPortfolioReady(project: Pick<SimulatorProject, 'phases'>, progress: ProjectProgress): boolean {
+  return portfolioPhases(project, progress).every((p) => isPhaseComplete(p, progress));
+}
+
 export function projectCompletion(project: Pick<SimulatorProject, 'phases'>, progress: ProjectProgress): { done: number; total: number; percent: number } {
   const all = project.phases.flatMap((p) => p.assignments);
   const done = all.filter((a) => progress.assignments[a.id]?.status === 'submitted').length;
