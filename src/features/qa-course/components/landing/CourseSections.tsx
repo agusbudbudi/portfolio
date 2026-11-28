@@ -4,6 +4,7 @@ import { ArrowRight, BookOpen, Check, ChevronLeft, ChevronRight, Clock, FlaskCon
 import FaqAccordion from '../../../../components/common/FaqAccordion';
 import PixelMosaic from '../../../../components/illustration/PixelMosaic';
 import { QaCourseIcon } from '../../../../components/illustration/ProductIcons';
+import { CourseLevelIcon } from '../../../../components/illustration/CourseLevelIcons';
 import type { QaCourseSummary } from '../../../../types/qaCourse';
 import { QA_COURSE_LEVEL_LABEL } from '../../../../types/qaCourse';
 import { COMING_SOON, FAQ_ITEMS } from './content';
@@ -17,7 +18,8 @@ const CourseCard: React.FC<{ course: QaCourseSummary }> = ({ course }) => (
   >
     {course.thumbnailUrl && <img src={course.thumbnailUrl} alt="" className="w-full aspect-video object-cover" loading="lazy" />}
     <div className="flex flex-col flex-1 p-6">
-      <span className="self-start px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-widest bg-ld-lilac text-ld-violet">
+      <span className="self-start inline-flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-widest bg-ld-lilac text-ld-violet">
+        <CourseLevelIcon level={course.level} size={28} tile={false} className="shrink-0 -my-1" />
         {QA_COURSE_LEVEL_LABEL[course.level]}
       </span>
       <h3 className="m-0 mt-4 text-lg font-semibold leading-snug text-ld-graphite group-hover:text-ld-violet transition-colors">{course.title}</h3>
