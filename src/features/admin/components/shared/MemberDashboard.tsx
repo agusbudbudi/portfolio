@@ -20,6 +20,7 @@ import { apiGetPortfolioByOwner } from '../../../../lib/adminApi';
 import LoadingState from '../../../../components/common/LoadingState';
 import MentorForm from '../mentor/MentorForm';
 import PortfolioForm from '../superadmin/PortfolioForm';
+import { clearPortfolioClaim, readPortfolioClaim } from '../../../../lib/portfolioClaim';
 import MemberBookingForm from '../mentee/MemberBookingForm';
 import ProfileMenu from './ProfileMenu';
 import SimulatorDashboardTab from '../../../qa-simulator/components/SimulatorDashboardTab';
@@ -182,6 +183,20 @@ const MemberDashboard: React.FC = () => {
   }, [sidebarOpen]);
   const [formOpen, setFormOpen] = useState(false);
   const [portfolioFormOpen, setPortfolioFormOpen] = useState(false);
+  // URL claimed on the /portfolio landing before login: open the editor with
+  // it prefilled the first time the member lands on Portfolio without one.
+  const [claimedSlug] = useState(readPortfolioClaim);
+
+  // Landing claim: once the portfolio has loaded on the Portfolio section, show
+  // the editor prefilled (no portfolio yet) until it's closed or saved; a member
+  // who already has a portfolio just has the claim dropped.
+  const [claimDismissed, setClaimDismissed] = useState(false);
+  const claimOpen = !!claimedSlug && !claimDismissed && activeNav === 'portfolios'
+    && !portfolioLoading && !portfolioLoadError && !portfolio;
+  const showPortfolioForm = portfolioFormOpen || claimOpen;
+  useEffect(() => {
+    if (claimedSlug && !portfolioLoading && portfolio) clearPortfolioClaim();
+  }, [claimedSlug, portfolioLoading, portfolio]);
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
   const [bookingDetailId, setBookingDetailId] = useState<string | null>(null);
   const [assignedBookingDetailId, setAssignedBookingDetailId] = useState<string | null>(null);
@@ -1233,14 +1248,17 @@ const MemberDashboard: React.FC = () => {
           {activeNav === 'simulator' && <SimulatorDashboardTab />}
 
           {activeNav === 'portfolios' && (
-            portfolioFormOpen ? (
+            showPortfolioForm ? (
               <PortfolioForm
                 variant="member"
-                onClose={() => setPortfolioFormOpen(false)}
+                onClose={() => { setPortfolioFormOpen(false); setClaimDismissed(true); }}
+                initialSlug={portfolio ? null : claimedSlug}
                 onSubmit={async (payload) => {
                   const wasPublished = portfolio?.status === 'published';
                   const result = portfolio ? await updatePortfolio(payload) : await createPortfolio(payload);
                   if (result.ok) {
+                    clearPortfolioClaim();
+                    setClaimDismissed(true);
                     setPortfolioFormOpen(false);
                     if (payload.status === 'published' && !wasPublished) {
                       setPublishedUrl(`${window.location.origin}/portfolio/${payload.slug}`);

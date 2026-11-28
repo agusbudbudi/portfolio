@@ -38,6 +38,7 @@ const PortfolioCertifications = lazy(() => import('./features/personal-portfolio
 const PortfolioBookingPage = lazy(() => import('./features/mentoring/pages/BookingPage'));
 const MentorDetailPage = lazy(() => import('./features/mentoring/pages/MentorDetailPage'));
 const PortfolioLandingPage = lazy(() => import('./features/saas-portfolio/pages/PortfolioLandingPage'));
+const QaPortfolioLandingPage = lazy(() => import('./features/saas-portfolio/pages/QaPortfolioLandingPage'));
 const PublicPortfolioPage = lazy(() => import('./features/saas-portfolio/pages/PublicPortfolioPage'));
 const QaLibraryIndexPage = lazy(() => import('./features/qa-library/pages/QaLibraryIndexPage'));
 const QaLibraryArticleDetailPage = lazy(() => import('./features/qa-library/pages/QaLibraryArticleDetailPage'));
@@ -178,7 +179,7 @@ const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
     <div className="min-h-screen flex flex-col bg-ld-canvas">
       <LightdashNavbar />
       <main className="flex-grow">
-        <Suspense fallback={<LoadingState className="min-h-[60vh] pt-16" />}>
+        <Suspense fallback={<LoadingState className="min-h-screen pt-16" />}>
           {children}
         </Suspense>
       </main>
@@ -454,6 +455,22 @@ function App() {
               <Seo
                 {...pageSeo('/portfolio')}
                 jsonLd={portfolioPlatformJsonLd}
+              />
+              <QaPortfolioLandingPage />
+            </LightdashLayout>
+          }
+        />
+        {/* Previous portfolio landing, kept (unlinked, noindex) until the revamp
+            has proven itself; delete with PortfolioLandingPage + landing/*. */}
+        <Route
+          path="/portfolio-lama"
+          element={
+            <LightdashLayout>
+              <Seo
+                path="/portfolio-lama"
+                title="Portfolio QA (versi lama) | Mentor.QA"
+                description="Versi lama halaman Portfolio QA Mentor.QA."
+                noindex
               />
               <PortfolioLandingPage />
             </LightdashLayout>

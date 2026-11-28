@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, X } from 'lucide-react';
+import { create } from 'zustand';
 import { useAdminAuthStore } from '../../../store/useAdminAuthStore';
 import { track } from '../../../lib/analytics';
 import { readParkedClaim } from '../claimStore';
@@ -12,22 +13,68 @@ function readDismissed(): boolean {
   try { return localStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; }
 }
 
-// Guest invite to the onboarding questionnaire (PRD Onboarding Guest B1-B5):
-// a thin strip hanging under the fixed public header, overlapping the top of
-// the hero. Only for signed-out visitors who haven't dismissed it or already
-// answered (parked claim); hidden once the page scrolls or a header panel
-// (product tray, mobile menu) is open.
-const OnboardingBanner: React.FC<{ suppressed?: boolean }> = ({ suppressed = false }) => {
+// Shared so the banner (inside the fixed header) and its in-flow spacer react
+// to the same dismiss.
+const useDismissStore = create<{ dismissed: boolean; dismiss: () => void }>((set) => ({
+  dismissed: readDismissed(),
+  dismiss: () => {
+    set({ dismissed: true });
+    try { localStorage.setItem(DISMISS_KEY, '1'); } catch { /* shows again next visit */ }
+  },
+}));
+
+/** True when the strip applies to this visitor and page (ignores scroll/panels). */
+function useBannerEligible(): boolean {
   const signedIn = useAdminAuthStore((s) => !!s.token);
-  const { pathname, search } = useLocation();
-  const [dismissed, setDismissed] = useState(readDismissed);
+  const { pathname } = useLocation();
+  const dismissed = useDismissStore((s) => s.dismissed);
   // Read per render, not once: the navbar stays mounted across routes, so a
   // guest coming back from the onboarding result must see it gone.
   const answered = readParkedClaim() !== null;
-  const [atTop, setAtTop] = useState(() => typeof window === 'undefined' || window.scrollY < 8);
+  // /career-path embeds the same questionnaire and the home page has its own
+  // invite card under the hero (HomePersonalizeCard), so no strip on either.
+  const path = pathname.replace(/\/+$/, '') || '/';
+  return !signedIn && !dismissed && !answered && path !== '/career-path' && path !== '/';
+}
 
-  // /career-path embeds the same questionnaire, so no invite away from it.
-  const eligible = !signedIn && !dismissed && !answered && pathname.replace(/\/+$/, '') !== '/career-path';
+/**
+ * In-flow placeholder the height of the strip, rendered right after the fixed
+ * header: while the strip applies, page content starts 36px lower so the strip
+ * never covers the hero; on dismiss it collapses and the page slides back up.
+ * It keeps its height when the strip fades on scroll, so nothing jumps then.
+ * `color` paints it for pages whose hero runs under a transparent header.
+ */
+export const OnboardingBannerSpacer: React.FC<{ color?: string }> = ({ color }) => {
+  const eligible = useBannerEligible();
+  return (
+    <AnimatePresence initial={false}>
+      {eligible && (
+        <motion.div
+          key="onboarding-banner-spacer"
+          aria-hidden="true"
+          initial={{ height: 0 }}
+          animate={{ height: 36 }}
+          exit={{ height: 0 }}
+          transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+          className="shrink-0"
+          style={color ? { backgroundColor: color } : undefined}
+        />
+      )}
+    </AnimatePresence>
+  );
+};
+
+// Guest invite to the onboarding questionnaire (PRD Onboarding Guest B1-B5):
+// a thin strip hanging under the fixed public header. The header renders an
+// OnboardingBannerSpacer in the page flow, so the strip pushes the hero down
+// instead of covering it. Only for signed-out visitors who haven't dismissed it
+// or already answered (parked claim); hidden once the page scrolls or a header
+// panel (product tray, mobile menu) is open.
+const OnboardingBanner: React.FC<{ suppressed?: boolean }> = ({ suppressed = false }) => {
+  const { pathname, search } = useLocation();
+  const eligible = useBannerEligible();
+  const dismiss = useDismissStore((s) => s.dismiss);
+  const [atTop, setAtTop] = useState(() => typeof window === 'undefined' || window.scrollY < 8);
 
   useEffect(() => {
     if (!eligible) return;
@@ -36,11 +83,6 @@ const OnboardingBanner: React.FC<{ suppressed?: boolean }> = ({ suppressed = fal
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [eligible]);
-
-  const dismiss = () => {
-    setDismissed(true);
-    try { localStorage.setItem(DISMISS_KEY, '1'); } catch { /* shows again next visit */ }
-  };
 
   const href = `/onboarding?next=${encodeURIComponent(pathname + search)}`;
 

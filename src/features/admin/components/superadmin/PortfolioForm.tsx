@@ -43,6 +43,8 @@ interface PortfolioFormProps {
   canVerify?: boolean; // admin-only; server also enforces this, see api/portfolios/[slug].ts
   /** 'member' = member-dashboard brand header/buttons; admin keeps its own style. */
   variant?: 'admin' | 'member';
+  /** Create mode only: slug the guest claimed on the /portfolio landing. */
+  initialSlug?: string | null;
 }
 
 const inputClass =
@@ -75,7 +77,7 @@ const emptyData: PortfolioData = {
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
-const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record, tools, skills, canVerify = false, variant = 'admin' }) => {
+const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record, tools, skills, canVerify = false, variant = 'admin', initialSlug = null }) => {
   const isMember = variant === 'member';
   const isEdit = record !== null;
   const [data, setData] = useState<PortfolioData>(
@@ -96,11 +98,13 @@ const PortfolioForm: React.FC<PortfolioFormProps> = ({ onClose, onSubmit, record
       }
       : emptyData
   );
-  const [slug, setSlug] = useState(record?.slug ?? '');
+  const claimedSlug = !record && initialSlug ? initialSlug : null;
+  const [slug, setSlug] = useState(record?.slug ?? claimedSlug ?? '');
   // Status is chosen by which footer button saves (Simpan draft / Simpan & publish).
   const currentStatus: PortfolioStatus = record?.status ?? 'draft';
   const [savingAs, setSavingAs] = useState<PortfolioStatus | null>(null);
-  const [slugTouched, setSlugTouched] = useState(isEdit); // edit mode: don't auto-overwrite an existing slug
+  // Edit mode or a claimed slug: don't auto-overwrite it from the name.
+  const [slugTouched, setSlugTouched] = useState(isEdit || !!claimedSlug);
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle');
   const [error, setError] = useState<string | null>(null);
   const [submitAttempt, setSubmitAttempt] = useState(0);
