@@ -5,10 +5,9 @@ import {
   createQaLibraryArticle, deleteQaLibraryArticle, incrementQaLibraryArticleViewCount, isSlugTaken,
   listQaLibraryArticles, readQaLibraryArticleBySlug, updateQaLibraryArticle,
 } from '../_lib/qaLibraryStore.js';
-import { coursesUsingArticle, publishedCourseRefsByArticle, publishedCoursesForArticle } from '../_lib/qaCourseStore.js';
+import { coursesUsingArticle, publishedCourseRefsByArticle } from '../_lib/qaCourseStore.js';
+import { publicArticleView } from '../_lib/qaLibraryPublic.js';
 import { computeReadingTimeMinutes, validateQaLibraryArticleData } from '../../src/lib/qaLibraryValidation.js';
-import { splitPreview, stripPreviewMarker } from '../../src/lib/articlePreview.js';
-import type { QaLibraryArticle } from '../../src/types/qaLibrary.js';
 import { isValidSlug, slugify } from '../../src/lib/portfolioValidation.js';
 
 // Admin-only list — every status, no auth-visibility split needed since the
@@ -86,36 +85,6 @@ async function handleRoot(req: VercelRequest, res: VercelResponse) {
   return res.status(405).json({ error: 'method_not_allowed' });
 }
 
-/**
- * What a non-admin reader gets. A course-only article that a published course
- * uses is cut to its preview (src/lib/articlePreview.ts) unless the request is
- * a lesson read, `?course=<slug>` of one of those courses: the rest of the
- * article lives in the course. Everything else is sent whole, marker removed.
- */
-async function publicView(article: QaLibraryArticle, courseParam: string | undefined): Promise<QaLibraryArticle> {
-  const whole = { ...article, body: stripPreviewMarker(article.body) };
-  if (article.visibility !== 'course-only') return whole;
-
-  const courses = await publishedCoursesForArticle(article.id);
-  if (courses.length === 0 || courses.some((c) => c.slug === courseParam)) return whole;
-
-  const cut = splitPreview(article.body);
-  if (!cut) return whole;
-  return {
-    ...article,
-    body: cut.preview,
-    docUrl: undefined,
-    docFilename: undefined,
-    docSizeBytes: undefined,
-    preview: {
-      lockedHeadings: cut.lockedHeadings,
-      previewWordRatio: Math.round(cut.ratio * 100) / 100,
-      courses,
-      hasAttachment: Boolean(article.docUrl),
-    },
-  };
-}
-
 // Public reader — drafts are only visible to an admin session, mirroring
 // portfolios.ts handleSlugGet's canSeeDraft pattern. Never varies s-maxage by
 // session (a shared edge cache doesn't check Authorization). `?course=` is part
@@ -139,7 +108,7 @@ async function handleSlugGet(req: VercelRequest, res: VercelResponse, slug: stri
     // Admins (form edit/preview) get the stored body, marker included.
     if (!canSeeDraft) {
       const courseParam = typeof req.query.course === 'string' && req.query.course ? req.query.course : undefined;
-      article = await publicView(article, courseParam);
+      article = await publicArticleView(article, courseParam);
     }
     res.setHeader('Cache-Control', canSeeDraft ? 'no-store' : 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).json(article);

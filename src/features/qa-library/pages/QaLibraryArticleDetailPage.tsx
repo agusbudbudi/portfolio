@@ -170,6 +170,10 @@ const QaLibraryArticleDetailPage: React.FC = () => {
           dateModified: article.updatedAt,
           author: { '@type': 'Person', name: article.authorName },
           mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.mentorqa.com/qa-library/${article.slug}` },
+          // Preview of a course-only article: point to the course that has the rest.
+          isPartOf: article.preview?.courses[0]
+            ? { '@type': 'Course', name: article.preview.courses[0].title, url: `https://www.mentorqa.com/courses/${article.preview.courses[0].slug}` }
+            : undefined,
         }}
       />
 
