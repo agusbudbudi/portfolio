@@ -179,7 +179,7 @@ const LightdashLayout: React.FC<LayoutProps> = ({ children }) => {
     <div className="min-h-screen flex flex-col bg-ld-canvas">
       <LightdashNavbar />
       <main className="flex-grow">
-        <Suspense fallback={<LoadingState className="min-h-[60vh] pt-16" />}>
+        <Suspense fallback={<LoadingState className="min-h-screen pt-16" />}>
           {children}
         </Suspense>
       </main>

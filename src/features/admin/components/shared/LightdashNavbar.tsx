@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, ChevronDown, LayoutDashboard, Menu, X } from 'lucide-react';
 import { useAdminAuthStore } from '../../../../store/useAdminAuthStore';
 import { ProductsMobileList, ProductsTrayPanel } from './ProductsTray';
-import OnboardingBanner from '../../../onboarding/components/OnboardingBanner';
+import OnboardingBanner, { OnboardingBannerSpacer } from '../../../onboarding/components/OnboardingBanner';
 
 const navLinks = [
   { label: 'Mentoring', to: '/mentoring' },
@@ -230,6 +230,9 @@ const LightdashNavbar: React.FC = () => {
           )}
         </AnimatePresence>
       </header>
+      {/* Pushes the page down while the onboarding strip shows (blue on /mentoring,
+          whose hero runs under the transparent header). */}
+      <OnboardingBannerSpacer color={hasBlueHero ? '#3b9eff' : undefined} />
       <AnimatePresence>
         {trayOpen && (
           <motion.div
