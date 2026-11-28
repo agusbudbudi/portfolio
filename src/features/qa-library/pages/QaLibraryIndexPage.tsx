@@ -9,6 +9,7 @@ import LoadingState from '../../../components/common/LoadingState';
 import { usePagination } from '../../../hooks/usePagination';
 import Pagination from '../../admin/components/shared/Pagination';
 import QaLibraryHeroArt from '../components/QaLibraryHeroArt';
+import PixelMosaic from '../../../components/illustration/PixelMosaic';
 import CoursePromoStrip from '../../qa-course/components/CoursePromoStrip';
 import { searchArticles } from '../lib/searchArticles';
 
@@ -51,6 +52,9 @@ const QaLibraryIndexPage: React.FC = () => {
           full-bleed brand gradient */}
       <div className="relative overflow-hidden bg-gradient-to-br from-ld-lilac via-ld-cloud to-white mb-8">
       <div aria-hidden="true" className="pointer-events-none absolute -top-32 -left-24 w-[420px] h-[420px] rounded-full bg-white/70 blur-3xl" />
+      {/* Phones: the art is hidden, so the pixel mosaic sits in the corner on
+          its own, like the /courses hero. md+ gets it behind the art. */}
+      <PixelMosaic variant="blue" className="md:hidden absolute top-[72px] right-3 w-[28%] max-w-[160px] opacity-40" />
       <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 pt-24 md:pt-28 pb-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div>
           {/* Same hero pattern as /courses and /qa-simulator: product eyebrow,
